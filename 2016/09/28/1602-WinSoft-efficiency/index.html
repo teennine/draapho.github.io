@@ -1,0 +1,962 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="windows,AutoHotKey," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="AutoHotKeyAHK 简介
+AutoHotkey是一个windows下的开源, 免费, 自动化软件工具. 
+我主要用于绑定快捷键, 便于快速打开应用和文件夹. 以此提高工作效率
+常用符号含义
+# 代表 Win 键! 代表 Alt 键^ 代表 Ctrl 键+ 代表 shift 键:: 起分隔作用run 非常常用 的 AHK 命令之一;  注释后面一行内容
+
+
+举个例子用 Ctrl - Alt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 软件系列-提高效率">
+<meta property="og:url" content="https://draapho.github.io/2016/09/28/1602-WinSoft-efficiency/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="AutoHotKeyAHK 简介
+AutoHotkey是一个windows下的开源, 免费, 自动化软件工具. 
+我主要用于绑定快捷键, 便于快速打开应用和文件夹. 以此提高工作效率
+常用符号含义
+# 代表 Win 键! 代表 Alt 键^ 代表 Ctrl 键+ 代表 shift 键:: 起分隔作用run 非常常用 的 AHK 命令之一;  注释后面一行内容
+
+
+举个例子用 Ctrl - Alt">
+<meta property="og:updated_time" content="2016-10-23T13:46:39.624Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Windows 软件系列-提高效率">
+<meta name="twitter:description" content="AutoHotKeyAHK 简介
+AutoHotkey是一个windows下的开源, 免费, 自动化软件工具. 
+我主要用于绑定快捷键, 便于快速打开应用和文件夹. 以此提高工作效率
+常用符号含义
+# 代表 Win 键! 代表 Alt 键^ 代表 Ctrl 键+ 代表 shift 键:: 起分隔作用run 非常常用 的 AHK 命令之一;  注释后面一行内容
+
+
+举个例子用 Ctrl - Alt">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2016/09/28/1602-WinSoft-efficiency/"/>
+
+
+  <title> Windows 软件系列-提高效率 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Windows 软件系列-提高效率
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-28T00:00:00+10:00" content="2016-09-28">
+              2016-09-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/environment/" itemprop="url" rel="index">
+                    <span itemprop="name">environment</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="AutoHotKey"><a href="#AutoHotKey" class="headerlink" title="AutoHotKey"></a><a href="https://autohotkey.com/" target="_blank" rel="external">AutoHotKey</a></h1><h2 id="AHK-简介"><a href="#AHK-简介" class="headerlink" title="AHK 简介"></a>AHK 简介</h2><ul>
+<li><a href="https://autohotkey.com/" target="_blank" rel="external">AutoHotkey</a>是一个windows下的开源, 免费, 自动化软件工具. </li>
+<li>我主要用于绑定快捷键, 便于快速打开应用和文件夹. 以此提高<strong>工作效率</strong></li>
+<li>常用符号含义<blockquote>
+<p><code>#</code> 代表 Win 键<br><code>!</code> 代表 Alt 键<br><code>^</code> 代表 Ctrl 键<br><code>+</code> 代表 shift 键<br><code>::</code> 起分隔作用<br><code>run</code> 非常常用 的 AHK 命令之一<br><code>;</code>  注释后面一行内容</p>
+</blockquote>
+</li>
+<li>举个例子<br>用 <code>Ctrl - Alt - Shift - Win - n</code> 打开记事本的脚本<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">^!+#n::run C:\Windows\notepad.exe</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="AHK懒人用法-ezAHK"><a href="#AHK懒人用法-ezAHK" class="headerlink" title="AHK懒人用法: ezAHK"></a>AHK懒人用法: <a href="https://github.com/draapho/ezAHK" target="_blank" rel="external">ezAHK</a></h2><ul>
+<li>安装 <a href="https://autohotkey.com/download/" target="_blank" rel="external">AutoHotKey</a> V1.1.* 版本</li>
+<li>下载 <a href="https://github.com/draapho/ezAHK" target="_blank" rel="external">ezAHK</a> 放到任意位置</li>
+<li>把文件或目录的<strong>快捷方式放到link目录</strong>里, 改成希望使用的<strong>快捷键名称</strong>即可.<br>譬如, 希望把notepad绑定到 <code>win-n</code>这个快捷键, 只需要:<ol>
+<li>创建<strong>notepad.exe的快捷方式</strong>到<strong>link目录</strong></li>
+<li>重命名该快捷方式为 <code>win-n</code></li>
+<li>注意 <code>-</code> 的左右<strong>没有空格</strong>, <strong>删除后缀</strong> <code>.exe</code></li>
+<li>可以考虑使用 <code>win-r</code> 的方式替代, 毕竟快捷键数量有限, 命令行更灵活.</li>
+</ol>
+</li>
+<li>ezAHK 还包括如下几个实用功能<ul>
+<li><code>鼠标中键</code> 复制</li>
+<li><code>shift-鼠标中键</code> 剪切</li>
+<li><code>ctrl-shift-鼠标中键</code> 复制路径</li>
+<li><code>鼠标右键</code> 使用鼠标中键复制后, 首次黏贴</li>
+<li><code>ctrl-鼠标右键</code> 黏贴</li>
+<li><code>ctrl-~</code> 根据所在目录打开终端</li>
+<li><code>alt-win-鼠标中键</code> 复制颜色</li>
+<li><code>alt-win-↑ ↓ ← →</code> 单像素移动鼠标</li>
+<li><code>alt-win-d</code> 输入当前日期</li>
+</ul>
+</li>
+<li>添加到开机自启动: 创建<code>ezAHK.ahk</code>的快捷方式, 并放到如下 Windows 的 <strong>StartUp目录</strong>.<br>Windows 10 的 StartUp 目录如下:<br><code>C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp</code></li>
+</ul>
+<h2 id="资源和参考"><a href="#资源和参考" class="headerlink" title="资源和参考"></a>资源和参考</h2><ul>
+<li><a href="https://autohotkey.com/boards/viewtopic.php?t=4296" target="_blank" rel="external">实用 AutoHotkey 脚本推荐</a></li>
+<li><a href="https://autohotkey.com/boards/viewtopic.php?t=4267" target="_blank" rel="external">AHK 快餐店系列索引</a></li>
+<li><a href="https://autohotkey.com/docs/scripts/#AutoHotkey_Script_Showcase" target="_blank" rel="external">AutoHotkey_Script_Showcase</a></li>
+<li><a href="https://autohotkey.com/board/topic/60985-get-paths-of-selected-items-in-an-explorer-window/" target="_blank" rel="external">Get paths of selected items in an explorer window</a></li>
+<li>AutoHotKey<a href="https://autohotkey.com/" target="_blank" rel="external">官网</a> 及 <a href="http://ahkcn.sourceforge.net/docs/AutoHotkey.htm" target="_blank" rel="external">中文帮助</a></li>
+<li><a href="http://www.jeffjade.com/2016/03/11/2016-03-11-autohotkey/" target="_blank" rel="external">Win下最爱效率神器:AutoHotKey</a></li>
+</ul>
+<h1 id="快速搜索和定位"><a href="#快速搜索和定位" class="headerlink" title="快速搜索和定位"></a>快速搜索和定位</h1><h2 id="Everything"><a href="#Everything" class="headerlink" title="Everything"></a><a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a></h2><ul>
+<li><a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a>是免费软件, 有<strong>便携版</strong>.</li>
+<li><a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a>是<strong>普通搜索工具</strong>, 便于在搜索结果中慢慢查阅.</li>
+</ul>
+<h2 id="Listary"><a href="#Listary" class="headerlink" title="Listary"></a><a href="http://www.listary.com/" target="_blank" rel="external">Listary</a></h2><ul>
+<li><a href="http://www.listary.com/" target="_blank" rel="external">Listary</a>分为免费版和专业版.</li>
+<li>相比于 <a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a>, 索引方式相似,但操作体验完全不同.</li>
+<li><a href="http://www.listary.com/" target="_blank" rel="external">Listary</a>是<strong>随时随地的查找定位</strong>, 目标明确时很方便. </li>
+<li>强烈推荐都尝试一下后决定用哪个, 或和我一样同时使用.</li>
+<li>Listary 实用快捷键</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Listary</th>
+<th>助记</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>win-~</code></td>
+<td></td>
+<td>打开Listary</td>
+</tr>
+<tr>
+<td><code>enter</code></td>
+<td>enter</td>
+<td>打开文件</td>
+</tr>
+<tr>
+<td><code>ctrl-enter</code></td>
+<td>enter</td>
+<td>打开路径</td>
+</tr>
+<tr>
+<td><code>ctrl-c</code></td>
+<td>copy</td>
+<td>复制</td>
+</tr>
+<tr>
+<td><code>ctrl-shift-c</code></td>
+<td>copy</td>
+<td>复制路径</td>
+</tr>
+<tr>
+<td><code>ctrl+j</code> <code>ctrl+k</code></td>
+<td>vim j,k</td>
+<td>下一个 / 上一个(需设置)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="使用-win-r-快速启动"><a href="#使用-win-r-快速启动" class="headerlink" title="使用 win-r 快速启动"></a>使用 <code>win-r</code> 快速启动</h2><ul>
+<li>基本原理是使用 <code>Run</code> 来直接运行配置在环境变量中的快捷方式 <code>.lnk</code>, </li>
+<li>由于是执行命令行, 比快捷键方式有更好的扩展性和灵活性更好. 也可以在任何终端中直接调用!</li>
+<li>运行环境的搭建可以参考 <a href="https://draapho.github.io/2016/10/09/1608-WinSoft-path/">Windows 软件系列-自定义环境变量</a></li>
+<li>详细介绍可参考 <a href="https://xbeta.info/win-run.htm#h-6" target="_blank" rel="external">最绿色最高效，用win+r启动常用程序和文档</a></li>
+<li>为了更省事, 可以使用AHK设置为<code>win</code>键替代<code>win-r</code>键</li>
+<li>要把win键也省了的话, 专业版 <a href="http://www.listary.com/" target="_blank" rel="external">Listary</a> 可以满足这个需求</li>
+</ul>
+<h1 id="Ditto"><a href="#Ditto" class="headerlink" title="Ditto"></a><a href="http://ditto-cp.sourceforge.net/" target="_blank" rel="external">Ditto</a></h1><ul>
+<li><a href="http://ditto-cp.sourceforge.net/" target="_blank" rel="external">Ditto</a> 一款剪切板增强软件, 免费开源. 有绿色便携版(无法支持部分功能)</li>
+<li>对复制黏贴功能多多支持总是好的, 使用频率太高了! 这个软件的功能非常实用.<ul>
+<li>软件的核心在于 <code>ctrl-~</code> 调用出 Ditto 信息板</li>
+<li><code>shift-enter</code> 忽略格式黏贴纯文本</li>
+<li><code>新建剪辑</code>-&gt;<code>项目标题</code> <code>email</code>-&gt;<code>快速黏贴文本</code> <code>myemail@gmail.com</code>-&gt;设置为<code>禁止自动删除</code>, 也可以归类到组. 以后只需输入email, 就可以直接黏贴具体email地址了</li>
+<li>轻松管理复制历史, 可用作搜索资料, 然后批量黏贴</li>
+</ul>
+</li>
+<li>重新设置 <code>激活Ditto</code> 快捷键为 <code>ctrl-q</code>, 因为 <code>ctrl-~</code>默认用于打开终端</li>
+<li>参考 <a href="https://xbeta.info/ditto.htm" target="_blank" rel="external">Ditto:首选的剪贴板增强软件</a></li>
+</ul>
+<h1 id="Chocolatey"><a href="#Chocolatey" class="headerlink" title="Chocolatey"></a><del><a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a></del></h1><p><strong><a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a>可以作为软件安装的补充, 但不做推荐</strong> </p>
+<h2 id="Chocolatey-简介"><a href="#Chocolatey-简介" class="headerlink" title="Chocolatey 简介"></a>Chocolatey 简介</h2><ul>
+<li><a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a>是windows下的软件管理工具. 软件源由社区成员提交和维护. 基础版免费.</li>
+<li>基于命令行来查找和安装软件,方便快捷,<del>耍酷</del>.</li>
+<li>安装包的类型:<ul>
+<li>无后缀, 如 git</li>
+<li><em>.install, 如 git.install, 这个会出现在系统的 <em>*卸载或更改程序</em></em> 界面里</li>
+<li>*.commandline, 如 git.commandline. 不建议使用</li>
+<li>*.portable, 如 putty.portable, zip包, 我的理解就是绿色便携软件</li>
+</ul>
+</li>
+<li>软件都是自动静默安装, 无法指定安装位置, 无法再安装时配置.</li>
+<li>由于运行在管理员权限且不能保证软件绝对无毒, 所以有安全风险. <a href="https://chocolatey.org/about" target="_blank" rel="external">Chocolatey官网</a>有如下语句:<blockquote>
+<p>If you need better peace of mind, we offer <a href="https://chocolatey.org/docs/features-virus-check" target="_blank" rel="external">runtime malware protection</a> in <a href="https://chocolatey.org/pricing" target="_blank" rel="external">Chocolatey Pro</a> and <a href="https://chocolatey.org/pricing" target="_blank" rel="external">Chocolatey for Business</a></p>
+</blockquote>
+</li>
+<li>搜索和下载指定版本的软件也没有想象中方便.</li>
+<li>综合考虑后, <a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a>可以作为软件安装的补充(如制作安装脚本), 但不做推荐</li>
+</ul>
+<h2 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h2><ul>
+<li><p>windows <a href="https://chocolatey.org/install" target="_blank" rel="external">安装 Chocolatey</a>. 使用管理员权限打开 cmd.exe, 输入:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">@powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;iex ((New-Object System.Net.WebClient).DownloadString(&apos;https://chocolatey.org/install.ps1&apos;))&quot; &amp;&amp; SET &quot;PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin&quot;</div></pre></td></tr></table></figure>
+</li>
+<li><p>几个常用指令</p>
+<ul>
+<li><code>choco -?</code> 帮助指令, 获取choco指令的详细说明</li>
+<li><code>choco search</code> 搜索. 用 <code>-all</code> 可显示所有版本. 也可以查看<a href="https://chocolatey.org/packages/" target="_blank" rel="external">网页版</a></li>
+<li><code>choco install</code> 安装. 用 ‘-version’ 可指定版本</li>
+<li><code>choco upgrade</code> 升级</li>
+<li><code>choco uninstall</code> 删除</li>
+<li><code>choco list -localonly</code> 查看本地已安装的软件</li>
+</ul>
+</li>
+<li>以nodejs为例<ul>
+<li><code>choco search nodejs</code> 加 <code>-all</code> 会显示所有版本!!! </li>
+<li>建议网页端搜索 <a href="https://chocolatey.org/packages/" target="_blank" rel="external"><strong>软件源列表</strong></a></li>
+<li><code>choco install nodejs -version 5.0.0</code>  安装nodejs 5.0.0这个版本, 默认使用安装 <strong>.install</strong></li>
+<li><code>choco upgrade nodejs</code>  升级nodejs到最新版本</li>
+<li><code>choco uninstall nodejs</code>  删除nodejs</li>
+<li><code>choco list -localonly</code> 确认是否已删除</li>
+</ul>
+</li>
+</ul>
+<h2 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h2><ul>
+<li>Chocolatey 官方说明的 <a href="https://chocolatey.org/install" target="_blank" rel="external">安装方式</a></li>
+<li><a href="https://chocolatey.org/packages/" target="_blank" rel="external">Chocolatey 软件源列表</a></li>
+<li><a href="http://ninghao.net/blog/2071" target="_blank" rel="external">更好的安装软件的方法</a></li>
+<li><a href="http://www.jianshu.com/p/831aa4a280e7" target="_blank" rel="external">Windows下的包管理器Chocolatey</a></li>
+<li><a href="https://medium.com/@keivan/why-chocolatey-is-broken-beyond-any-hope-d1a4e33b3d23#.jzmj9o5cd" target="_blank" rel="external">Why Chocolatey is broken beyond any hope</a></li>
+</ul>
+<h1 id="Zeal"><a href="#Zeal" class="headerlink" title="Zeal"></a><a href="https://zealdocs.org/" target="_blank" rel="external">Zeal</a></h1><ul>
+<li><a href="https://zealdocs.org/" target="_blank" rel="external">Zeal</a>是一款在windows和Linux上, 功能类似于Mac上Dash的一款离线文档查看软件.</li>
+<li>免费软件, 有绿色便携版, 支持的手册种类和Dash是一样的. 应该是为了跨平台, 基于Qt5开发, 反应有点慢.</li>
+<li>下载安装完成后, <code>Tool</code>-&gt;<code>Docksets...</code>-&gt;窗口<code>Docsets</code>下-&gt;<code>Available</code>-&gt;选择语言-&gt;<code>Download</code>即可.</li>
+<li><strong>软件开发人员必备</strong>. 还可以在atom直接调用查看API, 省去大量的文档搜索时间.</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows/" rel="tag">#windows</a>
+          
+            <a href="/tags/AutoHotKey/" rel="tag">#AutoHotKey</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/24/1601-InitBlog/" rel="next" title="Windows下使用github和hexo建独立博客">
+                <i class="fa fa-chevron-left"></i> Windows下使用github和hexo建独立博客
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/30/1603-WinSoft-editor/" rel="prev" title="Windows 软件系列-文本编辑">
+                Windows 软件系列-文本编辑 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://draapho.github.io/about/portrait.html" target="_blank" title="Portrait">
+                  
+                    <i class="fa fa-fw fa-user"></i>
+                  
+                  Portrait
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AutoHotKey"><span class="nav-number">1.</span> <span class="nav-text">AutoHotKey</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AHK-简介"><span class="nav-number">1.1.</span> <span class="nav-text">AHK 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AHK懒人用法-ezAHK"><span class="nav-number">1.2.</span> <span class="nav-text">AHK懒人用法: ezAHK</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资源和参考"><span class="nav-number">1.3.</span> <span class="nav-text">资源和参考</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#快速搜索和定位"><span class="nav-number">2.</span> <span class="nav-text">快速搜索和定位</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Everything"><span class="nav-number">2.1.</span> <span class="nav-text">Everything</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Listary"><span class="nav-number">2.2.</span> <span class="nav-text">Listary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-win-r-快速启动"><span class="nav-number">2.3.</span> <span class="nav-text">使用 win-r 快速启动</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ditto"><span class="nav-number">3.</span> <span class="nav-text">Ditto</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Chocolatey"><span class="nav-number">4.</span> <span class="nav-text">Chocolatey</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Chocolatey-简介"><span class="nav-number">4.1.</span> <span class="nav-text">Chocolatey 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用指令"><span class="nav-number">4.2.</span> <span class="nav-text">常用指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料和参考"><span class="nav-number">4.3.</span> <span class="nav-text">资料和参考</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Zeal"><span class="nav-number">5.</span> <span class="nav-text">Zeal</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

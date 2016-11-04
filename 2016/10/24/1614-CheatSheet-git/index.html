@@ -1,0 +1,848 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="git," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="git示意图  
+资料和参考
+Visual Git Cheat Sheet
+Pro Git book
+廖雪峰的 Git教程
+设置SSH, 参考 GitHub Help - SSH
+设置GPG, 参考 GitHub Help - GPG
+
+一些理解
+git的核心理解为指针即可, 包括 workspace, index, commitHash
+repository是基于commitHash管理版本的.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git 常用命令">
+<meta property="og:url" content="https://draapho.github.io/2016/10/24/1614-CheatSheet-git/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="git示意图  
+资料和参考
+Visual Git Cheat Sheet
+Pro Git book
+廖雪峰的 Git教程
+设置SSH, 参考 GitHub Help - SSH
+设置GPG, 参考 GitHub Help - GPG
+
+一些理解
+git的核心理解为指针即可, 包括 workspace, index, commitHash
+repository是基于commitHash管理版本的.">
+<meta property="og:image" content="https://draapho.github.io/images/1614/git.jpg">
+<meta property="og:updated_time" content="2016-10-24T06:57:54.301Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Git 常用命令">
+<meta name="twitter:description" content="git示意图  
+资料和参考
+Visual Git Cheat Sheet
+Pro Git book
+廖雪峰的 Git教程
+设置SSH, 参考 GitHub Help - SSH
+设置GPG, 参考 GitHub Help - GPG
+
+一些理解
+git的核心理解为指针即可, 包括 workspace, index, commitHash
+repository是基于commitHash管理版本的.">
+<meta name="twitter:image" content="https://draapho.github.io/images/1614/git.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2016/10/24/1614-CheatSheet-git/"/>
+
+
+  <title> Git 常用命令 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Git 常用命令
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-24T00:00:00+11:00" content="2016-10-24">
+              2016-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/cheat-sheet/" itemprop="url" rel="index">
+                    <span itemprop="name">cheat sheet</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="git示意图"><a href="#git示意图" class="headerlink" title="git示意图"></a>git示意图</h1><p>  <img src="https://draapho.github.io/images/1614/git.jpg" alt="git"></p>
+<h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><ul>
+<li><a href="http://ndpsoftware.com/git-cheatsheet.html" target="_blank" rel="external">Visual Git Cheat Sheet</a></li>
+<li><a href="https://git-scm.com/book/zh/v2" target="_blank" rel="external">Pro Git book</a></li>
+<li>廖雪峰的 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="external">Git教程</a></li>
+<li>设置SSH, 参考 <a href="https://help.github.com/categories/ssh/" target="_blank" rel="external">GitHub Help - SSH</a></li>
+<li>设置GPG, 参考 <a href="https://help.github.com/categories/gpg/" target="_blank" rel="external">GitHub Help - GPG</a></li>
+</ul>
+<h1 id="一些理解"><a href="#一些理解" class="headerlink" title="一些理解"></a>一些理解</h1><ul>
+<li>git的核心理解为指针即可, 包括 <code>workspace</code>, <code>index</code>, <code>commitHash</code><ul>
+<li><code>repository</code>是基于<code>commitHash</code>管理版本的.</li>
+<li><code>HEAD</code>, <code>HEAD^1</code>, <code>HEAD~3</code>, <code>branch</code>, <code>tags</code>都是<code>commitHash</code>的别名, 便于人们记忆和理解.</li>
+<li>可以基于 <code>git reset</code> 来检测是否完全理解git基于指针的设计思路.  </li>
+<li><code>HEAD^1</code>基于父节点, <code>HEAD~1</code>基于层次. 单层结构下没有差别. 复杂多层结构建议直接用 <code>commitHash</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">       A ---------------------  A =      = A^0                       </div><div class="line">      / \                       </div><div class="line">     B   C                      B = A^   = A^1     = A~1</div><div class="line">    /|\  |                      C = A^2  = A^2     </div><div class="line">   / | \ |                                     </div><div class="line">  D  E   F -------------------  D = A^^  = A^1^1   = A~2  </div><div class="line"> / \    / \                     E = B^2  = A^^2</div><div class="line">/   \  /   \                    F = B^3  = A^^3   </div><div class="line">G   H  I   J -----------------  G = A^^^ = A^1^1^1 = A~3                               </div><div class="line">                                H = D^2  = B^^2    = A^^^2  = A~2^2</div><div class="line">                                I = F^   = B^3^    = A^^3^</div><div class="line">                                J = F^2  = B^3^2   = A^^3^2</div></pre></td></tr></table></figure>
+<ul>
+<li>git的命令, 常见格式为 <code>git diff p1 p2 -- file</code>. 意为, 比较<code>p1</code>与<code>p2</code>两处指定file的区别<ul>
+<li><code>p1</code> 缺省指向workspace, <code>p2</code> 缺省指向index. </li>
+<li><code>--</code> 接文件或目录, 名字无歧义时可以省去<code>--</code>. (如 git checkout name 就可能有歧义, branch OR file?)</li>
+<li><code>.</code> 表示所有的文件, 如 <code>git add .</code></li>
+</ul>
+</li>
+<li>学会查看帮助, 加上 <code>-h</code> 即可. 如 <code>git checkout -h</code><ul>
+<li><code>[]</code> 表示可选项, <code>&lt;&gt;</code> 表示必填项</li>
+</ul>
+</li>
+</ul>
+<h1 id="初始安装"><a href="#初始安装" class="headerlink" title="初始安装"></a>初始安装</h1><ul>
+<li><p>新建git仓库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># Create local repository</div><div class="line"># put &quot;.gitignore&quot; to project root direct.</div><div class="line">git init                        # create local repository</div><div class="line">git add README.md               # add somefiles</div><div class="line">git commit -m &quot;first commit&quot;    # commit to local repository</div><div class="line"></div><div class="line"># link with remote repository</div><div class="line">git remote add origin url       # add remote repository, &lt;url&gt; like https://... OR ssh://...</div><div class="line">git push -u origin master       # -u, 指定默认远程主机为 origin</div><div class="line"></div><div class="line"># Clone existing repository</div><div class="line">git clone url                   # &lt;url&gt; like https://... OR ssh://...</div><div class="line"></div><div class="line"># more cmd about config</div><div class="line">git config --list               # show config</div><div class="line">git config -e                   # edit local config file</div></pre></td></tr></table></figure>
+</li>
+<li><p>单独设置参数, –global表示全局参数, 不写就是仓库自有参数</p>
+</li>
+<li>需要安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="external">p4merge</a> 用于支持 <code>difftool</code> 及 <code>mergetool</code></li>
+<li><p>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"># global setting</div><div class="line">git config --global user.name &quot;Your Name&quot;</div><div class="line">git config --global user.email &quot;email@example.com&quot;</div><div class="line"></div><div class="line"># alise setting</div><div class="line">git config --global alias.a &apos;add&apos;</div><div class="line">git config --global alias.aa &apos;add .&apos;</div><div class="line">git config --global alias.b &apos;branch&apos;</div><div class="line">git config --global alias.bb &apos;branch -a -v&apos;</div><div class="line">git config --global alias.co &apos;checkout&apos;</div><div class="line">git config --global alias.cm &apos;commit -m&apos;</div><div class="line">git config --global alias.lg &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit&quot;</div><div class="line">git config --global alias.st &apos;status&apos;</div><div class="line"></div><div class="line"># set diff color</div><div class="line">git config --global color.diff.old &quot;red normal bold&quot;</div><div class="line">git config --global color.diff.new &quot;green normal bold&quot;</div><div class="line"></div><div class="line"># solve the warning, LF will be replaced by CRLF</div><div class="line">git config --global core.autocrlf false</div><div class="line">git config --global core.safecrlf false</div><div class="line"></div><div class="line"># set difftool mergetool (need p4merge)</div><div class="line">git config --global diff.tool p4merge</div><div class="line">git config --global difftool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$LOCAL&quot; &quot;$REMOTE&quot;&apos;</div><div class="line">git config --global difftool.prompt false</div><div class="line">git config --global merge.tool p4merge</div><div class="line">git config --global mergetool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$PWD/$BASE&quot; &quot;$PWD/$REMOTE&quot; &quot;$PWD/$LOCAL&quot; &quot;$PWD/$MERGED&quot;&apos;</div><div class="line">git config --global mergetool.p4merge.trustExitCode false</div><div class="line">git config --global mergetool.keepBackup false</div></pre></td></tr></table></figure>
+</li>
+<li><p>也可使用 <code>git config -e --global</code> 打开全局配置文件, 直接设置全局参数</p>
+</li>
+<li>需要安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="external">p4merge</a> 用于支持 <code>difftool</code> 及 <code>mergetool</code></li>
+<li>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">[user]</div><div class="line">    name = https://draapho.github.io/</div><div class="line">    email = draapho@gmail.com</div><div class="line">[alias]</div><div class="line">    a = add</div><div class="line">    aa = add .</div><div class="line">    b = branch</div><div class="line">    bb = branch -a -v</div><div class="line">    co = checkout</div><div class="line">    cm = commit -m</div><div class="line">    lg = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit</div><div class="line">    st = status</div><div class="line">[color &quot;diff&quot;]</div><div class="line">	old = red normal bold</div><div class="line">	new = green normal bold</div><div class="line">[core]</div><div class="line">    autocrlf = false</div><div class="line">    safecrlf = false</div><div class="line">[diff]</div><div class="line">	tool = p4merge</div><div class="line">[difftool &quot;p4merge&quot;]</div><div class="line">	cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$LOCAL\&quot; \&quot;$REMOTE\&quot;</div><div class="line">[difftool]</div><div class="line">	prompt = false</div><div class="line">[merge]</div><div class="line">	tool = p4merge</div><div class="line">[mergetool &quot;p4merge&quot;]</div><div class="line">	cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$PWD/$BASE\&quot; \&quot;$PWD/$REMOTE\&quot; \&quot;$PWD/$LOCAL\&quot; \&quot;$PWD/$MERGED\&quot;</div><div class="line">	trustExitCode = false</div><div class="line">[mergetool]</div><div class="line">	keepBackup = false</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"># 查看信息</div><div class="line">git st                          # git status            # 显示工作区变更的文件</div><div class="line">git lg                          # git log 增强版        # 显示所有提交</div><div class="line">git lg -5                                               # 显示过去5次提交</div><div class="line">git shortlog -sn                                        # 显示所有提交过的用户</div><div class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</div><div class="line"></div><div class="line"># stash                                                 # 少量且短时间的使用!</div><div class="line">git stash                                               # workspace-&gt;stash(藏匿处)</div><div class="line">git stash pop                                           # stash(不保存)-&gt;workspace</div><div class="line"></div><div class="line"># 提交文件</div><div class="line">git aa                          # git add .             # workspace-&gt;index</div><div class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</div><div class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</div><div class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</div><div class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</div><div class="line"> </div><div class="line"># 分支操作</div><div class="line">git b name                      # git branch name       # 创建分支</div><div class="line">git b name commit                                       # 基于指定 commit 创建分支</div><div class="line">git b -d name                   # branch delete         # 删除分支</div><div class="line">git b -dr origin/name           # delete remote         # 删除远程分支</div><div class="line">git b -m new_name               # git branch --move     # 重命名分支</div><div class="line">git bb                          # git branch -a         # 查看所有分支</div><div class="line">git remote -v                                           # 查看远程分支</div><div class="line">git co name                     # git checkout name     # 切换分支</div><div class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</div><div class="line"></div><div class="line"># 版本合并和回退</div><div class="line">git merge branch                # 合并branch到当前分支</div><div class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</div><div class="line">git cherry-pick commit          # 合并commit到当前分支</div><div class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!  </div><div class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!        </div><div class="line">git push                                                # 推送到默认的远程主机</div><div class="line">git push -f                     # --force               # 忽略冲突, 强制推送</div><div class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</div><div class="line"></div><div class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</div><div class="line">git tag                         # 查看版本</div><div class="line">git tag v100                    # 创建版本</div><div class="line">git tag -d v100                 # 删除版本</div><div class="line">git push --tags                 # 推送tag</div><div class="line"></div><div class="line"># 查看差异 </div><div class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</div><div class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</div><div class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</div><div class="line">git diff --name-status p1 p2    # 获得变更的文件列表</div><div class="line">git diff --stat p1 p2           # 统计变更的数据</div><div class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</div><div class="line"></div><div class="line"># 撤销</div><div class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</div><div class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</div><div class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</div><div class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</div><div class="line"></div><div class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</div><div class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</div><div class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</div><div class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</div><div class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/git/" rel="tag">#git</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/21/1613-python-cli/" rel="next" title="python调用命令行">
+                <i class="fa fa-chevron-left"></i> python调用命令行
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/03/1615-python-ipc/" rel="prev" title="Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues)">
+                Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://draapho.github.io/about/portrait.html" target="_blank" title="Portrait">
+                  
+                    <i class="fa fa-fw fa-user"></i>
+                  
+                  Portrait
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#git示意图"><span class="nav-number">1.</span> <span class="nav-text">git示意图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#资料和参考"><span class="nav-number">2.</span> <span class="nav-text">资料和参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一些理解"><span class="nav-number">3.</span> <span class="nav-text">一些理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初始安装"><span class="nav-number">4.</span> <span class="nav-text">初始安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用指令"><span class="nav-number">5.</span> <span class="nav-text">常用指令</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
