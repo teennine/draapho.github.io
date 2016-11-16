@@ -1,0 +1,817 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,pygatt,BLE," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="环境与资源
+windows 开发环境
+python 2.7
+pygatt
+Bluegiga 的 BLED112 Bluetooth Smart Dongle
+
+闲扯
+背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.
+使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 bglib 这么一个python库, 还有范例!
+不幸的是, 自己功">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用python实现BLE通讯">
+<meta property="og:url" content="https://draapho.github.io/2016/11/15/1616-python-ble/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="环境与资源
+windows 开发环境
+python 2.7
+pygatt
+Bluegiga 的 BLED112 Bluetooth Smart Dongle
+
+闲扯
+背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.
+使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 bglib 这么一个python库, 还有范例!
+不幸的是, 自己功">
+<meta property="og:updated_time" content="2016-11-16T12:11:39.575Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用python实现BLE通讯">
+<meta name="twitter:description" content="环境与资源
+windows 开发环境
+python 2.7
+pygatt
+Bluegiga 的 BLED112 Bluetooth Smart Dongle
+
+闲扯
+背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.
+使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 bglib 这么一个python库, 还有范例!
+不幸的是, 自己功">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2016/11/15/1616-python-ble/"/>
+
+
+  <title> 使用python实现BLE通讯 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用python实现BLE通讯
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-15T00:00:00+11:00" content="2016-11-15">
+              2016-11-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
+<li>windows 开发环境</li>
+<li>python 2.7</li>
+<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a></li>
+<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
+</ul>
+<h1 id="闲扯"><a href="#闲扯" class="headerlink" title="闲扯"></a>闲扯</h1><ul>
+<li>背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.</li>
+<li>使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 <a href="https://github.com/jrowberg/bglib" target="_blank" rel="external">bglib</a> 这么一个python库, 还有范例!</li>
+<li>不幸的是, 自己功力不够, 基于此函数库开发出的BLE通讯, 非常不稳定… 没有痛下决心自己写, 于是继续尝试寻找资源.</li>
+<li>觅得 <a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a> 方案, 三平台全支持! windows 和 mac 下正是基于bglib实现的!</li>
+<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a> 是python的第三方库, 说明文档比较少, 测试了一下非常好用!</li>
+</ul>
+<h1 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h1><ul>
+<li>DEVICE_ADDRESS, 默认的需要connect的BLE地址</li>
+<li>基于 Bluegiga 的 <code>cable_replacement</code> 范例, 其 characteristic uuid 为 <code>e7add780-b042-4876-aae1-112855353cc1</code></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">import</span> binascii</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># Many devices, e.g. Fitbit, use random addressing - this is required to connect.</span></div><div class="line">ADDRESS_TYPE = pygatt.BLEAddressType.random</div><div class="line">DEVICE_ADDRESS = <span class="string">"00:07:80:BF:6A:73"</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">indication_callback</span><span class="params">(handle, value)</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"indication, handle %d: %s "</span> % (handle, value)</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">pytest</span><span class="params">(address=DEVICE_ADDRESS, type=pygatt.BLEAddressType.public)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        adapter = pygatt.BGAPIBackend()</div><div class="line">        adapter.start()</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.scan() ====="</span></div><div class="line">        devices = adapter.scan()</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> devices:</div><div class="line">            <span class="comment"># print dev</span></div><div class="line">            <span class="keyword">print</span> <span class="string">"address: %s, name: %s "</span> % (dev[<span class="string">'address'</span>], dev[<span class="string">'name'</span>])</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.connect() ====="</span></div><div class="line">        device = adapter.connect(address, address_type=type)</div><div class="line">        <span class="keyword">print</span> <span class="string">"address: "</span> + str(device._address)</div><div class="line">        <span class="keyword">print</span> <span class="string">"handle : "</span> + str(device._handle)</div><div class="line">        <span class="keyword">print</span> <span class="string">"rssi   : "</span> + str(device.get_rssi())</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.discover_characteristics() ====="</span></div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</div><div class="line">                      (uuid, device.get_handle(uuid), binascii.hexlify(device.char_read(uuid))))</div><div class="line">            <span class="keyword">except</span>:</div><div class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</div><div class="line">                      (uuid, device.get_handle(uuid), <span class="string">"!deny!"</span>))</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_read() / device.char_read_handle() ====="</span></div><div class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read(<span class="string">"00002a00-0000-1000-8000-00805f9b34fb"</span>)</div><div class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read_handle(<span class="number">3</span>)</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.subscribe() ====="</span></div><div class="line">        device.subscribe(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>,</div><div class="line">                         callback=indication_callback, indication=<span class="keyword">True</span>)</div><div class="line">        <span class="comment"># device.receive_notification(8, "test")</span></div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_write_handle() ====="</span></div><div class="line">        in_buf = map(ord, <span class="string">"hello world, hello BLE!!!"</span>)</div><div class="line">        <span class="comment"># send via uuid &amp; handle, maximum is 20 bytes</span></div><div class="line">        device.char_write(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>, in_buf[:<span class="number">20</span>])</div><div class="line">        device.char_write_handle(<span class="number">0x08</span>, in_buf[<span class="number">20</span>:])</div><div class="line"></div><div class="line">        <span class="keyword">while</span> (<span class="keyword">True</span>):</div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        adapter.stop()</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    pytest()</div></pre></td></tr></table></figure>
+<h1 id="BleDevice-类"><a href="#BleDevice-类" class="headerlink" title="BleDevice 类"></a>BleDevice 类</h1><ul>
+<li>为了方便使用, 自己基于 pygatt 再打包一层</li>
+<li>遗憾的是没有disconnect的通知. 可以参考 <a href="https://github.com/peplin/pygatt/issues/72" target="_blank" rel="external">Disconnect event not shown</a></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BleDevice</span><span class="params">(pygatt.BGAPIBackend)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.device = <span class="keyword">None</span></div><div class="line">        self.adapter = pygatt.BGAPIBackend()</div><div class="line">        self.adapter.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop</span><span class="params">(self)</span>:</span></div><div class="line">        self.adapter.stop()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">scan</span><span class="params">(self, timeout=<span class="number">5</span>)</span>:</span></div><div class="line">        self.devices = self.adapter.scan(timeout)</div><div class="line">        <span class="keyword">return</span> self.devices</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect_name</span><span class="params">(self, name, devices=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> devices <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            devices = self.devices</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> self.devices:</div><div class="line">            <span class="keyword">if</span> name == dev[<span class="string">'name'</span>]:</div><div class="line">                <span class="keyword">return</span> self.connect(dev[<span class="string">'address'</span>])</div><div class="line">        <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">(self, address)</span>:</span></div><div class="line">        self.device = self.adapter.connect(address)</div><div class="line">        <span class="keyword">return</span> self.device</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">discover_characteristics</span><span class="params">(self, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        characteristics = []</div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                device.char_read(uuid)</div><div class="line">                characteristics.append(</div><div class="line">                    &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">True</span>&#125;)</div><div class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">                <span class="keyword">if</span> <span class="string">"unable to read"</span> <span class="keyword">in</span> str(e).lower():</div><div class="line">                    characteristics.append(</div><div class="line">                        &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">False</span>&#125;)</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> e</div><div class="line">        <span class="keyword">return</span> characteristics</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_indication</span><span class="params">(self, uuid, device=None, callback=None, indication=True)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        device.subscribe(uuid, callback, indication)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics</span><span class="params">(self, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read(uuid)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics_handle</span><span class="params">(self, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read_handle(handle)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics</span><span class="params">(self, str, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write(uuid, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics_handle</span><span class="params">(self, str, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write_handle(handle, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    ble = BleDevice()</div><div class="line">    <span class="keyword">print</span> ble.scan()</div><div class="line">    device = ble.connect_name(<span class="string">"Bluegiga CR Demo"</span>)</div><div class="line">    <span class="keyword">print</span> device._address</div><div class="line">    chars = ble.discover_characteristics(device)</div><div class="line">    <span class="keyword">print</span> chars</div><div class="line">    <span class="comment"># print chars[0]['uuid']</span></div><div class="line">    <span class="keyword">print</span> ble.read_characteristics(chars[<span class="number">1</span>][<span class="string">'uuid'</span>])</div><div class="line">    ble.write_characteristics(<span class="string">"hello world"</span>, chars[<span class="number">0</span>][<span class="string">'uuid'</span>])</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/pygatt/" rel="tag">#pygatt</a>
+          
+            <a href="/tags/BLE/" rel="tag">#BLE</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/03/1615-python-ipc/" rel="next" title="Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues)">
+                <i class="fa fa-chevron-left"></i> Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://draapho.github.io/about/portrait.html" target="_blank" title="Portrait">
+                  
+                    <i class="fa fa-fw fa-user"></i>
+                  
+                  Portrait
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境与资源"><span class="nav-number">1.</span> <span class="nav-text">环境与资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#闲扯"><span class="nav-number">2.</span> <span class="nav-text">闲扯</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试代码"><span class="nav-number">3.</span> <span class="nav-text">测试代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BleDevice-类"><span class="nav-number">4.</span> <span class="nav-text">BleDevice 类</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
