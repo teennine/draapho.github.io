@@ -1,0 +1,879 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,BLE,pyqt,pyinstaller," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="环境与资源
+windows 开发环境
+python 2.7
+pywin32, windows support
+pyserial, serial port, com
+pygatt, ble
+pyinstaller, generate exe file
+qt 4.8 (pyqt 4.11), GUI
+Bluegiga 的 BLED112 Bluetooth Smart Dongle
+
+安装
+略过 py">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python的第一个实用小程序, 蓝牙及串口终端">
+<meta property="og:url" content="https://draapho.github.io/2016/11/16/1617-python-terminal/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="环境与资源
+windows 开发环境
+python 2.7
+pywin32, windows support
+pyserial, serial port, com
+pygatt, ble
+pyinstaller, generate exe file
+qt 4.8 (pyqt 4.11), GUI
+Bluegiga 的 BLED112 Bluetooth Smart Dongle
+
+安装
+略过 py">
+<meta property="og:updated_time" content="2016-11-17T10:15:03.597Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python的第一个实用小程序, 蓝牙及串口终端">
+<meta name="twitter:description" content="环境与资源
+windows 开发环境
+python 2.7
+pywin32, windows support
+pyserial, serial port, com
+pygatt, ble
+pyinstaller, generate exe file
+qt 4.8 (pyqt 4.11), GUI
+Bluegiga 的 BLED112 Bluetooth Smart Dongle
+
+安装
+略过 py">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2016/11/16/1617-python-terminal/"/>
+
+
+  <title> python的第一个实用小程序, 蓝牙及串口终端 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                python的第一个实用小程序, 蓝牙及串口终端
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-16T00:00:00+11:00" content="2016-11-16">
+              2016-11-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
+<li>windows 开发环境</li>
+<li>python 2.7</li>
+<li>pywin32, windows support</li>
+<li>pyserial, serial port, com</li>
+<li>pygatt, ble</li>
+<li>pyinstaller, generate exe file</li>
+<li>qt 4.8 (pyqt 4.11), GUI</li>
+<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
+<li>略过 python 的安装</li>
+<li>安装 pywin32: <code>pip install pygatt</code></li>
+<li>安装 pyserial: <code>pip install pyserial</code></li>
+<li>安装 pygatt: <code>pip install pygatt</code>, 事实上, pygatt依赖于pyserial. 因此直接装pygatt也可以</li>
+<li>安装 pyinstaller: <code>pip install pyinstaller</code></li>
+<li>下载并安装 <a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt4-4.11.4-gpl-Py2.7-Qt4.8.7.exe</a><ul>
+<li>注意匹配python版本和32位/64位window</li>
+<li>pyqt5 仅支持 python3 以上版本. 我用 python2.7 是因为需要使用其它的库, 如 <a href="https://labjack.com/" target="_blank" rel="external">LabJack</a></li>
+<li><code>Qt Designer</code> 用于设计UI, 文件格式为<code>.ui</code>. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\designer.exe</code>. 最终取决于Python安装路径</li>
+<li><code>pyuic4.bat</code> 用于将 <code>.ui</code> 文件转换为 <code>.py</code> 文件. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\</code></li>
+<li>把 <code>pyuic4.bat</code> 的路径放入系统环境变量, 这样后续就能方便使用这个指令了</li>
+</ul>
+</li>
+<li>windows平台需要借助 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a> 这么一个设备才能实现BLE通讯</li>
+</ul>
+<h1 id="UI设计"><a href="#UI设计" class="headerlink" title="UI设计"></a>UI设计</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+</ul>
+<h2 id="PyQt-入门"><a href="#PyQt-入门" class="headerlink" title="PyQt 入门"></a>PyQt 入门</h2><ul>
+<li>为什么选择PyQt? (注意, 如果商用, PyQt是需要授权使用的)</li>
+<li><a href="http://ojs.pythonpapers.org/index.php/tpp/article/view/61/57" target="_blank" rel="external">PyGTK, PyQT, Tkinter and wxPython comparison</a></li>
+<li>PyQt使用入门:</li>
+<li><a href="https://www.tutorialspoint.com/pyqt/index.htm" target="_blank" rel="external">PyQt Tutorial</a>, 新手上路, 建议看到 <code>Using Qt Designer</code> 即可</li>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 整体理解Qt设计思路</li>
+<li><a href="http://www.qaulau.com/books/PyQt4_Tutorial/" target="_blank" rel="external">PyQt4教程</a>, 中文版, 分类很细, 便于查阅范例</li>
+</ul>
+<h2 id="使用-Qt-Designer-设计GUI并生成-gui-py"><a href="#使用-Qt-Designer-设计GUI并生成-gui-py" class="headerlink" title="使用 Qt Designer 设计GUI并生成 gui.py"></a>使用 Qt Designer 设计GUI并生成 gui.py</h2><ul>
+<li>使用 <code>Qt Designer</code> 设计 GUI 框架, 并保存<code>gui.ui</code>到项目路径, 如 <code>D:\ble terminal</code></li>
+<li>打开cmd终端, 并切换到 <code>D:\ble terminal</code></li>
+<li><code>pyuic4.bat -x -o gui.py gui.ui</code> 生成<code>gui.py</code>文件,<ul>
+<li><code>-x</code> 表示可执行, 即包含<code>if __name__ == &quot;__main__&quot;</code>这部分代码</li>
+<li><code>-o</code> 表示目标文件名</li>
+<li>也可以使用命令行 <code>pyuic4.bat demo.ui &gt; demo.py</code>, 效果等同于 <code>pyuic4.bat -o gui.py gui.ui</code></li>
+</ul>
+</li>
+<li>创建 <code>gui_aciton.py</code> 文件, 用于书写交互操作部分的代码, 基本格式如下<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> gui</div><div class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QMainWindow</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.ui.setupUi(self)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QApplication(sys.argv)</div><div class="line">    gui_action = GuiAction()</div><div class="line">    gui_action.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="UI线程通讯"><a href="#UI线程通讯" class="headerlink" title="UI线程通讯"></a>UI线程通讯</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+<li>PyQt的信号和槽, 是一种通讯机制, 可以用于QObject之间的信息交互. 可以参考:<ul>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a></li>
+<li><a href="https://www.linuxzen.com/pyqt4-xin-hao-he-cao-xiang-jie.html" target="_blank" rel="external">PyQt4 信号和槽详解</a></li>
+</ul>
+</li>
+<li>参考 <a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a></li>
+<li>关于 QThread 高阶应用和注意事项, 可参考 <a href="http://blog.csdn.net/u011012932/article/details/52186626" target="_blank" rel="external">Qt之QThread（深入理解）</a></li>
+<li>本程序使用的线程通讯框架如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        ...</div><div class="line">        <span class="comment"># queue_ble 用于传递数据给ble线程 (这样用不好, 可能有风险)</span></div><div class="line">        self.queue_ble = Queue.Queue()</div><div class="line">        <span class="comment"># thread_ble 为 ble 处理线程</span></div><div class="line">        self.thread_ble = ThreadBleServer(self.queue_ble)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cmd_send</span><span class="params">(self)</span>:</span></div><div class="line">        cmd = self.lineEdit.text()</div><div class="line">        <span class="comment"># 通过 queue_ble 传递数据给ble线程</span></div><div class="line">        self.queue_ble.put(cmd)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 简单理解, 就是将 self.ble_handle 设置为 thread_ble 信号触发后的处理函数</span></div><div class="line">        <span class="comment"># 使用 PyQt_PyObject 作为参数类型具有更好的通用性, 可以传递任何数据.</span></div><div class="line">        self.connect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line">        <span class="comment"># 启动 ble 处理线程</span></div><div class="line">        self.thread_ble.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_stop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 用于终止 thread_ble 线程</span></div><div class="line">        self.thread_ble.stop_ble()</div><div class="line">        self.disconnect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadBleServer</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.stop = <span class="keyword">False</span></div><div class="line">        self.queue = queue</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop_ble</span><span class="params">(self)</span>:</span></div><div class="line">        self.stop = <span class="keyword">True</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.stop:</div><div class="line">            <span class="comment"># 这是一个循环任务, 每100ms执行一次</span></div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">            ...</div><div class="line">            <span class="comment"># 非阻塞查询queue队列</span></div><div class="line">            command = str(self.queue.get(<span class="keyword">False</span>))</div><div class="line">            do something after get command ...</div><div class="line">            ...</div><div class="line">            <span class="comment"># 发送信号给主线程</span></div><div class="line">            self.emit(SIGNAL(<span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), <span class="string">"ble_rx_timeout"</span>, <span class="string">""</span>)</div><div class="line">            ...</div></pre></td></tr></table></figure>
+<ul>
+<li>上述代码有一个未知风险, 在 QThread 中用了属于 python threading 的 Queque. 更稳妥的方法应该使用 PyQt 的信号和槽解决这个问题, 即<br><code>self.connect(self.cmd_send, SIGNAL(&quot;send_cmd(PyQt_PyObject)&quot;), self.thread_ble)</code></li>
+<li>关于 QThread 和 Threading, 简单而言, 如果需要和PyQt打交道, 那就用 QThread, 否则就用 python 自带的 Threading</li>
+<li><a href="https://github.com/draapho/ble-terminal" target="_blank" rel="external">全部源码</a> 在 github, 注意, 作为一个练习用程序, 上述错误我没有修改! 目前为止, 没看到不良影响.</li>
+</ul>
+<h1 id="生成exe文件"><a href="#生成exe文件" class="headerlink" title="生成exe文件"></a>生成exe文件</h1><ul>
+<li>可以创建一个 <code>ble-terminal.bat</code> 文件, 点击即可运行. 但终究是显的不够专业, 没法给老板和客户交代. 内容如下:<br>``` shell<br>@echo off</li>
+</ul>
+<p>start pythonw gui_action.py<br>exit<br>``` </p>
+<ul>
+<li>windows下, 使用起来最简单的就是 <code>PyInstaller</code> 了. 基本一条指令, 然后需要的关联库全自动解决</li>
+<li>其它方案有 <code>Py2Exe</code>, 需要自己配置dll之类的. <code>Py2App</code> 给Mac电脑用的. <code>cx_Freeze</code> 优点是跨平台, 看了下需要先做配置文件.</li>
+<li>用一条指令即可生成 <code>.exe</code> 文件<br><code>pyinstaller.exe --windowed gui_aciton.py</code></li>
+<li>另外还可以指定图标, 设置版本信息(需要写好<code>version.txt</code>), 将所有内容绑到单文件. 指令为:<br><code>pyinstaller.exe --onefile --windowed --icon=app.ico --version-file=version.txt gui_aciton.py</code></li>
+<li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="external">Creating an Executable from a Python Script</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/BLE/" rel="tag">#BLE</a>
+          
+            <a href="/tags/pyqt/" rel="tag">#pyqt</a>
+          
+            <a href="/tags/pyinstaller/" rel="tag">#pyinstaller</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/15/1616-python-ble/" rel="next" title="使用python实现BLE通讯">
+                <i class="fa fa-chevron-left"></i> 使用python实现BLE通讯
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://draapho.github.io/about/portrait.html" target="_blank" title="Portrait">
+                  
+                    <i class="fa fa-fw fa-user"></i>
+                  
+                  Portrait
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境与资源"><span class="nav-number">1.</span> <span class="nav-text">环境与资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UI设计"><span class="nav-number">3.</span> <span class="nav-text">UI设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PyQt-入门"><span class="nav-number">3.1.</span> <span class="nav-text">PyQt 入门</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-Qt-Designer-设计GUI并生成-gui-py"><span class="nav-number">3.2.</span> <span class="nav-text">使用 Qt Designer 设计GUI并生成 gui.py</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UI线程通讯"><span class="nav-number">4.</span> <span class="nav-text">UI线程通讯</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成exe文件"><span class="nav-number">5.</span> <span class="nav-text">生成exe文件</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
