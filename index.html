@@ -260,6 +260,236 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/24/1621-python-string/" itemprop="url">
+                  Python 字符串处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-24T00:00:00+11:00" content="2016-11-24">
+              2016-11-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="进制转换-编码转换"><a href="#进制转换-编码转换" class="headerlink" title="进制转换 / 编码转换"></a>进制转换 / 编码转换</h1><ul>
+<li><a href="https://docs.python.org/2/library/functions.html#hex" target="_blank" rel="external">hex</a>, 十进制-&gt;十六进制字符串</li>
+<li><a href="https://docs.python.org/2/library/functions.html#oct" target="_blank" rel="external">oct</a>, 十进制-&gt;八进制字符串</li>
+<li><a href="https://docs.python.org/2/library/functions.html#oct" target="_blank" rel="external">oct</a>, 十进制-&gt;八进制字符串</li>
+<li><a href="https://docs.python.org/2/library/functions.html#chr" target="_blank" rel="external">chr</a>, 十进制-&gt;ASCII码字符</li>
+<li><a href="https://docs.python.org/2/library/functions.html#unichr" target="_blank" rel="external">unichr</a>,  十进制-&gt;unicode编码</li>
+<li><a href="https://docs.python.org/2/library/functions.html#ord" target="_blank" rel="external">ord</a>,  ascii码/unicode编码-&gt;十进制</li>
+<li><a href="https://docs.python.org/2/library/binascii.html" target="_blank" rel="external">binascii</a>, 字符串&lt;-&gt;字节流</li>
+<li><a href="https://docs.python.org/2/library/struct.html" target="_blank" rel="external">struct</a>, 字符串&lt;-&gt;字节流<ul>
+<li>struct中的 <a href="https://docs.python.org/2/library/struct.html#format-characters" target="_blank" rel="external">fmt</a> 详解</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><a href="https://docs.python.org/2/library/stdtypes.html#string-methods" target="_blank" rel="external">str.decode / str.encode</a>, 基于unicode的编码转换</li>
+<li><a href="https://docs.python.org/2/library/codecs.html#standard-encodings" target="_blank" rel="external">Standard Encodings</a>, python支持的编码表<ul>
+<li>常用的有 <code>hex</code>, <code>utf-8</code>, <code>unicode_escape</code></li>
+</ul>
+</li>
+<li><a href="http://blog.csdn.net/pipisorry/article/details/44136297" target="_blank" rel="external">python字符串编码及乱码解决方案</a><ul>
+<li>解释了unicode与str在python2.7 和 python3下的区别. <code>str.decode</code>和<code>str.encode</code>的含义</li>
+<li>python2.7, 默认str编码为ascii, 需要使用<code>s=u&quot;人生苦短&quot;</code>来表示unicode编码字符串(便于跨平台统一)</li>
+<li><strong>终极原则： decode early, unicode everywhere, encode late</strong></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><a href="https://docs.python.org/2/library/functions.html" target="_blank" rel="external">更多的python内置函数</a>如下<ul>
+<li>int(x [,base ]), 将x转换为一个整数</li>
+<li>long(x [,base ]), 将x转换为一个长整数</li>
+<li>float(x), 将x转换到一个浮点数</li>
+<li>complex(real [,imag ]), 创建一个复数</li>
+<li>str(x) , 将对象 x 转换为字符串</li>
+<li>repr(x), 将对象 x 转换为表达式字符串</li>
+<li>eval(str), 用来计算在字符串中的有效Python表达式,并返回一个对象</li>
+<li>tuple(s), 将序列 s 转换为一个元组</li>
+<li>list(s), 将序列 s 转换为一个列表</li>
+</ul>
+</li>
+</ul>
+<h2 id="十进制-lt-gt-十六进制字符串"><a href="#十进制-lt-gt-十六进制字符串" class="headerlink" title="十进制&lt;-&gt;十六进制字符串"></a>十进制&lt;-&gt;十六进制字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>hex(<span class="number">255</span>)</div><div class="line"><span class="string">'0xff'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>float.hex(<span class="number">1.0</span>)</div><div class="line"><span class="string">'0x1.0000000000000p+0'</span></div><div class="line"></div><div class="line"><span class="comment"># 可以有前缀 0b/0B(二进制), 0o/0O/0(八进制), or 0x/0X(十六进制),</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'0xff'</span>, <span class="number">16</span>)</div><div class="line"><span class="number">255</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'ff'</span>, <span class="number">16</span>)</div><div class="line"><span class="number">255</span></div></pre></td></tr></table></figure>
+<h2 id="二进制字符串-lt-gt-十六进制字符串"><a href="#二进制字符串-lt-gt-十六进制字符串" class="headerlink" title="二进制字符串&lt;-&gt;十六进制字符串"></a>二进制字符串&lt;-&gt;十六进制字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>bin(int(<span class="string">'0xff'</span>, <span class="number">16</span>))</div><div class="line"><span class="string">'0b11111111'</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>hex(int(<span class="string">'0b1010'</span>,<span class="number">2</span>))</div><div class="line"><span class="string">'0xa'</span></div></pre></td></tr></table></figure>
+<h2 id="十进制-lt-gt-unicode字符串-lt-gt-utf8编码"><a href="#十进制-lt-gt-unicode字符串-lt-gt-utf8编码" class="headerlink" title="十进制&lt;-&gt;unicode字符串&lt;-&gt;utf8编码"></a>十进制&lt;-&gt;unicode字符串&lt;-&gt;utf8编码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>c = <span class="string">u'ñ'</span>            <span class="comment"># u表示使用unicode编码存储.</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>c                   <span class="comment"># 显示c在电脑中的值</span></div><div class="line"><span class="string">u'\xf1'</span>                 <span class="comment"># 即 u'\u00f1', \u需要2byte!</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>ord(c)</div><div class="line"><span class="number">241</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>unichr(<span class="number">241</span>)</div><div class="line"><span class="string">u'\xf1'</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">u'\u00f1'</span>.encode(<span class="string">'utf-8'</span>)       <span class="comment"># unicode-&gt;utf-8</span></div><div class="line"><span class="string">'\xc3\xb1'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'\xc3\xb1'</span>.decode(<span class="string">'utf-8'</span>)      <span class="comment"># utf-8-&gt;unicode</span></div><div class="line"><span class="string">u'\xf1'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="string">u'\u00f1'</span>                 <span class="comment"># 打印显示</span></div><div class="line">ñ</div></pre></td></tr></table></figure>
+<h2 id="几个实用的例子"><a href="#几个实用的例子" class="headerlink" title="几个实用的例子"></a>几个实用的例子</h2><ul>
+<li>去掉字符串中的跳脱符, 生成标准的unicode字符串</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">u'\\u4f60\\u4f60'</span>.decode(<span class="string">'unicode_escape'</span>)</div><div class="line"><span class="string">u'\u4f60\u4f60'</span></div></pre></td></tr></table></figure>
+<ul>
+<li>解码16进制字符串：也可以直接 print 出来</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>b=<span class="string">'\xd1\xee\xba\xea\xc1\xc1\n'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> unicode(b, <span class="string">'gbk'</span>).encode(<span class="string">'utf8'</span>) <span class="comment"># 等同于 print b.decode('gbk').encode('utf8')</span></div></pre></td></tr></table></figure>
+<ul>
+<li>字符串&lt;-&gt;字节流</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;ASCII编码串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'1234'</span>.encode(<span class="string">"hex"</span>)</div><div class="line"><span class="string">'31323334'</span></div><div class="line"><span class="comment"># ASCII编码串-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'3031'</span>.decode(<span class="string">"hex"</span>)</div><div class="line"><span class="string">'01'</span></div><div class="line"></div><div class="line"><span class="comment"># 使用 binascii</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> binascii</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>binascii.hexlify(<span class="string">"1234"</span>)    <span class="comment"># 或者 binascii.b2a_hex("1234")</span></div><div class="line"><span class="string">'31323334'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>binascii.unhexlify(<span class="string">"3031"</span>)  <span class="comment"># 或者 binascii.a2b_hex("3031")</span></div><div class="line"><span class="string">'01'</span></div><div class="line"></div><div class="line"><span class="comment"># 使用 struct</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> struct</div><div class="line"><span class="comment"># 字节流-&gt;整数</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.unpack(<span class="string">'&lt;hh'</span>, bytes(<span class="string">b'\x01\x00\x00\x00'</span>))    <span class="comment"># 转义为short型整数</span></div><div class="line">(<span class="number">1</span>, <span class="number">0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.unpack(<span class="string">'&lt;L'</span>, bytes(<span class="string">b'\x01\x00\x00\x00'</span>))     <span class="comment"># 转义为long型整数</span></div><div class="line">(<span class="number">1</span>,)</div><div class="line"></div><div class="line"><span class="comment"># 整数-&gt;字节流</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.pack(<span class="string">'&lt;HH'</span>, <span class="number">1</span>,<span class="number">2</span>)</div><div class="line"><span class="string">'\x01\x00\x02\x00'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.pack(<span class="string">'&lt;LL'</span>, <span class="number">1</span>,<span class="number">2</span>)</div><div class="line"><span class="string">'\x01\x00\x00\x00\x02\x00\x00\x00'</span></div></pre></td></tr></table></figure>
+<h1 id="字符串-lt-gt-数值-列表-字典"><a href="#字符串-lt-gt-数值-列表-字典" class="headerlink" title="字符串&lt;-&gt;数值/列表/字典"></a>字符串&lt;-&gt;数值/列表/字典</h1><h2 id="字符串-lt-gt-数值"><a href="#字符串-lt-gt-数值" class="headerlink" title="字符串&lt;-&gt;数值"></a>字符串&lt;-&gt;数值</h2><ul>
+<li>int(x [,base ]), 将x转换为一个整数</li>
+<li>long(x [,base ]), 将x转换为一个长整数</li>
+<li>float(x), 将x转换到一个浮点数</li>
+<li><strong>使用re正则表达式, 实用范例</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>str = <span class="string">"test: 12a345 to 325.-123.34"</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># this can get the number from str like "good456sdg78", return ['456', '78']</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">r'\d+'</span>, str)</div><div class="line">[<span class="string">'12'</span>, <span class="string">'345'</span>, <span class="string">'325'</span>, <span class="string">'123'</span>, <span class="string">'34'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># this can get the number seperate in str like "good12sd 45 78 ", return ['45', '78']</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">r'\b\d+\b'</span>, str)</div><div class="line">[<span class="string">'325'</span>, <span class="string">'123'</span>, <span class="string">'34'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># more complicated, can recognize and return [30, -10, 34.12, -12.34, 67.56E+3, -14.23e-2]</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">"[-+]?\d+[\.]?\d+[eE]?[-+]?\d*"</span>, str)</div><div class="line">[<span class="string">'12'</span>, <span class="string">'345'</span>, <span class="string">'325'</span>, <span class="string">'-123.34'</span>]</div></pre></td></tr></table></figure>
+<h2 id="字符串-gt-列表-字典-去掉引号"><a href="#字符串-gt-列表-字典-去掉引号" class="headerlink" title="字符串-&gt;列表/字典 (去掉引号)"></a>字符串-&gt;列表/字典 (去掉引号)</h2><ul>
+<li>eval(), 将str当成有效的表达式来求值并返回计算结果. 在确保str源安全的情况下可用.<ul>
+<li><a href="http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html" target="_blank" rel="external">Eval really is dangerous</a></li>
+<li><a href="http://blog.csdn.net/zhanh1218/article/details/37562167" target="_blank" rel="external">Python:eval的妙用和滥用</a></li>
+</ul>
+</li>
+<li><a href="https://docs.python.org/2/library/ast.html#ast-helpers" target="_blank" rel="external">ast.literal_eval()</a>, eval的替代品, 更安全</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"[1,2,3]"</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"&#123;'one':1, 'two':2&#125;"</span>)</div><div class="line">&#123;<span class="string">'two'</span>: <span class="number">2</span>, <span class="string">'one'</span>: <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
+<h2 id="字符串-lt-gt-列表"><a href="#字符串-lt-gt-列表" class="headerlink" title="字符串&lt;-&gt;列表"></a>字符串&lt;-&gt;列表</h2><ul>
+<li>str.join(), 列表-&gt;字符串</li>
+<li>str.split(), 字符串-&gt;列表</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = list(<span class="string">"hello"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst</div><div class="line">[<span class="string">'h'</span>, <span class="string">'e'</span>, <span class="string">'l'</span>, <span class="string">'l'</span>, <span class="string">'o'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(lst)</div><div class="line"><span class="string">'hello'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表 (指定分隔符, 如空格, 逗号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season = <span class="string">'spring, summer, autumn, winter'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season.split (<span class="string">','</span>)</div><div class="line">[<span class="string">'spring'</span>, <span class="string">' summer'</span>, <span class="string">' autumn'</span>, <span class="string">' winter'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="string">"spring"</span>, <span class="string">"summer"</span>, <span class="string">"autumn"</span>, <span class="string">"winter"</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">', '</span>.join(lst)</div><div class="line"><span class="string">'spring, summer, autumn, winter'</span></div><div class="line"></div><div class="line"><span class="comment"># 整数列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(str(e) <span class="keyword">for</span> e <span class="keyword">in</span> lst)</div><div class="line"><span class="string">'123'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;hex格式列表-&gt;hex格式字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>map(ord, <span class="string">"1234"</span>) <span class="comment"># [0x31, 0x32, 0x33 0x34]</span></div><div class="line">[<span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join([<span class="string">"%02x"</span> % i <span class="keyword">for</span> i <span class="keyword">in</span> map(ord, <span class="string">"1234"</span>)])</div><div class="line"><span class="string">'31323334'</span></div></pre></td></tr></table></figure>
+<h1 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h1><h2 id="操作基础"><a href="#操作基础" class="headerlink" title="操作基础"></a>操作基础</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 去前后空格及特殊符号</span></div><div class="line">s.strip().lstrip().rstrip(<span class="string">','</span>)</div><div class="line"></div><div class="line"><span class="comment"># 查找字符</span></div><div class="line">sStr1.index(sStr2)  <span class="comment"># 返回所在位置, 不存在则报错</span></div><div class="line">sStr2 <span class="keyword">in</span> sStr1      <span class="comment"># 返回 True or False</span></div><div class="line"></div><div class="line"><span class="comment"># 比较字符串</span></div><div class="line">cmp(sStr1,sStr)</div><div class="line"></div><div class="line"><span class="comment"># 字符串长度</span></div><div class="line">len(sStr1)</div><div class="line"></div><div class="line"><span class="comment"># 将字符串中的大小写转换</span></div><div class="line">sStr1.upper().lower()</div><div class="line"></div><div class="line"><span class="comment"># 扩充到指定长度</span></div><div class="line">str(<span class="number">01</span>).zfill(<span class="number">5</span>) <span class="comment"># “00001”</span></div><div class="line"></div><div class="line"><span class="comment"># 翻转字符串</span></div><div class="line">sStr1[::<span class="number">-1</span>]</div><div class="line"></div><div class="line"><span class="comment"># 分割字符串</span></div><div class="line">s.split(<span class="string">','</span>)</div><div class="line"></div><div class="line"><span class="comment"># 字符串切片</span></div><div class="line">str = ’<span class="number">0123456789</span>′</div><div class="line"><span class="keyword">print</span> str[<span class="number">0</span>:<span class="number">3</span>]      <span class="comment"># 截取第一位到第三位的字符</span></div><div class="line"><span class="keyword">print</span> str[:]        <span class="comment"># 截取字符串的全部字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">6</span>:]       <span class="comment"># 截取第七个字符到结尾</span></div><div class="line"><span class="keyword">print</span> str[:<span class="number">-3</span>]      <span class="comment"># 截取从头开始到倒数第三个字符之前</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">2</span>]        <span class="comment"># 截取第三个字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-1</span>]       <span class="comment"># 截取倒数第一个字符</span></div><div class="line"><span class="keyword">print</span> str[::<span class="number">-1</span>]     <span class="comment"># 创造一个与原字符串顺序相反的字符串</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-3</span>:<span class="number">-1</span>]    <span class="comment"># 截取倒数第三位与倒数第一位之前的字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-3</span>:]      <span class="comment"># 截取倒数第三位到结尾</span></div></pre></td></tr></table></figure>
+<h2 id="查看手册及高阶使用"><a href="#查看手册及高阶使用" class="headerlink" title="查看手册及高阶使用"></a>查看手册及高阶使用</h2><ul>
+<li><p><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/chapters/p02_strings_and_text.html" target="_blank" rel="external">cookbook-第二章：字符串和文本</a>, 实用范例</p>
+<ul>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p01_split_string_on_multiple_delimiters.html" target="_blank" rel="external">2.1 使用多个界定符分割字符串</a>, split(), re.split()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p02_match_text_at_start_end.html" target="_blank" rel="external">2.2 字符串开头或结尾匹配</a>, startswith(), endswith()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p03_match_strings_with_shell_wildcard.html" target="_blank" rel="external">2.3 用Shell通配符匹配字符串</a>, fnmatch(), fnmatchcase()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p04_match_and_search_text.html" target="_blank" rel="external">2.4 字符串匹配和搜索</a>, find(), findall(), match(), re.match()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p05_search_and_replace_text.html" target="_blank" rel="external">2.5 字符串搜索和替换</a>, replace(), re.sub()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p06_search_replace_case_insensitive.html" target="_blank" rel="external">2.6 字符串忽略大小写的搜索替换</a>, re.IGNORECASE</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p07_specify_regexp_for_shortest_match.html" target="_blank" rel="external">2.7 最短匹配模式</a>, 解决成对符号的问题, 避免贪婪算法</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p08_regexp_for_multiline_partterns.html" target="_blank" rel="external">2.8 多行匹配模式</a>, 解决回车换行的问题</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p09_normalize_unicode_text_to_regexp.html" target="_blank" rel="external">2.9 将Unicode文本标准化</a></li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p10_work_with_unicode_in_regexp.html" target="_blank" rel="external">2.10 在正则式中使用Unicode</a></li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p11_strip_unwanted_characters.html" target="_blank" rel="external">2.11 删除字符串中不需要的字符</a>, strip(), replace(), re.sub()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p12_sanitizing_clean_up_text.html" target="_blank" rel="external">2.12 审查清理文本字符串</a></li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p13_aligning_text_strings.html" target="_blank" rel="external">2.13 字符串对齐</a>, ljust(), rjust(), center(), format()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p14_combine_and_concatenate_strings.html" target="_blank" rel="external">2.14 合并拼接字符串</a>, join()</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p15_interpolating_variables_in_strings.html" target="_blank" rel="external">2.15 字符串中插入变量</a>, format()的高阶使用</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p16_reformat_text_to_fixed_number_columns.html" target="_blank" rel="external">2.16 以指定列宽格式化字符串</a>, textwrap</li>
+<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p17_handle_html_xml_in_text.html" target="_blank" rel="external">2.17 在字符串中处理html和xml</a></li>
+<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p18_tokenizing_text.html" target="_blank" rel="external">2.18 字符串令牌解析</a>, 语法的解析</del></li>
+<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p19_writing_recursive_descent_parser.html" target="_blank" rel="external">2.19 实现一个简单的递归下降分析器</a>, 语法的解析</del></li>
+<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p20_perform_text_operations_on_byte_string.html" target="_blank" rel="external">2.20 字节字符串上的字符串操作</a>, bytearray</del></li>
+</ul>
+</li>
+<li><p><a href="https://docs.python.org/2/library/stdtypes.html#string-methods" target="_blank" rel="external">String Methods</a>, string提供的方法/函数</p>
+<ul>
+<li><a href="https://docs.python.org/2/library/stdtypes.html#string-formatting-operations" target="_blank" rel="external">String Formatting Operations</a>, 格式化显示, 建议使用format替代</li>
+</ul>
+</li>
+<li><p><a href="https://docs.python.org/2/library/string.html" target="_blank" rel="external">string — Common string operations</a>, python官方手册之字符串操作</p>
+<ul>
+<li><a href="https://docs.python.org/2/library/string.html#string-constants" target="_blank" rel="external">String constants</a>, 字符串常量, 如字母, 数字</li>
+<li><a href="https://docs.python.org/2/library/string.html#format-examples" target="_blank" rel="external">Format examples</a>, 格式化显示</li>
+<li><del><a href="https://docs.python.org/2/library/string.html#template-strings" target="_blank" rel="external">Template strings</a>, 模板显示</del>, 建议使用format代替.</li>
+</ul>
+</li>
+</ul>
+<h2 id="使用正则表达式的一些例子"><a href="#使用正则表达式的一些例子" class="headerlink" title="使用正则表达式的一些例子"></a>使用正则表达式的一些例子</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 去掉所有的空格和tab</span></div><div class="line">re.sub(<span class="string">'[\s+]'</span>, <span class="string">''</span>, str)</div><div class="line"></div><div class="line"><span class="comment"># 转换小写下划线格式变化为驼峰格式</span></div><div class="line">re.sub(<span class="string">'^\w|_\w'</span>, <span class="keyword">lambda</span> x:x.group()[<span class="number">-1</span>].upper(), <span class="string">'blog_view'</span>) <span class="comment"># 输出 'BlogView'。</span></div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/23/1620-python-data-struct/" itemprop="url">
                   Python 数据结构资料收集
                 </a>
@@ -1469,167 +1699,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/24/1614-CheatSheet-git/" itemprop="url">
-                  Git 常用命令
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-24T00:00:00+11:00" content="2016-10-24">
-              2016-10-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/cheat-sheet/" itemprop="url" rel="index">
-                    <span itemprop="name">cheat sheet</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="git示意图"><a href="#git示意图" class="headerlink" title="git示意图"></a>git示意图</h1><p>  <img src="https://draapho.github.io/images/1614/git.jpg" alt="git"></p>
-<h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><ul>
-<li><a href="http://ndpsoftware.com/git-cheatsheet.html" target="_blank" rel="external">Visual Git Cheat Sheet</a></li>
-<li><a href="https://git-scm.com/book/zh/v2" target="_blank" rel="external">Pro Git book</a></li>
-<li>廖雪峰的 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="external">Git教程</a></li>
-<li>设置SSH, 参考 <a href="https://help.github.com/categories/ssh/" target="_blank" rel="external">GitHub Help - SSH</a></li>
-<li>设置GPG, 参考 <a href="https://help.github.com/categories/gpg/" target="_blank" rel="external">GitHub Help - GPG</a></li>
-</ul>
-<h1 id="一些理解"><a href="#一些理解" class="headerlink" title="一些理解"></a>一些理解</h1><ul>
-<li>git的核心理解为指针即可, 包括 <code>workspace</code>, <code>index</code>, <code>commitHash</code><ul>
-<li><code>repository</code>是基于<code>commitHash</code>管理版本的.</li>
-<li><code>HEAD</code>, <code>HEAD^1</code>, <code>HEAD~3</code>, <code>branch</code>, <code>tags</code>都是<code>commitHash</code>的别名, 便于人们记忆和理解.</li>
-<li>可以基于 <code>git reset</code> 来检测是否完全理解git基于指针的设计思路.  </li>
-<li><code>HEAD^1</code>基于父节点, <code>HEAD~1</code>基于层次. 单层结构下没有差别. 复杂多层结构建议直接用 <code>commitHash</code></li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">       A ---------------------  A =      = A^0                       </div><div class="line">      / \                       </div><div class="line">     B   C                      B = A^   = A^1     = A~1</div><div class="line">    /|\  |                      C = A^2  = A^2     </div><div class="line">   / | \ |                                     </div><div class="line">  D  E   F -------------------  D = A^^  = A^1^1   = A~2  </div><div class="line"> / \    / \                     E = B^2  = A^^2</div><div class="line">/   \  /   \                    F = B^3  = A^^3   </div><div class="line">G   H  I   J -----------------  G = A^^^ = A^1^1^1 = A~3                               </div><div class="line">                                H = D^2  = B^^2    = A^^^2  = A~2^2</div><div class="line">                                I = F^   = B^3^    = A^^3^</div><div class="line">                                J = F^2  = B^3^2   = A^^3^2</div></pre></td></tr></table></figure>
-<ul>
-<li>git的命令, 常见格式为 <code>git diff p1 p2 -- file</code>. 意为, 比较<code>p1</code>与<code>p2</code>两处指定file的区别<ul>
-<li><code>p1</code> 缺省指向workspace, <code>p2</code> 缺省指向index. </li>
-<li><code>--</code> 接文件或目录, 名字无歧义时可以省去<code>--</code>. (如 git checkout name 就可能有歧义, branch OR file?)</li>
-<li><code>.</code> 表示所有的文件, 如 <code>git add .</code></li>
-</ul>
-</li>
-<li>学会查看帮助, 加上 <code>-h</code> 即可. 如 <code>git checkout -h</code><ul>
-<li><code>[]</code> 表示可选项, <code>&lt;&gt;</code> 表示必填项</li>
-</ul>
-</li>
-</ul>
-<h1 id="初始安装"><a href="#初始安装" class="headerlink" title="初始安装"></a>初始安装</h1><ul>
-<li><p>新建git仓库</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># Create local repository</div><div class="line"># put &quot;.gitignore&quot; to project root direct.</div><div class="line">git init                        # create local repository</div><div class="line">git add README.md               # add somefiles</div><div class="line">git commit -m &quot;first commit&quot;    # commit to local repository</div><div class="line"></div><div class="line"># link with remote repository</div><div class="line">git remote add origin url       # add remote repository, &lt;url&gt; like https://... OR ssh://...</div><div class="line">git push -u origin master       # -u, 指定默认远程主机为 origin</div><div class="line"></div><div class="line"># Clone existing repository</div><div class="line">git clone url                   # &lt;url&gt; like https://... OR ssh://...</div><div class="line"></div><div class="line"># more cmd about config</div><div class="line">git config --list               # show config</div><div class="line">git config -e                   # edit local config file</div></pre></td></tr></table></figure>
-</li>
-<li><p>单独设置参数, –global表示全局参数, 不写就是仓库自有参数</p>
-</li>
-<li>需要安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="external">p4merge</a> 用于支持 <code>difftool</code> 及 <code>mergetool</code></li>
-<li><p>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"># global setting</div><div class="line">git config --global user.name &quot;Your Name&quot;</div><div class="line">git config --global user.email &quot;email@example.com&quot;</div><div class="line"></div><div class="line"># alise setting</div><div class="line">git config --global alias.a &apos;add&apos;</div><div class="line">git config --global alias.aa &apos;add .&apos;</div><div class="line">git config --global alias.b &apos;branch&apos;</div><div class="line">git config --global alias.bb &apos;branch -a -v&apos;</div><div class="line">git config --global alias.co &apos;checkout&apos;</div><div class="line">git config --global alias.cm &apos;commit -m&apos;</div><div class="line">git config --global alias.lg &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit&quot;</div><div class="line">git config --global alias.ll &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10&quot;</div><div class="line">git config --global alias.st &apos;status&apos;</div><div class="line"></div><div class="line"># set diff color</div><div class="line">git config --global color.diff.old &quot;red normal bold&quot;</div><div class="line">git config --global color.diff.new &quot;green normal bold&quot;</div><div class="line"></div><div class="line"># solve the warning, LF will be replaced by CRLF</div><div class="line">git config --global core.autocrlf false</div><div class="line">git config --global core.safecrlf false</div><div class="line"></div><div class="line"># set difftool mergetool (need p4merge)</div><div class="line">git config --global diff.tool p4merge</div><div class="line">git config --global difftool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$LOCAL&quot; &quot;$REMOTE&quot;&apos;</div><div class="line">git config --global difftool.prompt false</div><div class="line">git config --global merge.tool p4merge</div><div class="line">git config --global mergetool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$PWD/$BASE&quot; &quot;$PWD/$REMOTE&quot; &quot;$PWD/$LOCAL&quot; &quot;$PWD/$MERGED&quot;&apos;</div><div class="line">git config --global mergetool.p4merge.trustExitCode false</div><div class="line">git config --global mergetool.keepBackup false</div></pre></td></tr></table></figure>
-</li>
-<li><p>也可使用 <code>git config -e --global</code> 打开全局配置文件, 直接设置全局参数</p>
-</li>
-<li>需要安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="external">p4merge</a> 用于支持 <code>difftool</code> 及 <code>mergetool</code></li>
-<li>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">[user]</div><div class="line">    name = https://draapho.github.io/</div><div class="line">    email = draapho@gmail.com</div><div class="line">[alias]</div><div class="line">    a = add</div><div class="line">    aa = add .</div><div class="line">    b = branch</div><div class="line">    bb = branch -a -v</div><div class="line">    co = checkout</div><div class="line">    cm = commit -m</div><div class="line">    lg = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit</div><div class="line">    ll = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10</div><div class="line">    st = status</div><div class="line">[color &quot;diff&quot;]</div><div class="line">	old = red normal bold</div><div class="line">	new = green normal bold</div><div class="line">[core]</div><div class="line">    autocrlf = false</div><div class="line">    safecrlf = false</div><div class="line">[diff]</div><div class="line">	tool = p4merge</div><div class="line">[difftool &quot;p4merge&quot;]</div><div class="line">	cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$LOCAL\&quot; \&quot;$REMOTE\&quot;</div><div class="line">[difftool]</div><div class="line">	prompt = false</div><div class="line">[merge]</div><div class="line">	tool = p4merge</div><div class="line">[mergetool &quot;p4merge&quot;]</div><div class="line">	cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$PWD/$BASE\&quot; \&quot;$PWD/$REMOTE\&quot; \&quot;$PWD/$LOCAL\&quot; \&quot;$PWD/$MERGED\&quot;</div><div class="line">	trustExitCode = false</div><div class="line">[mergetool]</div><div class="line">	keepBackup = false</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"># 查看信息</div><div class="line">git st                          # git status            # 显示工作区变更的文件</div><div class="line">git lg                          # git log 增强版        # 显示所有提交</div><div class="line">git ll                          # git lg -10            # 显示过去10次提交</div><div class="line">git shortlog -sn                                        # 显示所有提交过的用户</div><div class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</div><div class="line"></div><div class="line"># stash                                                 # 少量且短时间的使用!</div><div class="line">git stash                                               # workspace-&gt;stash(藏匿处)</div><div class="line">git stash pop                                           # stash(不保存)-&gt;workspace</div><div class="line"></div><div class="line"># 提交文件</div><div class="line">git aa                          # git add .             # workspace-&gt;index</div><div class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</div><div class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</div><div class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</div><div class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</div><div class="line"> </div><div class="line"># 分支操作</div><div class="line">git b name                      # git branch name       # 创建分支</div><div class="line">git b name commit                                       # 基于指定 commit 创建分支</div><div class="line">git b -d name                   # branch delete         # 删除分支</div><div class="line">git b -dr origin/name           # delete remote         # 删除远程分支</div><div class="line">git b -m new_name               # git branch --move     # 重命名分支</div><div class="line">git bb                          # git branch -a         # 查看所有分支</div><div class="line">git remote -v                                           # 查看远程分支</div><div class="line">git co name                     # git checkout name     # 切换分支</div><div class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</div><div class="line"></div><div class="line"># 版本合并和回退</div><div class="line">git merge branch                # 合并branch到当前分支</div><div class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</div><div class="line">git cherry-pick commit          # 合并commit到当前分支</div><div class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!  </div><div class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!        </div><div class="line">git push                                                # 推送到默认的远程主机</div><div class="line">git push -f                     # --force               # 忽略冲突, 强制推送</div><div class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</div><div class="line"></div><div class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</div><div class="line">git tag                         # 查看版本</div><div class="line">git tag v100                    # 创建版本</div><div class="line">git tag -d v100                 # 删除版本</div><div class="line">git push --tags                 # 推送tag</div><div class="line"></div><div class="line"># 查看差异 </div><div class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</div><div class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</div><div class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</div><div class="line">git diff --name-status p1 p2    # 获得变更的文件列表</div><div class="line">git diff --stat p1 p2           # 统计变更的数据</div><div class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</div><div class="line"></div><div class="line"># 撤销</div><div class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</div><div class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</div><div class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</div><div class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</div><div class="line"></div><div class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</div><div class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</div><div class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</div><div class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</div><div class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</div></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1675,7 +1744,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">20</span>
+              <span class="site-state-item-count">21</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1692,7 +1761,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-count">36</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
