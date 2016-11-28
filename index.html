@@ -1537,7 +1537,7 @@
               
                 
                 <a class="post-title-link" href="/2016/11/14/1615-python-thread/" itemprop="url">
-                  python 多进程/线程资料收集
+                  协程/进程/线程资料收集
                 </a>
               
             
@@ -1564,8 +1564,8 @@
               <span class="post-meta-item-text">In</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
                   </a>
                 </span>
 
@@ -1599,8 +1599,114 @@
       
         
           
-            <p>多线程(Thread), 多进程(Multiprocessing)资料繁多, 学无止境, 就集中在这一篇收集贴中. 便于查阅学习</p>
+            <p>协程(Coroutine), 多线程(Thread), 多进程(Multiprocessing)资料繁多, 学无止境, 就集中在这一篇收集贴中. 便于查阅学习</p>
+<h1 id="自己的理解"><a href="#自己的理解" class="headerlink" title="自己的理解"></a>自己的理解</h1><ul>
+<li>协程, 任务之间不是竞争关系, 而是协作关系, 需要每个任务都需要有一颗舍己为公的心!<ul>
+<li>大家排队喝水, 喝到差不多就自己让给下一个人, 自己再去排队! 可按照优先级来插队的.</li>
+<li>遇到不讲道理的人, 那这个机制就失效了. 因为没有抢占, 大家都只会默默等待…</li>
+<li>优点, 任务切换的代价非常小. 由于没有抢占, 也就没有复杂的临界区问题. 锁的问题也变得简单.</li>
+<li>缺点, 这个世界上总有不讲理的人, 所以, 大型任务和系统不敢这么用…</li>
+<li>单片机开发是非常适合使用协程的! (资源有限, 需要减小任务切换的开销. 任务可控, 意味着易于协作)</li>
+</ul>
+</li>
+</ul>
 <ul>
+<li>多线程, 任务之间是竞争关系, 高优先级优先执行, 同时又有时间片限制, 避免高优先级任务霸占CPU<ul>
+<li>谁强谁喝水, 不过旁边有个管理员, 哪个家伙喝水时间太久了, 就会把他给跩一边去, 大家重新来抢.</li>
+<li>线程是共享内存的, 理解为这些水来自于同一个自来水厂(这个水厂有毒的话, 谁了逃不了),</li>
+<li>多核就是多个水龙头, 同一时刻可以有多个人在喝水.</li>
+<li>优点, 任务的开销比进程小(因为共享内存), 通讯方式多样. 加个水龙头和造个水厂的区别!!!</li>
+<li>缺点, 一大帮自私又不讲理的人在一起总是很难管理的… 需要各种锁机制来维持和谐共处…</li>
+<li>python的多线程, 由于GIL机制的存在, 是无法利用多核的. (意味着不适用于CPU密集型任务)</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多进程, 任务之间是竞争关系, 任务之间的数据全部隔离, 没有共享.<ul>
+<li>进程是资源分配的基本单位. 进程包含线程, 线程共用进程的资源.</li>
+<li>进程比线程安全性更高, 因为拥有独立的内存块(独立水厂供水)</li>
+<li>进程的建立和调度比线程更费时间和资源</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>进程和线程以及多核<ul>
+<li>操作系统必须有一个进程, 创建进程时, 会分配好供这个进程使用的内存和上下文环境.</li>
+<li>线程依赖于进程, 多线程运行于同一个进程下面, 会共享同一个进程的内存.</li>
+<li>事实上, 线程是最难写好的一种多任务方式(因为共享内存). 用的多是因为它的开销比进程小很多.</li>
+<li>以android为例,<ul>
+<li>android的每一个应用就是一个linux进程, 所以写的再烂的应用也不会导致整个android系统崩溃.</li>
+<li>应用内支持多线程, 也事实上都对应到linux的线程, 这些线程运行在分配好的linux进程中.</li>
+</ul>
+</li>
+<li>进程和线程的概念和单核还是多核一点关系都没有! 先理解好单核再说, 真正涉及到CPU密集型任务时, 再考虑多核优化…</li>
+</ul>
+</li>
+</ul>
+<h1 id="优缺点比较"><a href="#优缺点比较" class="headerlink" title="优缺点比较"></a>优缺点比较</h1><ul>
+<li>协程具有进程和线程各自的优点. 但其缺点是需要任务间自己来协作调度(很容易写成阻塞等待), 这一点直接导致了通用性很差.</li>
+<li><a href="http://blog.csdn.net/lishenglong666/article/details/8557215" target="_blank" rel="external">多线程还是多进程的选择及区别</a>, 比较全面的一篇文章!<ul>
+<li>本文也有一个转字, 应该是综合了多种搜素结果写出来的一篇博文. 有结论, 有实验代码和过程</li>
+<li>鱼还是熊掌：浅谈多进程多线程的选择</li>
+<li>1.进程与线程</li>
+<li>一、重复周丽论文实验步骤</li>
+<li>二、增加并发数量的实验</li>
+<li>三、增加每进程/线程的工作强度的实验</li>
+<li>四、多进程和多线程在创建和销毁上的效率比较</li>
+<li>五、双核系统重复周丽论文实验步骤</li>
+<li>六、并发服务的不可测性</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>多进程</th>
+<th>多线程</th>
+<th>总结</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据共享、同步</td>
+<td>数据共享复杂，需要用IPC；数据是分开的，<strong>同步简单</strong></td>
+<td>因为共享进程数据，<strong>数据共享简单</strong>，但也是因为这个原因导致同步复杂</td>
+<td>各有优势</td>
+</tr>
+<tr>
+<td>内存、CPU</td>
+<td>占用内存多，切换复杂，CPU利用率低</td>
+<td><strong>占用内存少，切换简单，CPU利用率高</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>创建销毁、切换</td>
+<td>创建销毁、切换复杂，速度慢</td>
+<td><strong>创建销毁、切换简单，速度很快</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>编程、调试</td>
+<td><strong>编程简单，调试简单</strong></td>
+<td>编程复杂，调试复杂</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>可靠性</td>
+<td><strong>进程间不会互相影响</strong></td>
+<td>一个线程挂掉将导致整个进程挂掉</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>分布式</td>
+<td><strong>适应于多核、多机分布式</strong>；如果一台机器不够，扩展到多台机器比较简单</td>
+<td>适应于多核分布式</td>
+<td>进程占优</td>
+</tr>
+</tbody>
+</table>
+<h1 id="资料集"><a href="#资料集" class="headerlink" title="资料集"></a>资料集</h1><ul>
 <li><p><a href="https://www.tutorialspoint.com/python/python_multithreading.htm" target="_blank" rel="external">Python Multithreaded Programming</a></p>
 <ul>
 <li>Python多线程入门教程, 有详细的说明, 源代码及运行结果.</li>
@@ -1668,6 +1774,13 @@
 <li>2, python 多进程共享变量的几种方式</li>
 <li>3, 多进程的问题远不止这么多：数据的同步. (需要Lock)</li>
 <li>4, 总结为: 多进程最好还是用IPC(message之类的). 如果一定要用共享变量, 那也是可以的…</li>
+</ul>
+</li>
+<li><p><a href="https://liangxiansen.github.io/2016/08/08/python%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/" target="_blank" rel="external">Python之路：(十五）进程、线程和协程</a></p>
+<ul>
+<li>Python线程, 线程锁(Lock, Rlock), 其它IPC, 线程池</li>
+<li>Python进程, 进程数据共享, 进程IPC. (Python Windows下是可以用进程的, 只是不支持fork)</li>
+<li>Python协程, greenlet(主动切换), gevent(遇到IO操作, 自动切换).</li>
 </ul>
 </li>
 </ul>
