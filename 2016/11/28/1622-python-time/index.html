@@ -1,0 +1,800 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,timeout," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="实用的例子time.sleep 单线程阻塞延时123456789101112import timedef time_sleep():    for i in range(10):        print i        time.sleep(1)       # delay 1s, not that accurateif __name__ == &quot;__main__&quot;:    start = t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 延时及超时">
+<meta property="og:url" content="https://draapho.github.io/2016/11/28/1622-python-time/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="实用的例子time.sleep 单线程阻塞延时123456789101112import timedef time_sleep():    for i in range(10):        print i        time.sleep(1)       # delay 1s, not that accurateif __name__ == &quot;__main__&quot;:    start = t">
+<meta property="og:updated_time" content="2016-12-01T11:32:03.949Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python 延时及超时">
+<meta name="twitter:description" content="实用的例子time.sleep 单线程阻塞延时123456789101112import timedef time_sleep():    for i in range(10):        print i        time.sleep(1)       # delay 1s, not that accurateif __name__ == &quot;__main__&quot;:    start = t">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2016/11/28/1622-python-time/"/>
+
+
+  <title> python 延时及超时 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                python 延时及超时
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-28T00:00:00+11:00" content="2016-11-28">
+              2016-11-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="实用的例子"><a href="#实用的例子" class="headerlink" title="实用的例子"></a>实用的例子</h1><h2 id="time-sleep-单线程阻塞延时"><a href="#time-sleep-单线程阻塞延时" class="headerlink" title="time.sleep 单线程阻塞延时"></a><code>time.sleep</code> 单线程阻塞延时</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">time_sleep</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">        <span class="keyword">print</span> i</div><div class="line">        time.sleep(<span class="number">1</span>)       <span class="comment"># delay 1s, not that accurate</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    time_sleep()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h2 id="time-time-单线程非阻塞延时-超时"><a href="#time-time-单线程非阻塞延时-超时" class="headerlink" title="time.time 单线程非阻塞延时/超时"></a><code>time.time</code> 单线程非阻塞延时/超时</h2><p>通过比较时间戳实现, 多用于循环中的延时/超时判断</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">time_compare</span><span class="params">()</span>:</span></div><div class="line">    timeout = time.time() + <span class="number">10</span>  <span class="comment"># 10s delay</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">20</span>):</div><div class="line">        <span class="keyword">print</span> i</div><div class="line">        time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">if</span> timeout &lt; time.time(): <span class="comment"># compare the timestamps</span></div><div class="line">            <span class="keyword">break</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"time out !"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    time_compare()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h2 id="threading-Timer-多线程非阻塞延时"><a href="#threading-Timer-多线程非阻塞延时" class="headerlink" title="threading.Timer 多线程非阻塞延时"></a><code>threading.Timer</code> 多线程非阻塞延时</h2><p>这个例子中, 会先执行完 <code>threading_main</code>. 5s后, 才会执行 <code>threading_sub</code><br>子线程函数可以带参 <code>threading.Timer(interval, function, args=[], kwargs={})</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: start"</span></div><div class="line">    thrd = threading.Timer(<span class="number">5.0</span>, threading_sub, args = [<span class="string">"sub thread"</span>])</div><div class="line">    thrd.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">print</span> name + <span class="string">": hello"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    threading_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h2 id="threading-Timer-threading-join-多线程阻塞延时"><a href="#threading-Timer-threading-join-多线程阻塞延时" class="headerlink" title="threading.Timer + threading.join 多线程阻塞延时"></a><code>threading.Timer</code> + <code>threading.join</code> 多线程阻塞延时</h2><p>使用 <code>join</code> 语句, 让主线程等待子线程完成后才继续执行<br>子线程函数可以带参 <code>threading.Timer(interval, function, args=[], kwargs={})</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: start"</span></div><div class="line">    thrd = threading.Timer(<span class="number">5.0</span>, threading_sub, args = [<span class="string">"sub thread"</span>])</div><div class="line">    thrd.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: wait"</span></div><div class="line">    thrd.join()     <span class="comment"># add this line</span></div><div class="line">    <span class="comment"># thrd.join(timeout=2)  # just wait 2s then continue</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">print</span> name + <span class="string">": hello"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    threading_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><h2 id="装饰器-使用KThread-localtrace结束线程-通用性最好-性能较低"><a href="#装饰器-使用KThread-localtrace结束线程-通用性最好-性能较低" class="headerlink" title="装饰器, 使用KThread,.localtrace结束线程. (通用性最好, 性能较低)"></a>装饰器, 使用<code>KThread,.localtrace</code>结束线程. (通用性最好, 性能较低)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Timeout</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="string">"""function run timeout"""</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">KThread</span><span class="params">(threading.Thread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *args, **kwargs)</span>:</span></div><div class="line">        threading.Thread.__init__(self, *args, **kwargs)</div><div class="line">        self.killed = <span class="keyword">False</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Start the thread."""</span></div><div class="line">        self.__run_backup = self.run</div><div class="line">        <span class="comment"># Force the Thread to install our trace.</span></div><div class="line">        self.run = self.__run</div><div class="line">        threading.Thread.start(self)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Hacked run function, which installs the trace."""</span></div><div class="line">        sys.settrace(self.globaltrace)</div><div class="line">        self.__run_backup()</div><div class="line">        self.run = self.__run_backup</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">globaltrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> why == <span class="string">'call'</span>:</div><div class="line">            <span class="keyword">return</span> self.localtrace</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">localtrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> self.killed:</div><div class="line">            <span class="keyword">if</span> why == <span class="string">'line'</span>:</div><div class="line">                <span class="keyword">raise</span> SystemExit()</div><div class="line">        <span class="keyword">return</span> self.localtrace</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">kill</span><span class="params">(self)</span>:</span></div><div class="line">        self.killed = <span class="keyword">True</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout</span><span class="params">(timeout, default=None, try_except=False)</span>:</span></div><div class="line">    <span class="string">"""Timeout decorator, parameter in timeout."""</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">timeout_decorator</span><span class="params">(func)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">new_func</span><span class="params">(oldfunc, result, oldfunc_args, oldfunc_kwargs)</span>:</span></div><div class="line">            result.append(oldfunc(*oldfunc_args, **oldfunc_kwargs))</div><div class="line"></div><div class="line">        <span class="string">"""Wrap the original function."""</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">func_wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            result = []</div><div class="line">            <span class="comment"># create new args for _new_func, because we want to get the func</span></div><div class="line">            <span class="comment"># return val to result list</span></div><div class="line">            new_kwargs = &#123;</div><div class="line">                <span class="string">'oldfunc'</span>: func,</div><div class="line">                <span class="string">'result'</span>: result,</div><div class="line">                <span class="string">'oldfunc_args'</span>: args,</div><div class="line">                <span class="string">'oldfunc_kwargs'</span>: kwargs</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            thd = KThread(target=new_func, args=(), kwargs=new_kwargs)</div><div class="line">            thd.start()</div><div class="line">            thd.join(timeout)</div><div class="line">            <span class="comment"># timeout or finished?</span></div><div class="line">            isAlive = thd.isAlive()</div><div class="line">            thd.kill()</div><div class="line"></div><div class="line">            <span class="keyword">if</span> isAlive:</div><div class="line">                <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">                    <span class="keyword">raise</span> Timeout(<span class="string">"&#123;&#125; Timeout: &#123;&#125; seconds."</span>.format(func, timeout))</div><div class="line">                <span class="keyword">return</span> default</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                <span class="keyword">return</span> result[<span class="number">0</span>]</div><div class="line"></div><div class="line">        func_wrapper.__name__ = func.__name__</div><div class="line">        func_wrapper.__doc__ = func.__doc__</div><div class="line">        <span class="keyword">return</span> func_wrapper</div><div class="line"></div><div class="line">    <span class="keyword">return</span> timeout_decorator</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="meta">    @timeout(5)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">            print(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">print</span> count(<span class="string">"thread1"</span>)</div><div class="line">        <span class="keyword">print</span> count(<span class="string">"thread2"</span>)</div><div class="line">    <span class="keyword">except</span> Timeout <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">print</span> e</div></pre></td></tr></table></figure>
+<p>将上面的例子, 改为函数调用模式, 这样timeout参数可灵活设置!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Timeout</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="string">"""function run timeout"""</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">KThread</span><span class="params">(threading.Thread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *args, **kwargs)</span>:</span></div><div class="line">        threading.Thread.__init__(self, *args, **kwargs)</div><div class="line">        self.killed = <span class="keyword">False</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Start the thread."""</span></div><div class="line">        self.__run_backup = self.run</div><div class="line">        <span class="comment"># Force the Thread to install our trace.</span></div><div class="line">        self.run = self.__run</div><div class="line">        threading.Thread.start(self)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Hacked run function, which installs the trace."""</span></div><div class="line">        sys.settrace(self.globaltrace)</div><div class="line">        self.__run_backup()</div><div class="line">        self.run = self.__run_backup</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">globaltrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> why == <span class="string">'call'</span>:</div><div class="line">            <span class="keyword">return</span> self.localtrace</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">localtrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> self.killed:</div><div class="line">            <span class="keyword">if</span> why == <span class="string">'line'</span>:</div><div class="line">                <span class="keyword">raise</span> SystemExit()</div><div class="line">        <span class="keyword">return</span> self.localtrace</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">kill</span><span class="params">(self)</span>:</span></div><div class="line">        self.killed = <span class="keyword">True</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout_call</span><span class="params">(timeout, func, args=<span class="params">()</span>, kwargs=None, default=None, try_except=False)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">new_func</span><span class="params">(oldfunc, result, oldfunc_args, oldfunc_kwargs)</span>:</span></div><div class="line">            result.append(oldfunc(*oldfunc_args, **oldfunc_kwargs))</div><div class="line"></div><div class="line">    result = []</div><div class="line">    kwargs = &#123;&#125; <span class="keyword">if</span> kwargs <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">else</span> kwargs</div><div class="line">    <span class="comment"># create new args for _new_func, because we want to get the func</span></div><div class="line">    <span class="comment"># return val to result list</span></div><div class="line">    new_kwargs = &#123;</div><div class="line">        <span class="string">'oldfunc'</span>: func,</div><div class="line">        <span class="string">'result'</span>: result,</div><div class="line">        <span class="string">'oldfunc_args'</span>: args,</div><div class="line">        <span class="string">'oldfunc_kwargs'</span>: kwargs</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    thd = KThread(target=new_func, args=(), kwargs=new_kwargs)</div><div class="line">    thd.start()</div><div class="line">    thd.join(timeout)</div><div class="line">    <span class="comment"># timeout or finished?</span></div><div class="line">    isAlive = thd.isAlive()</div><div class="line">    thd.kill()</div><div class="line"></div><div class="line">    <span class="keyword">if</span> isAlive:</div><div class="line">        <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">            <span class="keyword">raise</span> Timeout(<span class="string">"&#123;&#125; Timeout: &#123;&#125; seconds."</span>.format(func, timeout))</div><div class="line">        <span class="keyword">return</span> default</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> result[<span class="number">0</span>]</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">            print(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"thread1"</span>])</div><div class="line">        <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"thread2"</span>])</div><div class="line">    <span class="keyword">except</span> Timeout <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">print</span> e</div></pre></td></tr></table></figure>
+<h2 id="装饰器-使用thread-interrupt-main-结束线程-仅可用于主线程"><a href="#装饰器-使用thread-interrupt-main-结束线程-仅可用于主线程" class="headerlink" title="装饰器, 使用thread.interrupt_main()结束线程. (仅可用于主线程)"></a>装饰器, 使用<code>thread.interrupt_main()</code>结束线程. (仅可用于主线程)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> thread</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout_quit</span><span class="params">(fn_name)</span>:</span></div><div class="line">    thread.interrupt_main()     <span class="comment"># raises KeyboardInterrupt</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout</span><span class="params">(s)</span>:</span></div><div class="line">    <span class="string">'''</span></div><div class="line">    use as decorator to exit process if</div><div class="line">    function takes longer than s seconds</div><div class="line">    '''</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">outer</span><span class="params">(fn)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            timer = threading.Timer(s, timeout_quit, args=[fn.__name__])</div><div class="line">            timer.start()</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                result = fn(*args, **kwargs)</div><div class="line">            <span class="keyword">finally</span>:</div><div class="line">                timer.cancel()</div><div class="line">            <span class="keyword">return</span> result</div><div class="line">        <span class="keyword">return</span> inner</div><div class="line">    <span class="keyword">return</span> outer</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="meta">    @timeout(5)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">processNum</span><span class="params">(num)</span>:</span></div><div class="line">        time.sleep(<span class="number">2</span>)</div><div class="line">        <span class="keyword">return</span> num</div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">print</span> processNum(<span class="number">1</span>)</div><div class="line">    <span class="keyword">except</span> KeyboardInterrupt:</div><div class="line">        <span class="keyword">print</span> <span class="string">"timeout"</span></div></pre></td></tr></table></figure>
+<h1 id="学习过程中的例子"><a href="#学习过程中的例子" class="headerlink" title="学习过程中的例子"></a>学习过程中的例子</h1><h2 id="threading-Timer-threading-join-多线程阻塞延时-1"><a href="#threading-Timer-threading-join-多线程阻塞延时-1" class="headerlink" title="threading.Timer + threading.join 多线程阻塞延时"></a><code>threading.Timer</code> + <code>threading.join</code> 多线程阻塞延时</h2><p>使用 <code>join</code> 语句, 让主线程等待子线程完成后才继续执行<br>子线程函数可以带参 <code>threading.Timer(interval, function, args=[], kwargs={})</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: start"</span></div><div class="line">    thrd = threading.Timer(<span class="number">5.0</span>, threading_sub, args = [<span class="string">"sub thread"</span>])</div><div class="line">    thrd.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: wait"</span></div><div class="line">    thrd.join()     <span class="comment"># add this line</span></div><div class="line">    <span class="comment"># thrd.join(timeout=2)  # just wait 2s then continue</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">print</span> name + <span class="string">": hello"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    threading_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h2 id="join-timeout-10-多进程超时判断"><a href="#join-timeout-10-多进程超时判断" class="headerlink" title="join(timeout=10) 多进程超时判断"></a><code>join(timeout=10)</code> 多进程超时判断</h2><p><code>multiprocessing</code>的本质是进程, 但是提供了类似于<code>threading</code>的一系列方法.<br>使用 <code>multiprocessing.terminate</code> 语句, 让主线程可以杀死子线程<br>子进程函数可以带参 multiprocessing.Process(group=None, target=None, name=None, args=(), kwargs={})<br>multiprocessing 没有 <code>Timer()</code> 方法的, 无法方便的延时执行.</p>
+<p>注意, 这里没有办法使用 threading 类来实现. 因为没有 <code>terminate()</code> 方法,<br>而如果用<code>signal</code>方法来结束线程, 有两个限制. 1, windows不支持. 2, 子线程不支持</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> multiprocessing</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">processing_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main process: start"</span></div><div class="line">    prcs = multiprocessing.Process(</div><div class="line">        target=processing_sub, args=[<span class="string">"sub process"</span>])</div><div class="line">    prcs.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main process: wait"</span></div><div class="line">    prcs.join(timeout=<span class="number">10</span>)</div><div class="line"></div><div class="line">    <span class="comment"># If thread is still active</span></div><div class="line">    <span class="keyword">if</span> prcs.is_alive():</div><div class="line">        <span class="keyword">print</span> <span class="string">"main process: kill"</span></div><div class="line">        prcs.terminate()</div><div class="line">        prcs.join()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main process: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">processing_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">100</span>):</div><div class="line">        <span class="comment"># if use print, can not show immediately in the console.</span></div><div class="line">        logging.error(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">        time.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    processing_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h2 id="multiprocessing-pool-实现超时判断"><a href="#multiprocessing-pool-实现超时判断" class="headerlink" title="multiprocessing.pool 实现超时判断"></a><code>multiprocessing.pool</code> 实现超时判断</h2><p>说说python下的 thread 和 process.<br>thread, 提供了signal结束方式, 但是windows不支持, 仅主线程可用! 换句话说, 终止线程很繁琐<br>process, 提供了terminate结束方式, 但是参数传递限制条件很多, (必须可以是pickle的…)</p>
+<p><strong>下面的代码是有问题的!!!</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> multiprocessing.pool</div><div class="line"><span class="keyword">import</span> functools</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout</span><span class="params">(timeout, default=None, try_except=False)</span>:</span></div><div class="line">    <span class="string">"""Timeout decorator, parameter in seconds."""</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">timeout_decorator</span><span class="params">(item)</span>:</span></div><div class="line">        <span class="string">"""Wrap the original function."""</span></div><div class="line"><span class="meta">        @functools.wraps(item)</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">func_wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            <span class="string">"""Closure for function."""</span></div><div class="line">            pool = multiprocessing.pool.ThreadPool(processes=<span class="number">1</span>)</div><div class="line">            <span class="comment"># pool = multiprocessing.pool.Pool(processes=1) ## raise error about pickle problem!!!</span></div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                async_result = pool.apply_async(item, args, kwargs)</div><div class="line">                val = async_result.get(timeout)</div><div class="line">            <span class="keyword">except</span> multiprocessing.TimeoutError:</div><div class="line">                pool.terminate() <span class="comment">## not work here, because it is acutally thread, not process!!!</span></div><div class="line">                val = default</div><div class="line">                <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">                    <span class="keyword">raise</span> multiprocessing.TimeoutError</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                pool.close()</div><div class="line">                pool.join()</div><div class="line">            <span class="keyword">return</span> val</div><div class="line">        <span class="keyword">return</span> func_wrapper</div><div class="line">    <span class="keyword">return</span> timeout_decorator</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="meta">    @timeout(5)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">            print(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line">    start = time.time()</div><div class="line">    <span class="keyword">print</span> count(<span class="string">"thread1"</span>)</div><div class="line">    <span class="keyword">print</span> count(<span class="string">"thread2"</span>)  <span class="comment">## you can find problem here, thread1 is still running...</span></div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> multiprocessing</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout_call</span><span class="params">(timeout, func, args=<span class="params">()</span>, kwargs=None, default=None, try_except=False)</span>:</span></div><div class="line">    kwargs = &#123;&#125; <span class="keyword">if</span> kwargs <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">else</span> kwargs</div><div class="line">    pool = multiprocessing.Pool(processes=<span class="number">1</span>)</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        async_result = pool.apply_async(func, args, kwargs)</div><div class="line">        val = async_result.get(timeout)</div><div class="line">    <span class="keyword">except</span> multiprocessing.TimeoutError:</div><div class="line">        pool.terminate()</div><div class="line">        val = default</div><div class="line">        <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">            <span class="keyword">raise</span> multiprocessing.TimeoutError</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        pool.close()</div><div class="line">        pool.join()</div><div class="line">    <span class="keyword">return</span> val</div><div class="line"></div><div class="line"><span class="comment">################### example ##########</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">        logging.error(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">        time.sleep(<span class="number">1</span>)</div><div class="line">    <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment">## if count function is here, will raise error!!!</span></div><div class="line"></div><div class="line">    start = time.time()</div><div class="line">    <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"process1"</span>])</div><div class="line">    <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"process2"</span>])</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
+<h2 id="第三方方案"><a href="#第三方方案" class="headerlink" title="第三方方案"></a>第三方方案</h2><ul>
+<li><a href="https://pypi.python.org/pypi/timeoutcontext/1.1.1" target="_blank" rel="external">timeoutcontext 1.1.1</a><ul>
+<li>基于signal实现, 不支持windows系统, 不支持子线程</li>
+</ul>
+</li>
+<li><a href="https://pypi.python.org/pypi/timeout-decorator/0.3.2" target="_blank" rel="external">timeout-decorator 0.3.2</a><ul>
+<li>signal或Multithreading可选</li>
+<li>使用signal时, 不支持windows, 不支持子线程</li>
+<li>使用Multithreading时, 无法返回不能pickle的数据(因为需要通过pickle来跨进程交换数据)</li>
+</ul>
+</li>
+<li><a href="https://pypi.python.org/pypi/stopit#stopit-threading-timeoutable" target="_blank" rel="external">stopit 1.1.1</a><ul>
+<li>threading或signal可选</li>
+<li>计时误差太大, 不可接受(翻倍的误差)</li>
+</ul>
+</li>
+</ul>
+<h2 id="使用gevent协程"><a href="#使用gevent协程" class="headerlink" title="使用gevent协程"></a>使用gevent协程</h2><p>参考 <a href="http://xlambda.com/gevent-tutorial/#_6" target="_blank" rel="external">gevent程序员指南之超时</a><br>参考 <a href="https://my.oschina.net/1123581321/blog/208671" target="_blank" rel="external">gevent 延时、定时、超时、io等待、动态添加任务</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> gevent</div><div class="line"><span class="keyword">from</span> gevent <span class="keyword">import</span> Timeout</div><div class="line"></div><div class="line">time_to_wait = <span class="number">5</span> <span class="comment"># seconds</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">TooLong</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line"><span class="keyword">with</span> Timeout(time_to_wait, TooLong):</div><div class="line">    gevent.sleep(<span class="number">10</span>)</div></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://stackoverflow.com/questions/492519/timeout-on-a-function-call" target="_blank" rel="external">Timeout on a function call</a>, 关于此问题的讨论(signal / multiprocessing)</li>
+<li><a href="https://my.oschina.net/leejun2005/blog/607741" target="_blank" rel="external">论 Python 装饰器控制函数 Timeout 的正确姿势</a>, 装饰器方式, 性能较低</li>
+<li><a href="http://xlambda.com/gevent-tutorial/" target="_blank" rel="external">gevent程序员指南</a></li>
+<li><a href="https://my.oschina.net/1123581321/blog/208671" target="_blank" rel="external">gevent 延时、定时、超时、io等待、动态添加任务</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/timeout/" rel="tag">#timeout</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/24/1621-python-string/" rel="next" title="Python 字符串处理">
+                <i class="fa fa-chevron-left"></i> Python 字符串处理
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">22</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">36</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://draapho.github.io/about/portrait.html" target="_blank" title="Portrait">
+                  
+                    <i class="fa fa-fw fa-user"></i>
+                  
+                  Portrait
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#实用的例子"><span class="nav-number">1.</span> <span class="nav-text">实用的例子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#time-sleep-单线程阻塞延时"><span class="nav-number">1.1.</span> <span class="nav-text">time.sleep 单线程阻塞延时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#time-time-单线程非阻塞延时-超时"><span class="nav-number">1.2.</span> <span class="nav-text">time.time 单线程非阻塞延时/超时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#threading-Timer-多线程非阻塞延时"><span class="nav-number">1.3.</span> <span class="nav-text">threading.Timer 多线程非阻塞延时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#threading-Timer-threading-join-多线程阻塞延时"><span class="nav-number">1.4.</span> <span class="nav-text">threading.Timer + threading.join 多线程阻塞延时</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#装饰器"><span class="nav-number">2.</span> <span class="nav-text">装饰器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#装饰器-使用KThread-localtrace结束线程-通用性最好-性能较低"><span class="nav-number">2.1.</span> <span class="nav-text">装饰器, 使用KThread,.localtrace结束线程. (通用性最好, 性能较低)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#装饰器-使用thread-interrupt-main-结束线程-仅可用于主线程"><span class="nav-number">2.2.</span> <span class="nav-text">装饰器, 使用thread.interrupt_main()结束线程. (仅可用于主线程)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#学习过程中的例子"><span class="nav-number">3.</span> <span class="nav-text">学习过程中的例子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#threading-Timer-threading-join-多线程阻塞延时-1"><span class="nav-number">3.1.</span> <span class="nav-text">threading.Timer + threading.join 多线程阻塞延时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join-timeout-10-多进程超时判断"><span class="nav-number">3.2.</span> <span class="nav-text">join(timeout=10) 多进程超时判断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#multiprocessing-pool-实现超时判断"><span class="nav-number">3.3.</span> <span class="nav-text">multiprocessing.pool 实现超时判断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第三方方案"><span class="nav-number">3.4.</span> <span class="nav-text">第三方方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用gevent协程"><span class="nav-number">3.5.</span> <span class="nav-text">使用gevent协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
