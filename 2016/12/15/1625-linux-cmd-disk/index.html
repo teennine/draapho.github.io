@@ -1,0 +1,1157 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,command," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="linux 系统文件简要说明FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.单一文件或目录的最大允">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux 系统文件及磁盘指令">
+<meta property="og:url" content="https://draapho.github.io/2016/12/15/1625-linux-cmd-disk/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="linux 系统文件简要说明FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.单一文件或目录的最大允">
+<meta property="og:updated_time" content="2016-12-15T01:11:20.001Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux 系统文件及磁盘指令">
+<meta name="twitter:description" content="linux 系统文件简要说明FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.单一文件或目录的最大允">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2016/12/15/1625-linux-cmd-disk/"/>
+
+
+  <title> linux 系统文件及磁盘指令 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                linux 系统文件及磁盘指令
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-15T00:00:00+11:00" content="2016-12-15">
+              2016-12-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="linux-系统文件简要说明"><a href="#linux-系统文件简要说明" class="headerlink" title="linux 系统文件简要说明"></a>linux 系统文件简要说明</h1><p>FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:<br>第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.<br>第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.<br>单一文件或目录的最大允许文件名为255个字符,包含完整路径的文件名或目录名最大允许为4096个字符.</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>说明</th>
+<th>文件内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>root, 根目录</td>
+<td>一般建议只有目录,不要直接放文件. <code>/etc</code> <code>/bin</code> <code>/sbin</code> <code>/dev</code> <code>/lib</code> 必须与 <code>/</code> 同一分区</td>
+</tr>
+<tr>
+<td><code>/bin</code>, <code>/usr/bin</code>, <code>/usr/local/bin</code></td>
+<td>Essential command <strong>bin</strong>aries, 普通用户可执行的二进制文件</td>
+<td>如 <code>ls</code> <code>mv</code> <code>cat</code> 等指令</td>
+</tr>
+<tr>
+<td><code>/boot</code></td>
+<td>Static files of the <strong>boot</strong> loader,  启动时用到的文件</td>
+<td>包括 vmlinuz (就是kernel), grub (开机管理)</td>
+</tr>
+<tr>
+<td><code>/dev</code></td>
+<td><strong>Dev</strong>ice files, 设备文件</td>
+<td>任何设备与接口都是以文件的型态存放在此目录下. 分为<code>字符设备</code>和<code>块设备</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/null</code></td>
+<td>空设备</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/tty*</code></td>
+<td>串口设备</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/hd[a-d][1-63]</code></td>
+<td>IDE 硬盘</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/sd[a-p][1-20]</code></td>
+<td>SCSI硬盘,U盘</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/cdrom</code></td>
+<td>CDROM</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/fd[0-1]</code></td>
+<td>软盘</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/lp[0-2]</code></td>
+<td>并口打印机</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/mouse</code></td>
+<td>鼠标</td>
+</tr>
+<tr>
+<td></td>
+<td>常见<code>sda1-3</code>(主分区),<del><code>sda4</code></del>(扩展分区),<code>sda5..</code>(逻辑分区)</td>
+<td>分析:硬盘支持4个主分区,1个扩展分区(占用主分区),16个逻辑分区(SCSI硬盘). 扩展分区文件名不显示.</td>
+</tr>
+<tr>
+<td><code>/etc</code></td>
+<td><strong>Etc</strong>etera, 杂项都在此处! 偏系统设置</td>
+<td>系统启动(<code>/etc/init</code> <code>/etc/init.d</code>), 账号密码(<code>/etc/passwd</code> <code>/etc/shadow</code>), 开机预设值(<code>/etc/sysconfig/*</code>)</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td>User <strong>home</strong> directories, 用户的家目录</td>
+<td>放置用户自有的数据, 如音乐图片等</td>
+</tr>
+<tr>
+<td><code>/lib</code> <code>/usr/lib</code> <code>/usr/local/lib</code></td>
+<td>Essential shared <strong>lib</strong>raries and kernel modules, 系统使用的函式库的目录</td>
+<td><code>/lib/modules</code> 放着kernel的相关模块</td>
+</tr>
+<tr>
+<td><code>/lost+found</code></td>
+<td>系统异常时,会将一些遗失的片段放于此目录</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/mnt</code></td>
+<td><strong>Mount</strong> point for mounting a file system temporarily, 默认挂载点文件的目录</td>
+<td>通常软盘挂在<code>/mnt/floppy</code>下,光盘挂在<code>/mnt/cdrom</code>下</td>
+</tr>
+<tr>
+<td><code>/media</code></td>
+<td>Contains mount points for replaceable <strong>media</strong></td>
+<td><code>/media</code>目录功能与<code>/mnt</code>类似</td>
+</tr>
+<tr>
+<td><code>/opt</code></td>
+<td>Add-on application software packages, 主机自行安装软件默认放置的目录</td>
+<td>以前较多情况放置在<code>/usr/local</code>目录下</td>
+</tr>
+<tr>
+<td><code>/proc</code></td>
+<td>Virtual directory for system information, 虚拟档案系统. 数据都在内存当中,不占用硬盘空间.</td>
+<td>主要包括系统核心,接口设备状态,网络状态. 比较重要的档案例: <code>/proc/cpuinfo</code> <code>/proc/dma</code> <code>/proc/interrupts</code> <code>/proc/ioports</code> <code>/proc/net/*</code> 等</td>
+</tr>
+<tr>
+<td><code>/root</code></td>
+<td>Home directory for the <strong>root</strong> user 系统管理员的家目录。</td>
+<td>一般与根目录<code>/</code>在同一分区下</td>
+</tr>
+<tr>
+<td><code>/sbin</code>, <code>/usr/sbin</code>, <code>/usr/local/sbin</code></td>
+<td>Essential system binaries,<strong>S</strong>uper user <strong>bin</strong>aries, 放置系统管理员才会动用到的执行指令</td>
+<td>如： <code>fdisk</code> <code>mke2fs</code> <code>fsck</code> <code>mkswap</code> <code>mount</code> 等</td>
+</tr>
+<tr>
+<td><code>/sys</code></td>
+<td>Virtual directory for system information (2.6 kernels)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/srv</code></td>
+<td>Data for <strong>services</strong> provided by the system, 一些服务启动之后，这些服务所需要取用的数据目录</td>
+<td>如WWW 服务器需要的网页就可放在<code>/srv/www</code>内</td>
+</tr>
+<tr>
+<td><code>/tmp</code></td>
+<td><strong>Temp</strong>orary files, 这是让一般用户或是正在执行的程序暂时放置文件的目录</td>
+<td>这个目录任何人都能够存取的，所以需要定期清理</td>
+</tr>
+<tr>
+<td><code>/usr</code></td>
+<td><strong>U</strong>nix <strong>S</strong>hared <strong>R</strong>esources</td>
+<td>此目录下包含系统的主要程序,图形界面文件,额外的函式库、本机自行安装的软件，以及共享的目录与文件等</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/bin,/usr/sbin</code></td>
+<td>可执行的档案放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/include</code></td>
+<td>c/c++等程序语言的头文件放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/lib</code></td>
+<td>各应用软件的函数库档案放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/local</code></td>
+<td>本机自行安装及升级软件默认放置的目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/local/bin</code></td>
+<td>自行安装及升级软件后的可执行文件目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/share</code></td>
+<td>共享文件放置的目录, 如帮助文档(doc,man)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/src</code></td>
+<td>Linux系统相关的程序代码放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/src/linux</code></td>
+<td>为Linux Kernel的源码</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/X11R6</code></td>
+<td>X Window System 所需的执行文件放置目录</td>
+</tr>
+<tr>
+<td><code>/var</code></td>
+<td><strong>Var</strong>iable data</td>
+<td>主要放置系统执行过程中经常变化的文件</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/cache</code></td>
+<td>程序文件在运作过程中的一些缓存数据</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/lib</code></td>
+<td>程序执行中，使用到的数据库文件放置的目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/log</code></td>
+<td>登录文件放置的目录(如/var/log/messages)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/run</code></td>
+<td>某些程序或是服务启动后,会放置PID在此处</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/spool</code></td>
+<td>是一些数据队列存放的目录,作用为缓冲</td>
+</tr>
+</tbody>
+</table>
+<h1 id="linux系统分区建议"><a href="#linux系统分区建议" class="headerlink" title="linux系统分区建议"></a>linux系统分区建议</h1><table>
+<thead>
+<tr>
+<th>挂载目录</th>
+<th>说明</th>
+<th>类型</th>
+<th>台式机</th>
+<th>嵌入式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/boot</code></td>
+<td>启动程序等</td>
+<td>ext4</td>
+<td>100MB</td>
+<td>50MB</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>根目录</td>
+<td>ext4</td>
+<td>1GB-5GB</td>
+<td>150-250MB</td>
+</tr>
+<tr>
+<td><code>swap</code></td>
+<td>虚拟内存</td>
+<td>swap</td>
+<td>0/2*ram</td>
+<td>看情况</td>
+</tr>
+<tr>
+<td><code>/usr</code></td>
+<td>放置系统应用程序</td>
+<td>ext4</td>
+<td>5GB-20GB</td>
+<td>1-5GB</td>
+</tr>
+<tr>
+<td><code>/opt</code></td>
+<td>放置大型或测试软件, <strong>建议用户软件都放此处</strong></td>
+<td>ext4</td>
+<td>10-50GB</td>
+<td>使用<code>/usr/local</code></td>
+</tr>
+<tr>
+<td><code>/tmp</code></td>
+<td>临时文件</td>
+<td>ext4</td>
+<td>500M</td>
+<td>50-100M</td>
+</tr>
+<tr>
+<td><code>/var</code></td>
+<td>放置经常变化的文件</td>
+<td>ext4</td>
+<td>1GB</td>
+<td>300-500M</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td>用户家目录</td>
+<td>ext4</td>
+<td>100G/自定义</td>
+<td>看情况</td>
+</tr>
+</tbody>
+</table>
+<h1 id="linux磁盘常用指令"><a href="#linux磁盘常用指令" class="headerlink" title="linux磁盘常用指令"></a>linux磁盘常用指令</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df</code></td>
+<td><strong>disk free</strong>, 查看磁盘相关信息</td>
+</tr>
+<tr>
+<td>-     <strong><code>df -Th</code></strong></td>
+<td>查看磁盘容量信息</td>
+</tr>
+<tr>
+<td>-     <strong><code>df -iTh</code></strong></td>
+<td>查看磁盘inode信息</td>
+</tr>
+<tr>
+<td><code>du</code></td>
+<td><strong>disk usage</strong>, 查看磁盘文件使用情况</td>
+</tr>
+<tr>
+<td>-     <strong><code>du -h</code></strong></td>
+<td>列出当前文件夹下所有文件的容量</td>
+</tr>
+<tr>
+<td>-     <strong><code>du -sh file_dir</code></strong></td>
+<td>列出指定文件的容量</td>
+</tr>
+<tr>
+<td><code>fdisk</code></td>
+<td><strong>format disk</strong>, 磁盘查看及分区</td>
+</tr>
+<tr>
+<td>-     <strong><code>fdisk -l</code></strong></td>
+<td>查看整个系统的分区情况</td>
+</tr>
+<tr>
+<td>-     <strong><code>fdisk /dev/sda6</code></strong></td>
+<td>对指定磁盘进行配置(进入fdisk命令行模式)</td>
+</tr>
+<tr>
+<td><code>mkfs</code></td>
+<td><strong>make filesystem</strong>, 分区格式化</td>
+</tr>
+<tr>
+<td>-     <strong><code>mkfs -t ext4 /dev/sda6</code></strong></td>
+<td>格式化sda6分区格式为ext4</td>
+</tr>
+<tr>
+<td><code>fsck</code></td>
+<td><strong>filesystem check</strong>, 分区检验和修复</td>
+</tr>
+<tr>
+<td>-     <strong><code>unmount /dev/sda6</code></strong></td>
+<td>要检查的分区必须先umount</td>
+</tr>
+<tr>
+<td>-     <strong><code>fsck -y -t ext4 /dev/sda6</code></strong></td>
+<td>对sda6分区进行检验和修复</td>
+</tr>
+<tr>
+<td><code>mount</code></td>
+<td><strong>mount</strong> 查看和挂载分区</td>
+</tr>
+<tr>
+<td>-     <strong><code>mkdir /mnt/sda_data</code></strong></td>
+<td>必须先创建挂载点文件夹</td>
+</tr>
+<tr>
+<td>-     <strong><code>mount -t ext4 /dev/sda6 /mnt/sda_data</code></strong></td>
+<td>挂载指定设备sda6到文件夹</td>
+</tr>
+<tr>
+<td><code>umount</code></td>
+<td><strong>umount</strong>, 取消挂载点</td>
+</tr>
+<tr>
+<td>-     <strong><code>umount /dev/sda6</code> </strong></td>
+<td>两种写法都可以</td>
+</tr>
+<tr>
+<td>-     <strong><code>umount /mnt/sda_data</code></strong></td>
+<td>两种写法都可以</td>
+</tr>
+<tr>
+<td><code>quato</code></td>
+<td><strong>quato</strong>, 管理普通用户的分区配额,多用于服务器.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="mount常见用法及开机自动挂载"><a href="#mount常见用法及开机自动挂载" class="headerlink" title="mount常见用法及开机自动挂载"></a>mount常见用法及开机自动挂载</h1><h2 id="挂载U盘"><a href="#挂载U盘" class="headerlink" title="挂载U盘"></a>挂载U盘</h2><ul>
+<li>插入U盘, 用 <code>fdisk -l</code> 或 <code>ll /dev/</code> 下查看U盘的硬件名称, 如 <code>sda11</code></li>
+<li>在mnt下建立usb目录 <code>mkdir /mnt/usb</code></li>
+<li>挂载U盘  <code>mount -t vfat /dev/sda11 /mnt/usb</code></li>
+<li>卸载U盘  <code>umount /mnt/usb</code></li>
+<li>拔出U盘</li>
+<li>删除mnt目录  <code>rm -fr /mnt/usb</code></li>
+</ul>
+<h2 id="挂载fat32分区"><a href="#挂载fat32分区" class="headerlink" title="挂载fat32分区"></a>挂载fat32分区</h2><p><code>mount -t vfat -o iocharset=cp936 /dev/sda6 /mnt/fat32</code></p>
+<h2 id="挂载ntfs分区"><a href="#挂载ntfs分区" class="headerlink" title="挂载ntfs分区"></a>挂载ntfs分区</h2><p><code>mount -t ntfs -o iocharset=uft8 /dev/sda6 /mnt/ntfs</code></p>
+<h2 id="挂载光驱"><a href="#挂载光驱" class="headerlink" title="挂载光驱"></a>挂载光驱</h2><p><code>mount -t iso9660 /dev/hdc /mnt/cdrom</code></p>
+<h2 id="重载分区为可读写"><a href="#重载分区为可读写" class="headerlink" title="重载分区为可读写"></a>重载分区为可读写</h2><p>将根目录改为可读写,系统维护时使用<br><code>mount -n -o remount,rw /</code></p>
+<h2 id="自动挂载分区"><a href="#自动挂载分区" class="headerlink" title="自动挂载分区"></a>自动挂载分区</h2><p>通过修改 <code>/etc/fstab</code> 实现. 根据规则自行添加行即可.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"># &lt;file system&gt;   &lt;mount point&gt; &lt;type&gt; &lt;options&gt; &lt;dump&gt; &lt;pass&gt;</div><div class="line"># &lt;分区&gt;           &lt;挂载点&gt;      &lt;类型&gt;  &lt;配置&gt;     &lt;备份&gt;  &lt;检查&gt;</div><div class="line"></div><div class="line"># 以下是通过分区唯一的uuid进行挂载,优点是可绑定指定分区</div><div class="line"># 获取uuid指令: `ll /dev/disk/by-uuid/`</div><div class="line">  UUID=xxxx-xxxx  /             ext4   errors=..  0     1</div><div class="line">  UUID=xxxx-xxxx  /boot         ext4   defaults   0     2</div><div class="line">  UUID=xxxx-xxxx  /home         ext4   defaults   0     2</div><div class="line"></div><div class="line"># 以下是通过设备文件名进行挂载,优点是直观</div><div class="line"># 查看设备文件名指令: `sudo fdisk -l`  (sudo,获取管理员权限)</div><div class="line">  /dev/sda5       /mnt/data     ext4   defaults   0     2</div></pre></td></tr></table></figure></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag">#linux</a>
+          
+            <a href="/tags/command/" rel="tag">#command</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/14/1624-android-ipc/" rel="next" title="Android中Activity、Service和线程之间的通信">
+                <i class="fa fa-chevron-left"></i> Android中Activity、Service和线程之间的通信
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/16/1626-linux-cmd-file/" rel="prev" title="linux文件与目录相关指令">
+                linux文件与目录相关指令 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://draapho.github.io/about/portrait.html" target="_blank" title="Portrait">
+                  
+                    <i class="fa fa-fw fa-user"></i>
+                  
+                  Portrait
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#linux-系统文件简要说明"><span class="nav-number">1.</span> <span class="nav-text">linux 系统文件简要说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#linux系统分区建议"><span class="nav-number">2.</span> <span class="nav-text">linux系统分区建议</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#linux磁盘常用指令"><span class="nav-number">3.</span> <span class="nav-text">linux磁盘常用指令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mount常见用法及开机自动挂载"><span class="nav-number">4.</span> <span class="nav-text">mount常见用法及开机自动挂载</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载U盘"><span class="nav-number">4.1.</span> <span class="nav-text">挂载U盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载fat32分区"><span class="nav-number">4.2.</span> <span class="nav-text">挂载fat32分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载ntfs分区"><span class="nav-number">4.3.</span> <span class="nav-text">挂载ntfs分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挂载光驱"><span class="nav-number">4.4.</span> <span class="nav-text">挂载光驱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重载分区为可读写"><span class="nav-number">4.5.</span> <span class="nav-text">重载分区为可读写</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自动挂载分区"><span class="nav-number">4.6.</span> <span class="nav-text">自动挂载分区</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

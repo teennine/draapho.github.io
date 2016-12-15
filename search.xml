@@ -4,6 +4,1443 @@
   
     
     <entry>
+      <title><![CDATA[Bash Shell及环境变量]]></title>
+      <url>https://draapho.github.io/2016/12/17/1627-linux-cmd-bash/</url>
+      <content type="html"><![CDATA[<h1 id="Bash-Shell基础操作"><a href="#Bash-Shell基础操作" class="headerlink" title="Bash Shell基础操作"></a>Bash Shell基础操作</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[Tab]</code></td>
+<td>指令或文件名自动补齐</td>
+</tr>
+<tr>
+<td><code>[Tab][Tab]</code></td>
+<td>连按两下[Tab], 列出所有可补齐的指令或档案</td>
+</tr>
+<tr>
+<td><code>[ctrl]+c</code></td>
+<td>中断指令</td>
+</tr>
+<tr>
+<td><code>[ctrl]+d</code></td>
+<td>EOF,表示输入结束</td>
+</tr>
+<tr>
+<td><code>[↑] [↓]</code></td>
+<td>浏览历史指令</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>stty</code></td>
+<td>查看和设置终端按键参数</td>
+</tr>
+<tr>
+<td>-     <strong><code>stty -a</code></strong></td>
+<td>查看终端所有的按键参数</td>
+</tr>
+<tr>
+<td><code>history</code></td>
+<td>查询历史指令, 建议将其设置别名<code>alias h=’history’</code></td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>执行历史指令, 后接数字或字母</td>
+</tr>
+<tr>
+<td>-     <strong><code>!!</code></strong></td>
+<td>执行上一个指令</td>
+</tr>
+<tr>
+<td>-     <strong><code>!al</code></strong></td>
+<td>执行以al为开头的最后一个指令</td>
+</tr>
+<tr>
+<td>-     <strong><code>!12</code></strong></td>
+<td>执行第12条历史指令(先用history查看历史指令号)</td>
+</tr>
+<tr>
+<td>alias cmd=’command’</td>
+<td>设置指令别名, command为指令字符串</td>
+</tr>
+<tr>
+<td>-     <strong><code>alias h=history</code></strong></td>
+<td>设置指令history的别名为h.不用引号,单双引号皆可</td>
+</tr>
+<tr>
+<td><code>unalias cmd</code></td>
+<td>取消指令别名</td>
+</tr>
+<tr>
+<td><code>type -a command</code></td>
+<td>查询指令类型(file外部指令; alias别名指令;builtin内建指令)</td>
+</tr>
+<tr>
+<td><code>command --help</code></td>
+<td>获取command内置的帮助信息,较为简短</td>
+</tr>
+<tr>
+<td><code>man command</code></td>
+<td>获取command的帮助文件. <code>j``k</code>上下移动, <code>q</code>退出</td>
+</tr>
+<tr>
+<td><code>sh file</code></td>
+<td>创建一个子shell, 执行file内的指令</td>
+</tr>
+<tr>
+<td><code>source file</code></td>
+<td>在当前shell内,执行file内的指令</td>
+</tr>
+<tr>
+<td><code>. file</code></td>
+<td>等同于source file</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>su -l user</code></td>
+<td>切换用户, -l表示环境变量一起变</td>
+</tr>
+<tr>
+<td>-     <strong><code>su</code></strong></td>
+<td>切换为管理员账户</td>
+</tr>
+<tr>
+<td><code>sudo command</code></td>
+<td>赋予用户临时的管理员权限 (<code>/etc/sudoers</code>决定是否支持)</td>
+</tr>
+<tr>
+<td><code>exit</code></td>
+<td>退出当前用户的终端环境</td>
+</tr>
+<tr>
+<td><code>shutdown -h now</code></td>
+<td>立刻关机</td>
+</tr>
+<tr>
+<td><code>sync; sync; shutdown -r now</code></td>
+<td>立刻重启, 重启前需要存储一下数据</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>时间</td>
+</tr>
+<tr>
+<td><code>cal</code></td>
+<td>日期</td>
+</tr>
+<tr>
+<td><code>bc</code></td>
+<td>计算器, 输入quit退出</td>
+</tr>
+<tr>
+<td><code>apt-get</code></td>
+<td>ubuntu deb包软件管理</td>
+</tr>
+<tr>
+<td>-     <strong><code>sudo apt-get install packagename</code></strong></td>
+<td>安装指定软件包</td>
+</tr>
+<tr>
+<td>-     <strong><code>sudo apt-get autoremovepackagename</code></strong></td>
+<td>删除指定软件包 (包括配置文件)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="变量与环境变量"><a href="#变量与环境变量" class="headerlink" title="变量与环境变量"></a>变量与环境变量</h1><ul>
+<li>系统变量一般大写, 如MAIL</li>
+<li>用户变量一般小写, 如myhome</li>
+<li>普通变量(也称shell变量)作用范围: 当前的shell</li>
+<li>环境变量(也称用户变量)作用范围: 当前的shell及其子shell</li>
+<li>环境变量开机设置文档<ul>
+<li><code>~/.bashrc</code>, <code>~/.profile</code>, <code>/etc/profile</code>, <code>/etc/bash.bashrc</code>,等等</li>
+<li>首先读取 <code>/etc/profile</code>, 最后读取 <code>~/.bashrc</code></li>
+<li>个人设定建议放在<code>~/.bashrc</code>内,并做如下修改:</li>
+<li>修改<code>HISTSIZE=50</code>  (减少记录的历史指令,安全)</li>
+<li>加入<code>alias h=&#39;history&#39;</code></li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>myhome=/home/my/</code></td>
+<td>无空格字符串,注意等号左右不要有空格</td>
+</tr>
+<tr>
+<td><code>myhome=’/home/my/’</code></td>
+<td>单引号内可包含任意字符串, 无特殊含义</td>
+</tr>
+<tr>
+<td><code>myname=”my name is”</code></td>
+<td>双引号内某些字符有特殊作用, 如 $</td>
+</tr>
+<tr>
+<td><code>read variable</code></td>
+<td>键盘输入变量, 回车表示结束输入</td>
+</tr>
+<tr>
+<td>-     <strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
+<td>提示输入变量给myname, 30秒输入时间</td>
+</tr>
+<tr>
+<td><code>echo $myhome</code></td>
+<td>变量名前加上$, 即可读取该变量的值</td>
+</tr>
+<tr>
+<td><code>echo “$myhome”</code></td>
+<td>“$变量名”,无歧义. 注意不能单引号</td>
+</tr>
+<tr>
+<td><code>echo ${myhome}</code></td>
+<td>${变量名},无歧义</td>
+</tr>
+<tr>
+<td><code>unset myhome</code></td>
+<td>删除变量</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>let val=10*10</code></td>
+<td>加上let后, val值为100,而非10*10. 用的比declare多!</td>
+</tr>
+<tr>
+<td><code>readonly VAL=’read only’</code></td>
+<td>将VAL为只读变量,不可更改和unset (等同 declare -r)</td>
+</tr>
+<tr>
+<td><code>declare -ai array</code></td>
+<td>将array声明为整数数组 (不加参数a,效果一样)</td>
+</tr>
+<tr>
+<td><code>array[1]=10*10</code></td>
+<td>数组的赋值, array定义为整数,因此array[1]值为100</td>
+</tr>
+<tr>
+<td><code>echo ${array[1]}</code></td>
+<td>使用”$array[1]”没用.若无{}, 会认为是”$array”[1]</td>
+</tr>
+<tr>
+<td><code>unset array</code></td>
+<td>将array数组变量删除</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PATH=/home:$PATH</code></td>
+<td>新增”/home:”在PATH变量最前面</td>
+</tr>
+<tr>
+<td><code>PATH=”$PATH””:/home”</code></td>
+<td>前后都加”双引号”,无歧义. 建议这样书写</td>
+</tr>
+<tr>
+<td><code>PATH=${PATH}’:/home’</code></td>
+<td>变量名用{大括号}指明,无歧义. 新增变量也可用’单引号’</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>echo $?</code></td>
+<td>?为特殊变量,为上一指令传回的值. 0成功, !0失败</td>
+</tr>
+<tr>
+<td><code>echo $$</code></td>
+<td>获取并显示当前shell的 PID (process ID)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>#</code> <code>##</code> <code>%</code> <code>%%</code> <code>/</code> <code>//</code></td>
+<td>变量的截取和替换. 以<code>myhome=/home/test/test.sh</code>为例</td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${myhome#/*/}</code></strong></td>
+<td><code>test/test.sh</code>,从头比较, 单次删除,故<del><code>/home/</code></del></td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${myhome##/*/}</code></strong></td>
+<td><code>test.sh</code>, 从头比较, 全部删除,获得文件名</td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${myhome%/*}</code></strong></td>
+<td><code>/home/test</code>,从尾比较, 单次删除,获得路径</td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${myhome%%/*}</code></strong></td>
+<td>从尾比较, 全部删除,故全部被删掉</td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${myhome/test/TEST}</code></strong></td>
+<td><code>/home/TEST/test.h</code>, 从头比较, 单次替换</td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${myhome//test/TEST}</code></strong></td>
+<td><code>/home/TEST/TEST.h</code>,从头比较, 全部替换</td>
+</tr>
+<tr>
+<td><code>-</code> <code>:-</code> <code>+</code> <code>:+</code> <code>=</code> <code>:=</code> <code>?</code> <code>:?</code></td>
+<td>变量的比较和判断. 常用于判断和确保变量有效</td>
+</tr>
+<tr>
+<td>-     <strong><code>var=${str-expr}</code></strong></td>
+<td>var为目标变量, str为已有变量, expr为变量值</td>
+</tr>
+<tr>
+<td>-     <strong><code>myname=${myname:-root}</code></strong></td>
+<td>若myname不存在或为空,则myname=root</td>
+</tr>
+<tr>
+<td>-     更多参考</td>
+<td><a href="http://linux.vbird.org/linux_basic/0320bash.php#variable_other_replace" target="_blank" rel="external">鸟哥的Linux私房菜</a>, P381: 额外的变量设定功能</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>enviroment, 显示当前环境变量,用的最多!</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>显示所有变量(环境变量,普通变量)</td>
+</tr>
+<tr>
+<td><code>export</code></td>
+<td>显示已成为当前环境变量的普通变量</td>
+</tr>
+<tr>
+<td>-     <strong><code>export variable</code></strong></td>
+<td>将variable设为环境变量, 等同 <code>declare -x variable</code></td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td>查看当前语言的环境变量</td>
+</tr>
+<tr>
+<td>-     <strong><code>locale -a</code></strong></td>
+<td>查看系统支持的语言</td>
+</tr>
+</tbody>
+</table>
+<h1 id="Bash-Shell特殊符号"><a href="#Bash-Shell特殊符号" class="headerlink" title="Bash Shell特殊符号"></a>Bash Shell特殊符号</h1><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>万用字符, 表示0或多个字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>万用字符, 表示一个字符</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>逻辑非, 通常在<code>[中括号]</code>内使用</td>
+</tr>
+<tr>
+<td><code>\</code></td>
+<td>转义字符, 需要转义的字符 <code>&quot;</code> <code>&#39;</code> <code>$</code> <code>\</code> <code>[空格]</code> `</td>
+</tr>
+<tr>
+<td>-     <strong><code>\n</code></strong></td>
+<td>换行</td>
+</tr>
+<tr>
+<td>-     <strong><code>\r</code></strong></td>
+<td>回车</td>
+</tr>
+<tr>
+<td>-     <strong><code>\t</code></strong></td>
+<td>水平制表符</td>
+</tr>
+<tr>
+<td>-     <strong><code>\v</code></strong></td>
+<td>垂直制表符</td>
+</tr>
+<tr>
+<td>-     <strong><code>\b</code></strong></td>
+<td>后退</td>
+</tr>
+<tr>
+<td>-     <strong><code>\a</code></strong></td>
+<td>蜂鸣</td>
+</tr>
+<tr>
+<td>-     <strong><code>\077</code></strong></td>
+<td>八进制字符</td>
+</tr>
+<tr>
+<td>-     <strong><code>\xff</code></strong></td>
+<td>十六进制</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>批注</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>$variable</code></td>
+<td>变量名</td>
+</tr>
+<tr>
+<td><code>${variable}</code></td>
+<td>大括号. 中间为命令区块组合,限定变量名范围</td>
+</tr>
+<tr>
+<td>-     <strong><code>echo ${array[1]}</code></strong></td>
+<td>显示<code>array[1]</code> 变量值, array为数组,需用<code>{大括号}</code>包含变量名</td>
+</tr>
+<tr>
+<td><code>[a-f], [35], [!a-z]</code></td>
+<td>中括号. 中间为字符组合, <code>[仅代表一个字符]</code></td>
+</tr>
+<tr>
+<td>-     <strong><code>ls -d ~/*[0-9]*</code></strong></td>
+<td>列出用户home目录下所有包含数字的文件和目录</td>
+</tr>
+<tr>
+<td><code>$(command)</code></td>
+<td>小括号. 中间为子shell,此命令等同于`command`</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&#39;$string&#39;</code></td>
+<td>单引号, 特殊符号无效,变量不置换, 显示为$string</td>
+</tr>
+<tr>
+<td><code>&quot;$variable&quot;</code></td>
+<td>双引号, 特殊符号有用,变量置换</td>
+</tr>
+<tr>
+<td>`command`</td>
+<td>` (键盘1左边的字符),需要优先执行的指令</td>
+</tr>
+<tr>
+<td>-     <strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
+<td>进入当前linux的内核源码目录</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>`cmd1 \</td>
+<td>cmd2`</td>
+<td>pipe, 管线命令,将cmd1的处理结果传给cmd2继续处理</td>
+</tr>
+<tr>
+<td>-     **`ll</td>
+<td>more`**</td>
+<td>将ll获得的数据传给more进一步处理</td>
+</tr>
+<tr>
+<td><code>cut</code> <code>grep</code> <code>split</code></td>
+<td>截取分割, 通常配合 `</td>
+<td>`使用</td>
+</tr>
+<tr>
+<td><code>sort</code> <code>wc</code> <code>uniq</code></td>
+<td>排序命令, 通常配合 `</td>
+<td>`使用</td>
+</tr>
+<tr>
+<td><code>tr</code> <code>col</code> <code>join</code> <code>paste</code> <code>expand</code></td>
+<td>字符转换, 通常配合 `</td>
+<td>`使用</td>
+</tr>
+<tr>
+<td><code>cmd1;cmd2; cmd3</code></td>
+<td>可以一行写多个指令</td>
+</tr>
+<tr>
+<td><code>cmd1&amp;&amp;cmd2</code></td>
+<td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
+</tr>
+<tr>
+<td>`cmd1\</td>
+<td>\</td>
+<td>cmd2`</td>
+<td>cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</td>
+</tr>
+<tr>
+<td>-     **`ls /tmp/test &amp;&amp; echo “exist”</td>
+<td></td>
+<td>echo “nofile”`**</td>
+<td><code>/tmp/test</code>存在显示exist,否则nofile</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&gt;</code> <code>2&gt;</code> <code>&gt;&gt;</code> <code>2&gt;&gt;</code></td>
+<td>输出到文件 (&gt;写入, &gt;&gt;累加, 2错误信息)</td>
+</tr>
+<tr>
+<td>-     <strong><code>ll &gt; list.txt</code></strong></td>
+<td>将当前目录下的文件详细信息存储到list.txt文件中</td>
+</tr>
+<tr>
+<td>-     <strong><code>ls / &gt;&gt; list.txt</code></strong></td>
+<td>将根目录下的文件信息追加到list.txt文件中</td>
+</tr>
+<tr>
+<td>-     <strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
+<td>将正确信息写到ok中,错误的写到error中</td>
+</tr>
+<tr>
+<td>-     <strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
+<td>将所有信息都写到list中 (&amp;1是数字一)</td>
+</tr>
+<tr>
+<td>-     <strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
+<td><code>/dev/null</code>相当于黑洞.只将错误写到err中</td>
+</tr>
+<tr>
+<td><code>&lt;</code> <code>&lt;&lt;</code></td>
+<td>输入信息(&lt;从文件获取, &lt;&lt;结束的输入字符)</td>
+</tr>
+<tr>
+<td>-     <strong><code>cat &gt; catfile</code></strong></td>
+<td>从键盘获取文本并写到catfile中 (键盘按[ctrl]+d结束输入)</td>
+</tr>
+<tr>
+<td>-     <strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
+<td>从键盘获取文本并写到catfile中(键盘输入end结束输入)</td>
+</tr>
+<tr>
+<td>-     <strong><code>cat &gt; catfile &lt; input</code></strong></td>
+<td>导入input文件信息再写到catfile中</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[linux文件与目录相关指令]]></title>
+      <url>https://draapho.github.io/2016/12/16/1626-linux-cmd-file/</url>
+      <content type="html"><![CDATA[<h1 id="linux-文件基础"><a href="#linux-文件基础" class="headerlink" title="linux 文件基础"></a>linux 文件基础</h1><h2 id="特殊符号代表的目录"><a href="#特殊符号代表的目录" class="headerlink" title="特殊符号代表的目录:"></a>特殊符号代表的目录:</h2><table>
+<thead>
+<tr>
+<th>特殊符号</th>
+<th>目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.</code></td>
+<td>代表此层目录</td>
+</tr>
+<tr>
+<td><code>..</code></td>
+<td>代表上一层目录</td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>代表<strong>目前使用者</strong>所在的家目录</td>
+</tr>
+<tr>
+<td><code>~account</code></td>
+<td>代表<strong>account</strong>这个使用者的家目录</td>
+</tr>
+<tr>
+<td><code>~+</code></td>
+<td>当前的工作目录, 等同于<code>pwd</code></td>
+</tr>
+<tr>
+<td><code>~-</code></td>
+<td>上次的工作目录</td>
+</tr>
+</tbody>
+</table>
+<h2 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h2><table>
+<thead>
+<tr>
+<th>bit9</th>
+<th>8</th>
+<th>7</th>
+<th>6</th>
+<th>5</th>
+<th>4</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>r</td>
+<td>w</td>
+<td>x</td>
+<td>r</td>
+<td>-</td>
+<td>x</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>bit</th>
+<th>字母</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td></td>
+<td>文件类型</td>
+</tr>
+<tr>
+<td></td>
+<td><code>d</code></td>
+<td>目录(dir)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>-</code></td>
+<td>文件</td>
+</tr>
+<tr>
+<td></td>
+<td><code>l</code></td>
+<td>链接文件(link)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>b</code></td>
+<td>块设备文件(block)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>c</code></td>
+<td>字符设备文件(character)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>s</code></td>
+<td>网络接口文件(sockets)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>p</code></td>
+<td>管道文件(FIFO, pipe)</td>
+</tr>
+<tr>
+<td>876</td>
+<td><code>rwx</code></td>
+<td>拥有人的权限, r为可读, w为可写, x为可执行</td>
+</tr>
+<tr>
+<td>543</td>
+<td><code>r-x</code></td>
+<td>同群组的权限, r为可读, -为不可写, x为可执行</td>
+</tr>
+<tr>
+<td>210</td>
+<td><code>---</code></td>
+<td>其它群组权限, 不可读, 不可写, 不可执行</td>
+</tr>
+</tbody>
+</table>
+<h1 id="文件与目录常用指令"><a href="#文件与目录常用指令" class="headerlink" title="文件与目录常用指令"></a>文件与目录常用指令</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cd</code></td>
+<td><strong>Change Directory</strong>, 变换目录</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td><strong>Print Working Directory</strong>, 显示目前的目录</td>
+</tr>
+<tr>
+<td>-     <strong><code>pwd -P</code></strong></td>
+<td>显示真实路径, 而非link路径</td>
+</tr>
+<tr>
+<td><code>mkdir dir</code></td>
+<td>Make Directory, 建立一个新的目录</td>
+</tr>
+<tr>
+<td>-     <strong><code>mkdir -p dir1/dir2</code></strong></td>
+<td>递归建立所有目录</td>
+</tr>
+<tr>
+<td>-     <strong><code>mkdir -m 711 dir</code></strong></td>
+<td>建立目录时,设定权限</td>
+</tr>
+<tr>
+<td><code>rmdir dir</code></td>
+<td><strong>Remove Directory</strong>, 删除一个空的目录</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td><strong>List Files</strong>, 显示文件与目录</td>
+</tr>
+<tr>
+<td>-     <strong><code>ls -h</code></strong></td>
+<td>以KB,GB显示容量.</td>
+</tr>
+<tr>
+<td>-     <strong><code>ls -R</code></strong></td>
+<td>Recursive, 递归显示子目录信息</td>
+</tr>
+<tr>
+<td>-     <strong><code>ls -t</code></strong></td>
+<td>以时间排序</td>
+</tr>
+<tr>
+<td>-     <strong><code>ls -S</code></strong></td>
+<td>以容量大小排序</td>
+</tr>
+<tr>
+<td>-     <strong><code>ll</code></strong></td>
+<td><code>ls –al</code>, List All, 显示所有文件及信息</td>
+</tr>
+<tr>
+<td><code>cp src dst</code></td>
+<td>copy</td>
+</tr>
+<tr>
+<td>-     <strong><code>cp -a src dst</code></strong></td>
+<td>即<code>cp -pdr</code>, 递归复制目录.不会改变属性和权限</td>
+</tr>
+<tr>
+<td>-     <strong><code>cp -f src dst</code></strong></td>
+<td>Force, 强制复制,不询问使用者</td>
+</tr>
+<tr>
+<td>-     <strong><code>cp -u src dst</code></strong></td>
+<td>若 src比dst新,才进行复制工作,多用于备份</td>
+</tr>
+<tr>
+<td>-     <strong><code>cp src1 src2 src3 dir</code></strong></td>
+<td>将多个原文件拷贝到指定目录</td>
+</tr>
+<tr>
+<td><code>mv src dst</code></td>
+<td><strong>move</strong>, 移动目录和文件</td>
+</tr>
+<tr>
+<td><code>rm file_dir</code></td>
+<td><strong>remove</strong>, 移除文件</td>
+</tr>
+<tr>
+<td>-     <strong><code>rm -fr dir</code></strong></td>
+<td>强制递归删除dir下的所有文件和目录</td>
+</tr>
+<tr>
+<td><code>ln -s src dst</code></td>
+<td><strong>Symbolic Link</strong>, 创建一个符号链接</td>
+</tr>
+<tr>
+<td>-     <strong><code>ln file hardLink</code></strong></td>
+<td>实际链接, 仅支持同区块下的文件,不占用inode</td>
+</tr>
+<tr>
+<td>-     <strong><code>ln -s dir symbolicLink</code></strong></td>
+<td>符号链接, 同快捷方式,为一个文件,占用inode</td>
+</tr>
+<tr>
+<td><code>basename /dir/dir/file</code></td>
+<td>结果为<code>file</code>, 路径中取得文件名称</td>
+</tr>
+<tr>
+<td><code>dirname /dir/dir/file</code></td>
+<td>结果为<code>/dir/dir</code>, 路径中取得目录名称</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cat file</code></td>
+<td><strong>Concatenate</strong> (连续), 连续显示文件内容</td>
+</tr>
+<tr>
+<td>-     <strong><code>cat -n file</code></strong></td>
+<td>在前面加上行号</td>
+</tr>
+<tr>
+<td>-     <strong><code>cat -A</code></strong></td>
+<td>即 <code>cat -vET</code>, 可显示一些特殊符号</td>
+</tr>
+<tr>
+<td><code>more</code> <code>less</code> <code>head</code> <code>tail</code></td>
+<td>都用于显示文件内容, <code>less</code>功能最强大</td>
+</tr>
+<tr>
+<td><code>od -t x1 file</code></td>
+<td>按1byte 十六进制显示文件.若x2则为2byte.</td>
+</tr>
+<tr>
+<td><code>touch file</code></td>
+<td>建立一个空文件, 修改文件时间(mtime和atime)</td>
+</tr>
+<tr>
+<td><code>file file</code></td>
+<td>读取文件类型</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>umask</code></td>
+<td>读取和设置当前默认权限, 数字是被取消的默认权限</td>
+</tr>
+<tr>
+<td>-     <strong><code>umask 022</code></strong></td>
+<td>新建文档权限为 777-022 = 755权限</td>
+</tr>
+<tr>
+<td><code>chgrp -R group file_dir</code></td>
+<td>递归改变file_dir文件/目录的群组(group必须存在)</td>
+</tr>
+<tr>
+<td><code>chown owner file_dir</code></td>
+<td>改变文件或目录的所有者(owner必须存在)</td>
+</tr>
+<tr>
+<td>-     <strong><code>chown -R owner:group dir</code></strong></td>
+<td>递归改变dir的所有者和组群</td>
+</tr>
+<tr>
+<td>-     <strong><code>chmod -R 755 file_dir</code></strong></td>
+<td>递归改名文件或目录的权限 (7=0b111=rwx)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>which -a cmd</code></td>
+<td>搜索执行文件完整路径</td>
+</tr>
+<tr>
+<td><code>whereis file</code></td>
+<td>快速搜索文件(用数据库),实测下来没啥用</td>
+</tr>
+<tr>
+<td><code>find dir -name file</code></td>
+<td>搜索文件(整个硬盘),很强大的一个指令</td>
+</tr>
+<tr>
+<td>-     <strong><code>-name</code></strong></td>
+<td>表示按文件名搜索. 类似的参数有很多.有需要在查.</td>
+</tr>
+<tr>
+<td><code>grep pattern files</code></td>
+<td>在files中寻找 pattern项,支持正则表达式</td>
+</tr>
+<tr>
+<td>-     <strong><code>grep -r “hello” ./*</code></strong></td>
+<td>在当前文件夹下的所有文件下搜索 “hello”</td>
+</tr>
+<tr>
+<td>-     <strong><code>grep -i “Bye” *</code></strong></td>
+<td>在当前文件夹下忽略大小写搜索 ”Bye”</td>
+</tr>
+<tr>
+<td>-     <strong><code>grep -w “Test” aa bb</code></strong></td>
+<td>在aa, bb文件内,只匹配整个单词搜索 “Test”</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tar -cvf file.tar /dir</code></td>
+<td>将/dir打包为file.tar,没有压缩</td>
+</tr>
+<tr>
+<td><code>tar -zcvf file.tar.gz /dir</code></td>
+<td>将/dir打包为file.tar.gz,用gzip压缩</td>
+</tr>
+<tr>
+<td><code>tar -jcvf file.tar.bz2 /dir</code></td>
+<td>将/dir打包为file.tar.gz2,用bzip2压缩</td>
+</tr>
+<tr>
+<td><code>tar -xvf file.tar</code></td>
+<td>还原file.tar到当前目录</td>
+</tr>
+<tr>
+<td><code>tar -zxvf file.tar.gz</code></td>
+<td>解压file.tar.gz到当前目录</td>
+</tr>
+<tr>
+<td><code>tar -jxvf file.tar.bz2</code></td>
+<td>解压file.tar.bz2到当前目录</td>
+</tr>
+<tr>
+<td><code>tar -N ‘2005/06/01’ -zcvffile.tar.gz /dir</code></td>
+<td>将/dir下比2005/06/01新的文件备份</td>
+</tr>
+<tr>
+<td><code>cpio</code></td>
+<td>文件/设备的输入输出, 多配合find进行备份</td>
+</tr>
+<tr>
+<td>-     **`find / -print</td>
+<td>cpio -covB &gt; /dev/st0`**</td>
+<td>将系统数据全部写入磁带机</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[linux 系统文件及磁盘指令]]></title>
+      <url>https://draapho.github.io/2016/12/15/1625-linux-cmd-disk/</url>
+      <content type="html"><![CDATA[<h1 id="linux-系统文件简要说明"><a href="#linux-系统文件简要说明" class="headerlink" title="linux 系统文件简要说明"></a>linux 系统文件简要说明</h1><p>FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:<br>第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.<br>第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.<br>单一文件或目录的最大允许文件名为255个字符,包含完整路径的文件名或目录名最大允许为4096个字符.</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>说明</th>
+<th>文件内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>root, 根目录</td>
+<td>一般建议只有目录,不要直接放文件. <code>/etc</code> <code>/bin</code> <code>/sbin</code> <code>/dev</code> <code>/lib</code> 必须与 <code>/</code> 同一分区</td>
+</tr>
+<tr>
+<td><code>/bin</code>, <code>/usr/bin</code>, <code>/usr/local/bin</code></td>
+<td>Essential command <strong>bin</strong>aries, 普通用户可执行的二进制文件</td>
+<td>如 <code>ls</code> <code>mv</code> <code>cat</code> 等指令</td>
+</tr>
+<tr>
+<td><code>/boot</code></td>
+<td>Static files of the <strong>boot</strong> loader,  启动时用到的文件</td>
+<td>包括 vmlinuz (就是kernel), grub (开机管理)</td>
+</tr>
+<tr>
+<td><code>/dev</code></td>
+<td><strong>Dev</strong>ice files, 设备文件</td>
+<td>任何设备与接口都是以文件的型态存放在此目录下. 分为<code>字符设备</code>和<code>块设备</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/null</code></td>
+<td>空设备</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/tty*</code></td>
+<td>串口设备</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/hd[a-d][1-63]</code></td>
+<td>IDE 硬盘</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/sd[a-p][1-20]</code></td>
+<td>SCSI硬盘,U盘</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/cdrom</code></td>
+<td>CDROM</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/fd[0-1]</code></td>
+<td>软盘</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/lp[0-2]</code></td>
+<td>并口打印机</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/dev/mouse</code></td>
+<td>鼠标</td>
+</tr>
+<tr>
+<td></td>
+<td>常见<code>sda1-3</code>(主分区),<del><code>sda4</code></del>(扩展分区),<code>sda5..</code>(逻辑分区)</td>
+<td>分析:硬盘支持4个主分区,1个扩展分区(占用主分区),16个逻辑分区(SCSI硬盘). 扩展分区文件名不显示.</td>
+</tr>
+<tr>
+<td><code>/etc</code></td>
+<td><strong>Etc</strong>etera, 杂项都在此处! 偏系统设置</td>
+<td>系统启动(<code>/etc/init</code> <code>/etc/init.d</code>), 账号密码(<code>/etc/passwd</code> <code>/etc/shadow</code>), 开机预设值(<code>/etc/sysconfig/*</code>)</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td>User <strong>home</strong> directories, 用户的家目录</td>
+<td>放置用户自有的数据, 如音乐图片等</td>
+</tr>
+<tr>
+<td><code>/lib</code> <code>/usr/lib</code> <code>/usr/local/lib</code></td>
+<td>Essential shared <strong>lib</strong>raries and kernel modules, 系统使用的函式库的目录</td>
+<td><code>/lib/modules</code> 放着kernel的相关模块</td>
+</tr>
+<tr>
+<td><code>/lost+found</code></td>
+<td>系统异常时,会将一些遗失的片段放于此目录</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/mnt</code></td>
+<td><strong>Mount</strong> point for mounting a file system temporarily, 默认挂载点文件的目录</td>
+<td>通常软盘挂在<code>/mnt/floppy</code>下,光盘挂在<code>/mnt/cdrom</code>下</td>
+</tr>
+<tr>
+<td><code>/media</code></td>
+<td>Contains mount points for replaceable <strong>media</strong></td>
+<td><code>/media</code>目录功能与<code>/mnt</code>类似</td>
+</tr>
+<tr>
+<td><code>/opt</code></td>
+<td>Add-on application software packages, 主机自行安装软件默认放置的目录</td>
+<td>以前较多情况放置在<code>/usr/local</code>目录下</td>
+</tr>
+<tr>
+<td><code>/proc</code></td>
+<td>Virtual directory for system information, 虚拟档案系统. 数据都在内存当中,不占用硬盘空间.</td>
+<td>主要包括系统核心,接口设备状态,网络状态. 比较重要的档案例: <code>/proc/cpuinfo</code> <code>/proc/dma</code> <code>/proc/interrupts</code> <code>/proc/ioports</code> <code>/proc/net/*</code> 等</td>
+</tr>
+<tr>
+<td><code>/root</code></td>
+<td>Home directory for the <strong>root</strong> user 系统管理员的家目录。</td>
+<td>一般与根目录<code>/</code>在同一分区下</td>
+</tr>
+<tr>
+<td><code>/sbin</code>, <code>/usr/sbin</code>, <code>/usr/local/sbin</code></td>
+<td>Essential system binaries,<strong>S</strong>uper user <strong>bin</strong>aries, 放置系统管理员才会动用到的执行指令</td>
+<td>如： <code>fdisk</code> <code>mke2fs</code> <code>fsck</code> <code>mkswap</code> <code>mount</code> 等</td>
+</tr>
+<tr>
+<td><code>/sys</code></td>
+<td>Virtual directory for system information (2.6 kernels)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/srv</code></td>
+<td>Data for <strong>services</strong> provided by the system, 一些服务启动之后，这些服务所需要取用的数据目录</td>
+<td>如WWW 服务器需要的网页就可放在<code>/srv/www</code>内</td>
+</tr>
+<tr>
+<td><code>/tmp</code></td>
+<td><strong>Temp</strong>orary files, 这是让一般用户或是正在执行的程序暂时放置文件的目录</td>
+<td>这个目录任何人都能够存取的，所以需要定期清理</td>
+</tr>
+<tr>
+<td><code>/usr</code></td>
+<td><strong>U</strong>nix <strong>S</strong>hared <strong>R</strong>esources</td>
+<td>此目录下包含系统的主要程序,图形界面文件,额外的函式库、本机自行安装的软件，以及共享的目录与文件等</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/bin,/usr/sbin</code></td>
+<td>可执行的档案放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/include</code></td>
+<td>c/c++等程序语言的头文件放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/lib</code></td>
+<td>各应用软件的函数库档案放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/local</code></td>
+<td>本机自行安装及升级软件默认放置的目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/local/bin</code></td>
+<td>自行安装及升级软件后的可执行文件目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/share</code></td>
+<td>共享文件放置的目录, 如帮助文档(doc,man)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/src</code></td>
+<td>Linux系统相关的程序代码放置目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/src/linux</code></td>
+<td>为Linux Kernel的源码</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/usr/X11R6</code></td>
+<td>X Window System 所需的执行文件放置目录</td>
+</tr>
+<tr>
+<td><code>/var</code></td>
+<td><strong>Var</strong>iable data</td>
+<td>主要放置系统执行过程中经常变化的文件</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/cache</code></td>
+<td>程序文件在运作过程中的一些缓存数据</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/lib</code></td>
+<td>程序执行中，使用到的数据库文件放置的目录</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/log</code></td>
+<td>登录文件放置的目录(如/var/log/messages)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/run</code></td>
+<td>某些程序或是服务启动后,会放置PID在此处</td>
+</tr>
+<tr>
+<td></td>
+<td><code>/var/spool</code></td>
+<td>是一些数据队列存放的目录,作用为缓冲</td>
+</tr>
+</tbody>
+</table>
+<h1 id="linux系统分区建议"><a href="#linux系统分区建议" class="headerlink" title="linux系统分区建议"></a>linux系统分区建议</h1><table>
+<thead>
+<tr>
+<th>挂载目录</th>
+<th>说明</th>
+<th>类型</th>
+<th>台式机</th>
+<th>嵌入式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/boot</code></td>
+<td>启动程序等</td>
+<td>ext4</td>
+<td>100MB</td>
+<td>50MB</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>根目录</td>
+<td>ext4</td>
+<td>1GB-5GB</td>
+<td>150-250MB</td>
+</tr>
+<tr>
+<td><code>swap</code></td>
+<td>虚拟内存</td>
+<td>swap</td>
+<td>0/2*ram</td>
+<td>看情况</td>
+</tr>
+<tr>
+<td><code>/usr</code></td>
+<td>放置系统应用程序</td>
+<td>ext4</td>
+<td>5GB-20GB</td>
+<td>1-5GB</td>
+</tr>
+<tr>
+<td><code>/opt</code></td>
+<td>放置大型或测试软件, <strong>建议用户软件都放此处</strong></td>
+<td>ext4</td>
+<td>10-50GB</td>
+<td>使用<code>/usr/local</code></td>
+</tr>
+<tr>
+<td><code>/tmp</code></td>
+<td>临时文件</td>
+<td>ext4</td>
+<td>500M</td>
+<td>50-100M</td>
+</tr>
+<tr>
+<td><code>/var</code></td>
+<td>放置经常变化的文件</td>
+<td>ext4</td>
+<td>1GB</td>
+<td>300-500M</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td>用户家目录</td>
+<td>ext4</td>
+<td>100G/自定义</td>
+<td>看情况</td>
+</tr>
+</tbody>
+</table>
+<h1 id="linux磁盘常用指令"><a href="#linux磁盘常用指令" class="headerlink" title="linux磁盘常用指令"></a>linux磁盘常用指令</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df</code></td>
+<td><strong>disk free</strong>, 查看磁盘相关信息</td>
+</tr>
+<tr>
+<td>-     <strong><code>df -Th</code></strong></td>
+<td>查看磁盘容量信息</td>
+</tr>
+<tr>
+<td>-     <strong><code>df -iTh</code></strong></td>
+<td>查看磁盘inode信息</td>
+</tr>
+<tr>
+<td><code>du</code></td>
+<td><strong>disk usage</strong>, 查看磁盘文件使用情况</td>
+</tr>
+<tr>
+<td>-     <strong><code>du -h</code></strong></td>
+<td>列出当前文件夹下所有文件的容量</td>
+</tr>
+<tr>
+<td>-     <strong><code>du -sh file_dir</code></strong></td>
+<td>列出指定文件的容量</td>
+</tr>
+<tr>
+<td><code>fdisk</code></td>
+<td><strong>format disk</strong>, 磁盘查看及分区</td>
+</tr>
+<tr>
+<td>-     <strong><code>fdisk -l</code></strong></td>
+<td>查看整个系统的分区情况</td>
+</tr>
+<tr>
+<td>-     <strong><code>fdisk /dev/sda6</code></strong></td>
+<td>对指定磁盘进行配置(进入fdisk命令行模式)</td>
+</tr>
+<tr>
+<td><code>mkfs</code></td>
+<td><strong>make filesystem</strong>, 分区格式化</td>
+</tr>
+<tr>
+<td>-     <strong><code>mkfs -t ext4 /dev/sda6</code></strong></td>
+<td>格式化sda6分区格式为ext4</td>
+</tr>
+<tr>
+<td><code>fsck</code></td>
+<td><strong>filesystem check</strong>, 分区检验和修复</td>
+</tr>
+<tr>
+<td>-     <strong><code>unmount /dev/sda6</code></strong></td>
+<td>要检查的分区必须先umount</td>
+</tr>
+<tr>
+<td>-     <strong><code>fsck -y -t ext4 /dev/sda6</code></strong></td>
+<td>对sda6分区进行检验和修复</td>
+</tr>
+<tr>
+<td><code>mount</code></td>
+<td><strong>mount</strong> 查看和挂载分区</td>
+</tr>
+<tr>
+<td>-     <strong><code>mkdir /mnt/sda_data</code></strong></td>
+<td>必须先创建挂载点文件夹</td>
+</tr>
+<tr>
+<td>-     <strong><code>mount -t ext4 /dev/sda6 /mnt/sda_data</code></strong></td>
+<td>挂载指定设备sda6到文件夹</td>
+</tr>
+<tr>
+<td><code>umount</code></td>
+<td><strong>umount</strong>, 取消挂载点</td>
+</tr>
+<tr>
+<td>-     <strong><code>umount /dev/sda6</code> </strong></td>
+<td>两种写法都可以</td>
+</tr>
+<tr>
+<td>-     <strong><code>umount /mnt/sda_data</code></strong></td>
+<td>两种写法都可以</td>
+</tr>
+<tr>
+<td><code>quato</code></td>
+<td><strong>quato</strong>, 管理普通用户的分区配额,多用于服务器.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="mount常见用法及开机自动挂载"><a href="#mount常见用法及开机自动挂载" class="headerlink" title="mount常见用法及开机自动挂载"></a>mount常见用法及开机自动挂载</h1><h2 id="挂载U盘"><a href="#挂载U盘" class="headerlink" title="挂载U盘"></a>挂载U盘</h2><ul>
+<li>插入U盘, 用 <code>fdisk -l</code> 或 <code>ll /dev/</code> 下查看U盘的硬件名称, 如 <code>sda11</code></li>
+<li>在mnt下建立usb目录 <code>mkdir /mnt/usb</code></li>
+<li>挂载U盘  <code>mount -t vfat /dev/sda11 /mnt/usb</code></li>
+<li>卸载U盘  <code>umount /mnt/usb</code></li>
+<li>拔出U盘</li>
+<li>删除mnt目录  <code>rm -fr /mnt/usb</code></li>
+</ul>
+<h2 id="挂载fat32分区"><a href="#挂载fat32分区" class="headerlink" title="挂载fat32分区"></a>挂载fat32分区</h2><p><code>mount -t vfat -o iocharset=cp936 /dev/sda6 /mnt/fat32</code></p>
+<h2 id="挂载ntfs分区"><a href="#挂载ntfs分区" class="headerlink" title="挂载ntfs分区"></a>挂载ntfs分区</h2><p><code>mount -t ntfs -o iocharset=uft8 /dev/sda6 /mnt/ntfs</code></p>
+<h2 id="挂载光驱"><a href="#挂载光驱" class="headerlink" title="挂载光驱"></a>挂载光驱</h2><p><code>mount -t iso9660 /dev/hdc /mnt/cdrom</code></p>
+<h2 id="重载分区为可读写"><a href="#重载分区为可读写" class="headerlink" title="重载分区为可读写"></a>重载分区为可读写</h2><p>将根目录改为可读写,系统维护时使用<br><code>mount -n -o remount,rw /</code></p>
+<h2 id="自动挂载分区"><a href="#自动挂载分区" class="headerlink" title="自动挂载分区"></a>自动挂载分区</h2><p>通过修改 <code>/etc/fstab</code> 实现. 根据规则自行添加行即可.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"># &lt;file system&gt;   &lt;mount point&gt; &lt;type&gt; &lt;options&gt; &lt;dump&gt; &lt;pass&gt;</div><div class="line"># &lt;分区&gt;           &lt;挂载点&gt;      &lt;类型&gt;  &lt;配置&gt;     &lt;备份&gt;  &lt;检查&gt;</div><div class="line"></div><div class="line"># 以下是通过分区唯一的uuid进行挂载,优点是可绑定指定分区</div><div class="line"># 获取uuid指令: `ll /dev/disk/by-uuid/`</div><div class="line">  UUID=xxxx-xxxx  /             ext4   errors=..  0     1</div><div class="line">  UUID=xxxx-xxxx  /boot         ext4   defaults   0     2</div><div class="line">  UUID=xxxx-xxxx  /home         ext4   defaults   0     2</div><div class="line"></div><div class="line"># 以下是通过设备文件名进行挂载,优点是直观</div><div class="line"># 查看设备文件名指令: `sudo fdisk -l`  (sudo,获取管理员权限)</div><div class="line">  /dev/sda5       /mnt/data     ext4   defaults   0     2</div></pre></td></tr></table></figure></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Android中Activity、Service和线程之间的通信]]></title>
+      <url>https://draapho.github.io/2016/12/14/1624-android-ipc/</url>
+      <content type="html"><![CDATA[<p>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="external">Android中Activity、Service和线程之间的通信</a></p>
+<hr>
+<h1 id="我的说明"><a href="#我的说明" class="headerlink" title="我的说明"></a>我的说明</h1><p>很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.<br>其实 Activity 和 Activity 间也就下面一些通讯方式,<br>只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.</p>
+<p>先转载此文作为备忘, 有时间自己在总结一下范例.</p>
+<h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>Activity、Service和线程应该是Android编程中最常见的几种类了，几乎大多数应用程序都会涉及到这几个类的编程，<br>自然而然的，也就会涉及到三者之间的相互通信，本文就试图简单地介绍一下这三者通信的方式。</p>
+<p>想写这篇文章的起因是，笔者跟几个同学在做一个Android上的应用，起初代码写得很凌乱，因为我在Activity中直接创建了线程，去执行某些任务。<br>但是我们知道线程可能需要运行的时间比较长，而Android在内存不足的时候，会将一些Activity销毁，<br>这样线程就会失去了管理的对象，从而使程序发生意想不到的结果。<br>此外，在Activity中创建线程，线程跟Activity的通信也比较麻烦，一般借助Handler类来进行通信</p>
+<p>与Activity相比，Service一般“默默”地运行在后台，生命周期比较长，所以它更合适去为主程序提供某些服务，创建线程并管理线程。<br>因此，笔者将原程序改成三层架构，从高到低分别为：Activity层–Service层–Thread层。<br>Activity将需要的服务“告诉”Service层，Service层创建Thread去完成服务。<br>Thread将任务的进度、状态、错误信息反馈给Service，Service将这些消息反馈给相关的Activity，<br>并且还可以利用Notification更新通知栏消息。大体的结构就是这样。</p>
+<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="external">Android在子线程中更新Activity中UI的方法</a></p>
+<h2 id="Activity调用startService"><a href="#Activity调用startService" class="headerlink" title="Activity调用startService"></a>Activity调用startService</h2><p>Activity调用startService (Intent service)方法，将消息添加到Intent对象中，<br>这样Service对象可以在调用onStartCommand (Intent intent, int flags, int startId)的时候可以得到这些消息。<br>这种方法很简单，但如果有大量的信息要传递的话，就很麻烦了。因为Service端还要判断一下消息是什么，才能作进一步的动作。</p>
+<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="external">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
+<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="external">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
+<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="external">Android在子线程中更新Activity中UI的方法</a></p>
+<h1 id="Activity和Thread之间的通信"><a href="#Activity和Thread之间的通信" class="headerlink" title="Activity和Thread之间的通信"></a>Activity和Thread之间的通信</h1><p>不用多想了，直接使用Handler吧。不推荐Activity直接去创建线程，因为不好管理线程。</p>
+<hr>
+<p>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="external">Android中Activity、Service和线程之间的通信</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Python 调试及测试]]></title>
+      <url>https://draapho.github.io/2016/12/13/1623-python-debug/</url>
+      <content type="html"><![CDATA[<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>常用的方法有:</p>
+<ul>
+<li>print, 仅作临时测试, 而且还要删除.</li>
+<li>assert, 同print, 无明显优势.</li>
+<li>logging, 推荐使用. 可选级别, 可选输出方式, 适用于各种情况的调试.</li>
+<li>pdb 以及 基于pdb的图形化工具.</li>
+<li>python的IDE, 如PyCharm(推荐), eclipse+PyDev</li>
+</ul>
+<h2 id="logging"><a href="#logging" class="headerlink" title="logging"></a>logging</h2><h3 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="string">'''默认日志输出为终端, 设置日志等级, DEBUG=LEVEL10, 优先级最低'''</span></div><div class="line">    logging.basicConfig(level=logging.DEBUG)</div><div class="line">    <span class="string">'''更多设置'''</span></div><div class="line">    <span class="comment"># logging.basicConfig(level=logging.DEBUG,</span></div><div class="line">    <span class="comment">#                     format='%(asctime)s %(filename)-s[%(lineno)d] %(levelname)-8s: %(message)s')</span></div><div class="line"></div><div class="line">    logging.debug(<span class="string">'DEBUG message'</span>)</div><div class="line">    logging.info(<span class="string">'INFO message'</span>)</div><div class="line">    logging.warn(<span class="string">'WARN message'</span>)</div><div class="line">    logging.error(<span class="string">'ERROR message'</span>)</div><div class="line">    logging.critical(<span class="string">'CRITICAL message'</span>)</div></pre></td></tr></table></figure>
+<h3 id="自定义显示格式"><a href="#自定义显示格式" class="headerlink" title="自定义显示格式"></a>自定义显示格式</h3><p>日志输出到 <code>logger.log</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="string">'''设置显示格式, 日志输出到文件'''</span></div><div class="line">    logging.basicConfig(level=logging.DEBUG,</div><div class="line">                        format=<span class="string">'%(asctime)s %(filename)-s[%(lineno)d] %(levelname)-8s: %(message)s'</span>,</div><div class="line">                        filename=<span class="string">'logger.log'</span>,</div><div class="line">                        filemode=<span class="string">'w'</span>) <span class="comment"># default is 'a'=append, 'w'=overwrite</span></div><div class="line"></div><div class="line">    logging.debug(<span class="string">'This is debug message'</span>)</div><div class="line">    logging.info(<span class="string">'This is info message'</span>)</div><div class="line">    logging.warning(<span class="string">'This is warning message'</span>)</div></pre></td></tr></table></figure></p>
+<p>日志输出到 <code>logger.log</code> 以及终端<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    logging.basicConfig(level=logging.DEBUG,</div><div class="line">                        format=<span class="string">'%(asctime)s %(filename)s[%(lineno)d] %(levelname)-8s: %(message)s'</span>,</div><div class="line">                        filename=<span class="string">'logger.log'</span>,</div><div class="line">                        filemode=<span class="string">'w'</span>) <span class="comment"># default is 'a'=append, 'w'=overwrite</span></div><div class="line"></div><div class="line">    <span class="string">'''</span></div><div class="line">    定义一个StreamHandler，将INFO级别或更高的日志信息打印到标准错误，并将其添加到当前的日志处理对象</div><div class="line">    '''</div><div class="line">    console = logging.StreamHandler()</div><div class="line">    console.setLevel(logging.INFO)</div><div class="line">    formatter = logging.Formatter(<span class="string">'%(levelname)-8s: %(message)s'</span>)</div><div class="line">    console.setFormatter(formatter)</div><div class="line">    logging.getLogger(<span class="string">''</span>).addHandler(console)</div><div class="line"></div><div class="line">    logging.debug(<span class="string">'This is debug message'</span>)</div><div class="line">    logging.info(<span class="string">'This is info message'</span>)</div><div class="line">    logging.warning(<span class="string">'This is warning message'</span>)</div></pre></td></tr></table></figure></p>
+<h3 id="使用文件配置"><a href="#使用文件配置" class="headerlink" title="使用文件配置"></a>使用文件配置</h3><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">#logging.conf</div><div class="line"></div><div class="line">###############################################</div><div class="line">[loggers]</div><div class="line">keys=root</div><div class="line"></div><div class="line">[logger_root]</div><div class="line">level=DEBUG</div><div class="line">handlers=hand01,hand02</div><div class="line"></div><div class="line">###############################################</div><div class="line">[handlers]</div><div class="line">keys=hand01,hand02,hand03</div><div class="line"></div><div class="line"># 写入终端</div><div class="line">[handler_hand01]</div><div class="line">class=StreamHandler</div><div class="line">level=DEBUG</div><div class="line">formatter=form01</div><div class="line">args=(sys.stderr,)</div><div class="line"></div><div class="line"># 写入文件, 'w'覆写, 'a'追加</div><div class="line">[handler_hand02]</div><div class="line">class=FileHandler</div><div class="line">level=INFO</div><div class="line">formatter=form01</div><div class="line">args=('logging.log', 'w')</div><div class="line"></div><div class="line"># 最多备份5个日志文件，每个日志文件最大10M</div><div class="line">[handler_hand03]</div><div class="line">class=handlers.RotatingFileHandler</div><div class="line">level=INFO</div><div class="line">formatter=form01</div><div class="line">args=('logging.log', 'a', 10*1024*1024, 5)</div><div class="line"></div><div class="line">###############################################</div><div class="line">[formatters]</div><div class="line">keys=form01</div><div class="line"></div><div class="line">[formatter_form01]</div><div class="line">format=%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s: %(message)s</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">from</span> logging.config <span class="keyword">import</span> fileConfig</div><div class="line">    fileConfig(<span class="string">"logging.conf"</span>)</div><div class="line"></div><div class="line">    logging.debug(<span class="string">'This is debug message'</span>)</div><div class="line">    logging.info(<span class="string">'This is info message'</span>)</div><div class="line">    logging.warning(<span class="string">'This is warning message'</span>)</div></pre></td></tr></table></figure>
+<h3 id="更多应用参考手册"><a href="#更多应用参考手册" class="headerlink" title="更多应用参考手册"></a>更多应用参考手册</h3><ul>
+<li><a href="https://docs.python.org/3.1/library/logging.html" target="_blank" rel="external">15.6. logging — Logging facility for Python</a><ul>
+<li>15.6.11. Sending and receiving logging events across a network</li>
+<li>15.6.20.2. Configuration file format</li>
+<li>15.6.20.3. Configuration server example</li>
+<li>15.6.21. More examples</li>
+</ul>
+</li>
+</ul>
+<h2 id="pdb"><a href="#pdb" class="headerlink" title="pdb"></a>pdb</h2><p>进入调试模式 <code>python -m pdb example.py</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ python -m pdb example.py</div><div class="line">(Pdb)</div></pre></td></tr></table></figure></p>
+<p>pdb 常用命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"># 断点</div><div class="line">(Pdb) b 10          # 断点设置在当前文件的第10行</div><div class="line">(Pdb) tbreak 10     # temp  break, 临时断点, 执行后会自动删除</div><div class="line">(Pdb) b my.py:20    # 断点设置到 my.py第20行</div><div class="line">(Pdb) b             # break, 查看断点编号</div><div class="line">(Pdb) cl 2          # clear, 删除第2个断点</div><div class="line">(Pdb) disable 2     # 禁用第2个断点</div><div class="line">(Pdb) enable 2      # 使能第2个断点</div><div class="line">(Pdb) ignore 2 10   # 略过第2个断点10次, 循环调试特别有用!</div><div class="line">(Pdb) condition 2 (i&gt;10)    # 条件为真时,使能断点</div><div class="line"></div><div class="line"># 运行</div><div class="line">(Pdb) n             # next, 单步运行</div><div class="line">(Pdb) s             # step, 进入方法</div><div class="line">(Pdb) r             # return, 返回上级方法</div><div class="line">(Pdb) c             # continue, 跳到下个断点</div><div class="line"></div><div class="line"># 查看</div><div class="line">(Pdb) p param       # print, 查看当前 变量值</div><div class="line">(Pdb) l             # list, 查看运行到某处代码</div><div class="line">(Pdb) a             # args, 查看全部栈内变量</div><div class="line">(Pdb) w             # where, 堆栈信息</div><div class="line"></div><div class="line"># 其它</div><div class="line">(Pdb) h             # help, 帮助</div><div class="line">(Pdb) q             # quit, 退出调试</div></pre></td></tr></table></figure></p>
+<p>使用alias设置别名, 可大大提高调试速度!<br><strong>将下述文件存储为 <code>.pdbrc</code>, 然后放在系统目录 <code>~</code> 或 项目目录下, pdb会自动加载.</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># name it as ".pdbrc", then put into ~ or project folder</span></div><div class="line"></div><div class="line"><span class="comment"># Print a dictionary, sorted. %1 is the dict, %2 is the prefix for the names.</span></div><div class="line">alias p_ <span class="keyword">for</span> k <span class="keyword">in</span> sorted(%<span class="number">1.</span>keys()): <span class="keyword">print</span> <span class="string">"%s%-15s= %-80.80s"</span> % (<span class="string">"%2"</span>,k,repr(%<span class="number">1</span>[k]))</div><div class="line"></div><div class="line"><span class="comment"># Print the instance variables of a thing.</span></div><div class="line">alias pi p_ %<span class="number">1.</span>__dict__ %<span class="number">1.</span></div><div class="line"></div><div class="line"><span class="comment"># Print the instance variables of self.</span></div><div class="line">alias ps pi self</div><div class="line"></div><div class="line"><span class="comment"># Print the locals.</span></div><div class="line">alias pl p_ locals() local:</div><div class="line"></div><div class="line"><span class="comment"># Next and list, and step and list.</span></div><div class="line">alias nl n;;l</div><div class="line">alias sl s;;l</div><div class="line"></div><div class="line"><span class="comment"># go to line</span></div><div class="line">alias gl tbreak %*;;c %*;;l</div><div class="line"></div><div class="line"><span class="comment"># go to next</span></div><div class="line">alias g1 n;;l</div><div class="line">alias g2 n;;n;;l</div><div class="line">alias g3 n;;n;;n;;l</div><div class="line">alias g4 n;;n;;n;;n;;l</div><div class="line">alias g5 n;;n;;n;;n;;n;;l</div><div class="line">alias g6 n;;n;;n;;n;;n;;n;;nl</div><div class="line">alias g7 n;;n;;n;;n;;n;;n;;n;;l</div><div class="line">alias g8 n;;n;;n;;n;;n;;n;;n;;n;;l</div><div class="line">alias g9 n;;n;;n;;n;;n;;n;;n;;n;;n;;l</div><div class="line"></div><div class="line"><span class="comment"># Short cuts for walking up and down the stack</span></div><div class="line">alias uu u;;u</div><div class="line">alias uuu u;;u;;u</div><div class="line">alias uuuu u;;u;;u;;u</div><div class="line">alias uuuuu u;;u;;u;;u;;u</div><div class="line">alias dd d;;d</div><div class="line">alias ddd d;;d;;d</div><div class="line">alias dddd d;;d;;d;;d</div><div class="line">alias ddddd d;;d;;d;;d;;d</div></pre></td></tr></table></figure></p>
+<h2 id="查看函数调用"><a href="#查看函数调用" class="headerlink" title="查看函数调用"></a>查看函数调用</h2><p>使用如下的装饰器, 即可观察该函数被调用的情况<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">findcaller</span><span class="params">(func)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        <span class="keyword">import</span> sys</div><div class="line">        f = sys._getframe()</div><div class="line">        filename = f.f_back.f_code.co_filename</div><div class="line">        lineno = f.f_back.f_lineno</div><div class="line">        <span class="keyword">print</span> <span class="string">'######################################'</span></div><div class="line">        <span class="keyword">print</span> <span class="string">'&#123;&#125;, args: &#123;&#125;, &#123;&#125;'</span>.format(func, args, kwargs)</div><div class="line">        <span class="keyword">print</span> <span class="string">'called by &#123;&#125;, line &#123;&#125;'</span>.format(filename, lineno)</div><div class="line">        <span class="keyword">print</span> <span class="string">'######################################'</span></div><div class="line">        func(*args, **kwargs)</div><div class="line">    <span class="keyword">return</span> wrapper</div></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># example</span></div><div class="line"></div><div class="line"><span class="meta">@findcaller</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(name=<span class="string">'world'</span>)</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"hello"</span>, name</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    hello(<span class="string">'DRA&amp;PHO'</span>)</div></pre></td></tr></table></figure>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><h2 id="doctest"><a href="#doctest" class="headerlink" title="doctest"></a>doctest</h2><p>简单的函数测试个人比较喜欢使用doctest, 因为一举两得, 即可以做测试案例, 又是极好的代码注释和范例<br>输出和预期一致时, 没有任何提醒. 输出和预期不一致时, 就会弹出错误.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(name=<span class="string">'world'</span>)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    &gt;&gt;&gt; hello()</div><div class="line">    hello world</div><div class="line">    &gt;&gt;&gt; hello('DRA&amp;PHO')</div><div class="line">    hello, DRA&amp;PHO</div><div class="line">    """</div><div class="line">    <span class="keyword">print</span> <span class="string">"hello"</span>, name</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    <span class="keyword">import</span> doctest</div><div class="line">    doctest.testmod()</div></pre></td></tr></table></figure>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ul>
+<li><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/00140137128705556022982cfd844b38d050add8565dcb9000" target="_blank" rel="external">unittest</a>, 更专业的一种测试方法, 可批量执行</li>
+<li><a href="http://pythonguidecn.readthedocs.io/zh/latest/writing/tests.html" target="_blank" rel="external">Python指南-测试你的代码</a><ul>
+<li>单元测试(unittest)</li>
+<li>文档测试(doctest)</li>
+<li>测试工具: py.test, nose, tox, Unittest2, mock</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://blog.csdn.net/yatere/article/details/6655445" target="_blank" rel="external">python 的日志logging模块学习</a></li>
+<li><a href="http://www.jianshu.com/p/feb86c06c4f4" target="_blank" rel="external">python logging模块使用教程</a></li>
+<li><a href="https://docs.python.org/3.1/library/logging.html" target="_blank" rel="external">15.6. logging — Logging facility for Python</a></li>
+<li><a href="https://pythonconquerstheuniverse.wordpress.com/category/python-debugger/" target="_blank" rel="external">Debugging in Python</a></li>
+<li><p><a href="http://www.onlamp.com/pub/a/python/2005/09/01/debugger.html" target="_blank" rel="external">Interactive Debugging in Python</a></p>
+</li>
+<li><p><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/00140137128705556022982cfd844b38d050add8565dcb9000" target="_blank" rel="external">廖雪峰的官方网站-单元测试</a></p>
+</li>
+<li><p><a href="http://pythonguidecn.readthedocs.io/zh/latest/writing/tests.html" target="_blank" rel="external">Python 指南-测试你的代码</a></p>
+</li>
+<li><p><a href="http://www.jianshu.com/p/ae5bc6093337" target="_blank" rel="external">python笔记_查看函数调用栈的一个小技巧</a></p>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[python 延时及超时]]></title>
       <url>https://draapho.github.io/2016/11/28/1622-python-time/</url>
       <content type="html"><![CDATA[<h1 id="实用的例子"><a href="#实用的例子" class="headerlink" title="实用的例子"></a>实用的例子</h1><h2 id="time-sleep-单线程阻塞延时"><a href="#time-sleep-单线程阻塞延时" class="headerlink" title="time.sleep 单线程阻塞延时"></a><code>time.sleep</code> 单线程阻塞延时</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">time_sleep</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">        <span class="keyword">print</span> i</div><div class="line">        time.sleep(<span class="number">1</span>)       <span class="comment"># delay 1s, not that accurate</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    time_sleep()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
