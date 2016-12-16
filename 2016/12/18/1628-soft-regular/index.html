@@ -148,7 +148,7 @@ $表行尾, 待匹配的字符串word在行尾！
 
 …… grep -n &amp;#39;!$&amp;#39; re.txt
 显示行尾为 ! 的行">
-<meta property="og:updated_time" content="2016-12-16T11:25:59.023Z">
+<meta property="og:updated_time" content="2016-12-16T13:04:30.762Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="正则表达式">
 <meta name="twitter:description" content="正则表达式基础内容
@@ -449,15 +449,15 @@ $表行尾, 待匹配的字符串word在行尾！
 </tr>
 <tr>
 <td><code>[]</code></td>
-<td>字符集合. <strong>除<code>^``\``-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
+<td>字符集合. <strong>除<code>^</code> <code>\</code> <code>-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
 </tr>
 <tr>
 <td><code>[^]</code></td>
-<td>中括号内的第一个<code>^</code>表示补集<del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
+<td>中括号内的第一个<code>^</code>表示补集, <del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
 </tr>
 <tr>
 <td>…… <code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
-<td>匹配<code>(``+``*``)</code>中的一个字符.</td>
+<td>匹配 <code>(</code> <code>+</code> <code>*</code> <code>)</code> 中的一个字符.</td>
 </tr>
 <tr>
 <td>…… <code>grep -n &#39;[0-9]&#39; re.txt</code></td>
@@ -465,11 +465,11 @@ $表行尾, 待匹配的字符串word在行尾！
 </tr>
 <tr>
 <td>…… <code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
-<td>排除结果 <code>oo0</code>-<code>oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
+<td>排除结果 <code>oo0-oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
 </tr>
 <tr>
 <td><strong>数量符</strong></td>
-<td>跟在一个字符或组的后面, 表示该RE字符或组需要重复的字数</td>
+<td>跟在一个字符或组的后面, 重复该RE字符或组若干次</td>
 </tr>
 <tr>
 <td><code>*</code></td>
@@ -536,25 +536,30 @@ $表行尾, 待匹配的字符串word在行尾！
 <td>分组字符串</td>
 </tr>
 <tr>
-<td>…… `egrep -n ‘g(la</td>
-<td>oo)d’ re.txt`</td>
-</tr>
-<tr>
 <td>…… <code>egrep &#39;A(xyz)+C&#39;</code></td>
 <td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
+</tr>
+<tr>
+<td><code>\number</code></td>
+<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
+</tr>
+<tr>
+<td>…… <code>(\d)abc\1</code></td>
+<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
 </tr>
 </tbody>
 </table>
 <ul>
 <li><code>|</code> 理解为或即可, 用来隔开多个正则表达式.</li>
-<li><code>egrep -n &#39;gd|good&#39; re.txt</code> | 只能匹配<code>gd</code>和<code>good</code></li>
+<li>譬如 <code>egrep -n &#39;gd|good&#39; re.txt</code>   只能匹配<code>gd</code>和<code>good</code></li>
+<li>譬如 <code>egrep -n &#39;g(la|oo)d&#39; re.txt</code> 只能匹配<code>glad</code>和<code>good</code></li>
 </ul>
 <h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
 <p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
 <table>
 <thead>
 <tr>
-<th>特殊符号</th>
+<th>系统字符集</th>
 <th>含义</th>
 </tr>
 </thead>
@@ -601,27 +606,19 @@ $表行尾, 待匹配的字符串word在行尾！
 </tr>
 <tr>
 <td><code>\B</code></td>
-<td>[^\b], 指定部分内容提取<code>\w</code>串</td>
+<td><code>[^\b]</code>, 指定部分内容提取<code>\w</code>串</td>
 </tr>
 <tr>
 <td>…<code>py\B</code></td>
 <td>匹配 <code>python</code> <code>py3</code>, <del>不匹配 <code>py</code> <code>py.</code> <code>py!</code></del></td>
 </tr>
-<tr>
-<td><code>\number</code></td>
-<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
-</tr>
-<tr>
-<td>…<code>(\d)abc\1</code></td>
-<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
-</tr>
 </tbody>
 </table>
-<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 特殊符号如下:</p>
+<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 系统字符集如下:</p>
 <table>
 <thead>
 <tr>
-<th>特殊符号</th>
+<th>系统字符集</th>
 <th>含义</th>
 </tr>
 </thead>
@@ -652,7 +649,7 @@ $表行尾, 待匹配的字符串word在行尾！
 </tr>
 <tr>
 <td>[:graph:]</td>
-<td>非空字符, <code>[:blank:]</code>的补集, <code>[\x21-\x7E]</code></td>
+<td>非空字符, <code>[\x21-\x7E]</code>, <code>[:blank:]</code>的补集</td>
 </tr>
 <tr>
 <td>[:lower:]</td>
@@ -664,7 +661,7 @@ $表行尾, 待匹配的字符串word在行尾！
 </tr>
 <tr>
 <td>[:punct:]</td>
-<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\^_\</code>{}~-]` 等</td>
+<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\</code>^_{}~-]丨`</td>
 </tr>
 <tr>
 <td>[:upper:]</td>
@@ -691,13 +688,13 @@ $表行尾, 待匹配的字符串word在行尾！
 <li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
 <li><code>$</code>,  用于匹配行尾</li>
 <li><code>*</code>,  零个或多个的前一RE字符</li>
-<li><code>\\</code>,  跳脱/转义字符</li>
+<li><code>\</code>,  跳脱/转义字符</li>
 </ul>
-<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派, 为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪.<br><code>()</code> <code>{}</code> 需要使用 <code>\\</code> 转义后才有特殊含义. 如使用 <code>a\{1,2\}</code> 才能为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code></del> <del><code>?</code></del>, 不支持多选结构 <del><code>(...|...)</code></del>, 不支持反向引用 <del><code>\number</code></del></p>
+<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派,<br>为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪. <code>()</code> <code>{}</code> 需要使用 <code>\</code> 转义后才有特殊含义.<br>如果直接使用 <code>a{1,2}</code>, 只能去匹配 <code>a{1,2}</code> 字符串. 只有使用 <code>a\{1,2\}</code> 才能匹配为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code> <code>?</code> <code>(...|...)</code> <code>\number</code></del></p>
 <h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
 <ul>
-<li><code>{}</code>, 用于表示重复匹配的次数. BRE中只将<code>{}</code>当作普通字符对待，要使用此功能必须加<code>\\</code>进行转义, 即<code>\{\}</code></li>
-<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，要使用此功能必须加<code>\\</code>进行转义，即<code>\(\)</code></li>
+<li><code>{}</code> 用于表示重复匹配的次数. BRE中将<code>{}</code>当作普通字符对待，必须加<code>\</code>进行转义, 即<code>\{\}</code></li>
+<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，必须加<code>\</code>进行转义，即<code>\(\)</code></li>
 <li><code>|</code>, 完全为ERE新增的多项匹配能力定义的，BRE无多项匹配能力，只将<code>|</code>作普通字符对待</li>
 <li><code>\number</code>, ERE没有明确规定需要支持反向引用, 但不少工具都支持此功能</li>
 </ul>
@@ -707,6 +704,7 @@ $表行尾, 待匹配的字符串word在行尾！
 <th>PCRE记法</th>
 <th>vi/vim</th>
 <th>grep</th>
+<th>egrep</th>
 <th>awk</th>
 <th>sed</th>
 </tr>
@@ -718,11 +716,13 @@ $表行尾, 待匹配的字符串word在行尾！
 <td><code>*</code></td>
 <td><code>*</code></td>
 <td><code>*</code></td>
+<td><code>*</code></td>
 </tr>
 <tr>
 <td><code>+</code></td>
 <td><code>\+</code></td>
 <td><code>\+</code></td>
+<td><code>+</code></td>
 <td><code>+</code></td>
 <td><code>\+</code></td>
 </tr>
@@ -731,6 +731,7 @@ $表行尾, 待匹配的字符串word在行尾！
 <td><code>\=</code></td>
 <td><code>\?</code></td>
 <td><code>?</code></td>
+<td><code>?</code></td>
 <td><code>\?</code></td>
 </tr>
 <tr>
@@ -738,10 +739,12 @@ $表行尾, 待匹配的字符串word在行尾！
 <td><code>\{m,n}</code></td>
 <td><code>\{m,n\}</code></td>
 <td><code>{m,n}</code></td>
+<td><code>{m,n}</code></td>
 <td><code>\{m,n\}</code></td>
 </tr>
 <tr>
 <td><code>\b</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
 <td><code>\&lt;</code> <code>\&gt;</code></td>
 <td><code>\&lt;</code> <code>\&gt;</code></td>
 <td><code>\&lt;</code> <code>\&gt;</code></td>
@@ -753,8 +756,10 @@ $表行尾, 待匹配的字符串word在行尾！
 <td><code>\(…\)</code></td>
 <td><code>(…)</code></td>
 <td><code>(…)</code></td>
+<td><code>(…)</code></td>
 </tr>
 <tr>
+<td><code>\1</code> <code>\2</code></td>
 <td><code>\1</code> <code>\2</code></td>
 <td><code>\1</code> <code>\2</code></td>
 <td><code>\1</code> <code>\2</code></td>
@@ -766,12 +771,69 @@ $表行尾, 待匹配的字符串word在行尾！
 <p>注意:</p>
 <ul>
 <li>PCRE中常用<code>\b</code>来表示<strong>单词的起始或结束位</strong>,</li>
-<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong></li>
-<li>用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
+<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong>, 用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
 <li><code>sed</code>中的<code>\y</code>可以同时匹配这两个位置。</li>
 </ul>
-<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><p><em>, 0-多个任意字符,  重复0-多个前一个字符<br>a</em>  表示a为开头的任意文件  ls -d a<em><br>‘^a.</em>‘ 才能表示a为开头的行  ls | grep “^a.*”</p>
-<p>万用字符的反向选择, [!range]<br>正则表达式 [^range] , !在正则表达式中式普通字符</p>
+<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>bash shell中的含义</th>
+<th>RE中的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>零个到多个任意字符</td>
+<td>重复零个或多个前一RE字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>一个任意字符</td>
+<td>重复零个或一个前一RE字符</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>运行代码 <code>source</code></td>
+<td>一个任意字符</td>
+</tr>
+<tr>
+<td><code>[0-9a-z]</code></td>
+<td>list内的一个字符</td>
+<td>list内的一个字符</td>
+</tr>
+<tr>
+<td><code>[0-9]</code>的补集</td>
+<td><code>[!0-9]</code> ()</td>
+<td><code>[^range]</code> (<code>!</code>在RE里是普通字符)</td>
+</tr>
+<tr>
+<td><code>{}</code></td>
+<td><code>{123,abc}</code> 字符串匹配</td>
+<td><code>{m,n}</code> 重复m到n个前一RE字符</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>匹配<code>a</code>开头的任意文件<ul>
+<li>bash下 <code>ls a*</code></li>
+<li>re下 <code>ls | grep &quot;^a.*&quot;</code></li>
+</ul>
+</li>
+<li>匹配string1或string2或更多之一字符串<ul>
+<li>bash下 <code>{string1,string2,string3}</code>. 如 <code>touch a{xyz,123}.txt</code>, 结果为 <code>axyz.txt</code> <code>a123.txt</code></li>
+<li>re下 <code>(string1|string2|string3)</code>. 如 <code>ls | egrep &#39;g(la|oo)d&#39;</code>, 结果为 <code>glad</code> <code>good</code></li>
+</ul>
+</li>
+<li>连续字符匹配<ul>
+<li>bash下 <code>ls {ex{1..3},ex4}.sh</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code>, <del>不支持<code>{1..3a..z}</code></del></li>
+<li>bash下 <code>ls ~/*[0-9]*</code>, 显示用户home目录下所有包含数字的文件和目录</li>
+<li>re下 <code>ls | egrep &quot;(ex[1-3]|ex4).sh&quot;</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code></li>
+</ul>
+</li>
+<li>简单总结, RE的功能远比bash自带的匹配符功能强大. 特别容易弄混的也就是 <code>*</code> <code>?</code> <code>[^range]</code></li>
+</ul>
 <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
 <li><a href="http://python.usyiyi.cn/documents/python_278/library/re.html" target="_blank" rel="external">python标准库 7.2 re — 正则表达式操作</a></li>
 <li><a href="http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html" target="_blank" rel="external">Python正则表达式指南</a></li>
