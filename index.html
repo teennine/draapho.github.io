@@ -337,139 +337,13 @@
 </tr>
 <tr>
 <td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>^word</code></td>
-<td><code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;^#&#39; re.txt</code></td>
-<td>显示行首为 <code>#</code> 的行</td>
-</tr>
-<tr>
-<td><code>word$</code></td>
-<td><code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;!$&#39; re.txt</code></td>
-<td>显示行尾为 <code>!</code> 的行</td>
-</tr>
-<tr>
-<td><code>.</code></td>
-<td>代表<strong>任意一个</strong>字符, 必须有一个字符</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;e.e&#39; re.txt</code></td>
-<td>结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code></td>
-</tr>
-<tr>
-<td><code>[]</code></td>
-<td>字符集合. <strong>除<code>^``\\``-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
-</tr>
-<tr>
-<td><code>[^]</code></td>
-<td>中括号内的第一个<code>^</code>表示补集<del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
-<td>匹配<code>(``+``*``)</code>中的一个字符.</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;[0-9]&#39; re.txt</code></td>
-<td>搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
-<td>排除结果 <code>oo0</code>-<code>oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>*</code></td>
-<td><strong>零个或多个</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;ess*&#39; re.py</code></td>
-<td>结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code></td>
-</tr>
-<tr>
-<td>……<code>.*</code></td>
-<td>表示任意字符</td>
-</tr>
-<tr>
-<td><code>{m,n}</code></td>
-<td><strong>连续m到n个</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>……<code>{m,}</code></td>
-<td><strong>连续m个及以上</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>……<code>{m}</code></td>
-<td><strong>连续m个</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>……<code>grep -n &#39;go\{2,3\}g&#39; re.txt</code></td>
-<td>结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).</td>
-</tr>
-<tr>
-<td><code>?</code></td>
-<td><strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code></td>
-</tr>
-<tr>
-<td>……<code>egrep -n &#39;go?d&#39; re.txt</code></td>
-<td>只能匹配<code>gd</code>和<code>god</code></td>
-</tr>
-<tr>
-<td><code>+</code></td>
-<td>重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code></td>
-</tr>
-<tr>
-<td>……<code>egrep -n &#39;go+d&#39; re.txt</code></td>
-<td>匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del></td>
-</tr>
-<tr>
-<td><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code></td>
-<td>让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符</td>
-</tr>
-<tr>
-<td>……<code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
-<td>会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del></td>
-</tr>
-<tr>
-<td>……<code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
-<td><code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>竖杠</code></td>
-<td>理解为或即可, 用来隔开多个正则表达式. <strong>hexo把竖杠解析为制表符, 因此用中文代替</strong></td>
-</tr>
-<tr>
-<td>……<code>egrep -n &#39;gd竖杠good&#39; re.txt</code></td>
-<td>只能匹配<code>gd</code>和<code>good</code></td>
-</tr>
-<tr>
-<td><code>()</code></td>
-<td>分组字符串</td>
-</tr>
-<tr>
-<td>……`egrep -n ‘g(la</td>
-<td>oo)d’ re.txt`</td>
-<td>只能匹配<code>glad</code>和<code>good</code></td>
-</tr>
-<tr>
-<td>……<code>egrep &#39;A(xyz)+C&#39;</code></td>
-<td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
 </tr>
 </tbody>
 </table>
+<p><code>^word</code> | <code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！<br>……<code>grep -n &#39;^#&#39; re.txt</code> | 显示行首为 <code>#</code> 的行<br><code>word$</code>|<code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！<br>……<code>grep -n &#39;!$&#39; re.txt</code> | 显示行尾为 <code>!</code> 的行<br><code>.</code> | 代表<strong>任意一个</strong>字符, 必须有一个字符<br>……<code>grep -n &#39;e.e&#39; re.txt</code> | 结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code><br><code>[]</code> | 字符集合. <strong>除<code>^``\\``-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code><br><code>[^]</code> | 中括号内的第一个<code>^</code>表示补集<del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符<br>……<code>grep -n &#39;[(+*)]&#39; re.txt</code>| 匹配<code>(``+``*``)</code>中的一个字符.<br>……<code>grep -n &#39;[0-9]&#39; re.txt</code> | 搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),<br>……<code>grep -n &#39;oo[^0-9]&#39; re.txt</code> | 排除结果 <code>oo0</code>-<code>oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等<br> |<br><code>*</code> | <strong>零个或多个</strong>的前一RE字符<br>……<code>grep -n &#39;ess*&#39; re.py</code> | 结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code><br>……<code>.*</code> | 表示任意字符<br><code>{m,n}</code> | <strong>连续m到n个</strong>的前一RE字符<br>……<code>{m,}</code> | <strong>连续m个及以上</strong>的前一RE字符<br>……<code>{m}</code> | <strong>连续m个</strong>的前一RE字符<br>……<code>grep -n &#39;go\{2,3\}g&#39; re.txt</code> | 结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).<br><code>?</code> | <strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code><br>……<code>egrep -n &#39;go?d&#39; re.txt</code> | 只能匹配<code>gd</code>和<code>god</code><br><code>+</code> | 重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code><br>……<code>egrep -n &#39;go+d&#39; re.txt</code> | 匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del><br><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code> | 让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符<br>……<code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> | 会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del><br>……<code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> | <code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串<br> |<br>……<code>egrep -n &#39;gd竖杠good&#39; re.txt</code> | 只能匹配<code>gd</code>和<code>good</code><br><code>()</code> | 分组字符串<br>……<code>egrep -n &#39;g(la|oo)d&#39; re.txt</code> | 只能匹配<code>glad</code>和<code>good</code><br>……<code>egrep &#39;A(xyz)+C&#39;</code> | 匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></p>
+<ul>
+<li><code>|</code> 理解为或即可, 用来隔开多个正则表达式.</li>
+</ul>
 <h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
 <p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
 <table>
@@ -585,7 +459,7 @@
 </tr>
 <tr>
 <td>[:punct:]</td>
-<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\^_\</code>{竖杠}~-]`</td>
+<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\^_\</code>{}~-]` 等</td>
 </tr>
 <tr>
 <td>[:upper:]</td>
@@ -612,7 +486,7 @@
 <li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
 <li><code>$</code>,  用于匹配行尾</li>
 <li><code>*</code>,  零个或多个的前一RE字符</li>
-<li><code>\\</code> | 跳脱/转义字符</li>
+<li><code>\\</code>,  跳脱/转义字符</li>
 </ul>
 <p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派, 为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪.<br><code>()</code> <code>{}</code> 需要使用 <code>\\</code> 转义后才有特殊含义. 如使用 <code>a\{1,2\}</code> 才能为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code></del> <del><code>?</code></del>, 不支持多选结构 <del><code>(...|...)</code></del>, 不支持反向引用 <del><code>\number</code></del></p>
 <h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
@@ -1272,14 +1146,6 @@
 <td></td>
 </tr>
 <tr>
-<td>cmd1 l cmd2</td>
-<td><strong>请将<code>l</code>替换为<code>竖杠pipe</code></strong>, 管线命令,将cmd1的处理结果传给cmd2继续处理</td>
-</tr>
-<tr>
-<td>…… <strong><code>ll l more</code></strong></td>
-<td><strong>请将<code>l</code>替换为<code>竖杠pipe</code></strong>, 将ll获得的数据传给more进一步处理</td>
-</tr>
-<tr>
 <td><code>cut</code> <code>grep</code> <code>split</code></td>
 <td>截取分割, 通常配合 <code>pipe</code>使用</td>
 </tr>
@@ -1300,39 +1166,8 @@
 <td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
 </tr>
 <tr>
-<td><code>cmd1 ll cmd2</code></td>
-<td><strong>请将<code>ll</code>替换为<code>两个竖杠</code></strong>,cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</td>
-</tr>
-<tr>
-<td>`cmd1</td>
-<td></td>
-<td>cmd2`</td>
-<td><strong>请将<code>ll</code>替换为<code>两个竖杠</code></strong>,cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</td>
-</tr>
-<tr>
-<td>```</td>
-<td>d</td>
-</tr>
-<tr>
-<td>`\</td>
-<td>`</td>
-<td>d</td>
-</tr>
-<tr>
-<td>\</td>
-<td>\</td>
-<td></td>
-<td>d</td>
-</tr>
-<tr>
-<td>` \</td>
-<td>\</td>
-<td></td>
-<td>d</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; ll echo &quot;nofile&quot;</code></strong></td>
-<td><strong>请将<code>ll</code>替换为<code>两个竖杠</code></strong>,<code>/tmp/test</code>存在显示exist,否则nofile</td>
+<td><code>cmd1 l cmd2</code>   <code>cm1 ll cmd2</code></td>
+<td>hexo解析问题, 无法再表格中正确显示<code>丨</code>, 故放到表格的最后</td>
 </tr>
 <tr>
 <td></td>
@@ -1380,6 +1215,12 @@
 </tr>
 </tbody>
 </table>
+<ul>
+<li><code>cmd1 | cmd2</code>, 管线命令,将cmd1的处理结果传给cmd2继续处理      </li>
+<li><code>ll | more</code>, 将ll获得的数据传给more进一步处理                     </li>
+<li><code>cmd1 || cmd2</code>, cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行  </li>
+<li><code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; || echo &quot;nofile&quot;</code>, 如果<code>/tmp/test</code>存在显示<code>exist</code>,否则<code>nofile</code>   </li>
+</ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
@@ -1872,12 +1713,9 @@
 <td><code>cpio</code></td>
 <td>文件/设备的输入输出, 多配合find进行备份</td>
 </tr>
-<tr>
-<td>…… <strong><code>find / -print l cpio -covB &gt; /dev/st0</code></strong></td>
-<td><strong>请将<code>l</code>替换为<code>竖杠pipe</code></strong>, 将系统数据全部写入磁带机</td>
-</tr>
 </tbody>
 </table>
+<p>譬如, <strong><code>find / -print l cpio -covB &gt; /dev/st0</code></strong> , 将系统数据全部写入磁带机</p>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
