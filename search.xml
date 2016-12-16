@@ -4,6 +4,390 @@
   
     
     <entry>
+      <title><![CDATA[正则表达式]]></title>
+      <url>https://draapho.github.io/2016/12/18/1628-soft-regular/</url>
+      <content type="html"><![CDATA[<h1 id="正则表达式基础内容"><a href="#正则表达式基础内容" class="headerlink" title="正则表达式基础内容"></a>正则表达式基础内容</h1><table>
+<thead>
+<tr>
+<th>RE 字符/范例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\\</code></td>
+<td>跳脱/转义字符</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>^word</code></td>
+<td><code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;^#&#39; re.txt</code></td>
+<td>显示行首为 <code>#</code> 的行</td>
+</tr>
+<tr>
+<td><code>word$</code></td>
+<td><code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;!$&#39; re.txt</code></td>
+<td>显示行尾为 <code>!</code> 的行</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>代表<strong>任意一个</strong>字符, 必须有一个字符</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;e.e&#39; re.txt</code></td>
+<td>结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code></td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>字符集合. <strong>除<code>^``\\``-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
+</tr>
+<tr>
+<td><code>[^]</code></td>
+<td>中括号内的第一个<code>^</code>表示补集<del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
+<td>匹配<code>(``+``*``)</code>中的一个字符.</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;[0-9]&#39; re.txt</code></td>
+<td>搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
+<td>排除结果 <code>oo0</code>-<code>oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td><strong>零个或多个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;ess*&#39; re.py</code></td>
+<td>结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code></td>
+</tr>
+<tr>
+<td>……<code>.*</code></td>
+<td>表示任意字符</td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><strong>连续m到n个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>……<code>{m,}</code></td>
+<td><strong>连续m个及以上</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>……<code>{m}</code></td>
+<td><strong>连续m个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>……<code>grep -n &#39;go\{2,3\}g&#39; re.txt</code></td>
+<td>结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code></td>
+</tr>
+<tr>
+<td>……<code>egrep -n &#39;go?d&#39; re.txt</code></td>
+<td>只能匹配<code>gd</code>和<code>god</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code></td>
+</tr>
+<tr>
+<td>……<code>egrep -n &#39;go+d&#39; re.txt</code></td>
+<td>匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del></td>
+</tr>
+<tr>
+<td><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code></td>
+<td>让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符</td>
+</tr>
+<tr>
+<td>……<code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td>会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del></td>
+</tr>
+<tr>
+<td>……<code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td><code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>竖杠</code></td>
+<td>理解为或即可, 用来隔开多个正则表达式. <strong>hexo把竖杠解析为制表符, 因此用中文代替</strong></td>
+</tr>
+<tr>
+<td>……<code>egrep -n &#39;gd竖杠good&#39; re.txt</code></td>
+<td>只能匹配<code>gd</code>和<code>good</code></td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>分组字符串</td>
+</tr>
+<tr>
+<td>……`egrep -n ‘g(la</td>
+<td>oo)d’ re.txt`</td>
+<td>只能匹配<code>glad</code>和<code>good</code></td>
+</tr>
+<tr>
+<td>……<code>egrep &#39;A(xyz)+C&#39;</code></td>
+<td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
+<p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>特殊符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\d</code></td>
+<td>digital, 数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>\D</code></td>
+<td>非数字字符, <code>[^\d]</code></td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>space, 空白字符, <code>[ \t\r\n\f\v]</code></td>
+</tr>
+<tr>
+<td><code>\S</code></td>
+<td>非空白字符, <code>[^\s]</code></td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>word, 单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>\W</code></td>
+<td>非单词字符, <code>[^\w]</code></td>
+</tr>
+<tr>
+<td><code>\A</code></td>
+<td>仅匹配字符串开头</td>
+</tr>
+<tr>
+<td><code>\Z</code></td>
+<td>仅匹配字符串结尾</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>提取指定的<code>\w</code>串</td>
+</tr>
+<tr>
+<td>…<code>\bfoo\b</code></td>
+<td>匹配 <code>foo</code> <code>foo.</code> <code>(foo)</code> <code>b foo z</code>, <del>不匹配 <code>foobar</code></del></td>
+</tr>
+<tr>
+<td><code>\B</code></td>
+<td>[^\b], 指定部分内容提取<code>\w</code>串</td>
+</tr>
+<tr>
+<td>…<code>py\B</code></td>
+<td>匹配 <code>python</code> <code>py3</code>, <del>不匹配 <code>py</code> <code>py.</code> <code>py!</code></del></td>
+</tr>
+<tr>
+<td><code>\number</code></td>
+<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
+</tr>
+<tr>
+<td>…<code>(\d)abc\1</code></td>
+<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 特殊符号如下:</p>
+<table>
+<thead>
+<tr>
+<th>特殊符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[:alnum:]</td>
+<td>单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td>[:alpha:]</td>
+<td>字母字符, <code>[A-Za-z]</code></td>
+</tr>
+<tr>
+<td>[:ascii:]</td>
+<td>ASCII字符, <code>[\x00-\x7F]</code></td>
+</tr>
+<tr>
+<td>[:blank:]</td>
+<td>空格字符, <code>[ \t]</code></td>
+</tr>
+<tr>
+<td>[:cntrl:]</td>
+<td>控制键字符, <code>[\x00-\x1F\x7F]</code></td>
+</tr>
+<tr>
+<td>[:digit:]</td>
+<td>数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td>[:graph:]</td>
+<td>非空字符, <code>[:blank:]</code>的补集, <code>[\x21-\x7E]</code></td>
+</tr>
+<tr>
+<td>[:lower:]</td>
+<td>小写字母, <code>[a-z]</code></td>
+</tr>
+<tr>
+<td>[:print:]</td>
+<td>可被打印的字符, <code>[\x20-\x7E]</code></td>
+</tr>
+<tr>
+<td>[:punct:]</td>
+<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\^_\</code>{竖杠}~-]`</td>
+</tr>
+<tr>
+<td>[:upper:]</td>
+<td>大写字母 <code>[A-Z]</code></td>
+</tr>
+<tr>
+<td>[:space:]</td>
+<td>空白字符 <code>[ \t\r\n\v\f]</code></td>
+</tr>
+<tr>
+<td>[:word:]</td>
+<td>字母字符 <code>[A-Za-z_]</code></td>
+</tr>
+<tr>
+<td>[:xdigit:]</td>
+<td>16进制类型 <code>[0-9A-Fa-f]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="BRE-基础RE"><a href="#BRE-基础RE" class="headerlink" title="BRE, 基础RE"></a>BRE, 基础RE</h2><p>即, Basic Regular Expression<br>BRE只定义了6组元字符：</p>
+<ul>
+<li><code>[]</code>, 用于在多个字符中选定一个字符进行匹配</li>
+<li><code>.</code>,  用于匹配任意字符</li>
+<li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
+<li><code>$</code>,  用于匹配行尾</li>
+<li><code>*</code>,  零个或多个的前一RE字符</li>
+<li><code>\\</code> | 跳脱/转义字符</li>
+</ul>
+<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派, 为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪.<br><code>()</code> <code>{}</code> 需要使用 <code>\\</code> 转义后才有特殊含义. 如使用 <code>a\{1,2\}</code> 才能为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code></del> <del><code>?</code></del>, 不支持多选结构 <del><code>(...|...)</code></del>, 不支持反向引用 <del><code>\number</code></del></p>
+<h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
+<ul>
+<li><code>{}</code>, 用于表示重复匹配的次数. BRE中只将<code>{}</code>当作普通字符对待，要使用此功能必须加<code>\\</code>进行转义, 即<code>\{\}</code></li>
+<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，要使用此功能必须加<code>\\</code>进行转义，即<code>\(\)</code></li>
+<li><code>|</code>, 完全为ERE新增的多项匹配能力定义的，BRE无多项匹配能力，只将<code>|</code>作普通字符对待</li>
+<li><code>\number</code>, ERE没有明确规定需要支持反向引用, 但不少工具都支持此功能</li>
+</ul>
+<h2 id="linux-unix下的RE表达式汇总"><a href="#linux-unix下的RE表达式汇总" class="headerlink" title="linux/unix下的RE表达式汇总"></a>linux/unix下的RE表达式汇总</h2><table>
+<thead>
+<tr>
+<th>PCRE记法</th>
+<th>vi/vim</th>
+<th>grep</th>
+<th>awk</th>
+<th>sed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+<td><code>\+</code></td>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><code>\=</code></td>
+<td><code>\?</code></td>
+<td><code>?</code></td>
+<td><code>\?</code></td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\y</code> <code>\&lt;</code> <code>\&gt;</code></td>
+</tr>
+<tr>
+<td><code>(…)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+</tr>
+<tr>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td>不支持</td>
+<td><code>\1</code> <code>\2</code></td>
+</tr>
+</tbody>
+</table>
+<p>注意:</p>
+<ul>
+<li>PCRE中常用<code>\b</code>来表示<strong>单词的起始或结束位</strong>,</li>
+<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong></li>
+<li>用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
+<li><code>sed</code>中的<code>\y</code>可以同时匹配这两个位置。</li>
+</ul>
+<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><p><em>, 0-多个任意字符,  重复0-多个前一个字符<br>a</em>  表示a为开头的任意文件  ls -d a<em><br>‘^a.</em>‘ 才能表示a为开头的行  ls | grep “^a.*”</p>
+<p>万用字符的反向选择, [!range]<br>正则表达式 [^range] , !在正则表达式中式普通字符</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://python.usyiyi.cn/documents/python_278/library/re.html" target="_blank" rel="external">python标准库 7.2 re — 正则表达式操作</a></li>
+<li><a href="http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html" target="_blank" rel="external">Python正则表达式指南</a></li>
+<li><a href="http://linux.vbird.org/linux_basic/0330regularex.php" target="_blank" rel="external">鸟哥的私房菜 第十一章、正規表示法與文件格式化處理</a></li>
+<li><a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank" rel="external">Linux/Unix工具与正则表达式的POSIX规范</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Bash Shell及环境变量]]></title>
       <url>https://draapho.github.io/2016/12/17/1627-linux-cmd-bash/</url>
       <content type="html"><![CDATA[<h1 id="Bash-Shell基础操作"><a href="#Bash-Shell基础操作" class="headerlink" title="Bash Shell基础操作"></a>Bash Shell基础操作</h1><table>
@@ -43,7 +427,7 @@
 <td>查看和设置终端按键参数</td>
 </tr>
 <tr>
-<td>-     <strong><code>stty -a</code></strong></td>
+<td>……<strong><code>stty -a</code></strong></td>
 <td>查看终端所有的按键参数</td>
 </tr>
 <tr>
@@ -55,15 +439,15 @@
 <td>执行历史指令, 后接数字或字母</td>
 </tr>
 <tr>
-<td>-     <strong><code>!!</code></strong></td>
+<td>……<strong><code>!!</code></strong></td>
 <td>执行上一个指令</td>
 </tr>
 <tr>
-<td>-     <strong><code>!al</code></strong></td>
+<td>……<strong><code>!al</code></strong></td>
 <td>执行以al为开头的最后一个指令</td>
 </tr>
 <tr>
-<td>-     <strong><code>!12</code></strong></td>
+<td>……<strong><code>!12</code></strong></td>
 <td>执行第12条历史指令(先用history查看历史指令号)</td>
 </tr>
 <tr>
@@ -71,7 +455,7 @@
 <td>设置指令别名, command为指令字符串</td>
 </tr>
 <tr>
-<td>-     <strong><code>alias h=history</code></strong></td>
+<td>……<strong><code>alias h=history</code></strong></td>
 <td>设置指令history的别名为h.不用引号,单双引号皆可</td>
 </tr>
 <tr>
@@ -111,7 +495,7 @@
 <td>切换用户, -l表示环境变量一起变</td>
 </tr>
 <tr>
-<td>-     <strong><code>su</code></strong></td>
+<td>……<strong><code>su</code></strong></td>
 <td>切换为管理员账户</td>
 </tr>
 <tr>
@@ -151,11 +535,11 @@
 <td>ubuntu deb包软件管理</td>
 </tr>
 <tr>
-<td>-     <strong><code>sudo apt-get install packagename</code></strong></td>
+<td>……<strong><code>sudo apt-get install packagename</code></strong></td>
 <td>安装指定软件包</td>
 </tr>
 <tr>
-<td>-     <strong><code>sudo apt-get autoremovepackagename</code></strong></td>
+<td>……<strong><code>sudo apt-get autoremovepackagename</code></strong></td>
 <td>删除指定软件包 (包括配置文件)</td>
 </tr>
 </tbody>
@@ -199,7 +583,7 @@
 <td>键盘输入变量, 回车表示结束输入</td>
 </tr>
 <tr>
-<td>-     <strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
+<td>……<strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
 <td>提示输入变量给myname, 30秒输入时间</td>
 </tr>
 <tr>
@@ -283,27 +667,27 @@
 <td>变量的截取和替换. 以<code>myhome=/home/test/test.sh</code>为例</td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${myhome#/*/}</code></strong></td>
+<td>……<strong><code>echo ${myhome#/*/}</code></strong></td>
 <td><code>test/test.sh</code>,从头比较, 单次删除,故<del><code>/home/</code></del></td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${myhome##/*/}</code></strong></td>
+<td>……<strong><code>echo ${myhome##/*/}</code></strong></td>
 <td><code>test.sh</code>, 从头比较, 全部删除,获得文件名</td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${myhome%/*}</code></strong></td>
+<td>……<strong><code>echo ${myhome%/*}</code></strong></td>
 <td><code>/home/test</code>,从尾比较, 单次删除,获得路径</td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${myhome%%/*}</code></strong></td>
+<td>……<strong><code>echo ${myhome%%/*}</code></strong></td>
 <td>从尾比较, 全部删除,故全部被删掉</td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${myhome/test/TEST}</code></strong></td>
+<td>……<strong><code>echo ${myhome/test/TEST}</code></strong></td>
 <td><code>/home/TEST/test.h</code>, 从头比较, 单次替换</td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${myhome//test/TEST}</code></strong></td>
+<td>……<strong><code>echo ${myhome//test/TEST}</code></strong></td>
 <td><code>/home/TEST/TEST.h</code>,从头比较, 全部替换</td>
 </tr>
 <tr>
@@ -311,15 +695,15 @@
 <td>变量的比较和判断. 常用于判断和确保变量有效</td>
 </tr>
 <tr>
-<td>-     <strong><code>var=${str-expr}</code></strong></td>
+<td>……<strong><code>var=${str-expr}</code></strong></td>
 <td>var为目标变量, str为已有变量, expr为变量值</td>
 </tr>
 <tr>
-<td>-     <strong><code>myname=${myname:-root}</code></strong></td>
+<td>……<strong><code>myname=${myname:-root}</code></strong></td>
 <td>若myname不存在或为空,则myname=root</td>
 </tr>
 <tr>
-<td>-     更多参考</td>
+<td>……更多参考</td>
 <td><a href="http://linux.vbird.org/linux_basic/0320bash.php#variable_other_replace" target="_blank" rel="external">鸟哥的Linux私房菜</a>, P381: 额外的变量设定功能</td>
 </tr>
 <tr>
@@ -339,7 +723,7 @@
 <td>显示已成为当前环境变量的普通变量</td>
 </tr>
 <tr>
-<td>-     <strong><code>export variable</code></strong></td>
+<td>……<strong><code>export variable</code></strong></td>
 <td>将variable设为环境变量, 等同 <code>declare -x variable</code></td>
 </tr>
 <tr>
@@ -347,7 +731,7 @@
 <td>查看当前语言的环境变量</td>
 </tr>
 <tr>
-<td>-     <strong><code>locale -a</code></strong></td>
+<td>……<strong><code>locale -a</code></strong></td>
 <td>查看系统支持的语言</td>
 </tr>
 </tbody>
@@ -377,35 +761,35 @@
 <td>转义字符, 需要转义的字符 <code>&quot;</code> <code>&#39;</code> <code>$</code> <code>\</code> <code>[空格]</code> `</td>
 </tr>
 <tr>
-<td>-     <strong><code>\n</code></strong></td>
+<td>……<strong><code>\n</code></strong></td>
 <td>换行</td>
 </tr>
 <tr>
-<td>-     <strong><code>\r</code></strong></td>
+<td>……<strong><code>\r</code></strong></td>
 <td>回车</td>
 </tr>
 <tr>
-<td>-     <strong><code>\t</code></strong></td>
+<td>……<strong><code>\t</code></strong></td>
 <td>水平制表符</td>
 </tr>
 <tr>
-<td>-     <strong><code>\v</code></strong></td>
+<td>……<strong><code>\v</code></strong></td>
 <td>垂直制表符</td>
 </tr>
 <tr>
-<td>-     <strong><code>\b</code></strong></td>
+<td>……<strong><code>\b</code></strong></td>
 <td>后退</td>
 </tr>
 <tr>
-<td>-     <strong><code>\a</code></strong></td>
+<td>……<strong><code>\a</code></strong></td>
 <td>蜂鸣</td>
 </tr>
 <tr>
-<td>-     <strong><code>\077</code></strong></td>
+<td>……<strong><code>\077</code></strong></td>
 <td>八进制字符</td>
 </tr>
 <tr>
-<td>-     <strong><code>\xff</code></strong></td>
+<td>……<strong><code>\xff</code></strong></td>
 <td>十六进制</td>
 </tr>
 <tr>
@@ -425,7 +809,7 @@
 <td>大括号. 中间为命令区块组合,限定变量名范围</td>
 </tr>
 <tr>
-<td>-     <strong><code>echo ${array[1]}</code></strong></td>
+<td>……<strong><code>echo ${array[1]}</code></strong></td>
 <td>显示<code>array[1]</code> 变量值, array为数组,需用<code>{大括号}</code>包含变量名</td>
 </tr>
 <tr>
@@ -433,7 +817,7 @@
 <td>中括号. 中间为字符组合, <code>[仅代表一个字符]</code></td>
 </tr>
 <tr>
-<td>-     <strong><code>ls -d ~/*[0-9]*</code></strong></td>
+<td>……<strong><code>ls -d ~/*[0-9]*</code></strong></td>
 <td>列出用户home目录下所有包含数字的文件和目录</td>
 </tr>
 <tr>
@@ -457,7 +841,7 @@
 <td>` (键盘1左边的字符),需要优先执行的指令</td>
 </tr>
 <tr>
-<td>-     <strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
+<td>……<strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
 <td>进入当前linux的内核源码目录</td>
 </tr>
 <tr>
@@ -465,49 +849,40 @@
 <td></td>
 </tr>
 <tr>
-<td>`cmd1 \</td>
-<td>cmd2`</td>
-<td>pipe, 管线命令,将cmd1的处理结果传给cmd2继续处理</td>
+<td>cmd1 l cmd2</td>
+<td><strong>请将<code>l</code>替换为<code>竖杠pipe</code></strong>, 管线命令,将cmd1的处理结果传给cmd2继续处理</td>
 </tr>
 <tr>
-<td>-     **`ll</td>
-<td>more`**</td>
-<td>将ll获得的数据传给more进一步处理</td>
+<td>……<strong><code>ll l more</code></strong></td>
+<td><strong>请将<code>l</code>替换为<code>竖杠pipe</code></strong>, 将ll获得的数据传给more进一步处理</td>
 </tr>
 <tr>
 <td><code>cut</code> <code>grep</code> <code>split</code></td>
-<td>截取分割, 通常配合 `</td>
-<td>`使用</td>
+<td>截取分割, 通常配合 <code>pipe</code>使用</td>
 </tr>
 <tr>
 <td><code>sort</code> <code>wc</code> <code>uniq</code></td>
-<td>排序命令, 通常配合 `</td>
-<td>`使用</td>
+<td>排序命令, 通常配合 <code>pipe</code>使用</td>
 </tr>
 <tr>
 <td><code>tr</code> <code>col</code> <code>join</code> <code>paste</code> <code>expand</code></td>
-<td>字符转换, 通常配合 `</td>
-<td>`使用</td>
+<td>字符转换, 通常配合 <code>pipe</code>使用</td>
 </tr>
 <tr>
 <td><code>cmd1;cmd2; cmd3</code></td>
 <td>可以一行写多个指令</td>
 </tr>
 <tr>
-<td><code>cmd1&amp;&amp;cmd2</code></td>
+<td><code>cmd1 &amp;&amp; cmd2</code></td>
 <td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
 </tr>
 <tr>
-<td>`cmd1\</td>
-<td>\</td>
-<td>cmd2`</td>
-<td>cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</td>
+<td><code>cmd1 ll cmd2</code></td>
+<td><strong>请将<code>ll</code>替换为<code>两个竖杠</code></strong>,cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</td>
 </tr>
 <tr>
-<td>-     **`ls /tmp/test &amp;&amp; echo “exist”</td>
-<td></td>
-<td>echo “nofile”`**</td>
-<td><code>/tmp/test</code>存在显示exist,否则nofile</td>
+<td>……<strong><code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; ll echo &quot;nofile&quot;</code></strong></td>
+<td><strong>请将<code>ll</code>替换为<code>两个竖杠</code></strong>,<code>/tmp/test</code>存在显示exist,否则nofile</td>
 </tr>
 <tr>
 <td></td>
@@ -518,23 +893,23 @@
 <td>输出到文件 (&gt;写入, &gt;&gt;累加, 2错误信息)</td>
 </tr>
 <tr>
-<td>-     <strong><code>ll &gt; list.txt</code></strong></td>
+<td>……<strong><code>ll &gt; list.txt</code></strong></td>
 <td>将当前目录下的文件详细信息存储到list.txt文件中</td>
 </tr>
 <tr>
-<td>-     <strong><code>ls / &gt;&gt; list.txt</code></strong></td>
+<td>……<strong><code>ls / &gt;&gt; list.txt</code></strong></td>
 <td>将根目录下的文件信息追加到list.txt文件中</td>
 </tr>
 <tr>
-<td>-     <strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
+<td>……<strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
 <td>将正确信息写到ok中,错误的写到error中</td>
 </tr>
 <tr>
-<td>-     <strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
+<td>……<strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
 <td>将所有信息都写到list中 (&amp;1是数字一)</td>
 </tr>
 <tr>
-<td>-     <strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
+<td>……<strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
 <td><code>/dev/null</code>相当于黑洞.只将错误写到err中</td>
 </tr>
 <tr>
@@ -542,15 +917,15 @@
 <td>输入信息(&lt;从文件获取, &lt;&lt;结束的输入字符)</td>
 </tr>
 <tr>
-<td>-     <strong><code>cat &gt; catfile</code></strong></td>
+<td>……<strong><code>cat &gt; catfile</code></strong></td>
 <td>从键盘获取文本并写到catfile中 (键盘按[ctrl]+d结束输入)</td>
 </tr>
 <tr>
-<td>-     <strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
+<td>……<strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
 <td>从键盘获取文本并写到catfile中(键盘输入end结束输入)</td>
 </tr>
 <tr>
-<td>-     <strong><code>cat &gt; catfile &lt; input</code></strong></td>
+<td>……<strong><code>cat &gt; catfile &lt; input</code></strong></td>
 <td>导入input文件信息再写到catfile中</td>
 </tr>
 </tbody>
@@ -710,7 +1085,7 @@
 <td><strong>Print Working Directory</strong>, 显示目前的目录</td>
 </tr>
 <tr>
-<td>-     <strong><code>pwd -P</code></strong></td>
+<td>……<strong><code>pwd -P</code></strong></td>
 <td>显示真实路径, 而非link路径</td>
 </tr>
 <tr>
@@ -718,11 +1093,11 @@
 <td>Make Directory, 建立一个新的目录</td>
 </tr>
 <tr>
-<td>-     <strong><code>mkdir -p dir1/dir2</code></strong></td>
+<td>……<strong><code>mkdir -p dir1/dir2</code></strong></td>
 <td>递归建立所有目录</td>
 </tr>
 <tr>
-<td>-     <strong><code>mkdir -m 711 dir</code></strong></td>
+<td>……<strong><code>mkdir -m 711 dir</code></strong></td>
 <td>建立目录时,设定权限</td>
 </tr>
 <tr>
@@ -738,23 +1113,23 @@
 <td><strong>List Files</strong>, 显示文件与目录</td>
 </tr>
 <tr>
-<td>-     <strong><code>ls -h</code></strong></td>
+<td>……<strong><code>ls -h</code></strong></td>
 <td>以KB,GB显示容量.</td>
 </tr>
 <tr>
-<td>-     <strong><code>ls -R</code></strong></td>
+<td>……<strong><code>ls -R</code></strong></td>
 <td>Recursive, 递归显示子目录信息</td>
 </tr>
 <tr>
-<td>-     <strong><code>ls -t</code></strong></td>
+<td>……<strong><code>ls -t</code></strong></td>
 <td>以时间排序</td>
 </tr>
 <tr>
-<td>-     <strong><code>ls -S</code></strong></td>
+<td>……<strong><code>ls -S</code></strong></td>
 <td>以容量大小排序</td>
 </tr>
 <tr>
-<td>-     <strong><code>ll</code></strong></td>
+<td>……<strong><code>ll</code></strong></td>
 <td><code>ls –al</code>, List All, 显示所有文件及信息</td>
 </tr>
 <tr>
@@ -762,19 +1137,19 @@
 <td>copy</td>
 </tr>
 <tr>
-<td>-     <strong><code>cp -a src dst</code></strong></td>
+<td>……<strong><code>cp -a src dst</code></strong></td>
 <td>即<code>cp -pdr</code>, 递归复制目录.不会改变属性和权限</td>
 </tr>
 <tr>
-<td>-     <strong><code>cp -f src dst</code></strong></td>
+<td>……<strong><code>cp -f src dst</code></strong></td>
 <td>Force, 强制复制,不询问使用者</td>
 </tr>
 <tr>
-<td>-     <strong><code>cp -u src dst</code></strong></td>
+<td>……<strong><code>cp -u src dst</code></strong></td>
 <td>若 src比dst新,才进行复制工作,多用于备份</td>
 </tr>
 <tr>
-<td>-     <strong><code>cp src1 src2 src3 dir</code></strong></td>
+<td>……<strong><code>cp src1 src2 src3 dir</code></strong></td>
 <td>将多个原文件拷贝到指定目录</td>
 </tr>
 <tr>
@@ -786,7 +1161,7 @@
 <td><strong>remove</strong>, 移除文件</td>
 </tr>
 <tr>
-<td>-     <strong><code>rm -fr dir</code></strong></td>
+<td>……<strong><code>rm -fr dir</code></strong></td>
 <td>强制递归删除dir下的所有文件和目录</td>
 </tr>
 <tr>
@@ -794,11 +1169,11 @@
 <td><strong>Symbolic Link</strong>, 创建一个符号链接</td>
 </tr>
 <tr>
-<td>-     <strong><code>ln file hardLink</code></strong></td>
+<td>……<strong><code>ln file hardLink</code></strong></td>
 <td>实际链接, 仅支持同区块下的文件,不占用inode</td>
 </tr>
 <tr>
-<td>-     <strong><code>ln -s dir symbolicLink</code></strong></td>
+<td>……<strong><code>ln -s dir symbolicLink</code></strong></td>
 <td>符号链接, 同快捷方式,为一个文件,占用inode</td>
 </tr>
 <tr>
@@ -818,11 +1193,11 @@
 <td><strong>Concatenate</strong> (连续), 连续显示文件内容</td>
 </tr>
 <tr>
-<td>-     <strong><code>cat -n file</code></strong></td>
+<td>……<strong><code>cat -n file</code></strong></td>
 <td>在前面加上行号</td>
 </tr>
 <tr>
-<td>-     <strong><code>cat -A</code></strong></td>
+<td>……<strong><code>cat -A</code></strong></td>
 <td>即 <code>cat -vET</code>, 可显示一些特殊符号</td>
 </tr>
 <tr>
@@ -850,7 +1225,7 @@
 <td>读取和设置当前默认权限, 数字是被取消的默认权限</td>
 </tr>
 <tr>
-<td>-     <strong><code>umask 022</code></strong></td>
+<td>……<strong><code>umask 022</code></strong></td>
 <td>新建文档权限为 777-022 = 755权限</td>
 </tr>
 <tr>
@@ -862,11 +1237,11 @@
 <td>改变文件或目录的所有者(owner必须存在)</td>
 </tr>
 <tr>
-<td>-     <strong><code>chown -R owner:group dir</code></strong></td>
+<td>……<strong><code>chown -R owner:group dir</code></strong></td>
 <td>递归改变dir的所有者和组群</td>
 </tr>
 <tr>
-<td>-     <strong><code>chmod -R 755 file_dir</code></strong></td>
+<td>……<strong><code>chmod -R 755 file_dir</code></strong></td>
 <td>递归改名文件或目录的权限 (7=0b111=rwx)</td>
 </tr>
 <tr>
@@ -886,7 +1261,7 @@
 <td>搜索文件(整个硬盘),很强大的一个指令</td>
 </tr>
 <tr>
-<td>-     <strong><code>-name</code></strong></td>
+<td>……<strong><code>-name</code></strong></td>
 <td>表示按文件名搜索. 类似的参数有很多.有需要在查.</td>
 </tr>
 <tr>
@@ -894,15 +1269,15 @@
 <td>在files中寻找 pattern项,支持正则表达式</td>
 </tr>
 <tr>
-<td>-     <strong><code>grep -r “hello” ./*</code></strong></td>
+<td>……<strong><code>grep -r “hello” ./*</code></strong></td>
 <td>在当前文件夹下的所有文件下搜索 “hello”</td>
 </tr>
 <tr>
-<td>-     <strong><code>grep -i “Bye” *</code></strong></td>
+<td>……<strong><code>grep -i “Bye” *</code></strong></td>
 <td>在当前文件夹下忽略大小写搜索 ”Bye”</td>
 </tr>
 <tr>
-<td>-     <strong><code>grep -w “Test” aa bb</code></strong></td>
+<td>……<strong><code>grep -w “Test” aa bb</code></strong></td>
 <td>在aa, bb文件内,只匹配整个单词搜索 “Test”</td>
 </tr>
 <tr>
@@ -942,9 +1317,8 @@
 <td>文件/设备的输入输出, 多配合find进行备份</td>
 </tr>
 <tr>
-<td>-     **`find / -print</td>
-<td>cpio -covB &gt; /dev/st0`**</td>
-<td>将系统数据全部写入磁带机</td>
+<td>……<strong><code>find / -print l cpio -covB &gt; /dev/st0</code></strong></td>
+<td><strong>请将<code>l</code>替换为<code>竖杠pipe</code></strong>, 将系统数据全部写入磁带机</td>
 </tr>
 </tbody>
 </table>
@@ -1260,11 +1634,11 @@
 <td><strong>disk free</strong>, 查看磁盘相关信息</td>
 </tr>
 <tr>
-<td>-     <strong><code>df -Th</code></strong></td>
+<td>……<strong><code>df -Th</code></strong></td>
 <td>查看磁盘容量信息</td>
 </tr>
 <tr>
-<td>-     <strong><code>df -iTh</code></strong></td>
+<td>……<strong><code>df -iTh</code></strong></td>
 <td>查看磁盘inode信息</td>
 </tr>
 <tr>
@@ -1272,11 +1646,11 @@
 <td><strong>disk usage</strong>, 查看磁盘文件使用情况</td>
 </tr>
 <tr>
-<td>-     <strong><code>du -h</code></strong></td>
+<td>……<strong><code>du -h</code></strong></td>
 <td>列出当前文件夹下所有文件的容量</td>
 </tr>
 <tr>
-<td>-     <strong><code>du -sh file_dir</code></strong></td>
+<td>……<strong><code>du -sh file_dir</code></strong></td>
 <td>列出指定文件的容量</td>
 </tr>
 <tr>
@@ -1284,11 +1658,11 @@
 <td><strong>format disk</strong>, 磁盘查看及分区</td>
 </tr>
 <tr>
-<td>-     <strong><code>fdisk -l</code></strong></td>
+<td>……<strong><code>fdisk -l</code></strong></td>
 <td>查看整个系统的分区情况</td>
 </tr>
 <tr>
-<td>-     <strong><code>fdisk /dev/sda6</code></strong></td>
+<td>……<strong><code>fdisk /dev/sda6</code></strong></td>
 <td>对指定磁盘进行配置(进入fdisk命令行模式)</td>
 </tr>
 <tr>
@@ -1296,7 +1670,7 @@
 <td><strong>make filesystem</strong>, 分区格式化</td>
 </tr>
 <tr>
-<td>-     <strong><code>mkfs -t ext4 /dev/sda6</code></strong></td>
+<td>……<strong><code>mkfs -t ext4 /dev/sda6</code></strong></td>
 <td>格式化sda6分区格式为ext4</td>
 </tr>
 <tr>
@@ -1304,11 +1678,11 @@
 <td><strong>filesystem check</strong>, 分区检验和修复</td>
 </tr>
 <tr>
-<td>-     <strong><code>unmount /dev/sda6</code></strong></td>
+<td>……<strong><code>unmount /dev/sda6</code></strong></td>
 <td>要检查的分区必须先umount</td>
 </tr>
 <tr>
-<td>-     <strong><code>fsck -y -t ext4 /dev/sda6</code></strong></td>
+<td>……<strong><code>fsck -y -t ext4 /dev/sda6</code></strong></td>
 <td>对sda6分区进行检验和修复</td>
 </tr>
 <tr>
@@ -1316,11 +1690,11 @@
 <td><strong>mount</strong> 查看和挂载分区</td>
 </tr>
 <tr>
-<td>-     <strong><code>mkdir /mnt/sda_data</code></strong></td>
+<td>……<strong><code>mkdir /mnt/sda_data</code></strong></td>
 <td>必须先创建挂载点文件夹</td>
 </tr>
 <tr>
-<td>-     <strong><code>mount -t ext4 /dev/sda6 /mnt/sda_data</code></strong></td>
+<td>……<strong><code>mount -t ext4 /dev/sda6 /mnt/sda_data</code></strong></td>
 <td>挂载指定设备sda6到文件夹</td>
 </tr>
 <tr>
@@ -1328,11 +1702,11 @@
 <td><strong>umount</strong>, 取消挂载点</td>
 </tr>
 <tr>
-<td>-     <strong><code>umount /dev/sda6</code> </strong></td>
+<td>……<strong><code>umount /dev/sda6</code> </strong></td>
 <td>两种写法都可以</td>
 </tr>
 <tr>
-<td>-     <strong><code>umount /mnt/sda_data</code></strong></td>
+<td>……<strong><code>umount /mnt/sda_data</code></strong></td>
 <td>两种写法都可以</td>
 </tr>
 <tr>
@@ -1494,7 +1868,7 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Python 字符串处理]]></title>
+      <title><![CDATA[python 字符串处理]]></title>
       <url>https://draapho.github.io/2016/11/24/1621-python-string/</url>
       <content type="html"><![CDATA[<h1 id="进制转换-编码转换"><a href="#进制转换-编码转换" class="headerlink" title="进制转换 / 编码转换"></a>进制转换 / 编码转换</h1><ul>
 <li><a href="https://docs.python.org/2/library/functions.html#hex" target="_blank" rel="external">hex</a>, 十进制-&gt;十六进制字符串</li>
