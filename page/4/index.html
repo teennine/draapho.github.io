@@ -260,6 +260,158 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/09/1608-WinSoft-path/" itemprop="url">
+                  Windows 软件系列-自定义环境变量
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-09T00:00:00+11:00" content="2016-10-09">
+              2016-10-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/windows/" itemprop="url" rel="index">
+                    <span itemprop="name">windows</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="自定义环境变量"><a href="#自定义环境变量" class="headerlink" title="自定义环境变量"></a>自定义环境变量</h1><ul>
+<li>测试过几个例子, 简单的调用没问题, 但带参调用就会有各种无法预料的问题.</li>
+<li><code>ConEmu.lnk</code> 后面不支持带参数, <code>git-cmd.lnk</code> 支持带参, 但有奇怪现象.</li>
+<li><code>Typora.lnk</code> <code>zeal.lnk</code> 没有问题.</li>
+<li>使用此方法可以配合 <code>win-r</code> 快速打开文件夹, 软件等功能! 我没有使用, 因为有更好的替代方案.</li>
+<li>!!!注意!!!, 带参调用 <code>.lnk</code> 不完全等同于 <code>.exe</code>, 还是没有linux的链接来的便捷</li>
+</ul>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>做软件开发是绕不过环境变量 <code>PATH</code> 的设置的, 经常到后来 <code>PATH</code> 就变得非常长, 难以管理维护.</li>
+<li>借助linux链接的概念, 实验了一下windows的快捷方式是否也可以用命令行执行, 发现是可行的!</li>
+<li>譬如创建 <code>ConEmu.exe</code> 的快捷方式 <code>ConEmu.lnk</code> (.lnk不会显示). 此时, 在cmd内执行 <code>ConEmu.lnk</code> 等同于执行 <code>ConEmu.exe</code></li>
+<li>这样, 就有办法简化自定义 <code>PATH</code> 的数量了, 只需添加一个用户路径到 <code>PATH</code> 中, 如<code>D:\Green\userpath\bin</code>, 然后把用户软件的 <code>.exe</code> 和 <code>.lnk</code> 放到这个目录下面就可以了.</li>
+</ul>
+<h2 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h2><ul>
+<li>譬如, 配置 <code>D:\Green\cli\bin</code> 到环境变量中.</li>
+<li><code>我的电脑</code>-&gt;右键<code>属性</code> 或者 <code>控制面板</code>-&gt;<code>系统和安全</code>-&gt;<code>系统</code>-&gt;<code>高级系统设置</code></li>
+<li>弹出 <code>系统属性</code> 页面-&gt;<code>高级</code> 标签-&gt;最下面 <code>环境变量...</code>-&gt;<code>系统变量</code>-&gt;<code>Path</code>-&gt;加入自定义路径如 <code>D:\Green\cli\bin</code>, windows7的话需要分隔符<code>;</code></li>
+<li><code>D:\Green\cli\bin</code> 只是个例子, 可以自己规定任意一个文件夹, 便于记忆即可.</li>
+</ul>
+<h2 id="添加软件"><a href="#添加软件" class="headerlink" title="添加软件"></a>添加软件</h2><ul>
+<li>MinGW, windows下提供 gnu 工具链, 像linux下一样使用 make 编译即可<br>把 <code>.\MinGW\bin</code> 下的所有文件复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
+<li>Pandoc, 格式转换软件. 众多markdown编辑器需要此软件来转换格式<br>把 <code>pandoc.exe</code> 和 <code>pandoc-citeproc.exe</code> 复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
+<li>putty, ssh和串口终端软件, 多用于远程连接<br><del>putty所有文件复制一份到 <code>D:\Green\cli\bin</code></del>, 放个 <code>putty.exe</code> 即可</li>
+<li>uncrustify, 编程语言格式化软件. 可格式化 c, c++, d, java 等众多语言<br>把 <code>uncrustify.exe</code> 复制到 <code>D:\Green\cli\bin</code> 即可</li>
+<li>下述软件创建快捷方式, 然后放到 <code>D:\Green\cli\bin</code> 即可</li>
+<li><del><code>ConEmu.lnk</code></del> 模拟终端软件, 可整合多种终端如cmd, shell, bash, putty</li>
+<li><del><code>Cygwin.lnk</code></del> 模拟linux环境, 可以部分充当windows下的linux虚拟机使用</li>
+<li><del><code>git-cmd.lnk</code></del> 启动git, 供ConEmu调用</li>
+<li><code>Typora.lnk</code> 一款markdown编辑器</li>
+<li><code>zeal.lnk</code> 软件API离线查询工具, windows下的dash</li>
+</ul>
+<h2 id="便捷性"><a href="#便捷性" class="headerlink" title="便捷性"></a>便捷性</h2><ul>
+<li>上述软件主要是辅助作用, 我会在常用软件中调用上述软件. 如notepad++, atom, ConEmu中</li>
+<li>以 notepad++ 调用 <code>zeal.lnk</code> 为例.</li>
+<li><code>notepad++</code>-&gt;<code>Run</code>-&gt;<code>Run...</code>-&gt;输入 <code>zeal.lnk $(CURRENT_WORD)</code>-&gt;<code>Save...</code>-&gt;<code>Name:``help</code>, 快捷键<code>F1</code>-&gt;<code>OK</code></li>
+<li>配置好以后, 写代码遇到需要查询的地方, 只要选中关键词, 按 <code>F1</code> 就会自动调用 zeal 了</li>
+<li>以后环境变了, 只需要重新创建一下 <code>zeal.lnk</code> 然后放到 <code>D:\Green\userpath\bin</code> 即可.</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/08/1607-CheatSheet-win/" itemprop="url">
                   Windows快捷键
                 </a>
@@ -2326,206 +2478,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/24/1601-InitBlog/" itemprop="url">
-                  Windows下使用github和hexo建独立博客
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-09-24T00:00:00+10:00" content="2016-09-24">
-              2016-09-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="我需要一个博客"><a href="#我需要一个博客" class="headerlink" title="我需要一个博客"></a>我需要一个<a href="https://draapho.github.io">博客</a></h1><p>三年前学linux的时候, 深感复杂,  然后也略微记录了些笔记放在电脑里. 但是真要用的时候, 依旧会google或baidu, 原因很简单: 电脑的笔记用起来不方便, 找文档慢不说, 找到后要么是没有格式的txt文档, 有些是花了力气排版好的word, 又觉得打开很慢. 于是觉得需要一个博客, 在CSDN开了博, 坚持不到10篇文章就放弃了, 原因很简单: 太麻烦了. 我的本意只是学习笔记加资料仓库, 但维护它的时间成本太高了. 一晃三年, 工作上进入一个新领域, 需要系统的学习嵌入式linux和python, 再度觉得需要建一个博客来管理和维护一些笔记和资料.</p>
-<p><strong>工欲善其事, 必先利其器</strong>. 所以, 我需要一个博客. 寻寻觅觅, 幸运寻得github.io和markdown写作这么一个方案.</p>
-<h1 id="折腾记-jekyII方案"><a href="#折腾记-jekyII方案" class="headerlink" title="折腾记, jekyII方案"></a><del>折腾记, jekyII方案</del></h1><p>不过依旧走了一点弯路, 因为github.io推荐的是jekyII环境, 如果对这个方案感兴趣, 点击<a href="https://help.github.com/articles/using-jekyll-as-a-static-site-generator-with-github-pages/" target="_blank" rel="external">这里</a>可以按照官方教程来操作. 人家第一句话就是<a href="https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/" target="_blank" rel="external"><strong>jekyII并不原生支持Windows</strong></a> , 但我岂是会轻易投降的人, 遇到问题就解决问题, 这不还有另外一句 <a href="http://jekyllrb.com/docs/windows/#installation" target="_blank" rel="external"><strong>Jekyll on Windows</strong></a>, 流程如下, 然后还要注意编码问题.</p>
-<ul>
-<li>装<a href="http://rubyinstaller.org/downloads/" target="_blank" rel="external">Ruby</a> 或者 <code>choco install ruby -y</code></li>
-<li>装jekyII,   <code>gem install jekyll</code><br>最终, 我是安装失败了…具体卡在哪个错误提示也给忘了. 所幸的是搜到了对windows友好的hexo方案.</li>
-</ul>
-<h1 id="Hexo方案"><a href="#Hexo方案" class="headerlink" title="Hexo方案"></a>Hexo方案</h1><p>恩, 这里才是正文的开始! windows下安装hexo这个任务非常简单!</p>
-<ul>
-<li>对<a href="https://git-scm.com/" target="_blank" rel="external">Git软件</a>和<a href="https://github.com/" target="_blank" rel="external">GitHub网站</a>不熟的话, 建议安装<a href="https://desktop.github.com/" target="_blank" rel="external">GitHub Windows</a>, 安装后根据提示操作.</li>
-<li>安装<a href="https://nodejs.org/en/" target="_blank" rel="external">Node.JS</a>, 选推荐版本, 目前是v4.5.0 LTS (即 Long Term Support), 环境变量默认会设置好.</li>
-<li><p>安装Hexo</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install -g hexo-cli</div></pre></td></tr></table></figure>
-</li>
-<li><p>创建并初始化博客文件夹,这里命名为<strong><em>Blog</em></strong>, 右键点”Git Bash Here”, 或者打开cmd进入到<strong><em>Blog</em></strong>目录下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">cd Blog           # 确保在Blog这文件夹下</div><div class="line">npm install hexo --save # 安装hexo</div><div class="line">hexo init         # 初始化Blog文件夹内容</div><div class="line">npm install       # 安装必要的依赖包</div><div class="line"># 下面是必要的插件包</div><div class="line">npm install hexo-deployer-git --save      # 使用github发布</div><div class="line">npm install hexo-deployer-rsync --save    # 不装, 使用 rysnc发布</div><div class="line">npm install hexo-deployer-openshift --save    # 不装, 使用OpenShift发布</div><div class="line">npm install hexo-generator-feed --save    # 不装, 生成atom.xml, 供RSS使用</div><div class="line">npm install hexo-generator-sitemap --save # 不装, 生成sitemap.xml, 用于提高搜索量</div><div class="line">npm install hexo-generator-search --save  # 用于本地搜索</div></pre></td></tr></table></figure>
-</li>
-<li><p>本地查看效果, 输入<code>hexo s</code>成功后登录 <code>localhost:4000</code>查看效果<br>这里, 我遇到了错误, 提示是 4000 端口已经被占用.<br>最后发现是 foxitProtect.exe (福昕PDF保护进程)占用此端口, 先结束, 然后直接删除.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">netstat -aon | findstr &quot;4000&quot;     # 查找占用4000端口的PID, 譬如, 结果为1234</div><div class="line">tasklist | findstr &quot;1234&quot;         # 查找PID=1234的进程名称, 譬如, 结果为foxitProtect.exe</div><div class="line">taskkill /f /t /im foxitProtect.exe   # 强制杀死此进程</div></pre></td></tr></table></figure>
-</li>
-<li><p>配置 hexo 的 <code>_config.yml</code></p>
-<blockquote>
-<p># Site<br>title: DRA&amp;PHO                  # 博客名字<br>subtitle: thinking &amp; logging    # 副标题<br>description: Embedded System, IoT, M2M  # 博客描述<br>author: draapho                 # 作者<br>language: en        # 语言, 中文为 zh-Hans, 需设置category_map和tag_map</p>
-<p># URL<br>url: <a href="https://YourGitHubName.github.io/" target="_blank" rel="external">https://YourGitHubName.github.io/</a>  # 替换<strong><em>YourGitHubName</em></strong><br># 譬如: <a href="https://draapho.github.io/">https://draapho.github.io/</a> 我的GitHub注册名是<strong><em>draapho</em></strong></p>
-<p># Directory<br>source_dir: source      # source文件夹, 用来写文章<br>public_dir: public      # public文件夹, 自动生成的静态页面都放在这里<br>tag_dir: tags           # 标签文件夹, 需要安装 hexo-generator-tag<br>archive_dir: archives   # 归档文件夹, 需安装 hexo-generator-archive<br>category_dir: categories    # 分类文件夹, 需安装 hexo-generator-category</p>
-<p># Extensions<br>theme: next         # 随了大流, 用了next主题</p>
-<p># Deployment<br>deploy:<br>  type: git         # 使用git部署, 需安装 hexo-deployer-git<br>  repository: <a href="https://github.com/YourGitHubName/YourGitHubName.github.io.git" target="_blank" rel="external">https://github.com/YourGitHubName/YourGitHubName.github.io.git</a><br>  # 我的注册名是<strong><em>draapho</em></strong>, 就写成: <a href="https://github.com/draapho/draapho.github.io.git" target="_blank" rel="external">https://github.com/draapho/draapho.github.io.git</a><br>  branch: master</p>
-<p># search Settings, 默认没有这行内容, 自己添加即可<br>search:             # 本地搜索功能, 需安装 hexo-generator-search<br>   path: search.xml<br>   field: post</p>
-</blockquote>
-</li>
-<li><p>创建about,categories,tags文件夹及文件<br>在<code>Blog\source</code>下, 新建文件夹about, 然后新建文件index.md, 用于生成关于页面</p>
-<blockquote>
-<p>-–<br>title: about<br>date: 2016-09-08<br>comments: false<br>-–<br>这一篇的内容是自我介绍</p>
-</blockquote>
-<p>在<code>Blog\source</code>下, 新建文件夹categories, 然后新建文件index.md, 用于生成分类页面</p>
-<blockquote>
-<p>-–<br>title: categories<br>date: 2016-09-08<br>type: “categories”<br>comments: false<br>-–</p>
-</blockquote>
-<p>在<code>Blog\source</code>下, 新建文件夹tags, 然后新建文件index.md, 用于生成标签页面</p>
-<blockquote>
-<p>-–<br>title: tags<br>date: 2016-09-08<br>type: “tags”<br>comments: false<br>-–</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="github端的配置"><a href="#github端的配置" class="headerlink" title="github端的配置"></a>github端的配置</h1><ul>
-<li>如果之前没有使用过github, 第一次上传应该要求输入用户名和密码. 但如果每次部署都要这样, 就显得很麻烦. github端可以使用SSH 或 GPG keys来免去这个步骤. 建议使用GPG keys.</li>
-<li>这里就不详细展开了, 具体步骤参考github, <a href="https://help.github.com/articles/generating-a-gpg-key/" target="_blank" rel="external">生成一个GPG key</a></li>
-</ul>
-<h1 id="使用mermaid插件支持流程图等"><a href="#使用mermaid插件支持流程图等" class="headerlink" title="使用mermaid插件支持流程图等"></a><del>使用mermaid插件支持流程图等</del></h1><ul>
-<li><p>安装</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install hexo-tag-mermaid --save</div></pre></td></tr></table></figure>
-</li>
-<li><p>添加mermaid依赖到主题模板<br>进入themes/your_theme_folder/layout/partial目录，添加mermaid相关文件。<br>head.jade 添加如下代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">link(rel=&quot;stylesheet&quot;, href=url_for(&quot;https://cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css&quot;))</div></pre></td></tr></table></figure>
-<p>scripts.jade 添加如下代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">link(rel=&quot;stylesheet&quot;, script(src=&quot;//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js&quot;)</div></pre></td></tr></table></figure>
-</li>
-<li><p>我暂时放弃了<br>next用的swig, 不知道和jade文件是什么关系. 暂时不愿去研究.<br>看了下此插件的格式, 和我常用的Typora使用的mermaid不一样.<br>博客上用到流程图之类的机会不多, 偶尔需要使用图片即可.<br>如有兴趣, 可参考 <a href="http://jcchow.com/2016/07/11/mermaid-sequence/" target="_blank" rel="external">Hexo流程图等插件安装教程</a></p>
-</li>
-</ul>
-<h1 id="NexT主题"><a href="#NexT主题" class="headerlink" title="NexT主题"></a>NexT主题</h1><p>主题的选择我没有花太多时间, 测试了2-3个主题后, 最终还是随大流的用了NexT主题. 说实话, 设计感很好, 用的人很多, 略有审美疲劳. 好在博客目标明确, NexT能很好的覆盖我几个基本需求, 文档又写的很完善, 就不折腾了.</p>
-<ul>
-<li>安装NexT, 见<a href="http://theme-next.iissnan.com/getting-started.html" target="_blank" rel="external">官方文档</a></li>
-<li>menu_icons 图标配置, 名称用的是<a href="http://fontawesome.io/icons/" target="_blank" rel="external">Font Awesome</a></li>
-<li>about 页面的链接是 <a href="https://YourGitHubName.github.io/about" target="_blank" rel="external">https://YourGitHubName.github.io/about</a><br>我的注册名是<strong><em>draapho</em></strong>, 就写成 <a href="https://draapho.github.io/about">https://draapho.github.io/about</a></li>
-<li><code>\themes\next\_config.yml</code>文件内找到<code>use_motion:</code> 设置为<code>false</code>. 表示禁止动画效果, 立刻显示页面</li>
-</ul>
-<h1 id="Hexo的日常使用"><a href="#Hexo的日常使用" class="headerlink" title="Hexo的日常使用"></a>Hexo的日常使用</h1><ul>
-<li>习惯于直接在 \Blog\source_posts\ 下面直接新建文件 xxx.md<br>然后打开文件, 添加并修改如下内容:<blockquote>
-<p>title: Windows下使用github和hexo建立自己的博客<br>date: 2016-09-08<br>categories: environment<br>tags: [blog, hexo, next]</p>
-</blockquote>
-</li>
-<li>Hexo的常用指令<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">hexo clean    #更换hexo主题后, 建议先执行此条命令清空</div><div class="line">hexo g        # g=generate, 生成public静态文件</div><div class="line">hexo s        # s=server, 本地发布预览效果, 默认地址是 localhost:4000</div><div class="line">hexo d        # d=deploy, 自动部署</div><div class="line">hexo d -g     # 我最常用的指令, 意思是先generate再deploy.</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="https://wsgzao.github.io/post/hexo-guide/" target="_blank" rel="external">使用GitHub和Hexo搭建免费静态Blog</a></li>
-<li><a href="http://www.jianshu.com/p/35e197cb1273" target="_blank" rel="external">Hexo搭建Github-Pages博客填坑教程</a></li>
-<li><a href="https://hexo.io/zh-cn/docs/index.html" target="_blank" rel="external">Hexo 文档</a></li>
-<li><a href="http://theme-next.iissnan.com/getting-started.html" target="_blank" rel="external">Next 主题</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2566,7 +2523,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">28</span>
+              <span class="site-state-item-count">30</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2574,7 +2531,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2583,7 +2540,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-count">50</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -2640,7 +2597,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2016</span>
+  <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
