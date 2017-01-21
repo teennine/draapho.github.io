@@ -260,6 +260,299 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/14/1624-android-ipc/" itemprop="url">
+                  Android中Activity、Service和线程之间的通信
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-14T00:00:00+11:00" content="2016-12-14">
+              2016-12-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index">
+                    <span itemprop="name">android</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="external">Android中Activity、Service和线程之间的通信</a></em></strong></p>
+<hr>
+<h1 id="我的说明"><a href="#我的说明" class="headerlink" title="我的说明"></a>我的说明</h1><p>很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.<br>其实 Activity 和 Activity 间也就下面一些通讯方式,<br>只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.</p>
+<p>先转载此文作为备忘, 有时间自己在总结一下范例.</p>
+<h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>Activity、Service和线程应该是Android编程中最常见的几种类了，几乎大多数应用程序都会涉及到这几个类的编程，<br>自然而然的，也就会涉及到三者之间的相互通信，本文就试图简单地介绍一下这三者通信的方式。</p>
+<p>想写这篇文章的起因是，笔者跟几个同学在做一个Android上的应用，起初代码写得很凌乱，因为我在Activity中直接创建了线程，去执行某些任务。<br>但是我们知道线程可能需要运行的时间比较长，而Android在内存不足的时候，会将一些Activity销毁，<br>这样线程就会失去了管理的对象，从而使程序发生意想不到的结果。<br>此外，在Activity中创建线程，线程跟Activity的通信也比较麻烦，一般借助Handler类来进行通信</p>
+<p>与Activity相比，Service一般“默默”地运行在后台，生命周期比较长，所以它更合适去为主程序提供某些服务，创建线程并管理线程。<br>因此，笔者将原程序改成三层架构，从高到低分别为：Activity层–Service层–Thread层。<br>Activity将需要的服务“告诉”Service层，Service层创建Thread去完成服务。<br>Thread将任务的进度、状态、错误信息反馈给Service，Service将这些消息反馈给相关的Activity，<br>并且还可以利用Notification更新通知栏消息。大体的结构就是这样。</p>
+<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="external">Android在子线程中更新Activity中UI的方法</a></p>
+<h2 id="Activity调用startService"><a href="#Activity调用startService" class="headerlink" title="Activity调用startService"></a>Activity调用startService</h2><p>Activity调用startService (Intent service)方法，将消息添加到Intent对象中，<br>这样Service对象可以在调用onStartCommand (Intent intent, int flags, int startId)的时候可以得到这些消息。<br>这种方法很简单，但如果有大量的信息要传递的话，就很麻烦了。因为Service端还要判断一下消息是什么，才能作进一步的动作。</p>
+<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="external">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
+<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="external">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
+<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="external">Android在子线程中更新Activity中UI的方法</a></p>
+<h1 id="Activity和Thread之间的通信"><a href="#Activity和Thread之间的通信" class="headerlink" title="Activity和Thread之间的通信"></a>Activity和Thread之间的通信</h1><p>不用多想了，直接使用Handler吧。不推荐Activity直接去创建线程，因为不好管理线程。</p>
+<hr>
+<p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="external">Android中Activity、Service和线程之间的通信</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/13/1623-python-debug/" itemprop="url">
+                  Python 调试及测试
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-13T00:00:00+11:00" content="2016-12-13">
+              2016-12-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><p>常用的方法有:</p>
+<ul>
+<li>print, 仅作临时测试, 而且还要删除.</li>
+<li>assert, 同print, 无明显优势.</li>
+<li>logging, 推荐使用. 可选级别, 可选输出方式, 适用于各种情况的调试.</li>
+<li>pdb 以及 基于pdb的图形化工具.</li>
+<li>python的IDE, 如PyCharm(推荐), eclipse+PyDev</li>
+</ul>
+<h2 id="logging"><a href="#logging" class="headerlink" title="logging"></a>logging</h2><h3 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="string">'''默认日志输出为终端, 设置日志等级, DEBUG=LEVEL10, 优先级最低'''</span></div><div class="line">    logging.basicConfig(level=logging.DEBUG)</div><div class="line">    <span class="string">'''更多设置'''</span></div><div class="line">    <span class="comment"># logging.basicConfig(level=logging.DEBUG,</span></div><div class="line">    <span class="comment">#                     format='%(asctime)s %(filename)-s[%(lineno)d] %(levelname)-8s: %(message)s')</span></div><div class="line"></div><div class="line">    logging.debug(<span class="string">'DEBUG message'</span>)</div><div class="line">    logging.info(<span class="string">'INFO message'</span>)</div><div class="line">    logging.warn(<span class="string">'WARN message'</span>)</div><div class="line">    logging.error(<span class="string">'ERROR message'</span>)</div><div class="line">    logging.critical(<span class="string">'CRITICAL message'</span>)</div></pre></td></tr></table></figure>
+<h3 id="自定义显示格式"><a href="#自定义显示格式" class="headerlink" title="自定义显示格式"></a>自定义显示格式</h3><p>日志输出到 <code>logger.log</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="string">'''设置显示格式, 日志输出到文件'''</span></div><div class="line">    logging.basicConfig(level=logging.DEBUG,</div><div class="line">                        format=<span class="string">'%(asctime)s %(filename)-s[%(lineno)d] %(levelname)-8s: %(message)s'</span>,</div><div class="line">                        filename=<span class="string">'logger.log'</span>,</div><div class="line">                        filemode=<span class="string">'w'</span>) <span class="comment"># default is 'a'=append, 'w'=overwrite</span></div><div class="line"></div><div class="line">    logging.debug(<span class="string">'This is debug message'</span>)</div><div class="line">    logging.info(<span class="string">'This is info message'</span>)</div><div class="line">    logging.warning(<span class="string">'This is warning message'</span>)</div></pre></td></tr></table></figure></p>
+<p>日志输出到 <code>logger.log</code> 以及终端<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    logging.basicConfig(level=logging.DEBUG,</div><div class="line">                        format=<span class="string">'%(asctime)s %(filename)s[%(lineno)d] %(levelname)-8s: %(message)s'</span>,</div><div class="line">                        filename=<span class="string">'logger.log'</span>,</div><div class="line">                        filemode=<span class="string">'w'</span>) <span class="comment"># default is 'a'=append, 'w'=overwrite</span></div><div class="line"></div><div class="line">    <span class="string">'''</span></div><div class="line">    定义一个StreamHandler，将INFO级别或更高的日志信息打印到标准错误，并将其添加到当前的日志处理对象</div><div class="line">    '''</div><div class="line">    console = logging.StreamHandler()</div><div class="line">    console.setLevel(logging.INFO)</div><div class="line">    formatter = logging.Formatter(<span class="string">'%(levelname)-8s: %(message)s'</span>)</div><div class="line">    console.setFormatter(formatter)</div><div class="line">    logging.getLogger(<span class="string">''</span>).addHandler(console)</div><div class="line"></div><div class="line">    logging.debug(<span class="string">'This is debug message'</span>)</div><div class="line">    logging.info(<span class="string">'This is info message'</span>)</div><div class="line">    logging.warning(<span class="string">'This is warning message'</span>)</div></pre></td></tr></table></figure></p>
+<h3 id="使用文件配置"><a href="#使用文件配置" class="headerlink" title="使用文件配置"></a>使用文件配置</h3><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">#logging.conf</div><div class="line"></div><div class="line">###############################################</div><div class="line">[loggers]</div><div class="line">keys=root</div><div class="line"></div><div class="line">[logger_root]</div><div class="line">level=DEBUG</div><div class="line">handlers=hand01,hand02</div><div class="line"></div><div class="line">###############################################</div><div class="line">[handlers]</div><div class="line">keys=hand01,hand02,hand03</div><div class="line"></div><div class="line"># 写入终端</div><div class="line">[handler_hand01]</div><div class="line">class=StreamHandler</div><div class="line">level=DEBUG</div><div class="line">formatter=form01</div><div class="line">args=(sys.stderr,)</div><div class="line"></div><div class="line"># 写入文件, 'w'覆写, 'a'追加</div><div class="line">[handler_hand02]</div><div class="line">class=FileHandler</div><div class="line">level=INFO</div><div class="line">formatter=form01</div><div class="line">args=('logging.log', 'w')</div><div class="line"></div><div class="line"># 最多备份5个日志文件，每个日志文件最大10M</div><div class="line">[handler_hand03]</div><div class="line">class=handlers.RotatingFileHandler</div><div class="line">level=INFO</div><div class="line">formatter=form01</div><div class="line">args=('logging.log', 'a', 10*1024*1024, 5)</div><div class="line"></div><div class="line">###############################################</div><div class="line">[formatters]</div><div class="line">keys=form01</div><div class="line"></div><div class="line">[formatter_form01]</div><div class="line">format=%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s: %(message)s</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">from</span> logging.config <span class="keyword">import</span> fileConfig</div><div class="line">    fileConfig(<span class="string">"logging.conf"</span>)</div><div class="line"></div><div class="line">    logging.debug(<span class="string">'This is debug message'</span>)</div><div class="line">    logging.info(<span class="string">'This is info message'</span>)</div><div class="line">    logging.warning(<span class="string">'This is warning message'</span>)</div></pre></td></tr></table></figure>
+<h3 id="更多应用参考手册"><a href="#更多应用参考手册" class="headerlink" title="更多应用参考手册"></a>更多应用参考手册</h3><ul>
+<li><a href="https://docs.python.org/3.1/library/logging.html" target="_blank" rel="external">15.6. logging — Logging facility for Python</a><ul>
+<li>15.6.11. Sending and receiving logging events across a network</li>
+<li>15.6.20.2. Configuration file format</li>
+<li>15.6.20.3. Configuration server example</li>
+<li>15.6.21. More examples</li>
+</ul>
+</li>
+</ul>
+<h2 id="pdb"><a href="#pdb" class="headerlink" title="pdb"></a>pdb</h2><p>进入调试模式 <code>python -m pdb example.py</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ python -m pdb example.py</div><div class="line">(Pdb)</div></pre></td></tr></table></figure></p>
+<p>pdb 常用命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"># 断点</div><div class="line">(Pdb) b 10          # 断点设置在当前文件的第10行</div><div class="line">(Pdb) tbreak 10     # temp  break, 临时断点, 执行后会自动删除</div><div class="line">(Pdb) b my.py:20    # 断点设置到 my.py第20行</div><div class="line">(Pdb) b             # break, 查看断点编号</div><div class="line">(Pdb) cl 2          # clear, 删除第2个断点</div><div class="line">(Pdb) disable 2     # 禁用第2个断点</div><div class="line">(Pdb) enable 2      # 使能第2个断点</div><div class="line">(Pdb) ignore 2 10   # 略过第2个断点10次, 循环调试特别有用!</div><div class="line">(Pdb) condition 2 (i&gt;10)    # 条件为真时,使能断点</div><div class="line"></div><div class="line"># 运行</div><div class="line">(Pdb) n             # next, 单步运行</div><div class="line">(Pdb) s             # step, 进入方法</div><div class="line">(Pdb) r             # return, 返回上级方法</div><div class="line">(Pdb) c             # continue, 跳到下个断点</div><div class="line"></div><div class="line"># 查看</div><div class="line">(Pdb) p param       # print, 查看当前 变量值</div><div class="line">(Pdb) l             # list, 查看运行到某处代码</div><div class="line">(Pdb) a             # args, 查看全部栈内变量</div><div class="line">(Pdb) w             # where, 堆栈信息</div><div class="line"></div><div class="line"># 其它</div><div class="line">(Pdb) h             # help, 帮助</div><div class="line">(Pdb) q             # quit, 退出调试</div></pre></td></tr></table></figure></p>
+<p>使用alias设置别名, 可大大提高调试速度!<br><strong>将下述文件存储为 <code>.pdbrc</code>, 然后放在系统目录 <code>~</code> 或 项目目录下, pdb会自动加载.</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># name it as ".pdbrc", then put into ~ or project folder</span></div><div class="line"></div><div class="line"><span class="comment"># Print a dictionary, sorted. %1 is the dict, %2 is the prefix for the names.</span></div><div class="line">alias p_ <span class="keyword">for</span> k <span class="keyword">in</span> sorted(%<span class="number">1.</span>keys()): <span class="keyword">print</span> <span class="string">"%s%-15s= %-80.80s"</span> % (<span class="string">"%2"</span>,k,repr(%<span class="number">1</span>[k]))</div><div class="line"></div><div class="line"><span class="comment"># Print the instance variables of a thing.</span></div><div class="line">alias pi p_ %<span class="number">1.</span>__dict__ %<span class="number">1.</span></div><div class="line"></div><div class="line"><span class="comment"># Print the instance variables of self.</span></div><div class="line">alias ps pi self</div><div class="line"></div><div class="line"><span class="comment"># Print the locals.</span></div><div class="line">alias pl p_ locals() local:</div><div class="line"></div><div class="line"><span class="comment"># Next and list, and step and list.</span></div><div class="line">alias nl n;;l</div><div class="line">alias sl s;;l</div><div class="line"></div><div class="line"><span class="comment"># go to line</span></div><div class="line">alias gl tbreak %*;;c %*;;l</div><div class="line"></div><div class="line"><span class="comment"># go to next</span></div><div class="line">alias g1 n;;l</div><div class="line">alias g2 n;;n;;l</div><div class="line">alias g3 n;;n;;n;;l</div><div class="line">alias g4 n;;n;;n;;n;;l</div><div class="line">alias g5 n;;n;;n;;n;;n;;l</div><div class="line">alias g6 n;;n;;n;;n;;n;;n;;nl</div><div class="line">alias g7 n;;n;;n;;n;;n;;n;;n;;l</div><div class="line">alias g8 n;;n;;n;;n;;n;;n;;n;;n;;l</div><div class="line">alias g9 n;;n;;n;;n;;n;;n;;n;;n;;n;;l</div><div class="line"></div><div class="line"><span class="comment"># Short cuts for walking up and down the stack</span></div><div class="line">alias uu u;;u</div><div class="line">alias uuu u;;u;;u</div><div class="line">alias uuuu u;;u;;u;;u</div><div class="line">alias uuuuu u;;u;;u;;u;;u</div><div class="line">alias dd d;;d</div><div class="line">alias ddd d;;d;;d</div><div class="line">alias dddd d;;d;;d;;d</div><div class="line">alias ddddd d;;d;;d;;d;;d</div></pre></td></tr></table></figure></p>
+<h2 id="查看函数调用"><a href="#查看函数调用" class="headerlink" title="查看函数调用"></a>查看函数调用</h2><p>使用如下的装饰器, 即可观察该函数被调用的情况<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">findcaller</span><span class="params">(func)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        <span class="keyword">import</span> sys</div><div class="line">        f = sys._getframe()</div><div class="line">        filename = f.f_back.f_code.co_filename</div><div class="line">        lineno = f.f_back.f_lineno</div><div class="line">        <span class="keyword">print</span> <span class="string">'######################################'</span></div><div class="line">        <span class="keyword">print</span> <span class="string">'&#123;&#125;, args: &#123;&#125;, &#123;&#125;'</span>.format(func, args, kwargs)</div><div class="line">        <span class="keyword">print</span> <span class="string">'called by &#123;&#125;, line &#123;&#125;'</span>.format(filename, lineno)</div><div class="line">        <span class="keyword">print</span> <span class="string">'######################################'</span></div><div class="line">        func(*args, **kwargs)</div><div class="line">    <span class="keyword">return</span> wrapper</div></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># example</span></div><div class="line"></div><div class="line"><span class="meta">@findcaller</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(name=<span class="string">'world'</span>)</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"hello"</span>, name</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    hello(<span class="string">'DRA&amp;PHO'</span>)</div></pre></td></tr></table></figure>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><h2 id="doctest"><a href="#doctest" class="headerlink" title="doctest"></a>doctest</h2><p>简单的函数测试个人比较喜欢使用doctest, 因为一举两得, 即可以做测试案例, 又是极好的代码注释和范例<br>输出和预期一致时, 没有任何提醒. 输出和预期不一致时, 就会弹出错误.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(name=<span class="string">'world'</span>)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    &gt;&gt;&gt; hello()</div><div class="line">    hello world</div><div class="line">    &gt;&gt;&gt; hello('DRA&amp;PHO')</div><div class="line">    hello, DRA&amp;PHO</div><div class="line">    """</div><div class="line">    <span class="keyword">print</span> <span class="string">"hello"</span>, name</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    <span class="keyword">import</span> doctest</div><div class="line">    doctest.testmod()</div></pre></td></tr></table></figure>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ul>
+<li><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/00140137128705556022982cfd844b38d050add8565dcb9000" target="_blank" rel="external">unittest</a>, 更专业的一种测试方法, 可批量执行</li>
+<li><a href="http://pythonguidecn.readthedocs.io/zh/latest/writing/tests.html" target="_blank" rel="external">Python指南-测试你的代码</a><ul>
+<li>单元测试(unittest)</li>
+<li>文档测试(doctest)</li>
+<li>测试工具: py.test, nose, tox, Unittest2, mock</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://blog.csdn.net/yatere/article/details/6655445" target="_blank" rel="external">python 的日志logging模块学习</a></li>
+<li><a href="http://www.jianshu.com/p/feb86c06c4f4" target="_blank" rel="external">python logging模块使用教程</a></li>
+<li><a href="https://docs.python.org/3.1/library/logging.html" target="_blank" rel="external">15.6. logging — Logging facility for Python</a></li>
+<li><a href="https://pythonconquerstheuniverse.wordpress.com/category/python-debugger/" target="_blank" rel="external">Debugging in Python</a></li>
+<li><p><a href="http://www.onlamp.com/pub/a/python/2005/09/01/debugger.html" target="_blank" rel="external">Interactive Debugging in Python</a></p>
+</li>
+<li><p><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/00140137128705556022982cfd844b38d050add8565dcb9000" target="_blank" rel="external">廖雪峰的官方网站-单元测试</a></p>
+</li>
+<li><p><a href="http://pythonguidecn.readthedocs.io/zh/latest/writing/tests.html" target="_blank" rel="external">Python 指南-测试你的代码</a></p>
+</li>
+<li><p><a href="http://www.jianshu.com/p/ae5bc6093337" target="_blank" rel="external">python笔记_查看函数调用栈的一个小技巧</a></p>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/28/1622-python-time/" itemprop="url">
                   python 延时及超时
                 </a>
@@ -1065,7 +1358,7 @@
       
         
           
-            <p>转载自 <a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a><br>中文版 <a href="http://blog.jobbole.com/63320/" target="_blank" rel="external">30个有关Python的小技巧</a></p>
+            <p><strong><em>转载自 <a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a></em></strong><br><strong><em>中文版 <a href="http://blog.jobbole.com/63320/" target="_blank" rel="external">30个有关Python的小技巧</a></em></strong></p>
 <hr>
 <h1 id="批量赋值"><a href="#批量赋值" class="headerlink" title="批量赋值"></a>批量赋值</h1><h2 id="Unpacking"><a href="#Unpacking" class="headerlink" title="Unpacking"></a>Unpacking</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c = <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c = (<span class="number">2</span> * i + <span class="number">1</span> <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, (b, c), d = [<span class="number">1</span>, (<span class="number">2</span>, <span class="number">3</span>), <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>b</div><div class="line"><span class="number">2</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>c</div><div class="line"><span class="number">3</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>d</div><div class="line"><span class="number">4</span></div></pre></td></tr></table></figure>
 <h2 id="Unpacking-for-swapping-variables"><a href="#Unpacking-for-swapping-variables" class="headerlink" title="Unpacking for swapping variables"></a>Unpacking for swapping variables</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b = <span class="number">1</span>, <span class="number">2</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b = b, a</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b</div><div class="line">(<span class="number">2</span>, <span class="number">1</span>)</div></pre></td></tr></table></figure>
@@ -1111,7 +1404,7 @@
 <h2 id="Chaining-iterables-itertools-chain-可链接迭代器"><a href="#Chaining-iterables-itertools-chain-可链接迭代器" class="headerlink" title="Chaining iterables (itertools.chain) / 可链接迭代器"></a>Chaining iterables (itertools.chain) / 可链接迭代器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> p <span class="keyword">in</span> itertools.chain(itertools.combinations(a, <span class="number">2</span>), itertools.combinations(a, <span class="number">3</span>)):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> p</div><div class="line">...</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> subset <span class="keyword">in</span> itertools.chain.from_iterable(itertools.combinations(a, n) <span class="keyword">for</span> n <span class="keyword">in</span> range(len(a) + <span class="number">1</span>))</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> subset</div><div class="line">...</div><div class="line">()</div><div class="line">(<span class="number">1</span>,)</div><div class="line">(<span class="number">2</span>,)</div><div class="line">(<span class="number">3</span>,)</div><div class="line">(<span class="number">4</span>,)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</div></pre></td></tr></table></figure>
 <h2 id="Grouping-rows-by-a-given-key-itertools-groupby-根据文件指定列类聚"><a href="#Grouping-rows-by-a-given-key-itertools-groupby-根据文件指定列类聚" class="headerlink" title="Grouping rows by a given key (itertools.groupby) / 根据文件指定列类聚"></a>Grouping rows by a given key (itertools.groupby) / 根据文件指定列类聚</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> operator <span class="keyword">import</span> itemgetter</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> itertools</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">with</span> open(<span class="string">'contactlenses.csv'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> infile:</div><div class="line"><span class="meta">... </span>    data = [line.strip().split(<span class="string">','</span>) <span class="keyword">for</span> line <span class="keyword">in</span> infile]</div><div class="line">...</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>data = data[<span class="number">1</span>:]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">print_data</span><span class="params">(rows)</span>:</span></div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'\n'</span>.join(<span class="string">'\t'</span>.join(<span class="string">'&#123;: &lt;16&#125;'</span>.format(s) <span class="keyword">for</span> s <span class="keyword">in</span> row) <span class="keyword">for</span> row <span class="keyword">in</span> rows)</div><div class="line">...</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print_data(data)</div><div class="line">young               myope                   no                      reduced                 none</div><div class="line">young               myope                   no                      normal                  soft</div><div class="line">young               myope                   yes                     reduced                 none</div><div class="line">young               myope                   yes                     normal                  hard</div><div class="line">young               hypermetrope            no                      reduced                 none</div><div class="line">young               hypermetrope            no                      normal                  soft</div><div class="line">young               hypermetrope            yes                     reduced                 none</div><div class="line">young               hypermetrope            yes                     normal                  hard</div><div class="line">pre-presbyopic      myope                   no                      reduced                 none</div><div class="line">pre-presbyopic      myope                   no                      normal                  soft</div><div class="line">pre-presbyopic      myope                   yes                     reduced                 none</div><div class="line">pre-presbyopic      myope                   yes                     normal                  hard</div><div class="line">pre-presbyopic      hypermetrope            no                      reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            no                      normal                  soft</div><div class="line">pre-presbyopic      hypermetrope            yes                     reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            yes                     normal                  none</div><div class="line">presbyopic          myope                   no                      reduced                 none</div><div class="line">presbyopic          myope                   no                      normal                  none</div><div class="line">presbyopic          myope                   yes                     reduced                 none</div><div class="line">presbyopic          myope                   yes                     normal                  hard</div><div class="line">presbyopic          hypermetrope            no                      reduced                 none</div><div class="line">presbyopic          hypermetrope            no                      normal                  soft</div><div class="line">presbyopic          hypermetrope            yes                     reduced                 none</div><div class="line">presbyopic          hypermetrope            yes                     normal                  none</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>data.sort(key=itemgetter(<span class="number">-1</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> value, group <span class="keyword">in</span> itertools.groupby(data, <span class="keyword">lambda</span> r: r[<span class="number">-1</span>]):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'-----------'</span></div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'Group: '</span> + value</div><div class="line"><span class="meta">... </span>    print_data(group)</div><div class="line">...</div><div class="line">-----------</div><div class="line">Group: hard</div><div class="line">young               myope                   yes                     normal                  hard</div><div class="line">young               hypermetrope            yes                     normal                  hard</div><div class="line">pre-presbyopic      myope                   yes                     normal                  hard</div><div class="line">presbyopic          myope                   yes                     normal                  hard</div><div class="line">-----------</div><div class="line">Group: none</div><div class="line">young               myope                   no                      reduced                 none</div><div class="line">young               myope                   yes                     reduced                 none</div><div class="line">young               hypermetrope            no                      reduced                 none</div><div class="line">young               hypermetrope            yes                     reduced                 none</div><div class="line">pre-presbyopic      myope                   no                      reduced                 none</div><div class="line">pre-presbyopic      myope                   yes                     reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            no                      reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            yes                     reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            yes                     normal                  none</div><div class="line">presbyopic          myope                   no                      reduced                 none</div><div class="line">presbyopic          myope                   no                      normal                  none</div><div class="line">presbyopic          myope                   yes                     reduced                 none</div><div class="line">presbyopic          hypermetrope            no                      reduced                 none</div><div class="line">presbyopic          hypermetrope            yes                     reduced                 none</div><div class="line">presbyopic          hypermetrope            yes                     normal                  none</div><div class="line">-----------</div><div class="line">Group: soft</div><div class="line">young               myope                   no                      normal                  soft</div><div class="line">young               hypermetrope            no                      normal                  soft</div><div class="line">pre-presbyopic      myope                   no                      normal                  soft</div><div class="line">pre-presbyopic      hypermetrope            no                      normal                  soft</div><div class="line">presbyopic          hypermetrope            no                      normal                  soft</div></pre></td></tr></table></figure>
 <hr>
-<p>转载自 <a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a><br>中文版 <a href="http://blog.jobbole.com/63320/" target="_blank" rel="external">30个有关Python的小技巧</a></p>
+<p><strong><em>转载自 <a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a></em></strong><br><strong><em>中文版 <a href="http://blog.jobbole.com/63320/" target="_blank" rel="external">30个有关Python的小技巧</a></em></strong></p>
 
           
         
@@ -1224,7 +1517,7 @@
       
         
           
-            <p>转载自 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></p>
+            <p><strong><em>转载自 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></em></strong></p>
 <hr>
 <h1 id="python的赋值"><a href="#python的赋值" class="headerlink" title="python的赋值"></a>python的赋值</h1><p>在 python 中赋值语句总是建立对象的引用值，而不是复制对象。因此，python 变量更像是指针，而不是数据存储区域，<br><img src="https://draapho.github.io/images/1618/python_point_1.jpg" alt="python_point"><br>这点和大多数 OO 语言类似吧，比如 C++、java 等 ~</p>
 <h1 id="先来看个问题吧："><a href="#先来看个问题吧：" class="headerlink" title="先来看个问题吧："></a>先来看个问题吧：</h1><h2 id="一个赋值问题"><a href="#一个赋值问题" class="headerlink" title="一个赋值问题"></a>一个赋值问题</h2><p>在Python中，令<code>values=[0,1,2];values[1]=values</code>,为何结果是<code>[0,[...],2]</code>? <a href="http://www.zhihu.com/question/21000872" target="_blank" rel="external">链接</a></p>
@@ -1317,336 +1610,7 @@
 <li><a href="http://bit.ly/29vnLvz" target="_blank" rel="external">Python程序员写代码时应该避免的16个“坑”</a></li>
 </ul>
 <hr>
-<p>转载自 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/16/1617-python-terminal/" itemprop="url">
-                  python的第一个小程序, 蓝牙及串口终端
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-16T00:00:00+11:00" content="2016-11-16">
-              2016-11-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
-<li>windows 开发环境</li>
-<li>python 2.7</li>
-<li>pywin32, windows support</li>
-<li>pyserial, serial port, com</li>
-<li>pygatt, ble</li>
-<li>pyinstaller, generate exe file</li>
-<li>qt 4.8 (pyqt 4.11), GUI</li>
-<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
-</ul>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
-<li>略过 python 的安装++</li>
-<li>实际做项目的话, 建议使用2.7版本, 32位(这样生成的exe文件是32位的, 能兼容所有机器)</li>
-<li>安装 pywin32: <code>pip install pypiwin32</code></li>
-<li>安装 pyserial: <code>pip install pyserial</code></li>
-<li>安装 pygatt: <code>pip install pygatt</code>, 事实上, pygatt依赖于pyserial. 因此直接装pygatt也可以</li>
-<li>安装 pyinstaller: <code>pip install pyinstaller</code></li>
-<li>下载并安装 <a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt4-4.11.4-gpl-Py2.7-Qt4.8.7.exe</a><ul>
-<li>注意匹配python版本和32位/64位window</li>
-<li>pyqt5 仅支持 python3 以上版本. 我用 python2.7 是因为需要使用其它的库, 如 <a href="https://labjack.com/" target="_blank" rel="external">LabJack</a></li>
-<li><code>Qt Designer</code> 用于设计UI, 文件格式为<code>.ui</code>. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\designer.exe</code>. 最终取决于Python安装路径</li>
-<li><code>pyuic4.bat</code> 用于将 <code>.ui</code> 文件转换为 <code>.py</code> 文件. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\</code></li>
-<li>把 <code>pyuic4.bat</code> 的路径放入系统环境变量, 这样后续就能方便使用这个指令了</li>
-</ul>
-</li>
-<li>windows平台需要借助 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a> 这么一个设备才能实现BLE通讯</li>
-</ul>
-<h1 id="UI设计"><a href="#UI设计" class="headerlink" title="UI设计"></a>UI设计</h1><ul>
-<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
-</ul>
-<h2 id="PyQt-入门"><a href="#PyQt-入门" class="headerlink" title="PyQt 入门"></a>PyQt 入门</h2><ul>
-<li>为什么选择PyQt? (注意, 如果商用, PyQt是需要授权使用的)</li>
-<li><a href="http://ojs.pythonpapers.org/index.php/tpp/article/view/61/57" target="_blank" rel="external">PyGTK, PyQT, Tkinter and wxPython comparison</a></li>
-<li>PyQt使用入门:</li>
-<li><a href="https://www.tutorialspoint.com/pyqt/index.htm" target="_blank" rel="external">PyQt Tutorial</a>, 新手上路, 建议看到 <code>Using Qt Designer</code> 即可</li>
-<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 整体理解Qt设计思路</li>
-<li><a href="http://www.qaulau.com/books/PyQt4_Tutorial/" target="_blank" rel="external">PyQt4教程</a>, 中文版, 分类很细, 便于查阅范例</li>
-</ul>
-<h2 id="使用-Qt-Designer-设计GUI并生成-gui-py"><a href="#使用-Qt-Designer-设计GUI并生成-gui-py" class="headerlink" title="使用 Qt Designer 设计GUI并生成 gui.py"></a>使用 Qt Designer 设计GUI并生成 gui.py</h2><ul>
-<li>使用 <code>Qt Designer</code> 设计 GUI 框架, 并保存<code>gui.ui</code>到项目路径, 如 <code>D:\ble terminal</code></li>
-<li>打开cmd终端, 并切换到 <code>D:\ble terminal</code></li>
-<li><code>pyuic4.bat -x -o gui.py gui.ui</code> 生成<code>gui.py</code>文件,<ul>
-<li><code>-x</code> 表示可执行, 即包含<code>if __name__ == &quot;__main__&quot;</code>这部分代码</li>
-<li><code>-o</code> 表示目标文件名</li>
-<li>也可以使用命令行 <code>pyuic4.bat demo.ui &gt; demo.py</code>, 效果等同于 <code>pyuic4.bat -o gui.py gui.ui</code></li>
-</ul>
-</li>
-<li>创建 <code>gui_action.py</code> 文件, 用于书写交互操作部分的代码, 基本格式如下<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> gui</div><div class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QMainWindow</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.ui.setupUi(self)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QApplication(sys.argv)</div><div class="line">    gui_action = GuiAction()</div><div class="line">    gui_action.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="UI线程通讯"><a href="#UI线程通讯" class="headerlink" title="UI线程通讯"></a>UI线程通讯</h1><ul>
-<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
-<li>PyQt的信号和槽, 是一种通讯机制, 可以用于QObject之间的信息交互. 可以参考:<ul>
-<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a></li>
-<li><a href="https://www.linuxzen.com/pyqt4-xin-hao-he-cao-xiang-jie.html" target="_blank" rel="external">PyQt4 信号和槽详解</a></li>
-</ul>
-</li>
-<li>参考 <a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a></li>
-<li>关于 QThread 高阶应用和注意事项, 可参考 <a href="http://blog.csdn.net/u011012932/article/details/52186626" target="_blank" rel="external">Qt之QThread（深入理解）</a></li>
-<li>本程序使用的线程通讯框架如下:</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        ...</div><div class="line">        <span class="comment"># queue_ble 用于传递数据给ble线程 (这样用不好, 可能有风险)</span></div><div class="line">        self.queue_ble = Queue.Queue()</div><div class="line">        <span class="comment"># thread_ble 为 ble 处理线程</span></div><div class="line">        self.thread_ble = ThreadBleServer(self.queue_ble)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cmd_send</span><span class="params">(self)</span>:</span></div><div class="line">        cmd = self.lineEdit.text()</div><div class="line">        <span class="comment"># 通过 queue_ble 传递数据给ble线程</span></div><div class="line">        self.queue_ble.put(cmd)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 简单理解, 就是将 self.ble_handle 设置为 thread_ble 信号触发后的处理函数</span></div><div class="line">        <span class="comment"># 使用 PyQt_PyObject 作为参数类型具有更好的通用性, 可以传递任何数据.</span></div><div class="line">        self.connect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line">        <span class="comment"># 启动 ble 处理线程</span></div><div class="line">        self.thread_ble.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_stop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 用于终止 thread_ble 线程</span></div><div class="line">        self.thread_ble.stop_ble()</div><div class="line">        self.disconnect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadBleServer</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.stop = <span class="keyword">False</span></div><div class="line">        self.queue = queue</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop_ble</span><span class="params">(self)</span>:</span></div><div class="line">        self.stop = <span class="keyword">True</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.stop:</div><div class="line">            <span class="comment"># 这是一个循环任务, 每100ms执行一次</span></div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">            ...</div><div class="line">            <span class="comment"># 非阻塞查询queue队列</span></div><div class="line">            command = str(self.queue.get(<span class="keyword">False</span>))</div><div class="line">            do something after get command ...</div><div class="line">            ...</div><div class="line">            <span class="comment"># 发送信号给主线程</span></div><div class="line">            self.emit(SIGNAL(<span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), <span class="string">"ble_rx_timeout"</span>, <span class="string">""</span>)</div><div class="line">            ...</div></pre></td></tr></table></figure>
-<ul>
-<li>上述代码有一个未知风险, 在 QThread 中用了属于 python threading 的 Queque. 更稳妥的方法应该使用 PyQt 的信号和槽解决这个问题, 即<br><code>self.connect(self.cmd_send, SIGNAL(&quot;send_cmd(PyQt_PyObject)&quot;), self.thread_ble)</code></li>
-<li>关于 QThread 和 Threading, 简单而言, 如果需要和PyQt打交道, 那就用 QThread, 否则就用 python 自带的 Threading</li>
-<li><a href="https://github.com/draapho/ble-terminal" target="_blank" rel="external">全部源码</a> 在 github, 注意, 作为一个练习用程序, 上述错误我没有修改! 目前为止, 没看到不良影响.</li>
-</ul>
-<h1 id="生成exe文件"><a href="#生成exe文件" class="headerlink" title="生成exe文件"></a>生成exe文件</h1><ul>
-<li>可以创建一个 <code>ble-terminal.bat</code> 文件, 点击即可运行. 但终究是显的不够专业, 没法给老板和客户交代. 内容如下:</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@echo off</div><div class="line"></div><div class="line">start pythonw gui_action.py</div><div class="line">exit</div></pre></td></tr></table></figure>
-<ul>
-<li>windows下, 使用起来最简单的就是 <code>PyInstaller</code> 了. 基本一条指令, 然后需要的关联库全自动解决</li>
-<li>其它方案有 <code>Py2Exe</code>, 需要自己配置dll之类的. <code>Py2App</code> 给Mac电脑用的. <code>cx_Freeze</code> 优点是跨平台, 看了下需要先做配置文件.</li>
-<li>用一条指令即可生成 <code>.exe</code> 文件<br><code>pyinstaller.exe --windowed gui_action.py</code></li>
-<li>另外还可以指定图标, 设置版本信息(需要写好<code>version.txt</code>), 将所有内容绑到单文件. 指令为:<br><code>pyinstaller.exe --onefile --windowed --icon=app.ico --version-file=version.txt gui_action.py</code></li>
-<li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="external">Creating an Executable from a Python Script</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/15/1616-python-ble/" itemprop="url">
-                  使用python实现BLE通讯
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-15T00:00:00+11:00" content="2016-11-15">
-              2016-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
-<li>windows 开发环境</li>
-<li>python 2.7</li>
-<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a></li>
-<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
-</ul>
-<h1 id="闲扯"><a href="#闲扯" class="headerlink" title="闲扯"></a>闲扯</h1><ul>
-<li>背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.</li>
-<li>使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 <a href="https://github.com/jrowberg/bglib" target="_blank" rel="external">bglib</a> 这么一个python库, 还有范例!</li>
-<li>不幸的是, 自己功力不够, 基于此函数库开发出的BLE通讯, 非常不稳定… 没有痛下决心自己写, 于是继续尝试寻找资源.</li>
-<li>觅得 <a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a> 方案, 三平台全支持! windows 和 mac 下正是基于bglib实现的!</li>
-<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a> 是python的第三方库, 说明文档比较少, 测试了一下非常好用!</li>
-</ul>
-<h1 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h1><ul>
-<li>DEVICE_ADDRESS, 默认的需要connect的BLE地址</li>
-<li>基于 Bluegiga 的 <code>cable_replacement</code> 范例, 其 characteristic uuid 为 <code>e7add780-b042-4876-aae1-112855353cc1</code></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">import</span> binascii</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># Many devices, e.g. Fitbit, use random addressing - this is required to connect.</span></div><div class="line">ADDRESS_TYPE = pygatt.BLEAddressType.random</div><div class="line">DEVICE_ADDRESS = <span class="string">"00:07:80:BF:6A:73"</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">indication_callback</span><span class="params">(handle, value)</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"indication, handle %d: %s "</span> % (handle, value)</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">pytest</span><span class="params">(address=DEVICE_ADDRESS, type=pygatt.BLEAddressType.public)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        adapter = pygatt.BGAPIBackend()</div><div class="line">        adapter.start()</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.scan() ====="</span></div><div class="line">        devices = adapter.scan()</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> devices:</div><div class="line">            <span class="comment"># print dev</span></div><div class="line">            <span class="keyword">print</span> <span class="string">"address: %s, name: %s "</span> % (dev[<span class="string">'address'</span>], dev[<span class="string">'name'</span>])</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.connect() ====="</span></div><div class="line">        device = adapter.connect(address, address_type=type)</div><div class="line">        <span class="keyword">print</span> <span class="string">"address: "</span> + str(device._address)</div><div class="line">        <span class="keyword">print</span> <span class="string">"handle : "</span> + str(device._handle)</div><div class="line">        <span class="keyword">print</span> <span class="string">"rssi   : "</span> + str(device.get_rssi())</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.discover_characteristics() ====="</span></div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</div><div class="line">                      (uuid, device.get_handle(uuid), binascii.hexlify(device.char_read(uuid))))</div><div class="line">            <span class="keyword">except</span>:</div><div class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</div><div class="line">                      (uuid, device.get_handle(uuid), <span class="string">"!deny!"</span>))</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_read() / device.char_read_handle() ====="</span></div><div class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read(<span class="string">"00002a00-0000-1000-8000-00805f9b34fb"</span>)</div><div class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read_handle(<span class="number">3</span>)</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.subscribe() ====="</span></div><div class="line">        device.subscribe(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>,</div><div class="line">                         callback=indication_callback, indication=<span class="keyword">True</span>)</div><div class="line">        <span class="comment"># device.receive_notification(8, "test")</span></div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_write_handle() ====="</span></div><div class="line">        in_buf = map(ord, <span class="string">"hello world, hello BLE!!!"</span>)</div><div class="line">        <span class="comment"># send via uuid &amp; handle, maximum is 20 bytes</span></div><div class="line">        device.char_write(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>, in_buf[:<span class="number">20</span>])</div><div class="line">        device.char_write_handle(<span class="number">0x08</span>, in_buf[<span class="number">20</span>:])</div><div class="line"></div><div class="line">        <span class="keyword">while</span> (<span class="keyword">True</span>):</div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        adapter.stop()</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    pytest()</div></pre></td></tr></table></figure>
-<h1 id="BleDevice-类"><a href="#BleDevice-类" class="headerlink" title="BleDevice 类"></a>BleDevice 类</h1><ul>
-<li>为了方便使用, 自己基于 pygatt 再打包一层</li>
-<li>遗憾的是没有disconnect的通知. 可以参考 <a href="https://github.com/peplin/pygatt/issues/72" target="_blank" rel="external">Disconnect event not shown</a></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BleDevice</span><span class="params">(pygatt.BGAPIBackend)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.device = <span class="keyword">None</span></div><div class="line">        self.adapter = pygatt.BGAPIBackend()</div><div class="line">        self.adapter.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop</span><span class="params">(self)</span>:</span></div><div class="line">        self.adapter.stop()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">scan</span><span class="params">(self, timeout=<span class="number">5</span>)</span>:</span></div><div class="line">        self.devices = self.adapter.scan(timeout)</div><div class="line">        <span class="keyword">return</span> self.devices</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect_name</span><span class="params">(self, name, devices=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> devices <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            devices = self.devices</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> self.devices:</div><div class="line">            <span class="keyword">if</span> name == dev[<span class="string">'name'</span>]:</div><div class="line">                <span class="keyword">return</span> self.connect(dev[<span class="string">'address'</span>])</div><div class="line">        <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">(self, address)</span>:</span></div><div class="line">        self.device = self.adapter.connect(address)</div><div class="line">        <span class="keyword">return</span> self.device</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">discover_characteristics</span><span class="params">(self, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        characteristics = []</div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                device.char_read(uuid)</div><div class="line">                characteristics.append(</div><div class="line">                    &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">True</span>&#125;)</div><div class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">                <span class="keyword">if</span> <span class="string">"unable to read"</span> <span class="keyword">in</span> str(e).lower():</div><div class="line">                    characteristics.append(</div><div class="line">                        &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">False</span>&#125;)</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> e</div><div class="line">        <span class="keyword">return</span> characteristics</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_indication</span><span class="params">(self, uuid, device=None, callback=None, indication=True)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        device.subscribe(uuid, callback, indication)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics</span><span class="params">(self, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read(uuid)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics_handle</span><span class="params">(self, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read_handle(handle)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics</span><span class="params">(self, str, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write(uuid, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics_handle</span><span class="params">(self, str, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write_handle(handle, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    ble = BleDevice()</div><div class="line">    <span class="keyword">print</span> ble.scan()</div><div class="line">    device = ble.connect_name(<span class="string">"Bluegiga CR Demo"</span>)</div><div class="line">    <span class="keyword">print</span> device._address</div><div class="line">    chars = ble.discover_characteristics(device)</div><div class="line">    <span class="keyword">print</span> chars</div><div class="line">    <span class="comment"># print chars[0]['uuid']</span></div><div class="line">    <span class="keyword">print</span> ble.read_characteristics(chars[<span class="number">1</span>][<span class="string">'uuid'</span>])</div><div class="line">    ble.write_characteristics(<span class="string">"hello world"</span>, chars[<span class="number">0</span>][<span class="string">'uuid'</span>])</div></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>转载自 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></em></strong></p>
 
           
         
@@ -1720,7 +1684,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">30</span>
+              <span class="site-state-item-count">32</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1737,7 +1701,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-count">51</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
