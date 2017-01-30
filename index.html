@@ -327,7 +327,7 @@
 <ol>
 <li>UNIX操作系统 (诞生于1969年, 版权和专利问题不断, 大公司不愿公开操作系统原理和源码)</li>
 <li>MINIX操作系统 (诞生于1987年, 意为 Mini UNIX. 教学使用是开源免费的! linus从中学习了操作系统的工作原理)</li>
-<li>GNU计划 (诞生于1984年, 意为 GNU’s Not Unix 递归缩写. 宗旨是开发一个类Unix的自由软件操作系统)<br>有名的免费软件有: emacs, bash shell, gcc 编译程序, gdb 调试程序<br>因此, 目前许多人将Linux操作系统称之为 GNU/Linux 操作系统.</li>
+<li>GNU计划 (诞生于1984年, 意为 GNU’s Not Unix 递归缩写. 宗旨是开发一个类Unix的自由软件操作系统)<br>有名的免费软件有: emacs, bash shell, gcc 编译程序, gdb 调试程序<br>因此, 目前许多人将Linux操作系统称之为 <a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU/Linux 操作系统</a>.</li>
 <li>POSIX标准 (V1诞生于1988年, Portable Operating System Interface for Computing Systems)<br>描述了操作系统的调用服务接口标准, 便于应用程序在不同操作系统上的移植.<br>这为linux系统对应用程序的兼容提供了一套标准. 也是linux能流行起来的基础条件之一.</li>
 <li>Internet网络 (确保了linux系统由众人开发维护, 其发展和推广都离不开Internet!)</li>
 </ol>
@@ -345,11 +345,87 @@
 </ul>
 <p><img src="https://draapho.github.io/images/1704/0-mm-map.jpg" alt="mm"></p>
 <h2 id="内核函数关系图"><a href="#内核函数关系图" class="headerlink" title="内核函数关系图"></a>内核函数关系图</h2><p><img src="https://draapho.github.io/images/1704/0-linux-kernal-map.png" alt="kernal-fucntion"></p>
-<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p>bootsect.s<br>setup.s<br>head.s<br>main.c</p>
-<p>Logical Address</p>
-<p>Linear Address</p>
-<p>Physical Address</p>
-<p>Virtual Memory</p>
+<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
+<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
+<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
+<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 那直接就是物理地址了!<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
+<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.<br>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:<ul>
+<li>页全局目录, Page Global Directory</li>
+<li>页上级目录, Page Upper Directory</li>
+<li>页中间目录, Page Middle Directory</li>
+<li>页表, Page Table</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"><br>从逻辑地址变换为物理地址</p>
+<p><img src="https://draapho.github.io/images/1704/1-linear-address.jpg" alt="linear-address"><br>从线性地址变换为物理地址</p>
+<p><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"><br>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</p>
+<p><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"><br>任务1在三种地址空间中的关系</p>
+<p><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"><br>linux 使用描述符表的示意图</p>
+<h2 id="80x86-保护级别"><a href="#80x86-保护级别" class="headerlink" title="80x86 保护级别"></a>80x86 保护级别</h2><ul>
+<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
+<li>0为最高优先级, 对应于Linux内核态</li>
+<li>3为最低优先级, 对应于Linux用户态</li>
+<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
+<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
+<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
+</ul>
+<p><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"><br>linux 的多任务及保护方式</p>
+<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"><br>启动引导时内核在内存中的位置和移动情况</p>
+<ol>
+<li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
+<li>bootsect.s 被BIOS读入到内存地址 0x7C00(31Kb) 处开始运行后, 立刻把自己移到 0x90000(576Kb) 处.</li>
+<li>接着, bootsect.s 把 setup.s 读入到 0x90200 处, system模块(即内核)读入到 0x10000 处.<ul>
+<li>此版本内核模块不会超过 0x80000, 即512K大小, 因此不会覆盖掉0x90000处的内容</li>
+<li>setup.s 需要一些 ROM BIOS 保留下来的一些系统参数(如显卡模式, 硬盘参数等), 这些参数被BIOS放在内存起始处, 大小为1Kb.</li>
+<li>因而 bootsect.s 只能先把内核放到 0x10000 处而不是直接放到 0x0000 处!</li>
+</ul>
+</li>
+<li>bootsect.s 把执行权交给 setup.s.</li>
+<li>然后, setup.s 把BIOS预留在内存起始处的参数存储到0x90000处(覆盖了bootsect.s), 再把system模块移到内存起始处 (0x0000)</li>
+<li>setup.s 把执行权交给 head.s, linux系统代码加载过程完成, linux开始启动!</li>
+</ol>
+<p>备注:</p>
+<ul>
+<li>启动过程涉及到很多80x86的硬件知识, 没必要深究, 重点是理解启动过程和思路!</li>
+<li>因为目录linux早已支持arm体系结构, 嵌入式也以arm为主. 涉及到硬件的部分需要时再深入了解即可.</li>
+</ul>
+<h2 id="bootsect-s"><a href="#bootsect-s" class="headerlink" title="bootsect.s"></a>bootsect.s</h2><ul>
+<li>bootsect.s 是磁盘引导块程序, 放在磁盘的一个扇区中(引导扇区).</li>
+<li>PC上电, BIOS自检后, BIOS会把引导扇区bootsect加载到内存地址0x7C00处并执行.</li>
+<li>bootsect 立刻把自己挪到 0x90000 处并继续执行</li>
+<li>利用BISO中断0x13获取启动引导盘参数, 准备读取1.44MB启动磁盘内的后续部分(setup.s + system模块)</li>
+<li>加载 setup.s 到 0x90200 处</li>
+<li>在屏幕上显示 “Loading system…”</li>
+<li>把system模块加载到0x10000处</li>
+<li>长跳到 setup.s, 执行 setup.s</li>
+</ul>
+<h2 id="setup-s"><a href="#setup-s" class="headerlink" title="setup.s"></a>setup.s</h2><ul>
+<li>setup.s 是一个操作系统加载程序. 主要作用读取BIOS保留的系统参数, 移动system模块到内存0x0000处, 并执行head.s代码</li>
+<li>setup.s 首先是把BIOS预留在内存0x0000处的参数保存到内存 0x90000 处, 会覆盖掉已经没有用的 bootsect.s 代码</li>
+<li>主要参数有: 光标位置, 扩展内存数, 显示页面, 显示模式, 字符列数, 显示内存, 显示状态, 显卡特性, 硬盘参数, 根设备号</li>
+<li>接着 setup.s 将system模块从 0x10000-0x8ffff 整体向下移动到 0x0000 处.</li>
+<li>然后 setup.s 加载 idtr 和 gdtr (中断/全局描述符表寄存器), 重设中断号, 设置CPU进入32位保护模式运行</li>
+<li>跳转到 system模块的 head.s 继续运行(运行在32位保护模式下)</li>
+</ul>
+<p><img src="https://draapho.github.io/images/1704/2-setup-memory.jpg" alt="setup-memory"><br>setup.s 结束后内中的程序示意图</p>
+<h2 id="head-s"><a href="#head-s" class="headerlink" title="head.s"></a>head.s</h2><ul>
+<li>head.s 位于整个linux操作系统最前面, 主要功能就是为linux的执行检测和初始化系统环境</li>
+<li>设置系统堆栈</li>
+<li>设置idt(中断描述符表) 和 gdt(全局表述符表)</li>
+<li>检测A20地址线是否已真的开启 (就是能读取1M以上的内存地址)</li>
+<li>将页目录表放在内存地址0处 (会覆盖自己idt部分的内容)</li>
+<li>最后, heads利用返回指令, 弹出main.c的入口地址, 运行main()程序</li>
+</ul>
+<p><img src="https://draapho.github.io/images/1704/2-head-memory.jpg" alt="head-memory"><br>head.s 结束后, system模块在内存中的示意图</p>
+<h2 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h2><p><img src="https://draapho.github.io/images/1704/2-main-memory.jpg" alt="maim-memory"><br>main初始化完成后, 内存功能示意图</p>
+<p><img src="https://draapho.github.io/images/1704/2-main-flow.jpg" alt="maim-flow"><br>内核初始化程序流程示意图</p>
+<p><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"><br>调用fork创建新进程</p>
+<p><img src="https://draapho.github.io/images/1704/2-session-process.jpg" alt="session-process"><br>进程(process), 进程组(process group) 和 会话期(session) 的关系图.<br>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/linux-devel.pdf" target="_blank" rel="external">Linux 诞生和发展的五个重要支柱 - 赵炯</a></li>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
