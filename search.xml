@@ -4,63 +4,195 @@
   
     
     <entry>
-      <title><![CDATA[Linux 0.11 源码阅读笔记]]></title>
-      <url>https://draapho.github.io/2017/01/23/1704-linux-source/</url>
-      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><p>Linux操作系统的诞生(1991年),发展和成长过程依赖于以下五个重要支柱</p>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-内存管理]]></title>
+      <url>https://draapho.github.io/2017/02/15/1704-linux-source6/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-文件系统]]></title>
+      <url>https://draapho.github.io/2017/02/13/1704-linux-source5/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p><img src="https://draapho.github.io/images/1704/5-fs-map.jpg" alt="fs"></p>
+<p>几个核心点:</p>
+<ul>
+<li>Linux下<strong>一切皆文件, 文件即i节点!</strong></li>
+<li>文件名和i节点的关联, 在目录项结构中实现.<br>索引过程为: <strong>目录inode-&gt;目录名/文件名-&gt;对应inode-&gt;具体内容</strong></li>
+<li>任何读写硬盘的过程都是通过内存的buffer(高速缓冲)实现的, 系统不能直接读写硬盘! 由此产生异步问题.<br>调用过程为: <strong>系统函数-&gt;buffer-&gt;硬盘</strong></li>
+<li>Linux对内存条的分配和使用. <code>Buffer</code> <code>Memory</code> 的概念和用途. <code>Buffer Head</code> <code>Buffer Hash List</code>.<br><code>Buffer</code> 介于高速的CPU指令和低速的硬盘之间, 用于缓存CPU对硬盘的读写内容, 提高CPU执行效率.<br><code>Memory</code> 是系统可用的内存. 系统变量, <code>malloc</code> 都是用的这块空间.<br><code>虚拟内存</code> 把使用频率低的 <code>Memory</code> 暂时搬到硬盘, 以便存放使用频率更高的内存数据. 依赖于硬盘读写操作!</li>
+</ul>
+<h2 id="硬盘设备分区"><a href="#硬盘设备分区" class="headerlink" title="硬盘设备分区"></a>硬盘设备分区</h2><p>硬盘设备上的分区和文件系统<br><img src="https://draapho.github.io/images/1704/5-fs-hard-disk.jpg" alt="hard disk"></p>
+<ul>
+<li>主引导扇区: 存放硬盘引导程序和分区表信息.</li>
+<li>分区表: 标明了每个分区的类型, 起止位置以及占用的扇区数.</li>
+<li>相关文件: <code>kernel/blk_drv/hd.c</code></li>
+</ul>
+<p>下面, 将以MINIX1.0为例说明文件系统的基本概念.<br>Linux使用的其它的文件系统核心概念都是一样的! 只是支持的大小, 寻址速度, 文件上限有区别.</p>
+<h2 id="MINIX1-0-文件系统"><a href="#MINIX1-0-文件系统" class="headerlink" title="MINIX1.0 文件系统"></a>MINIX1.0 文件系统</h2><p>MINIX1.0 文件系统布局示意图<br><img src="https://draapho.github.io/images/1704/5-fs-minix.jpg" alt="minix"></p>
+<ul>
+<li>引导块: 上电时, BISO自动读入的部分. 有了引导块内引导程序, BIOS才能启动系统</li>
+<li>Super Block(超级块): 存放文件系统的结构信息, 说明各部分的大小. <code>super_block[8]</code>, 可加载8个文件系统</li>
+<li>Inode Bitmap(i节点位图): 记录i节点的使用情况, 1bit代表一个i节点. <code>s_imap[8]</code>, 占用8个块, 可表示8191个i节点情况</li>
+<li>Zone Bitmap(逻辑块位图): 记录数据区的使用情况, 1bit代表一个盘块(block). <code>s_zmap[8]</code>, 占用8个块, 最大支持64M的硬盘</li>
+<li>Inode(i节点): 每个文件或目录名唯一对应一个i节点, 在i节点中, 储存 id信息, 文件长度, 时间信息, 实际数据所在位置等等</li>
+<li>Zone Data(数据区): <code>8 (bit/byte)  * 1024 (byte/block) * 8(zmap blocks) * 1024 (byte/block)= 64M byte</code></li>
+</ul>
+<p>MINIX1.0 的超级块数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-super-block.jpg" alt="super block"></p>
+<h2 id="inode-详解"><a href="#inode-详解" class="headerlink" title="inode 详解"></a>inode 详解</h2><p>MINIX1.0 的i节点数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-inode.jpg" alt="inode"></p>
+<ul>
+<li><code>i_nlinks</code>: <strong>硬链接</strong>计数器. 因此硬连接具有相同的inode号, 硬连接不能跨文件系统!</li>
+</ul>
+<p>命令 <code>ls -l</code> 显示的文件信息, 多数信息读取i节点就可获得<br><img src="https://draapho.github.io/images/1704/5-fs-file-info.jpg" alt="file info"></p>
+<ul>
+<li>符号连接 <code>s</code>: 就是常说的<strong>软连接</strong>, 类似于windows下的快捷方式, 占用i节点, 在对应的数据块内存放路径</li>
+</ul>
+<p><code>i_zone[9]</code> i节点的逻辑块数组功能.<br><img src="https://draapho.github.io/images/1704/5-fs-izone.jpg" alt="izone"></p>
+<ul>
+<li><code>i_zone[0-6]</code> 直接块号: 存放文件开始的7个磁盘块号. 此时文件大小: <code>7*1024(byte/block)=7K byte</code></li>
+<li><code>i_zone[7]</code> 一次间接块号: 地址占用2byte, 因此一个数据块可存放512个地址. 此时可寻块 <code>7+512 blocks</code></li>
+<li><code>i_zone[8]</code> 二次间接块号: 此时可寻块 <code>7+512+512*512 blocks</code>, 文件的最大可达 <code>512M byte</code></li>
+<li><code>/dev/</code>下设备文件的 <code>i_zone[0]</code>: 设备文件不占用硬盘, 因此i节点仅保存设备的属性和设备号.</li>
+</ul>
+<h2 id="文件名的存储及查找"><a href="#文件名的存储及查找" class="headerlink" title="文件名的存储及查找"></a>文件名的存储及查找</h2><p>Linux 0.11 的目录项结构<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 定义在 include/linux/fs.h 文件中</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> NAME_LEN 14                 <span class="comment">// 名字长度值</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ROOT_INO 1                  <span class="comment">// 根i节点</span></span></div><div class="line"></div><div class="line"><span class="comment">// 文件目录项结构</span></div><div class="line"><span class="keyword">struct</span> dir_entry &#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> inode;           <span class="comment">// i节点号</span></div><div class="line">    <span class="keyword">char</span> name[NAME_LEN];            <span class="comment">// 文件名</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>可见, linux下的文件名称都存在了目录项的数据里面, 并且唯一关联其i节点号.</li>
+<li>每个目录项占用16字节, 因此, 一个盘块可以存放 <code>1024/16=64</code> 个目录项</li>
+<li>对于空目录, 也至少会有名称未 <code>.</code> 和 <code>..</code> 两项, 指向 <code>当前目录inode</code> 和 <code>上级目录inode</code></li>
+<li>因此, 空目录的硬连接计数值<code>i_nlinks</code>为2, 每多一个文件, <code>i_nlinks</code>再加1.</li>
+</ul>
+<p>通过文件名最终找到对应文件盘块位置的示意图<br><img src="https://draapho.github.io/images/1704/5-fs-inode-find.jpg" alt="inode find"></p>
+<p>整个搜索过程是根据<code>目录项结构</code>及对应的<code>inode 号</code>, 逐步深入路径的过程.<br>以路径名 <code>/usr/bin/vi</code> 搜索对应的i节点, 然后读取文件内容为例:</p>
 <ol>
-<li>UNIX操作系统 (诞生于1969年, 版权和专利问题不断, 大公司不愿公开操作系统原理和源码)</li>
-<li>MINIX操作系统 (诞生于1987年, 意为 Mini UNIX. 教学使用是开源免费的! linus从中学习了操作系统的工作原理)</li>
-<li>GNU计划 (诞生于1984年, 意为 GNU’s Not Unix 递归缩写. 宗旨是开发一个类Unix的自由软件操作系统)<br>有名的免费软件有: emacs, bash shell, gcc 编译程序, gdb 调试程序<br>因此, 目前许多人将Linux操作系统称之为 <a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU/Linux 操作系统</a>.</li>
-<li>POSIX标准 (V1诞生于1988年, Portable Operating System Interface for Computing Systems)<br>描述了操作系统的调用服务接口标准, 便于应用程序在不同操作系统上的移植.<br>这为linux系统对应用程序的兼容提供了一套标准. 也是linux能流行起来的基础条件之一.</li>
-<li>Internet网络 (确保了linux系统由众人开发维护, 其发展和推广都离不开Internet!)</li>
+<li>根目录 <code>/</code> 具有固定的 inode号 <code>1</code>.</li>
+<li>读取<code>inode 1</code>的数据块, 搜索名为<code>usr</code>的目录项, 从而得到<code>/usr</code>的inode号, 假设为 <code>23</code></li>
+<li>读取<code>inode 23</code>的数据块, 搜索名为<code>bin</code>的目录项, 假设<code>/usr/bin</code>的inode号为 <code>61</code></li>
+<li>读取<code>inode 61</code>的数据块, 搜索名为<code>vi</code>的文件名, 假设获得<code>/usr/bin/vi</code>的inode号 <code>98</code></li>
+<li>读取<code>inode 98</code>的数据块, 根据i节点信息, 如 <code>i_size</code> <code>i_zone[9]</code>, 最终读取文件内容</li>
 </ol>
-<h2 id="Linux-GNU-POSIX-的关系"><a href="#Linux-GNU-POSIX-的关系" class="headerlink" title="Linux, GNU, POSIX 的关系"></a>Linux, GNU, POSIX 的关系</h2><p><img src="https://draapho.github.io/images/1704/0-Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc"></p>
-<h2 id="内核代码框图"><a href="#内核代码框图" class="headerlink" title="内核代码框图"></a>内核代码框图</h2><p><img src="https://draapho.github.io/images/1704/0-kernal-struct.png" alt="kernal-struct"></p>
-<h2 id="内核函数关系图"><a href="#内核函数关系图" class="headerlink" title="内核函数关系图"></a>内核函数关系图</h2><p><img src="https://draapho.github.io/images/1704/0-linux-kernal-map.png" alt="kernal-fucntion"></p>
-<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
-<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
-<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
-<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
-<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
-<li>分段机制<ul>
-<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
-<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
+<h1 id="内存的分配和使用"><a href="#内存的分配和使用" class="headerlink" title="内存的分配和使用"></a>内存的分配和使用</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
-</li>
-<li>分页机制<ul>
-<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
-<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
-<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
-<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
-<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
-<li>页表, Page Table, 对应80x86的 Page Table</li>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-设备驱动程序]]></title>
+      <url>https://draapho.github.io/2017/02/01/1704-linux-source4/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
 </ul>
-</li>
-<li>任务状态段<ul>
-<li>TSS (Task State Segment)</li>
-<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
-<li>TSS存放于GDT内</li>
+<h1 id="0-11源码设备驱动程序"><a href="#0-11源码设备驱动程序" class="headerlink" title="0.11源码设备驱动程序"></a>0.11源码设备驱动程序</h1><h2 id="字符设备驱动程序"><a href="#字符设备驱动程序" class="headerlink" title="字符设备驱动程序"></a>字符设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-char-driver.jpg" alt="char-driver"></p>
+<ul>
+<li><code>read_q</code> tty读队列</li>
+<li><code>write_q</code> tty写队列, 调用 <code>copy_to_cooked()</code> 后放入 <code>secondary</code></li>
+<li><code>secondary</code> tty辅助队列(存放规范模式字符序列)</li>
 </ul>
-</li>
+<h2 id="块设备驱动程序"><a href="#块设备驱动程序" class="headerlink" title="块设备驱动程序"></a>块设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-block-driver.jpg" alt="block-driver"></p>
+<ul>
+<li><code>ll_rw_block()</code>添加完请求项后(使用了链表, 并使用电梯算法改善硬盘访问时间), 真正的操作通过调用<code>request_fn()</code>完成</li>
+<li>操作硬盘 <code>do_hd_request()</code>, 操作软盘 <code>do_fd_request()</code>, 操作虚拟盘 <code>do_re_request()</code></li>
 </ul>
-<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
-<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
-<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
-<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
-<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
-<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
-<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
-<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
-<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
-<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
-<li>0为最高优先级, 对应于Linux内核态</li>
-<li>3为最低优先级, 对应于Linux用户态</li>
-<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
-<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
-<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
+<h1 id="linux-设备和模块的分类"><a href="#linux-设备和模块的分类" class="headerlink" title="linux 设备和模块的分类"></a>linux 设备和模块的分类</h1><h2 id="字符设备"><a href="#字符设备" class="headerlink" title="字符设备"></a>字符设备</h2><p>一个字符( char ) 设备是一种可以当作一个字节流来存取的设备( 如同一个文件 ); 一个字符驱动负责实现这种行为.<br>这样的驱动常常至少实现 <code>open</code>, <code>close</code>, <code>read</code>, 和 <code>write</code> 系统调用.</p>
+<p>文本控制台 <code>/dev/console</code> 和串口 <code>/dev/ttyS0</code> 是字符设备的例子, 因为它们很好地展现了流的抽象.<br>字符设备通过文件系统结点来存取, 例如 <code>/dev/tty1</code> 和 <code>/dev/lp0</code>.</p>
+<p>在一个字符设备和一个普通文件之间唯一有关的不同就是, 你经常可以在普通文件中移来移去, 但是大部分字符设备仅仅是数据通道, 你只能顺序存取.<br>然而, 存在看起来象数据区的字符设备, 你可以在里面移来移去. 例如, frame grabber 经常这样, 应用程序可以使用 mmap 或者 lseek 存取整个要求的图像.</p>
+<h2 id="块设备"><a href="#块设备" class="headerlink" title="块设备"></a>块设备</h2><p>如同字符设备, 块设备通过位于 <code>/dev</code> 目录的文件系统结点来存取. 一个块设备(例如一个磁盘)应该是可以驻有一个文件系统的.</p>
+<p>Linux, 允许应用程序像一个字符设备一样读写一个块设备, 允许一次传送任意数目的字节.<br>如同一个字符设备, 每个块设备都通过一个文件系统结点被存取的, 它们之间的区别对用户是透明的.<br>因此块和字符设备的区别仅仅在内核在内部管理数据的方式上, 并且因此在内核/驱动的软件接口上不同.</p>
+<p>注意, 在大部分的 Unix 系统, 一个块设备只能处理这样的 I/O 操作, 传送一个或多个长度经常是 512 字节的整块(或更大如1024字节)</p>
+<h2 id="网络接口"><a href="#网络接口" class="headerlink" title="网络接口"></a>网络接口</h2><p>任何网络事务都通过一个接口来进行, 就是说, 一个能够与其他主机交换数据的设备.<br>通常, 一个接口是一个硬件设备, 但是它也可能是一个纯粹的软件设备, 比如环回接口.</p>
+<p>一个网络接口负责发送和接收数据报文, 在内核网络子系统的驱动下, 不必知道单个事务是如何映射到实际的被发送的报文上的.<br>虽然很多网络连接(特别那些使用 TCP 的)是面向流的, 但网络设备却常常设计成处理报文的发送和接收.</p>
+<p>网络设备驱动的实现与字符和块设备驱动完全不同. <del>不用 <code>read</code> 和 <code>write</code></del>, 需要使用和报文传递相关的函数.</p>
+<h2 id="硬件和驱动的关系"><a href="#硬件和驱动的关系" class="headerlink" title="硬件和驱动的关系"></a>硬件和驱动的关系</h2><p>以 USB 设备为例, USB可以虚拟成串口(字符设备), 也可以是USB硬盘(块设备), 或者USB wifi(网络接口)<br>因此, 使用何种Linux的驱动和硬件无关, 而和与硬件的通讯方式有关.</p>
+<p>一般地, 字节流使用字符设备驱动, 大量并发数据的传输使用块设备驱动. 网络接口驱动仅针对网络通讯.</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+<li><a href="http://www.deansys.com/doc/ldd3/ch01s03.html" target="_blank" rel="external">设备和模块的分类</a></li>
 </ul>
-<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
-<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-内核代码]]></title>
+      <url>https://draapho.github.io/2017/01/31/1704-linux-source3/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h1><p><img src="https://draapho.github.io/images/1704/3-kernel-function.jpg" alt="kernel-function"></p>
+<h2 id="硬件中断程序"><a href="#硬件中断程序" class="headerlink" title="硬件中断程序"></a>硬件中断程序</h2><p>处理系统硬件中断. 多为故障处理, 直接打印出堆栈信息帮助排错.</p>
+<h2 id="系统调用程序"><a href="#系统调用程序" class="headerlink" title="系统调用程序"></a>系统调用程序</h2><p>本质是调用中断 int 0x80. 由于是用户发起的, 也称之为软中断.</p>
+<ul>
+<li>system_call.s 会根据 <code>sys_call_table[]</code> (在sys.h内) 去调用相应的C函数. sys_xxx函数则很分散.</li>
+<li>signal.c 用于处理内核的信号. (<code>signal()</code>可能丢失信号, <code>sigaction()</code>更可靠)</li>
+</ul>
+<p><em>信号处理程序的调用方式</em><br><img src="https://draapho.github.io/images/1704/3-signal.jpg" alt="signal"></p>
+<h2 id="调度程序"><a href="#调度程序" class="headerlink" title="调度程序"></a>调度程序</h2><p>linux 0.11的调度思路结合<code>时间片</code>和<code>优先权</code>调度.</p>
+<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
+<ul>
+<li>调度过程: count大, 就优先调度! 计算公式为: <code>count = counter/2 + priotiry</code>.<br>对于以及运行完成的任务, count 直接为 priotiry<br>对于被阻塞的任务, 由于公式内包含有 count/2 的权重, 即使优先级再低, 也会被照顾到.</li>
+<li><code>switch_to()</code> 一段汇编宏定义, 用于切换到指定任务(加载TSS).</li>
+<li><code>schedule()</code> 调度函数, 每10ms判断各任务的信号位图以及比较<code>counter</code>值. 需要切换任务时, 调用 <code>switch_to(next)</code></li>
+<li><code>do_timer()</code> 在 system_call.s 中 <code>_timer_interrupt</code> 被调用, 每10ms调用一次 <code>schedule()</code></li>
+<li><code>sleep_on()</code> 当进程所请求的资源暂时不可用时, 等待一段时间. 等切换回来后再继续运行. 调用 <code>schedule()</code></li>
+<li><code>wake_up()</code> 把正在等待可用资源的指定任务值为就绪状态, 就如字面意义, 是一个唤醒函数. 但实现比较搞脑子!</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-启动程序]]></title>
+      <url>https://draapho.github.io/2017/01/28/1704-linux-source2/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
 <h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><em>启动引导时内核在内存中的位置和移动情况</em><br><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"></p>
 <ol>
 <li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
@@ -115,40 +247,104 @@
 <ul>
 <li>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</li>
 </ul>
-<h1 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h1><p><img src="https://draapho.github.io/images/1704/3-kernel-function.jpg" alt="kernel-function"></p>
-<h2 id="硬件中断程序"><a href="#硬件中断程序" class="headerlink" title="硬件中断程序"></a>硬件中断程序</h2><p>处理系统硬件中断. 多为故障处理, 直接打印出堆栈信息帮助排错.</p>
-<h2 id="系统调用程序"><a href="#系统调用程序" class="headerlink" title="系统调用程序"></a>系统调用程序</h2><p>本质是调用中断 int 0x80. 由于是用户发起的, 也称之为软中断.</p>
-<ul>
-<li>system_call.s 会根据 <code>sys_call_table[]</code> (在sys.h内) 去调用相应的C函数. sys_xxx函数则很分散.</li>
-<li>signal.c 用于处理内核的信号. (<code>signal()</code>可能丢失信号, <code>sigaction()</code>更可靠)</li>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
-<p><em>信号处理程序的调用方式</em><br><img src="https://draapho.github.io/images/1704/3-signal.jpg" alt="signal"></p>
-<h2 id="调度程序"><a href="#调度程序" class="headerlink" title="调度程序"></a>调度程序</h2><p>linux 0.11的调度思路结合<code>时间片</code>和<code>优先权</code>调度.</p>
-<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
-<ul>
-<li>调度过程: count大, 就优先调度! 计算公式为: <code>count = counter/2 + priotiry</code>.<br>对于以及运行完成的任务, count 直接为 priotiry<br>对于被阻塞的任务, 由于公式内包含有 count/2 的权重, 即使优先级再低, 也会被照顾到.</li>
-<li><code>switch_to()</code> 一段汇编宏定义, 用于切换到指定任务(加载TSS).</li>
-<li><code>schedule()</code> 调度函数, 每10ms判断各任务的信号位图以及比较<code>counter</code>值. 需要切换任务时, 调用 <code>switch_to(next)</code></li>
-<li><code>do_timer()</code> 在 system_call.s 中 <code>_timer_interrupt</code> 被调用, 每10ms调用一次 <code>schedule()</code></li>
-<li><code>sleep_on()</code> 当进程所请求的资源暂时不可用时, 等待一段时间. 等切换回来后再继续运行. 调用 <code>schedule()</code></li>
-<li><code>wake_up()</code> 把正在等待可用资源的指定任务值为就绪状态, 就如字面意义, 是一个唤醒函数. 但实现比较搞脑子!</li>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-内存的基础概念]]></title>
+      <url>https://draapho.github.io/2017/01/26/1704-linux-source1/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
 </ul>
-<h1 id="设备驱动程序"><a href="#设备驱动程序" class="headerlink" title="设备驱动程序"></a>设备驱动程序</h1><h2 id="块设备驱动程序"><a href="#块设备驱动程序" class="headerlink" title="块设备驱动程序"></a>块设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-block-driver.jpg" alt="block-driver"></p>
-<ul>
-<li><code>ll_rw_block()</code>添加完请求项后(使用了链表, 并使用电梯算法改善硬盘访问时间), 真正的操作通过调用<code>request_fn()</code>完成</li>
-<li>操作硬盘 <code>do_hd_request()</code>, 操作软盘 <code>do_fd_request()</code>, 操作虚拟盘 <code>do_re_request()</code></li>
+<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
+<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
+<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
+<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
+<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
+<li>分段机制<ul>
+<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
+<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
 </ul>
-<h2 id="字符设备驱动程序"><a href="#字符设备驱动程序" class="headerlink" title="字符设备驱动程序"></a>字符设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-char-driver.jpg" alt="char-driver"></p>
-<ul>
-<li><code>read_q</code> tty读队列</li>
-<li><code>write_q</code> tty写队列, 调用 <code>copy_to_cooked()</code> 后放入 <code>secondary</code></li>
-<li><code>secondary</code> tty辅助队列(存放规范模式字符序列)</li>
+</li>
+<li>分页机制<ul>
+<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
+<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
+<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
+<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
+<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
+<li>页表, Page Table, 对应80x86的 Page Table</li>
 </ul>
-<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p><img src="https://draapho.github.io/images/1704/5-fs-map.jpg" alt="fs"></p>
-<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
+</li>
+<li>任务状态段<ul>
+<li>TSS (Task State Segment)</li>
+<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
+<li>TSS存放于GDT内</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
+<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
+<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
+<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
+<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
+<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
+<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
+<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
+<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
+<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
+<li>0为最高优先级, 对应于Linux内核态</li>
+<li>3为最低优先级, 对应于Linux用户态</li>
+<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
+<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
+<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
+</ul>
+<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
+<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Linux 0.11 源码阅读笔记-总览]]></title>
+      <url>https://draapho.github.io/2017/01/23/1704-linux-source/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h2 id="Linux-发展背景"><a href="#Linux-发展背景" class="headerlink" title="Linux 发展背景"></a>Linux 发展背景</h2><p>Linux操作系统的诞生(1991年),发展和成长过程依赖于以下五个重要支柱</p>
+<ol>
+<li>UNIX操作系统 (诞生于1969年, 版权和专利问题不断, 大公司不愿公开操作系统原理和源码)</li>
+<li>MINIX操作系统 (诞生于1987年, 意为 Mini UNIX. 教学使用是开源免费的! linus从中学习了操作系统的工作原理)</li>
+<li>GNU计划 (诞生于1984年, 意为 GNU’s Not Unix 递归缩写. 宗旨是开发一个类Unix的自由软件操作系统)<br>有名的免费软件有: emacs, bash shell, gcc 编译程序, gdb 调试程序<br>因此, 目前许多人将Linux操作系统称之为 <a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU/Linux 操作系统</a>.</li>
+<li>POSIX标准 (V1诞生于1988年, Portable Operating System Interface for Computing Systems)<br>描述了操作系统的调用服务接口标准, 便于应用程序在不同操作系统上的移植.<br>这为linux系统对应用程序的兼容提供了一套标准. 也是linux能流行起来的基础条件之一.</li>
+<li>Internet网络 (确保了linux系统由众人开发维护, 其发展和推广都离不开Internet!)</li>
+</ol>
+<h2 id="Linux-GNU-POSIX-的关系"><a href="#Linux-GNU-POSIX-的关系" class="headerlink" title="Linux, GNU, POSIX 的关系"></a>Linux, GNU, POSIX 的关系</h2><p><img src="https://draapho.github.io/images/1704/0-Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc"></p>
+<h2 id="内核代码框图"><a href="#内核代码框图" class="headerlink" title="内核代码框图"></a>内核代码框图</h2><p><img src="https://draapho.github.io/images/1704/0-kernal-struct.png" alt="kernal-struct"></p>
+<h2 id="内核函数关系图"><a href="#内核函数关系图" class="headerlink" title="内核函数关系图"></a>内核函数关系图</h2><p><img src="https://draapho.github.io/images/1704/0-linux-kernal-map.png" alt="kernal-fucntion"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li><a href="http://oldlinux.org/download/linux-devel.pdf" target="_blank" rel="external">Linux 诞生和发展的五个重要支柱 - 赵炯</a></li>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+<li><a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU Operating System</a>.)</li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
@@ -4908,31 +5104,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[stm32选型及资料搜索指南]]></title>
-      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
-      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Vim常用快捷键]]></title>
       <url>https://draapho.github.io/2016/10/01/1604-CheatSheet-vim/</url>
       <content type="html"><![CDATA[<h1 id="Vim常用快捷键"><a href="#Vim常用快捷键" class="headerlink" title="Vim常用快捷键"></a>Vim常用快捷键</h1><h2 id="进入输入模式"><a href="#进入输入模式" class="headerlink" title="进入输入模式"></a>进入输入模式</h2><table>
@@ -5302,6 +5473,31 @@
 <li><a href="https://www.gosquared.com/blog/vi-linux-terminal-help-sheet" target="_blank" rel="external">VI (Linux Terminal) Help Sheet</a><br><img src="https://downloads.gosquared.com/help_sheets/10/VI-Help-Sheet-large.jpg" alt="VI Help Sheet"></li>
 <li><a href="http://blog.vgod.tw/2009/12/08/vim-cheat-sheet-for-programmers/" target="_blank" rel="external">給程式設計師的Vim入門圖解說明</a><br><img src="http://blog.vgod.tw.s3.amazonaws.com/wp-content/uploads/2009/12/vim-cheat-sheet-diagram.png" alt="Vim入門圖解說明"></li>
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="external">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[stm32选型及资料搜索指南]]></title>
+      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
+      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>

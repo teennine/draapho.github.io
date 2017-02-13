@@ -260,8 +260,960 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/15/1704-linux-source6/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-内存管理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-15T00:00:00+11:00" content="2017-02-15">
+              2017-02-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/13/1704-linux-source5/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-文件系统
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-13T00:00:00+11:00" content="2017-02-13">
+              2017-02-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p><img src="https://draapho.github.io/images/1704/5-fs-map.jpg" alt="fs"></p>
+<p>几个核心点:</p>
+<ul>
+<li>Linux下<strong>一切皆文件, 文件即i节点!</strong></li>
+<li>文件名和i节点的关联, 在目录项结构中实现.<br>索引过程为: <strong>目录inode-&gt;目录名/文件名-&gt;对应inode-&gt;具体内容</strong></li>
+<li>任何读写硬盘的过程都是通过内存的buffer(高速缓冲)实现的, 系统不能直接读写硬盘! 由此产生异步问题.<br>调用过程为: <strong>系统函数-&gt;buffer-&gt;硬盘</strong></li>
+<li>Linux对内存条的分配和使用. <code>Buffer</code> <code>Memory</code> 的概念和用途. <code>Buffer Head</code> <code>Buffer Hash List</code>.<br><code>Buffer</code> 介于高速的CPU指令和低速的硬盘之间, 用于缓存CPU对硬盘的读写内容, 提高CPU执行效率.<br><code>Memory</code> 是系统可用的内存. 系统变量, <code>malloc</code> 都是用的这块空间.<br><code>虚拟内存</code> 把使用频率低的 <code>Memory</code> 暂时搬到硬盘, 以便存放使用频率更高的内存数据. 依赖于硬盘读写操作!</li>
+</ul>
+<h2 id="硬盘设备分区"><a href="#硬盘设备分区" class="headerlink" title="硬盘设备分区"></a>硬盘设备分区</h2><p>硬盘设备上的分区和文件系统<br><img src="https://draapho.github.io/images/1704/5-fs-hard-disk.jpg" alt="hard disk"></p>
+<ul>
+<li>主引导扇区: 存放硬盘引导程序和分区表信息.</li>
+<li>分区表: 标明了每个分区的类型, 起止位置以及占用的扇区数.</li>
+<li>相关文件: <code>kernel/blk_drv/hd.c</code></li>
+</ul>
+<p>下面, 将以MINIX1.0为例说明文件系统的基本概念.<br>Linux使用的其它的文件系统核心概念都是一样的! 只是支持的大小, 寻址速度, 文件上限有区别.</p>
+<h2 id="MINIX1-0-文件系统"><a href="#MINIX1-0-文件系统" class="headerlink" title="MINIX1.0 文件系统"></a>MINIX1.0 文件系统</h2><p>MINIX1.0 文件系统布局示意图<br><img src="https://draapho.github.io/images/1704/5-fs-minix.jpg" alt="minix"></p>
+<ul>
+<li>引导块: 上电时, BISO自动读入的部分. 有了引导块内引导程序, BIOS才能启动系统</li>
+<li>Super Block(超级块): 存放文件系统的结构信息, 说明各部分的大小. <code>super_block[8]</code>, 可加载8个文件系统</li>
+<li>Inode Bitmap(i节点位图): 记录i节点的使用情况, 1bit代表一个i节点. <code>s_imap[8]</code>, 占用8个块, 可表示8191个i节点情况</li>
+<li>Zone Bitmap(逻辑块位图): 记录数据区的使用情况, 1bit代表一个盘块(block). <code>s_zmap[8]</code>, 占用8个块, 最大支持64M的硬盘</li>
+<li>Inode(i节点): 每个文件或目录名唯一对应一个i节点, 在i节点中, 储存 id信息, 文件长度, 时间信息, 实际数据所在位置等等</li>
+<li>Zone Data(数据区): <code>8 (bit/byte)  * 1024 (byte/block) * 8(zmap blocks) * 1024 (byte/block)= 64M byte</code></li>
+</ul>
+<p>MINIX1.0 的超级块数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-super-block.jpg" alt="super block"></p>
+<h2 id="inode-详解"><a href="#inode-详解" class="headerlink" title="inode 详解"></a>inode 详解</h2><p>MINIX1.0 的i节点数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-inode.jpg" alt="inode"></p>
+<ul>
+<li><code>i_nlinks</code>: <strong>硬链接</strong>计数器. 因此硬连接具有相同的inode号, 硬连接不能跨文件系统!</li>
+</ul>
+<p>命令 <code>ls -l</code> 显示的文件信息, 多数信息读取i节点就可获得<br><img src="https://draapho.github.io/images/1704/5-fs-file-info.jpg" alt="file info"></p>
+<ul>
+<li>符号连接 <code>s</code>: 就是常说的<strong>软连接</strong>, 类似于windows下的快捷方式, 占用i节点, 在对应的数据块内存放路径</li>
+</ul>
+<p><code>i_zone[9]</code> i节点的逻辑块数组功能.<br><img src="https://draapho.github.io/images/1704/5-fs-izone.jpg" alt="izone"></p>
+<ul>
+<li><code>i_zone[0-6]</code> 直接块号: 存放文件开始的7个磁盘块号. 此时文件大小: <code>7*1024(byte/block)=7K byte</code></li>
+<li><code>i_zone[7]</code> 一次间接块号: 地址占用2byte, 因此一个数据块可存放512个地址. 此时可寻块 <code>7+512 blocks</code></li>
+<li><code>i_zone[8]</code> 二次间接块号: 此时可寻块 <code>7+512+512*512 blocks</code>, 文件的最大可达 <code>512M byte</code></li>
+<li><code>/dev/</code>下设备文件的 <code>i_zone[0]</code>: 设备文件不占用硬盘, 因此i节点仅保存设备的属性和设备号.</li>
+</ul>
+<h2 id="文件名的存储及查找"><a href="#文件名的存储及查找" class="headerlink" title="文件名的存储及查找"></a>文件名的存储及查找</h2><p>Linux 0.11 的目录项结构<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 定义在 include/linux/fs.h 文件中</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> NAME_LEN 14                 <span class="comment">// 名字长度值</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ROOT_INO 1                  <span class="comment">// 根i节点</span></span></div><div class="line"></div><div class="line"><span class="comment">// 文件目录项结构</span></div><div class="line"><span class="keyword">struct</span> dir_entry &#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> inode;           <span class="comment">// i节点号</span></div><div class="line">    <span class="keyword">char</span> name[NAME_LEN];            <span class="comment">// 文件名</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>可见, linux下的文件名称都存在了目录项的数据里面, 并且唯一关联其i节点号.</li>
+<li>每个目录项占用16字节, 因此, 一个盘块可以存放 <code>1024/16=64</code> 个目录项</li>
+<li>对于空目录, 也至少会有名称未 <code>.</code> 和 <code>..</code> 两项, 指向 <code>当前目录inode</code> 和 <code>上级目录inode</code></li>
+<li>因此, 空目录的硬连接计数值<code>i_nlinks</code>为2, 每多一个文件, <code>i_nlinks</code>再加1.</li>
+</ul>
+<p>通过文件名最终找到对应文件盘块位置的示意图<br><img src="https://draapho.github.io/images/1704/5-fs-inode-find.jpg" alt="inode find"></p>
+<p>整个搜索过程是根据<code>目录项结构</code>及对应的<code>inode 号</code>, 逐步深入路径的过程.<br>以路径名 <code>/usr/bin/vi</code> 搜索对应的i节点, 然后读取文件内容为例:</p>
+<ol>
+<li>根目录 <code>/</code> 具有固定的 inode号 <code>1</code>.</li>
+<li>读取<code>inode 1</code>的数据块, 搜索名为<code>usr</code>的目录项, 从而得到<code>/usr</code>的inode号, 假设为 <code>23</code></li>
+<li>读取<code>inode 23</code>的数据块, 搜索名为<code>bin</code>的目录项, 假设<code>/usr/bin</code>的inode号为 <code>61</code></li>
+<li>读取<code>inode 61</code>的数据块, 搜索名为<code>vi</code>的文件名, 假设获得<code>/usr/bin/vi</code>的inode号 <code>98</code></li>
+<li>读取<code>inode 98</code>的数据块, 根据i节点信息, 如 <code>i_size</code> <code>i_zone[9]</code>, 最终读取文件内容</li>
+</ol>
+<h1 id="内存的分配和使用"><a href="#内存的分配和使用" class="headerlink" title="内存的分配和使用"></a>内存的分配和使用</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/01/1704-linux-source4/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-设备驱动程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-01T00:00:00+11:00" content="2017-02-01">
+              2017-02-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="0-11源码设备驱动程序"><a href="#0-11源码设备驱动程序" class="headerlink" title="0.11源码设备驱动程序"></a>0.11源码设备驱动程序</h1><h2 id="字符设备驱动程序"><a href="#字符设备驱动程序" class="headerlink" title="字符设备驱动程序"></a>字符设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-char-driver.jpg" alt="char-driver"></p>
+<ul>
+<li><code>read_q</code> tty读队列</li>
+<li><code>write_q</code> tty写队列, 调用 <code>copy_to_cooked()</code> 后放入 <code>secondary</code></li>
+<li><code>secondary</code> tty辅助队列(存放规范模式字符序列)</li>
+</ul>
+<h2 id="块设备驱动程序"><a href="#块设备驱动程序" class="headerlink" title="块设备驱动程序"></a>块设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-block-driver.jpg" alt="block-driver"></p>
+<ul>
+<li><code>ll_rw_block()</code>添加完请求项后(使用了链表, 并使用电梯算法改善硬盘访问时间), 真正的操作通过调用<code>request_fn()</code>完成</li>
+<li>操作硬盘 <code>do_hd_request()</code>, 操作软盘 <code>do_fd_request()</code>, 操作虚拟盘 <code>do_re_request()</code></li>
+</ul>
+<h1 id="linux-设备和模块的分类"><a href="#linux-设备和模块的分类" class="headerlink" title="linux 设备和模块的分类"></a>linux 设备和模块的分类</h1><h2 id="字符设备"><a href="#字符设备" class="headerlink" title="字符设备"></a>字符设备</h2><p>一个字符( char ) 设备是一种可以当作一个字节流来存取的设备( 如同一个文件 ); 一个字符驱动负责实现这种行为.<br>这样的驱动常常至少实现 <code>open</code>, <code>close</code>, <code>read</code>, 和 <code>write</code> 系统调用.</p>
+<p>文本控制台 <code>/dev/console</code> 和串口 <code>/dev/ttyS0</code> 是字符设备的例子, 因为它们很好地展现了流的抽象.<br>字符设备通过文件系统结点来存取, 例如 <code>/dev/tty1</code> 和 <code>/dev/lp0</code>.</p>
+<p>在一个字符设备和一个普通文件之间唯一有关的不同就是, 你经常可以在普通文件中移来移去, 但是大部分字符设备仅仅是数据通道, 你只能顺序存取.<br>然而, 存在看起来象数据区的字符设备, 你可以在里面移来移去. 例如, frame grabber 经常这样, 应用程序可以使用 mmap 或者 lseek 存取整个要求的图像.</p>
+<h2 id="块设备"><a href="#块设备" class="headerlink" title="块设备"></a>块设备</h2><p>如同字符设备, 块设备通过位于 <code>/dev</code> 目录的文件系统结点来存取. 一个块设备(例如一个磁盘)应该是可以驻有一个文件系统的.</p>
+<p>Linux, 允许应用程序像一个字符设备一样读写一个块设备, 允许一次传送任意数目的字节.<br>如同一个字符设备, 每个块设备都通过一个文件系统结点被存取的, 它们之间的区别对用户是透明的.<br>因此块和字符设备的区别仅仅在内核在内部管理数据的方式上, 并且因此在内核/驱动的软件接口上不同.</p>
+<p>注意, 在大部分的 Unix 系统, 一个块设备只能处理这样的 I/O 操作, 传送一个或多个长度经常是 512 字节的整块(或更大如1024字节)</p>
+<h2 id="网络接口"><a href="#网络接口" class="headerlink" title="网络接口"></a>网络接口</h2><p>任何网络事务都通过一个接口来进行, 就是说, 一个能够与其他主机交换数据的设备.<br>通常, 一个接口是一个硬件设备, 但是它也可能是一个纯粹的软件设备, 比如环回接口.</p>
+<p>一个网络接口负责发送和接收数据报文, 在内核网络子系统的驱动下, 不必知道单个事务是如何映射到实际的被发送的报文上的.<br>虽然很多网络连接(特别那些使用 TCP 的)是面向流的, 但网络设备却常常设计成处理报文的发送和接收.</p>
+<p>网络设备驱动的实现与字符和块设备驱动完全不同. <del>不用 <code>read</code> 和 <code>write</code></del>, 需要使用和报文传递相关的函数.</p>
+<h2 id="硬件和驱动的关系"><a href="#硬件和驱动的关系" class="headerlink" title="硬件和驱动的关系"></a>硬件和驱动的关系</h2><p>以 USB 设备为例, USB可以虚拟成串口(字符设备), 也可以是USB硬盘(块设备), 或者USB wifi(网络接口)<br>因此, 使用何种Linux的驱动和硬件无关, 而和与硬件的通讯方式有关.</p>
+<p>一般地, 字节流使用字符设备驱动, 大量并发数据的传输使用块设备驱动. 网络接口驱动仅针对网络通讯.</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+<li><a href="http://www.deansys.com/doc/ldd3/ch01s03.html" target="_blank" rel="external">设备和模块的分类</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/31/1704-linux-source3/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-内核代码
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-31T00:00:00+11:00" content="2017-01-31">
+              2017-01-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h1><p><img src="https://draapho.github.io/images/1704/3-kernel-function.jpg" alt="kernel-function"></p>
+<h2 id="硬件中断程序"><a href="#硬件中断程序" class="headerlink" title="硬件中断程序"></a>硬件中断程序</h2><p>处理系统硬件中断. 多为故障处理, 直接打印出堆栈信息帮助排错.</p>
+<h2 id="系统调用程序"><a href="#系统调用程序" class="headerlink" title="系统调用程序"></a>系统调用程序</h2><p>本质是调用中断 int 0x80. 由于是用户发起的, 也称之为软中断.</p>
+<ul>
+<li>system_call.s 会根据 <code>sys_call_table[]</code> (在sys.h内) 去调用相应的C函数. sys_xxx函数则很分散.</li>
+<li>signal.c 用于处理内核的信号. (<code>signal()</code>可能丢失信号, <code>sigaction()</code>更可靠)</li>
+</ul>
+<p><em>信号处理程序的调用方式</em><br><img src="https://draapho.github.io/images/1704/3-signal.jpg" alt="signal"></p>
+<h2 id="调度程序"><a href="#调度程序" class="headerlink" title="调度程序"></a>调度程序</h2><p>linux 0.11的调度思路结合<code>时间片</code>和<code>优先权</code>调度.</p>
+<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
+<ul>
+<li>调度过程: count大, 就优先调度! 计算公式为: <code>count = counter/2 + priotiry</code>.<br>对于以及运行完成的任务, count 直接为 priotiry<br>对于被阻塞的任务, 由于公式内包含有 count/2 的权重, 即使优先级再低, 也会被照顾到.</li>
+<li><code>switch_to()</code> 一段汇编宏定义, 用于切换到指定任务(加载TSS).</li>
+<li><code>schedule()</code> 调度函数, 每10ms判断各任务的信号位图以及比较<code>counter</code>值. 需要切换任务时, 调用 <code>switch_to(next)</code></li>
+<li><code>do_timer()</code> 在 system_call.s 中 <code>_timer_interrupt</code> 被调用, 每10ms调用一次 <code>schedule()</code></li>
+<li><code>sleep_on()</code> 当进程所请求的资源暂时不可用时, 等待一段时间. 等切换回来后再继续运行. 调用 <code>schedule()</code></li>
+<li><code>wake_up()</code> 把正在等待可用资源的指定任务值为就绪状态, 就如字面意义, 是一个唤醒函数. 但实现比较搞脑子!</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/28/1704-linux-source2/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-启动程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-28T00:00:00+11:00" content="2017-01-28">
+              2017-01-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><em>启动引导时内核在内存中的位置和移动情况</em><br><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"></p>
+<ol>
+<li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
+<li>bootsect.s 被BIOS读入到内存地址 0x7C00(31Kb) 处开始运行后, 立刻把自己移到 0x90000(576Kb) 处.</li>
+<li>接着, bootsect.s 把 setup.s 读入到 0x90200 处, system模块(即内核)读入到 0x10000 处.<ul>
+<li>此版本内核模块不会超过 0x80000, 即512K大小, 因此不会覆盖掉0x90000处的内容</li>
+<li>setup.s 需要一些 ROM BIOS 保留下来的一些系统参数(如显卡模式, 硬盘参数等), 这些参数被BIOS放在内存起始处, 大小为1Kb.</li>
+<li>因而 bootsect.s 只能先把内核放到 0x10000 处而不是直接放到 0x0000 处!</li>
+</ul>
+</li>
+<li>bootsect.s 把执行权交给 setup.s.</li>
+<li>然后, setup.s 把BIOS预留在内存起始处的参数存储到0x90000处(覆盖了bootsect.s), 再把system模块移到内存起始处 (0x0000)</li>
+<li>setup.s 把执行权交给 head.s, linux系统代码加载过程完成, linux开始启动!</li>
+</ol>
+<p>备注:</p>
+<ul>
+<li>启动过程涉及到很多80x86的硬件知识, 没必要深究, 重点是理解启动过程和思路!</li>
+<li>因为目录linux早已支持arm体系结构, 嵌入式也以arm为主. 涉及到硬件的部分需要时再深入了解即可.</li>
+</ul>
+<h2 id="bootsect-s"><a href="#bootsect-s" class="headerlink" title="bootsect.s"></a>bootsect.s</h2><ul>
+<li>bootsect.s 是磁盘引导块程序, 放在磁盘的一个扇区中(引导扇区).</li>
+<li>PC上电, BIOS自检后, BIOS会把引导扇区bootsect加载到内存地址0x7C00处并执行.</li>
+<li>bootsect 立刻把自己挪到 0x90000 处并继续执行</li>
+<li>利用BISO中断0x13获取启动引导盘参数, 准备读取1.44MB启动磁盘内的后续部分(setup.s + system模块)</li>
+<li>加载 setup.s 到 0x90200 处</li>
+<li>在屏幕上显示 “Loading system…”</li>
+<li>把system模块加载到0x10000处</li>
+<li>长跳到 setup.s, 执行 setup.s</li>
+</ul>
+<h2 id="setup-s"><a href="#setup-s" class="headerlink" title="setup.s"></a>setup.s</h2><ul>
+<li>setup.s 是一个操作系统加载程序. 主要作用读取BIOS保留的系统参数, 移动system模块到内存0x0000处, 并执行head.s代码</li>
+<li>setup.s 首先是把BIOS预留在内存0x0000处的参数保存到内存 0x90000 处, 会覆盖掉已经没有用的 bootsect.s 代码</li>
+<li>主要参数有: 光标位置, 扩展内存数, 显示页面, 显示模式, 字符列数, 显示内存, 显示状态, 显卡特性, 硬盘参数, 根设备号</li>
+<li>接着 setup.s 将system模块从 0x10000-0x8ffff 整体向下移动到 0x0000 处.</li>
+<li>然后 setup.s 加载 idtr 和 gdtr (中断/全局描述符表寄存器), 重设中断号, 设置CPU进入32位保护模式运行</li>
+<li>跳转到 system模块的 head.s 继续运行(运行在32位保护模式下)</li>
+</ul>
+<p><em>setup.s 结束后内中的程序示意图</em><br><img src="https://draapho.github.io/images/1704/2-setup-memory.jpg" alt="setup-memory"></p>
+<h2 id="head-s"><a href="#head-s" class="headerlink" title="head.s"></a>head.s</h2><ul>
+<li>head.s 位于整个linux操作系统最前面, 主要功能就是为linux的执行检测和初始化系统环境</li>
+<li>设置系统堆栈</li>
+<li>设置idt(中断描述符表) 和 gdt(全局表述符表)</li>
+<li>检测A20地址线是否已真的开启 (就是能读取1M以上的内存地址)</li>
+<li>将页目录表放在内存地址0处 (会覆盖自己idt部分的内容)</li>
+<li>最后, heads利用返回指令, 弹出main.c的入口地址, 运行main()程序</li>
+</ul>
+<p><em>head.s 结束后, system模块在内存中的示意图</em><br><img src="https://draapho.github.io/images/1704/2-head-memory.jpg" alt="head-memory"></p>
+<h2 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h2><p><em>main初始化完成后, 内存功能示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-memory.jpg" alt="maim-memory"></p>
+<p><em>内核初始化程序流程示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-flow.jpg" alt="maim-flow"></p>
+<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
+<p><em>进程(process), 进程组(process group) 和 会话期(session) 的关系图</em><br><img src="https://draapho.github.io/images/1704/2-session-process.jpg" alt="session-process"></p>
+<ul>
+<li>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/26/1704-linux-source1/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-内存的基础概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-26T00:00:00+11:00" content="2017-01-26">
+              2017-01-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
+<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
+<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
+<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
+<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
+<li>分段机制<ul>
+<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
+<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
+</ul>
+</li>
+<li>分页机制<ul>
+<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
+<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
+<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
+<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
+<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
+<li>页表, Page Table, 对应80x86的 Page Table</li>
+</ul>
+</li>
+<li>任务状态段<ul>
+<li>TSS (Task State Segment)</li>
+<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
+<li>TSS存放于GDT内</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
+<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
+<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
+<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
+<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
+<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
+<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
+<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
+<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
+<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
+<li>0为最高优先级, 对应于Linux内核态</li>
+<li>3为最低优先级, 对应于Linux用户态</li>
+<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
+<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
+<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
+</ul>
+<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
+<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/01/23/1704-linux-source/" itemprop="url">
-                  Linux 0.11 源码阅读笔记
+                  Linux 0.11 源码阅读笔记-总览
                 </a>
               
             
@@ -323,7 +1275,16 @@
       
         
           
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><p>Linux操作系统的诞生(1991年),发展和成长过程依赖于以下五个重要支柱</p>
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h2 id="Linux-发展背景"><a href="#Linux-发展背景" class="headerlink" title="Linux 发展背景"></a>Linux 发展背景</h2><p>Linux操作系统的诞生(1991年),发展和成长过程依赖于以下五个重要支柱</p>
 <ol>
 <li>UNIX操作系统 (诞生于1969年, 版权和专利问题不断, 大公司不愿公开操作系统原理和源码)</li>
 <li>MINIX操作系统 (诞生于1987年, 意为 Mini UNIX. 教学使用是开源免费的! linus从中学习了操作系统的工作原理)</li>
@@ -334,2612 +1295,10 @@
 <h2 id="Linux-GNU-POSIX-的关系"><a href="#Linux-GNU-POSIX-的关系" class="headerlink" title="Linux, GNU, POSIX 的关系"></a>Linux, GNU, POSIX 的关系</h2><p><img src="https://draapho.github.io/images/1704/0-Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc"></p>
 <h2 id="内核代码框图"><a href="#内核代码框图" class="headerlink" title="内核代码框图"></a>内核代码框图</h2><p><img src="https://draapho.github.io/images/1704/0-kernal-struct.png" alt="kernal-struct"></p>
 <h2 id="内核函数关系图"><a href="#内核函数关系图" class="headerlink" title="内核函数关系图"></a>内核函数关系图</h2><p><img src="https://draapho.github.io/images/1704/0-linux-kernal-map.png" alt="kernal-fucntion"></p>
-<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
-<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
-<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
-<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
-<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
-<li>分段机制<ul>
-<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
-<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
-</ul>
-</li>
-<li>分页机制<ul>
-<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
-<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
-<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
-<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
-<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
-<li>页表, Page Table, 对应80x86的 Page Table</li>
-</ul>
-</li>
-<li>任务状态段<ul>
-<li>TSS (Task State Segment)</li>
-<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
-<li>TSS存放于GDT内</li>
-</ul>
-</li>
-</ul>
-<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
-<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
-<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
-<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
-<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
-<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
-<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
-<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
-<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
-<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
-<li>0为最高优先级, 对应于Linux内核态</li>
-<li>3为最低优先级, 对应于Linux用户态</li>
-<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
-<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
-<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
-</ul>
-<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
-<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
-<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><em>启动引导时内核在内存中的位置和移动情况</em><br><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"></p>
-<ol>
-<li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
-<li>bootsect.s 被BIOS读入到内存地址 0x7C00(31Kb) 处开始运行后, 立刻把自己移到 0x90000(576Kb) 处.</li>
-<li>接着, bootsect.s 把 setup.s 读入到 0x90200 处, system模块(即内核)读入到 0x10000 处.<ul>
-<li>此版本内核模块不会超过 0x80000, 即512K大小, 因此不会覆盖掉0x90000处的内容</li>
-<li>setup.s 需要一些 ROM BIOS 保留下来的一些系统参数(如显卡模式, 硬盘参数等), 这些参数被BIOS放在内存起始处, 大小为1Kb.</li>
-<li>因而 bootsect.s 只能先把内核放到 0x10000 处而不是直接放到 0x0000 处!</li>
-</ul>
-</li>
-<li>bootsect.s 把执行权交给 setup.s.</li>
-<li>然后, setup.s 把BIOS预留在内存起始处的参数存储到0x90000处(覆盖了bootsect.s), 再把system模块移到内存起始处 (0x0000)</li>
-<li>setup.s 把执行权交给 head.s, linux系统代码加载过程完成, linux开始启动!</li>
-</ol>
-<p>备注:</p>
-<ul>
-<li>启动过程涉及到很多80x86的硬件知识, 没必要深究, 重点是理解启动过程和思路!</li>
-<li>因为目录linux早已支持arm体系结构, 嵌入式也以arm为主. 涉及到硬件的部分需要时再深入了解即可.</li>
-</ul>
-<h2 id="bootsect-s"><a href="#bootsect-s" class="headerlink" title="bootsect.s"></a>bootsect.s</h2><ul>
-<li>bootsect.s 是磁盘引导块程序, 放在磁盘的一个扇区中(引导扇区).</li>
-<li>PC上电, BIOS自检后, BIOS会把引导扇区bootsect加载到内存地址0x7C00处并执行.</li>
-<li>bootsect 立刻把自己挪到 0x90000 处并继续执行</li>
-<li>利用BISO中断0x13获取启动引导盘参数, 准备读取1.44MB启动磁盘内的后续部分(setup.s + system模块)</li>
-<li>加载 setup.s 到 0x90200 处</li>
-<li>在屏幕上显示 “Loading system…”</li>
-<li>把system模块加载到0x10000处</li>
-<li>长跳到 setup.s, 执行 setup.s</li>
-</ul>
-<h2 id="setup-s"><a href="#setup-s" class="headerlink" title="setup.s"></a>setup.s</h2><ul>
-<li>setup.s 是一个操作系统加载程序. 主要作用读取BIOS保留的系统参数, 移动system模块到内存0x0000处, 并执行head.s代码</li>
-<li>setup.s 首先是把BIOS预留在内存0x0000处的参数保存到内存 0x90000 处, 会覆盖掉已经没有用的 bootsect.s 代码</li>
-<li>主要参数有: 光标位置, 扩展内存数, 显示页面, 显示模式, 字符列数, 显示内存, 显示状态, 显卡特性, 硬盘参数, 根设备号</li>
-<li>接着 setup.s 将system模块从 0x10000-0x8ffff 整体向下移动到 0x0000 处.</li>
-<li>然后 setup.s 加载 idtr 和 gdtr (中断/全局描述符表寄存器), 重设中断号, 设置CPU进入32位保护模式运行</li>
-<li>跳转到 system模块的 head.s 继续运行(运行在32位保护模式下)</li>
-</ul>
-<p><em>setup.s 结束后内中的程序示意图</em><br><img src="https://draapho.github.io/images/1704/2-setup-memory.jpg" alt="setup-memory"></p>
-<h2 id="head-s"><a href="#head-s" class="headerlink" title="head.s"></a>head.s</h2><ul>
-<li>head.s 位于整个linux操作系统最前面, 主要功能就是为linux的执行检测和初始化系统环境</li>
-<li>设置系统堆栈</li>
-<li>设置idt(中断描述符表) 和 gdt(全局表述符表)</li>
-<li>检测A20地址线是否已真的开启 (就是能读取1M以上的内存地址)</li>
-<li>将页目录表放在内存地址0处 (会覆盖自己idt部分的内容)</li>
-<li>最后, heads利用返回指令, 弹出main.c的入口地址, 运行main()程序</li>
-</ul>
-<p><em>head.s 结束后, system模块在内存中的示意图</em><br><img src="https://draapho.github.io/images/1704/2-head-memory.jpg" alt="head-memory"></p>
-<h2 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h2><p><em>main初始化完成后, 内存功能示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-memory.jpg" alt="maim-memory"></p>
-<p><em>内核初始化程序流程示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-flow.jpg" alt="maim-flow"></p>
-<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
-<p><em>进程(process), 进程组(process group) 和 会话期(session) 的关系图</em><br><img src="https://draapho.github.io/images/1704/2-session-process.jpg" alt="session-process"></p>
-<ul>
-<li>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</li>
-</ul>
-<h1 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h1><p><img src="https://draapho.github.io/images/1704/3-kernel-function.jpg" alt="kernel-function"></p>
-<h2 id="硬件中断程序"><a href="#硬件中断程序" class="headerlink" title="硬件中断程序"></a>硬件中断程序</h2><p>处理系统硬件中断. 多为故障处理, 直接打印出堆栈信息帮助排错.</p>
-<h2 id="系统调用程序"><a href="#系统调用程序" class="headerlink" title="系统调用程序"></a>系统调用程序</h2><p>本质是调用中断 int 0x80. 由于是用户发起的, 也称之为软中断.</p>
-<ul>
-<li>system_call.s 会根据 <code>sys_call_table[]</code> (在sys.h内) 去调用相应的C函数. sys_xxx函数则很分散.</li>
-<li>signal.c 用于处理内核的信号. (<code>signal()</code>可能丢失信号, <code>sigaction()</code>更可靠)</li>
-</ul>
-<p><em>信号处理程序的调用方式</em><br><img src="https://draapho.github.io/images/1704/3-signal.jpg" alt="signal"></p>
-<h2 id="调度程序"><a href="#调度程序" class="headerlink" title="调度程序"></a>调度程序</h2><p>linux 0.11的调度思路结合<code>时间片</code>和<code>优先权</code>调度.</p>
-<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
-<ul>
-<li>调度过程: count大, 就优先调度! 计算公式为: <code>count = counter/2 + priotiry</code>.<br>对于以及运行完成的任务, count 直接为 priotiry<br>对于被阻塞的任务, 由于公式内包含有 count/2 的权重, 即使优先级再低, 也会被照顾到.</li>
-<li><code>switch_to()</code> 一段汇编宏定义, 用于切换到指定任务(加载TSS).</li>
-<li><code>schedule()</code> 调度函数, 每10ms判断各任务的信号位图以及比较<code>counter</code>值. 需要切换任务时, 调用 <code>switch_to(next)</code></li>
-<li><code>do_timer()</code> 在 system_call.s 中 <code>_timer_interrupt</code> 被调用, 每10ms调用一次 <code>schedule()</code></li>
-<li><code>sleep_on()</code> 当进程所请求的资源暂时不可用时, 等待一段时间. 等切换回来后再继续运行. 调用 <code>schedule()</code></li>
-<li><code>wake_up()</code> 把正在等待可用资源的指定任务值为就绪状态, 就如字面意义, 是一个唤醒函数. 但实现比较搞脑子!</li>
-</ul>
-<h1 id="设备驱动程序"><a href="#设备驱动程序" class="headerlink" title="设备驱动程序"></a>设备驱动程序</h1><h2 id="块设备驱动程序"><a href="#块设备驱动程序" class="headerlink" title="块设备驱动程序"></a>块设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-block-driver.jpg" alt="block-driver"></p>
-<ul>
-<li><code>ll_rw_block()</code>添加完请求项后(使用了链表, 并使用电梯算法改善硬盘访问时间), 真正的操作通过调用<code>request_fn()</code>完成</li>
-<li>操作硬盘 <code>do_hd_request()</code>, 操作软盘 <code>do_fd_request()</code>, 操作虚拟盘 <code>do_re_request()</code></li>
-</ul>
-<h2 id="字符设备驱动程序"><a href="#字符设备驱动程序" class="headerlink" title="字符设备驱动程序"></a>字符设备驱动程序</h2><p><img src="https://draapho.github.io/images/1704/4-char-driver.jpg" alt="char-driver"></p>
-<ul>
-<li><code>read_q</code> tty读队列</li>
-<li><code>write_q</code> tty写队列, 调用 <code>copy_to_cooked()</code> 后放入 <code>secondary</code></li>
-<li><code>secondary</code> tty辅助队列(存放规范模式字符序列)</li>
-</ul>
-<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p><img src="https://draapho.github.io/images/1704/5-fs-map.jpg" alt="fs"></p>
-<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li><a href="http://oldlinux.org/download/linux-devel.pdf" target="_blank" rel="external">Linux 诞生和发展的五个重要支柱 - 赵炯</a></li>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+<li><a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU Operating System</a>.)</li>
 </ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/19/1703-linux-command/" itemprop="url">
-                  Unix/Linux 命令参考
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-19T00:00:00+11:00" content="2017-01-19">
-              2017-01-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="external">Unix/Linux 命令速查表</a></em></strong></p>
-<hr>
-<table>
-<thead>
-<tr>
-<th>文件命令</th>
-<th>指令说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ls</code></td>
-<td>列出目录</td>
-</tr>
-<tr>
-<td><code>ls -al</code></td>
-<td>使用格式化列出隐藏文件</td>
-</tr>
-<tr>
-<td><code>cd dir</code></td>
-<td>更改目录到 dir</td>
-</tr>
-<tr>
-<td><code>cd</code></td>
-<td>更改到 home 目录</td>
-</tr>
-<tr>
-<td><code>pwd</code></td>
-<td>显示当前目录</td>
-</tr>
-<tr>
-<td><code>mkdir dir</code></td>
-<td>创建目录 dir</td>
-</tr>
-<tr>
-<td><code>rm file</code></td>
-<td>删除 file</td>
-</tr>
-<tr>
-<td><code>rm -r dir</code></td>
-<td>删除目录 dir</td>
-</tr>
-<tr>
-<td><code>rm -f file</code></td>
-<td>强制删除 file</td>
-</tr>
-<tr>
-<td><code>rm -rf dir</code></td>
-<td>强制删除整个目录 dir (小心使用)</td>
-</tr>
-<tr>
-<td><code>cp file1 file2</code></td>
-<td>将 file1 复制到 file2</td>
-</tr>
-<tr>
-<td><code>cp -r dir1 dir2</code></td>
-<td>将 dir1 复制到 dir2; 如果 dir2 不存在则创建它</td>
-</tr>
-<tr>
-<td><code>mv file1 file2</code></td>
-<td>将 file1 重命名或移动到 file2;</td>
-</tr>
-<tr>
-<td><code>ln -s file link</code></td>
-<td>创建 file 的符号连接 link</td>
-</tr>
-<tr>
-<td><code>touch file</code></td>
-<td>创建 file</td>
-</tr>
-<tr>
-<td><code>cat &gt; file</code></td>
-<td>将标准输入添加到 file</td>
-</tr>
-<tr>
-<td><code>more file</code></td>
-<td>查看 file 的内容</td>
-</tr>
-<tr>
-<td><code>head file</code></td>
-<td>查看 file 的前 10 行</td>
-</tr>
-<tr>
-<td><code>tail file</code></td>
-<td>查看 file 的后 10 行</td>
-</tr>
-<tr>
-<td><code>tail -f file</code></td>
-<td>从后 10 行开始查看 file 的内容</td>
-</tr>
-<tr>
-<td><strong>进程管理</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>ps</code></td>
-<td>显示当前的活动进程</td>
-</tr>
-<tr>
-<td><code>top</code></td>
-<td>显示所有正在运行的进程</td>
-</tr>
-<tr>
-<td><code>kill pid</code></td>
-<td>杀掉进程 id pid</td>
-</tr>
-<tr>
-<td><code>killall proc</code></td>
-<td>杀掉所有名为 proc 的进程 (小心使用)</td>
-</tr>
-<tr>
-<td><code>bg</code></td>
-<td>列出已停止或后台的作业</td>
-</tr>
-<tr>
-<td><code>fg</code></td>
-<td>将最近的作业带到前台</td>
-</tr>
-<tr>
-<td><code>fg n</code></td>
-<td>将作业 n 带到前台</td>
-</tr>
-<tr>
-<td><strong>文件权限</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>chmod rwxrwxrwx file</code></td>
-<td>更改 file 的权限</td>
-</tr>
-<tr>
-<td><code>chmod 777</code></td>
-<td>为所有用户添加 rwx 权限</td>
-</tr>
-<tr>
-<td><code>chmod 755</code></td>
-<td>为所有者添加 rwx 权限, 为组和其他用户添加 rx 权限</td>
-</tr>
-<tr>
-<td><strong>SSH</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>ssh user@host</code></td>
-<td>以 user 用户身份连接到 host</td>
-</tr>
-<tr>
-<td><code>ssh -p port user@host</code></td>
-<td>在端口 port 以 user 用户身份连接到 host</td>
-</tr>
-<tr>
-<td><code>ssh-copy-id user@host</code></td>
-<td>将密钥添加到 host 以实现无密码登录</td>
-</tr>
-<tr>
-<td><strong>搜索</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>grep pattern files</code></td>
-<td>搜索 files 中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><code>grep -r pattern dir</code></td>
-<td>递归搜索 dir 中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><code>command l(竖杠) grep pattern</code></td>
-<td>搜索 command 输出中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><strong>系统信息</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>date</code></td>
-<td>显示当前日期和时间</td>
-</tr>
-<tr>
-<td><code>cal</code></td>
-<td>显示当月的日历</td>
-</tr>
-<tr>
-<td><code>uptime</code></td>
-<td>显示系统从开机到现在所运行的时间</td>
-</tr>
-<tr>
-<td><code>w</code></td>
-<td>显示登录的用户</td>
-</tr>
-<tr>
-<td><code>whoami</code></td>
-<td>查看你的当前用户名</td>
-</tr>
-<tr>
-<td><code>finger user</code></td>
-<td>显示 user 的相关信息</td>
-</tr>
-<tr>
-<td><code>uname -a</code></td>
-<td>显示内核信息</td>
-</tr>
-<tr>
-<td><code>cat /proc/cpuinfo</code></td>
-<td>查看 cpu 信息</td>
-</tr>
-<tr>
-<td><code>cat /proc/meminfo</code></td>
-<td>查看内存信息</td>
-</tr>
-<tr>
-<td><code>man command</code></td>
-<td>显示 command 的说明手册</td>
-</tr>
-<tr>
-<td><code>df</code></td>
-<td>显示磁盘占用情况</td>
-</tr>
-<tr>
-<td><code>du</code></td>
-<td>显示目录空间占用情况</td>
-</tr>
-<tr>
-<td><code>free</code></td>
-<td>显示内存及交换区占用情况</td>
-</tr>
-<tr>
-<td><strong>压缩</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>tar cf file.tar files</code></td>
-<td>创建包含 files 的 tar 文件 file.tar</td>
-</tr>
-<tr>
-<td><code>tar xf file.tar</code></td>
-<td>从 file.tar 提取文件</td>
-</tr>
-<tr>
-<td><code>tar czf file.tar.gz files</code></td>
-<td>使用 Gzip 压缩创建 tar 文件</td>
-</tr>
-<tr>
-<td><code>tar xzf file.tar.gz</code></td>
-<td>使用 Gzip 提取 tar 文件</td>
-</tr>
-<tr>
-<td><code>tar cjf file.tar.bz2</code></td>
-<td>使用 Bzip2 压缩创建 tar 文件</td>
-</tr>
-<tr>
-<td><code>tar xjf file.tar.bz2</code></td>
-<td>使用 Bzip2 提取 tar 文件</td>
-</tr>
-<tr>
-<td><code>gzip file</code></td>
-<td>压缩 file 并重命名为 file.gz</td>
-</tr>
-<tr>
-<td><code>gzip -d file.gz</code></td>
-<td>将 file.gz 解压缩为 file</td>
-</tr>
-<tr>
-<td><strong>网络</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>ping host</code></td>
-<td>ping host 并输出结果</td>
-</tr>
-<tr>
-<td><code>whois domain</code></td>
-<td>获取 domain 的 whois 信息</td>
-</tr>
-<tr>
-<td><code>dig domain</code></td>
-<td>获取 domain 的 DNS 信息</td>
-</tr>
-<tr>
-<td><code>dig -x host</code></td>
-<td>逆向查询 host</td>
-</tr>
-<tr>
-<td><code>wget file</code></td>
-<td>下载 file</td>
-</tr>
-<tr>
-<td><code>wget -c file</code></td>
-<td>断点续传</td>
-</tr>
-<tr>
-<td><strong>安装</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>./configure</code> <code>make</code> <code>make install</code></td>
-<td>从源码安装</td>
-</tr>
-<tr>
-<td><code>dpkg -i pkg.deb</code></td>
-<td>安装包 (Debian)</td>
-</tr>
-<tr>
-<td><code>rpm -Uvh pkg.rpm</code></td>
-<td>安装包 (RPM)</td>
-</tr>
-<tr>
-<td><code>yum install package</code></td>
-<td>安装包 (CentOS)</td>
-</tr>
-<tr>
-<td><code>sudo apt-get install package</code></td>
-<td>安装包 (Ubuntu)</td>
-</tr>
-<tr>
-<td><strong>快捷键</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>Ctrl+C</code></td>
-<td>停止当前命令</td>
-</tr>
-<tr>
-<td><code>Ctrl+Z</code></td>
-<td>停止当前命令，并使用 fg 恢复</td>
-</tr>
-<tr>
-<td><code>Ctrl+D</code></td>
-<td>注销当前会话，与 exit 相似</td>
-</tr>
-<tr>
-<td><code>Ctrl+W</code></td>
-<td>删除当前行中的字</td>
-</tr>
-<tr>
-<td><code>Ctrl+U</code></td>
-<td>删除整行</td>
-</tr>
-<tr>
-<td><code>!!</code></td>
-<td>重复上次的命令</td>
-</tr>
-<tr>
-<td><code>exit</code></td>
-<td>注销当前会话</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="external">Unix/Linux 命令速查表</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/18/1702-linux-hard/" itemprop="url">
-                  Embedded Linux 入门有感
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-18T00:00:00+11:00" content="2017-01-18">
-              2017-01-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
-<p>自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,<br>但在没有具体项目要求的情况下, 学习Embedded Linux的过程充满了痛苦和不解, 始终没有坚持下来.</p>
-<p>如今, 打算再次开始系统的学习Embedded Linux, 因而在此记录一下之前的学习感受, 分析一下困难之所在, 并制定好学习规则和方式.</p>
-<h1 id="为何困难"><a href="#为何困难" class="headerlink" title="为何困难"></a>为何困难</h1><h2 id="linux上手困难"><a href="#linux上手困难" class="headerlink" title="linux上手困难"></a>linux上手困难</h2><p>对新手而言, linux的学习曲线很陡峭. 相信刚上手的话, 如何安装软件, 如何使用编辑器都是问题!</p>
-<p>一个, 二个问题或者一层二层问题, 还能较为容易的解决. 但面对蜂拥而至的疑问和困惑, 能坚持下去就很不容易了, 何况途中还充满了陷阱和争论.</p>
-<p>随便举几个例子:</p>
-<ol>
-<li><p>用哪个版本的linux好? Ubuntu? Feroda? Redhat? CentOS? 服务器版? 桌面版? 然后图形界面居然还分 KDE/Gnome…<br>为了弄清上面这个问题, 看看文章, 翻翻论坛, 结果就是更迷糊了… 甚至忘了初衷是要奔着 <code>Embedded Linux</code> 去的啊!</p>
-</li>
-<li><p>我的硬盘分区呢? 去哪里找文件呢? 文件权限的概念等等. (linux下一切皆文件!)</p>
-</li>
-<li><p>用哪个文本编辑器好? 大家都会说Vim, 然后和vim斗就能斗你一个月, 结果还是自己败下阵来, 回归熟悉的文本编辑器!</p>
-</li>
-<li><p><code>bash shell</code> 是精华啊, 不能不学! 得, 捧着鸟哥的私房菜, 随便翻翻也得几星期才知道个大概吧…<br>(学习指令时, 需要有<code>工作路径</code>这么一个概念. 知道这个指令现在在哪里工作, 是非常重要的一个概念!)</p>
-</li>
-<li><p>唉呀妈呀, 好不容易装好了虚拟机, 装好了精挑细选的linux版本. 尝试装软件了! 一阵搜索, 还算顺利. 突然出了个依赖关系错误…<br>耐着性子google, 百度, 似乎略微看懂了一二, 就是在装这个软件之前, 需要另外一个软件的特定版本么.<br>尝试用安装指令装另外一个软件, 居然这个软件不存在了!!! 继续? 还是放弃?<br>我继续过, 翻墙, 找到软件源码. 还要自己编译? 编译还要装编译软件… 彻底放弃…</p>
-</li>
-</ol>
-<h2 id="缺乏合适的入门书籍"><a href="#缺乏合适的入门书籍" class="headerlink" title="缺乏合适的入门书籍"></a>缺乏合适的入门书籍</h2><p>市面上大多数的Embedded Linux入门教程只讲应该如何做, 不说基础知识, 不讲前因后果.<br>读起来枯燥无味, 索然无趣. 学起来一头雾水, 不知其所以然.</p>
-<p>譬如很多教程会详细的写出, 第一步, 第二步, 第三步… 但经常的, 只要系统环境稍微变化一点点(如linux版本不同, 软件版本不同), 上述的步骤就会失效.<br>喜欢刨根问底的我就开始纠结这些第一步, 第二步, 第三步到底再干吗? 为什么按照自己的理解在新的环境下就不工作了?<br>而遇到这些具体的困难时, 如何解决困难真的是一头雾水. 教程书籍类基本不会讲你可能遇到的问题! 基本只能到网络上去找解决办法…然后就是进一步的困惑…</p>
-<p>而更专业的书籍根本不适合入门者去阅读, 那都是对特定领域进行深入分析学习的! 过早的接触自己完全不懂的东西, 只会打击学习的积极性.<br>譬如推崇度很高的鸟哥的私房菜, 实际是一本很好的运维方面的书籍, 用它来初学<code>bash shell</code>就太重了.<br>可以看一下鸟哥自己的经历, 就能明白了 <a href="http://linux.vbird.org/new_linux.php" target="_blank" rel="external">Linux 的學習曲線，一個老人家的建議！</a><br>体验最深的就是这句了: <strong>只要一出现问题, 自己完全无法解决时, 只好重新安装, 选择设定与书本教的内容完全一模一样, 不过即使如此, 很多时候仍然会遇到问题</strong></p>
-<p>因此, 建议自己通过网络和书籍总结归纳一下最基本的指令和用法, 加之自己的理解, 做成笔记. 一来帮助记忆, 二来便于日后查阅.<br>但不用刻意的去背这些东西, 要用的时候知道去哪里查阅就可以了, 用多了既然就记住了.<br>在真正深入学习后, 觉得有需要自然会更有针对性的选择专业书籍来看!</p>
-<p>这样, 才能避免淹死在知识的海洋里!</p>
-<h2 id="缺乏硬性目标"><a href="#缺乏硬性目标" class="headerlink" title="缺乏硬性目标:"></a>缺乏硬性目标:</h2><p>之前都是跟着教程的自学, 属于漫无目的的囫囵吞枣, 学到哪忘到哪.<br>然后, <strong>缺乏硬性目标最大的问题就是: 容易放弃!</strong><br>因为遇到的困难太多了, 在没有硬性目标的情况下, 不断的打击最终导致的就是放弃!</p>
-<p>如果能定一个最终目标, 譬如基于开发板做一款视频识别系统, 那在学习过程中就会有侧重点.<br>这样对问题的处理就能起到抓大放小, 不纠结于所有的细节. 在解决实际问题的过程中, 逐步深入学习linux.</p>
-<h1 id="解决之道"><a href="#解决之道" class="headerlink" title="解决之道"></a>解决之道</h1><p>个人认为, 学习linux, embedded linux的终极解决之道就是定下一个<strong>硬性目标</strong>, 有这么一个压力在的话, 在学习过程中不断试错, 一知半解都不是问题!</p>
-<p>正所谓有压力才有动力! 回到鸟哥的个人经历, 见<a href="http://linux.vbird.org/new_linux.php" target="_blank" rel="external">Linux 的學習曲線，一個老人家的建議！</a>.<br>正是有项目压力的情况下, 才能忍受无数次的重装系统, 才能忍无可忍痛下决心系统的学习linux(此时已经不是初学者了, 知道了很多基础, 也知道自己想解决什么问题!)<br>在此压力下, 搭建环境的过程就不会过于纠结我到底在干吗? 为什么要这么做?的困惑; 使用编辑器时, 也会直接挑个最顺手的用着再说; shell的使用也会因为时间压力只学最基本的.</p>
-<p>初期, 在一定要完成这个硬性目标, 在不求甚解, 能用就好的心态下, 至少能帮助自己摸一遍linux, 知道一个大概的流程和遇到的问题.<br>这样也能很大程度上避免自己陷入到底用哪个linux版本好, 用哪个桌面系统好, 用哪种编辑好的争论中! 在不知道具体需求的情况下, 这些都是无意义之事!<br>这个时期, 坚持学下来, 用下来, 就是胜利! 工具的选择上, 顺手的, 上手快的就是好的!</p>
-<p>然后, 在完成一二个项目后, 虽然心中的疑惑越积越多, 但潜移默化中, 已经对linux有了相当程度的理解, 常用指令也都会用了!<br>此时, 再根据自己的具体疑惑去查阅更专业的书籍, 更系统的学习, 其效果会远好于上来就拿着本专业书籍看!</p>
-<h1 id="自我要求"><a href="#自我要求" class="headerlink" title="自我要求"></a>自我要求</h1><p>我目前的情况也不能算linux初学者, 但也确实没有在embedded linux下开发的经验.<br>自己的感觉是, 虽然对某些方面还一知半解, 但背景知识的储备已经够了, 是时候定个小目标, 完成系统的学习了!<br>毕业已10年, 我学习linux的初学期和倦怠期也着实太长了一点… 好在, 任何时候开始都不晚么.</p>
-<p>陆续了解过的背景知识有: linux基础概念, ubuntu的基础使用, bash shell, 硬件原理图, 嵌入式C开发, 操作系统原理, 阅读linux0.11源码.<br>总的来说, 感觉自己就差临门一脚… 能坚持做一二个项目后, 自己就有能力做嵌入式linux开发了.</p>
-<ul>
-<li>定个小目标: 跟着教程, 在2440开发板上, 完成音视频对讲功能. 细分为实现摄像头功能, 搭建服务器, 实现可视对讲功能.</li>
-<li>开发环境搭建: 最困难的就是环境搭建, 走了很多弯路, 不过目前已经走通了.</li>
-<li>不求甚解: 学习过程中, 注意连续性, 有些专业知识先不求甚解, 有个基础概念, 简单做下笔记即可. 如makefile的书写, 编译器原理等等.</li>
-<li>勤做笔记: 好记性不如烂笔头. 我相信即便linux高度使用者, 能记住的也就几条常用指令. 自己做好笔记就便于日后查阅, 做笔记的同时也加深了印象!</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/03/1701-python-list-dict/" itemprop="url">
-                  Python 列表和字典的常见操作
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-03T00:00:00+11:00" content="2017-01-03">
-              2017-01-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="list"><a href="#list" class="headerlink" title="list []"></a>list <code>[]</code></h1><p>list是一种有序的集合，可以随时添加和删除其中的元素。 形式和特性都像C语言的数组</p>
-<h2 id="赋值修改及取值"><a href="#赋值修改及取值" class="headerlink" title="赋值修改及取值"></a>赋值修改及取值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># list 赋值</span></div><div class="line">l = range(<span class="number">1</span>,<span class="number">9</span>,<span class="number">2</span>)   <span class="comment"># l = [1,3,5,7]      9是不包含在里面的</span></div><div class="line">l = [<span class="number">1</span>,<span class="number">3</span>]*<span class="number">3</span>        <span class="comment"># l = [1,3,1,3,1,3]  *表示重复次数</span></div><div class="line">l = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"></div><div class="line"><span class="comment"># 使用切片 (同字符串用法)</span></div><div class="line">l[<span class="number">0</span>]        <span class="comment"># 1                 显示第一个元素</span></div><div class="line">l[<span class="number">-1</span>]       <span class="comment"># 5                 显示最后一个元素</span></div><div class="line">l[<span class="number">0</span>:<span class="number">2</span>]      <span class="comment"># [1, 2]            显示0,1两个元素</span></div><div class="line">l[<span class="number">-2</span>:]      <span class="comment"># [4, 5]            显示最后二个元素</span></div><div class="line">l[::<span class="number">-1</span>]     <span class="comment"># [5, 4, 3, 2, 1]   步进-1, 就是倒序了</span></div><div class="line"></div><div class="line"><span class="comment"># 使用切片修改元素</span></div><div class="line">l[<span class="number">0</span>] = <span class="number">3</span>        <span class="comment"># [3, 2, 3, 4, 5]       修改l[0]的值</span></div><div class="line"><span class="comment"># l[1] = [7,8]  # [3, [7, 8], 3, 4, 5]  修改为list表, 存储其指针. 注意和 l[1:2] = [7,8] 的本质区别!</span></div><div class="line">l[<span class="number">1</span>:<span class="number">2</span>] = [<span class="number">7</span>,<span class="number">8</span>]  <span class="comment"># [3, 7, 8, 3, 4, 5]    将l[1]修改为元素[7,8]</span></div><div class="line">l[<span class="number">1</span>:<span class="number">3</span>] = []     <span class="comment"># [3, 2, 3, 4, 5]       删除1-2的元素</span></div><div class="line">l[<span class="number">1</span>:<span class="number">1</span>] = [<span class="number">7</span>,<span class="number">8</span>,<span class="number">2</span>]<span class="comment"># [3, 7, 8, 2, 3, 4, 5] 在l[1]处插入元素[7,8,2]</span></div><div class="line"></div><div class="line"><span class="comment"># 取长度</span></div><div class="line">len(l)      <span class="comment"># 7</span></div><div class="line"></div><div class="line"><span class="comment"># 排序</span></div><div class="line">l.sort()    <span class="comment"># l=[2, 3, 3, 4, 5, 7, 8]</span></div><div class="line"></div><div class="line"><span class="comment"># 获取元素出现的个数</span></div><div class="line">l.count(<span class="number">3</span>)  <span class="comment"># 2</span></div><div class="line"></div><div class="line"><span class="comment"># for循环取索引和值, 使用enumerate</span></div><div class="line"><span class="keyword">for</span> i, x <span class="keyword">in</span> enumerate(l):</div><div class="line">    <span class="keyword">print</span> <span class="string">'&#123;&#125;: &#123;&#125;'</span>.format(i, x)         <span class="comment"># i为index, x为list的值</span></div></pre></td></tr></table></figure>
-<h2 id="增减元素"><a href="#增减元素" class="headerlink" title="增减元素"></a>增减元素</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">l = [<span class="string">'John'</span>, <span class="string">'Bob'</span>, <span class="string">'Tracy'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 增减元素</span></div><div class="line">l.append(<span class="string">'Adam'</span>)    <span class="comment"># 追加元素到末尾,    l=['John', 'Bob', 'Tracy', 'Adam']</span></div><div class="line">l.insert(<span class="number">1</span>, <span class="string">'Jack'</span>) <span class="comment"># 在索引1处插入元素, l=['John', 'Jack', 'Bob', 'Tracy', 'Adam']</span></div><div class="line">l[<span class="number">1</span>:<span class="number">1</span>]=[<span class="string">"Jack"</span>]     <span class="comment"># 在索引1处插入元素, l=['John', 'Jack', 'Jack', 'Bob', 'Tracy', 'Adam']</span></div><div class="line"></div><div class="line"><span class="comment"># 删减元素</span></div><div class="line">l.remove(<span class="string">"Jack"</span>)    <span class="comment"># 删除第一次出现的该元素, l=['John', 'Jack', 'Bob', 'Tracy', 'Adam']</span></div><div class="line">l.pop()             <span class="comment"># 返回并删除末尾的元素,   l=['John', 'Jack', 'Bob', 'Tracy']</span></div><div class="line">l.pop(<span class="number">1</span>)            <span class="comment"># 返回并删除索引1的元素,  l=['John', 'Bob', 'Tracy']</span></div><div class="line"><span class="keyword">del</span> l[<span class="number">0</span>]            <span class="comment"># 删除索引0的元素,       l=['Bob', 'Tracy']</span></div><div class="line"><span class="keyword">del</span> l[<span class="number">0</span>:<span class="number">2</span>]          <span class="comment"># 删除多个元素,          l=[]</span></div><div class="line"></div><div class="line"><span class="comment"># 列表扩展/叠加</span></div><div class="line">l1=[<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>]; l2=[<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]</div><div class="line">l=list(set(l1+l2))  <span class="comment"># l=[1,2,3,4,5], 避免了重复元素, 但会丢失原有的排序!</span></div><div class="line">l=l1+l2             <span class="comment"># l=[3,2,1,3,4,5], 简单的叠加, 非常直观!</span></div></pre></td></tr></table></figure>
-<h2 id="拷贝-浅拷贝-深拷贝"><a href="#拷贝-浅拷贝-深拷贝" class="headerlink" title="拷贝(浅拷贝, 深拷贝)"></a>拷贝(浅拷贝, 深拷贝)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">l = [[<span class="string">'a'</span>], [<span class="string">'b'</span>, <span class="string">'c'</span>], [<span class="string">'d'</span>, <span class="string">'e'</span>, <span class="string">'f'</span>]]</div><div class="line"></div><div class="line"><span class="comment"># 别名及浅拷贝</span></div><div class="line">l1 = l              <span class="comment"># l1为l的别名/指针, 指向相同的地址. (l is l1 = True)</span></div><div class="line">l1 = l[:]           <span class="comment"># 浅拷贝(只拷贝一维的数据). (l is l1 = False. l[0] is l1[0] = True)</span></div><div class="line"><span class="comment"># 在此例中, 由于是浅拷贝, 因此修改元素如 l[0][0]='z' 后, l1显示内容会和l一样.</span></div><div class="line"></div><div class="line"><span class="comment"># 深拷贝</span></div><div class="line"><span class="keyword">import</span> copy</div><div class="line">l1 = copy.deepcopy(l)   <span class="comment"># 深拷贝(遇到指针类型继续深挖). (l is l1 = False. l[0] is l1[0] = False)</span></div><div class="line"><span class="comment"># 在此例中, l1 和 l 再无任何关联</span></div></pre></td></tr></table></figure>
-<h1 id="tuple"><a href="#tuple" class="headerlink" title="tuple ()"></a>tuple <code>()</code></h1><p>理解为list的常量形式即可, 赋值后就不可增减和修改</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 赋值</span></div><div class="line">t = (<span class="number">1</span>,<span class="number">2</span>)   <span class="comment"># 赋值2个元素</span></div><div class="line">t = (<span class="number">1</span>,)    <span class="comment"># 赋值1个元素时, 必须加上逗号, 避免误解</span></div><div class="line">t = (<span class="number">1</span>,<span class="number">3</span>)*<span class="number">3</span>        <span class="comment"># t = (1,3,1,3,1,3)</span></div><div class="line"></div><div class="line"><span class="comment"># 取值, 使用切片即可</span></div><div class="line">t[<span class="number">-1</span>]       <span class="comment"># 取最后一个值, 3</span></div><div class="line">t[<span class="number">0</span>::<span class="number">2</span>]     <span class="comment"># 跳着取值, (1,1,1)</span></div><div class="line"></div><div class="line"><span class="comment"># 取长度</span></div><div class="line">len(t)      <span class="comment"># 6</span></div><div class="line"></div><div class="line"><span class="comment"># 获取元素出现的个数</span></div><div class="line">t.count(<span class="number">1</span>)  <span class="comment"># 3</span></div><div class="line"></div><div class="line"><span class="comment"># list 与 tuple 互相转换</span></div><div class="line">l = list(t) <span class="comment"># 把tuple变为list</span></div><div class="line">t = tuple(l)<span class="comment"># 把list变为tuple</span></div><div class="line"></div><div class="line"><span class="comment"># 拷贝的问题同list</span></div></pre></td></tr></table></figure>
-<h1 id="dict"><a href="#dict" class="headerlink" title="dict {}"></a>dict <code>{}</code></h1><p>dict全称dictionary，在其他语言中也称为map，使用键-值（key-value）存储，具有极快的查找速度。</p>
-<h2 id="赋值及取值"><a href="#赋值及取值" class="headerlink" title="赋值及取值"></a>赋值及取值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dict 赋值</span></div><div class="line">d = &#123;<span class="string">'Michael'</span>: <span class="number">95</span>, <span class="string">'Bob'</span>: <span class="number">75</span>, <span class="string">'Tracy'</span>: <span class="number">85</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># 获取值</span></div><div class="line">d[<span class="string">'Thomas'</span>]             <span class="comment"># 不存在会报错</span></div><div class="line">d.get(<span class="string">'Thomas'</span>, <span class="number">-1</span>)     <span class="comment"># 不存在返回设定的默认值</span></div><div class="line"></div><div class="line"><span class="comment"># 判断键值</span></div><div class="line"><span class="string">'Michael'</span> <span class="keyword">in</span> d          <span class="comment"># in方法即可, 返回True</span></div><div class="line"></div><div class="line"><span class="comment"># 键值个数</span></div><div class="line">len(d)                  <span class="comment"># 3</span></div><div class="line"></div><div class="line"><span class="comment"># 获取key和value</span></div><div class="line">d.keys()                <span class="comment"># 关键字列表, ['Bob', 'Michael', 'Tracy']</span></div><div class="line">d.values()              <span class="comment"># 字典值列表, [75, 95, 85]</span></div><div class="line">d.items()               <span class="comment"># 转换为列表, [('Bob', 75), ('Michael', 95), ('Tracy', 85)]</span></div><div class="line"></div><div class="line"><span class="comment"># for循环取索引和值, 使用iteritems</span></div><div class="line"><span class="keyword">for</span> k, v <span class="keyword">in</span> d.iteritems():</div><div class="line">    <span class="keyword">print</span> <span class="string">'&#123;&#125;: &#123;&#125;'</span>.format(k, v)         <span class="comment"># k为key, v为value值</span></div></pre></td></tr></table></figure>
-<h2 id="增减及修改字典"><a href="#增减及修改字典" class="headerlink" title="增减及修改字典"></a>增减及修改字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">d = &#123;<span class="string">'Michael'</span>: <span class="number">95</span>, <span class="string">'Bob'</span>: <span class="number">75</span>, <span class="string">'Tracy'</span>: <span class="number">85</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># 修改值 (如果key不存在, 变成增加元素)</span></div><div class="line">d[<span class="string">'Michael'</span>] = <span class="number">88</span>       <span class="comment"># d=&#123;'Bob': 75, 'Michael': 88, 'Tracy': 85&#125;</span></div><div class="line"></div><div class="line"><span class="comment"># 增加值</span></div><div class="line">d[<span class="number">0</span>] = <span class="number">0</span>                <span class="comment"># d=&#123;0: 0, 'Bob': 75, 'Michael': 88, 'Tracy': 85&#125;</span></div><div class="line"></div><div class="line"><span class="comment"># 删除一个键值</span></div><div class="line">d.pop(<span class="number">0</span>)                <span class="comment"># 返回value并删除键值    d=&#123;'Bob': 75, 'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line">d.popitem()             <span class="comment"># 返回value并删除首键值  d=&#123;'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line"><span class="keyword">del</span> d[<span class="number">0</span>]                <span class="comment"># 删除键值              d=&#123;'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line"><span class="keyword">if</span> <span class="number">0</span> <span class="keyword">in</span> d: <span class="keyword">del</span> d[<span class="number">0</span>]     <span class="comment"># 避免报错的写法         d=&#123;'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line"></div><div class="line"><span class="comment"># 删除整个字典</span></div><div class="line">d.clear()               <span class="comment"># 清空字典, d变成空字典   d=&#123;&#125;</span></div><div class="line"><span class="keyword">del</span> d                   <span class="comment"># 删除了d这个字典</span></div><div class="line"></div><div class="line"><span class="comment"># 合并字典</span></div><div class="line">x = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;; y = &#123;<span class="string">'b'</span>: <span class="number">3</span>, <span class="string">'c'</span>: <span class="number">4</span>&#125;</div><div class="line">z = x.copy()            <span class="comment"># 字典拷贝              z = &#123;'a': 1, 'b': 2&#125;</span></div><div class="line">z.update(y)             <span class="comment"># 字典合并(新值覆盖旧值)  z = &#123;'a': 1, 'c': 4, 'b': 3&#125;</span></div><div class="line"><span class="comment"># z = &#123;**x, **y&#125;        # python 3.5以上, 可以直接使用</span></div></pre></td></tr></table></figure>
-<h2 id="拷贝-浅拷贝-深拷贝-1"><a href="#拷贝-浅拷贝-深拷贝-1" class="headerlink" title="拷贝(浅拷贝, 深拷贝)"></a>拷贝(浅拷贝, 深拷贝)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">d = &#123;<span class="number">0</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], <span class="number">1</span>:&#123;<span class="string">'k1'</span>: <span class="string">'v1'</span>, <span class="string">'k2'</span>: <span class="string">'v2'</span>&#125;&#125;</div><div class="line"></div><div class="line"><span class="comment"># 注意, d.update(), d.copy() 都是浅拷贝!</span></div><div class="line"></div><div class="line"><span class="comment"># 别名及浅拷贝</span></div><div class="line">d1 = d                  <span class="comment"># l1为l的别名/指针, 指向相同的地址. (d is d1 = True)</span></div><div class="line">d1 = d.copy()           <span class="comment"># 浅拷贝(只拷贝一维的数据). (d is d1 = False. d[0] is d1[0] = True)</span></div><div class="line"><span class="comment"># 设置 d[0][0] = 3; d[1]["k2"]=2 后, 会发现d1的值也跟着变了. 因为浅拷贝值拷贝一维的数据(指针).</span></div><div class="line"></div><div class="line"><span class="comment"># 深拷贝</span></div><div class="line"><span class="keyword">import</span> copy</div><div class="line">d1 = copy.deepcopy(d)   <span class="comment"># 深拷贝(遇到指针类型继续深挖). (d is d1 = False. d[0] is d1[0] = False)</span></div><div class="line"><span class="comment"># d 和 d1 再无任何瓜葛</span></div></pre></td></tr></table></figure>
-<h1 id="set-set"><a href="#set-set" class="headerlink" title="set {} set([])"></a>set <code>{}</code> <code>set([])</code></h1><p>set即集合, 是一组key的集合，但不存储value。由于key不能重复，所以，在set中，没有重复的key。<br>集合不可放入可变对象, 如list(报<code>unhashable type</code>的错)</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 赋值</span></div><div class="line">s = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;               <span class="comment"># s = set([1, 2, 3])</span></div><div class="line">s = &#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>&#125;      <span class="comment"># s = set([1, 2, 3]), 重复元素会被过滤掉</span></div><div class="line"></div><div class="line"><span class="comment"># 检查元素是否存在</span></div><div class="line"><span class="number">3</span> <span class="keyword">in</span> s                      <span class="comment"># True</span></div><div class="line"></div><div class="line"><span class="comment"># 增加元素</span></div><div class="line">s.add(<span class="number">4</span>)                    <span class="comment"># s = set([1, 2, 3, 4])</span></div><div class="line">s.add(<span class="number">4</span>)                    <span class="comment"># 重复增加不会报错</span></div><div class="line"></div><div class="line"><span class="comment"># 删除元素</span></div><div class="line">s.remove(<span class="number">4</span>)                 <span class="comment"># s = set([1, 2, 3])</span></div><div class="line"><span class="keyword">if</span> <span class="number">4</span> <span class="keyword">in</span> s: s.remove(<span class="number">4</span>)      <span class="comment"># 避免报错</span></div><div class="line"></div><div class="line"><span class="comment"># 集合的运算符号</span></div><div class="line">s1 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; s2 = &#123;<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</div><div class="line">s1 &amp; s2                     <span class="comment"># 交集    set([2, 3])</span></div><div class="line">s1 | s2                     <span class="comment"># 并集    set([1, 2, 3, 4])</span></div><div class="line">s1 ^ s2                     <span class="comment"># 补集    set([1, 4])</span></div><div class="line">s1 - s2                     <span class="comment"># 减法    set([1])</span></div><div class="line">s2 - s1                     <span class="comment"># 减法    set([4])</span></div></pre></td></tr></table></figure>
-<h1 id="collections模块的使用"><a href="#collections模块的使用" class="headerlink" title="collections模块的使用"></a>collections模块的使用</h1><h2 id="numedtuple-给tuple命名"><a href="#numedtuple-给tuple命名" class="headerlink" title="numedtuple 给tuple命名"></a>numedtuple 给tuple命名</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Point = collections.namedtuple(<span class="string">'Point'</span>, [<span class="string">'x'</span>, <span class="string">'y'</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p = Point(<span class="number">1.0</span>, <span class="number">2.0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p.x; p.y; p             <span class="comment"># 也可以使用p[0], p[1]</span></div><div class="line"><span class="number">1.0</span></div><div class="line"><span class="number">2.0</span></div><div class="line">Point(x=<span class="number">1.0</span>, y=<span class="number">2.0</span>)</div><div class="line"></div><div class="line"><span class="comment"># 修改值</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p = p._replace(x = <span class="number">1.5</span>, y= <span class="number">1.1</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p[<span class="number">0</span>]; p[<span class="number">1</span>]              <span class="comment"># 等同于 p.x; p.y</span></div><div class="line"><span class="number">1.5</span></div><div class="line"><span class="number">1.1</span></div></pre></td></tr></table></figure>
-<h2 id="deque-双向队列"><a href="#deque-双向队列" class="headerlink" title="deque 双向队列"></a>deque 双向队列</h2><p>英文全称 <code>Double-ended queue</code>, 特性近似于双向链表, 适用于队列和栈</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q = collections.deque([<span class="string">'a'</span>, <span class="string">'c'</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.append(<span class="number">1</span>)             <span class="comment"># q=deque(['a', 'c', 1])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.appendleft(<span class="number">2</span>)         <span class="comment"># q=deque([2, 'a', 'c', 1])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.extend([<span class="number">3</span>, <span class="number">4</span>])        <span class="comment"># q=deque([2, 'a', 'c', 1, 3, 4])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.extendleft([<span class="number">5</span>, <span class="number">6</span>])    <span class="comment"># q=deque([6, 5, 2, 'a', 'c', 1, 3, 4])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.pop()                 <span class="comment"># q=deque([6, 5, 2, 'a', 'c', 1, 3])</span></div><div class="line"><span class="number">4</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.popleft()             <span class="comment"># q=deque([5, 2, 'a', 'c', 1, 3])</span></div><div class="line"><span class="number">6</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.rotate(<span class="number">1</span>)             <span class="comment"># q=deque([3, 5, 2, 'a', 'c', 1])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.rotate(<span class="number">-2</span>)            <span class="comment"># q=deque([2, 'a', 'c', 1, 3, 5])</span></div><div class="line"></div><div class="line"><span class="comment"># 限长的双向队列</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>last_three = collections.deque([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>], maxlen=<span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>last_three</div><div class="line">que([<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>], maxlen=<span class="number">3</span>)    <span class="comment"># 队列长度最多为3.</span></div></pre></td></tr></table></figure>
-<h2 id="defaultdict-带默认键值的dict"><a href="#defaultdict-带默认键值的dict" class="headerlink" title="defaultdict 带默认键值的dict"></a>defaultdict 带默认键值的dict</h2><p>使用<code>dict</code>时，如果引用的Key不存在，就会抛出<code>KeyError</code>。如果希望key不存在时，返回一个默认值，就可以用<code>defaultdict</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 普通字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = dict()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">KeyError: <span class="string">'a'</span></div><div class="line"></div><div class="line"><span class="comment"># 默认字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(int)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="number">0</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(str)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="string">''</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(<span class="keyword">lambda</span>: <span class="string">'N/A'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="string">'N/A'</span></div></pre></td></tr></table></figure>
-<h2 id="OrderedDict-可排序的dict"><a href="#OrderedDict-可排序的dict" class="headerlink" title="OrderedDict 可排序的dict"></a>OrderedDict 可排序的dict</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 普通字典, key是无需的</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>d = dict([(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'c'</span>, <span class="number">3</span>)])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>d</div><div class="line">&#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># 可排序字典, 按照key插入的顺序排序</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>od = collections.OrderedDict([(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'c'</span>, <span class="number">3</span>)])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>od</div><div class="line">OrderedDict([(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'c'</span>, <span class="number">3</span>)])</div></pre></td></tr></table></figure>
-<p>实现一个FIFO（先进先出）的dict，当容量超出限制时，先删除最早添加的Key</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> OrderedDict</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FifoDict</span><span class="params">(OrderedDict)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, capacity)</span>:</span></div><div class="line">        super(LastUpdatedOrderedDict, self).__init__()</div><div class="line">        self._capacity = capacity</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__setitem__</span><span class="params">(self, key, value)</span>:</span></div><div class="line">        containsKey = <span class="number">1</span> <span class="keyword">if</span> key <span class="keyword">in</span> self <span class="keyword">else</span> <span class="number">0</span></div><div class="line">        <span class="keyword">if</span> len(self) - containsKey &gt;= self._capacity:</div><div class="line">            last = self.popitem(last=<span class="keyword">False</span>)</div><div class="line">            <span class="keyword">print</span> <span class="string">'remove:'</span>, last</div><div class="line">        <span class="keyword">if</span> containsKey:</div><div class="line">            <span class="keyword">del</span> self[key]</div><div class="line">            <span class="keyword">print</span> <span class="string">'set:'</span>, (key, value)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">print</span> <span class="string">'add:'</span>, (key, value)</div><div class="line">        OrderedDict.__setitem__(self, key, value)</div></pre></td></tr></table></figure>
-<h2 id="Counter-计数类"><a href="#Counter-计数类" class="headerlink" title="Counter 计数类"></a>Counter 计数类</h2><p><code>Counter</code>实际上是<code>dict</code>的一个子类, 是一个简单的计数器.</p>
-<h3 id="应用一-多重集合-显示元素个数"><a href="#应用一-多重集合-显示元素个数" class="headerlink" title="应用一: 多重集合(显示元素个数)"></a>应用一: 多重集合(显示元素个数)</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = collections.Counter([<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B = collections.Counter([<span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A; B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">1</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A | B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A &amp; B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A + B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">4</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A - B</div><div class="line">Counter(&#123;<span class="number">1</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B - A</div><div class="line">Counter(&#123;<span class="number">3</span>: <span class="number">1</span>&#125;)</div></pre></td></tr></table></figure>
-<h3 id="应用二-统计最常出现的元素"><a href="#应用二-统计最常出现的元素" class="headerlink" title="应用二: 统计最常出现的元素"></a>应用二: 统计最常出现的元素</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = collections.Counter(list(<span class="string">"hello"</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A</div><div class="line">Counter(&#123;<span class="string">'l'</span>: <span class="number">2</span>, <span class="string">'h'</span>: <span class="number">1</span>, <span class="string">'e'</span>: <span class="number">1</span>, <span class="string">'o'</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A.most_common(<span class="number">1</span>)</div><div class="line">[(<span class="string">'l'</span>, <span class="number">2</span>)]</div></pre></td></tr></table></figure>
-<h1 id="高阶应用"><a href="#高阶应用" class="headerlink" title="高阶应用"></a>高阶应用</h1><h2 id="list-加入索引值"><a href="#list-加入索引值" class="headerlink" title="list 加入索引值"></a>list 加入索引值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>seasons = [<span class="string">'Spring'</span>, <span class="string">'Summer'</span>, <span class="string">'Fall'</span>, <span class="string">'Winter'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(enumerate(seasons))</div><div class="line">[(<span class="number">0</span>, <span class="string">'Spring'</span>), (<span class="number">1</span>, <span class="string">'Summer'</span>), (<span class="number">2</span>, <span class="string">'Fall'</span>), (<span class="number">3</span>, <span class="string">'Winter'</span>)]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(enumerate(seasons, start=<span class="number">1</span>))</div><div class="line">[(<span class="number">1</span>, <span class="string">'Spring'</span>), (<span class="number">2</span>, <span class="string">'Summer'</span>), (<span class="number">3</span>, <span class="string">'Fall'</span>), (<span class="number">4</span>, <span class="string">'Winter'</span>)]</div></pre></td></tr></table></figure>
-<h2 id="list的压缩和解压-以及转换为dict"><a href="#list的压缩和解压-以及转换为dict" class="headerlink" title="list的压缩和解压, 以及转换为dict"></a>list的压缩和解压, 以及转换为dict</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]; b = [<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>z = zip(a, b)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>z</div><div class="line">[(<span class="number">1</span>, <span class="string">'a'</span>), (<span class="number">2</span>, <span class="string">'b'</span>), (<span class="number">3</span>, <span class="string">'c'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(z)     <span class="comment"># 转换为dict</span></div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(*z)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)]</div></pre></td></tr></table></figure>
-<h2 id="list相邻元素压缩器-升维"><a href="#list相邻元素压缩器-升维" class="headerlink" title="list相邻元素压缩器, 升维"></a>list相邻元素压缩器, 升维</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Using iterators / 使用迭代器</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent = <span class="keyword">lambda</span> a, k: zip(*([iter(a)] * k))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">1</span>)</div><div class="line">[(<span class="number">1</span>,), (<span class="number">2</span>,), (<span class="number">3</span>,), (<span class="number">4</span>,), (<span class="number">5</span>,), (<span class="number">6</span>,)]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Using slices / 使用切片</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent = <span class="keyword">lambda</span> a, k: zip(*(islice(a, i, <span class="keyword">None</span>, k) <span class="keyword">for</span> i <span class="keyword">in</span> range(k)))</div><div class="line"><span class="comment"># 该lambda函数展开形式如下:</span></div><div class="line"><span class="comment"># def n_grams(a, n):</span></div><div class="line"><span class="comment">#     z = (islice(a, i, None) for i in range(n))</span></div><div class="line"><span class="comment">#     return zip(*z)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">1</span>)</div><div class="line">[(<span class="number">1</span>,), (<span class="number">2</span>,), (<span class="number">3</span>,), (<span class="number">4</span>,), (<span class="number">5</span>,), (<span class="number">6</span>,)]</div></pre></td></tr></table></figure>
-<h2 id="list展开-降维"><a href="#list展开-降维" class="headerlink" title="list展开, 降维"></a>list展开, 降维</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 推荐使用 itertools.chain.from_iterable</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> itertools</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>], [<span class="number">5</span>, <span class="number">6</span>]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(itertools.chain.from_iterable(a))</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="comment"># 不推荐使用 sum</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sum(a, [])</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="comment"># for 循环</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>[x <span class="keyword">for</span> l <span class="keyword">in</span> a <span class="keyword">for</span> x <span class="keyword">in</span> l]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [[[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>]], [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>]]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>[x <span class="keyword">for</span> l1 <span class="keyword">in</span> a <span class="keyword">for</span> l2 <span class="keyword">in</span> l1 <span class="keyword">for</span> x <span class="keyword">in</span> l2]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>], [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>]]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>flatten = <span class="keyword">lambda</span> x: [y <span class="keyword">for</span> l <span class="keyword">in</span> x <span class="keyword">for</span> y <span class="keyword">in</span> flatten(l)] <span class="keyword">if</span> type(x) <span class="keyword">is</span> list <span class="keyword">else</span> [x]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>flatten(a)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]</div></pre></td></tr></table></figure>
-<h2 id="快速查找list的若干最值"><a href="#快速查找list的若干最值" class="headerlink" title="快速查找list的若干最值"></a>快速查找list的若干最值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> heapq, random</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [random.randint(<span class="number">0</span>, <span class="number">100</span>) <span class="keyword">for</span> __ <span class="keyword">in</span> xrange(<span class="number">100</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>heapq.nsmallest(<span class="number">5</span>, a)</div><div class="line">[<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">6</span>]             <span class="comment"># a中最小的5个数</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>heapq.nlargest(<span class="number">5</span>, a)</div><div class="line">[<span class="number">100</span>, <span class="number">100</span>, <span class="number">99</span>, <span class="number">98</span>, <span class="number">95</span>]      <span class="comment"># a中最大的5个数</span></div></pre></td></tr></table></figure>
-<h2 id="dict和list互换"><a href="#dict和list互换" class="headerlink" title="dict和list互换"></a>dict和list互换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dict-&gt;list</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.keys()</div><div class="line">[<span class="string">'a'</span>, <span class="string">'c'</span>, <span class="string">'b'</span>, <span class="string">'d'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.values()</div><div class="line">[<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.items()</div><div class="line">[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"></div><div class="line"><span class="comment"># list-&gt;dict</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>l=[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(l)</div><div class="line">&#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>names = [<span class="string">'Michael'</span>, <span class="string">'Bob'</span>, <span class="string">'Tracy'</span>]; scores = [<span class="number">95</span>, <span class="number">75</span>, <span class="number">85</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(names, scores)</div><div class="line">[(<span class="string">'Michael'</span>, <span class="number">95</span>), (<span class="string">'Bob'</span>, <span class="number">75</span>), (<span class="string">'Tracy'</span>, <span class="number">85</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(zip(names, scores))</div><div class="line">&#123;<span class="string">'Bob'</span>: <span class="number">75</span>, <span class="string">'Michael'</span>: <span class="number">95</span>, <span class="string">'Tracy'</span>: <span class="number">85</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="dict内key和value互换"><a href="#dict内key和value互换" class="headerlink" title="dict内key和value互换"></a>dict内key和value互换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># using zip</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(m.values(), m.keys())</div><div class="line">[(<span class="number">1</span>, <span class="string">'a'</span>), (<span class="number">3</span>, <span class="string">'c'</span>), (<span class="number">2</span>, <span class="string">'b'</span>), (<span class="number">4</span>, <span class="string">'d'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(zip(m.values(), m.keys()))</div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>, <span class="number">4</span>: <span class="string">'d'</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># using a dictionary comprehension</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.items()</div><div class="line">[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;v: k <span class="keyword">for</span> k, v <span class="keyword">in</span> m.items()&#125;</div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>, <span class="number">4</span>: <span class="string">'d'</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="快速生成规律性字典"><a href="#快速生成规律性字典" class="headerlink" title="快速生成规律性字典"></a>快速生成规律性字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;x: x ** <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>)&#125;</div><div class="line">&#123;<span class="number">0</span>: <span class="number">0</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">2</span>: <span class="number">4</span>, <span class="number">3</span>: <span class="number">9</span>, <span class="number">4</span>: <span class="number">16</span>&#125;</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;x: <span class="string">'A'</span> + str(x) <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)&#125;</div><div class="line">&#123;<span class="number">0</span>: <span class="string">'A0'</span>, <span class="number">1</span>: <span class="string">'A1'</span>, <span class="number">2</span>: <span class="string">'A2'</span>, <span class="number">3</span>: <span class="string">'A3'</span>, <span class="number">4</span>: <span class="string">'A4'</span>, <span class="number">5</span>: <span class="string">'A5'</span>, <span class="number">6</span>: <span class="string">'A6'</span>, <span class="number">7</span>: <span class="string">'A7'</span>, <span class="number">8</span>: <span class="string">'A8'</span>, <span class="number">9</span>: <span class="string">'A9'</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="字符串与列表字典的互换"><a href="#字符串与列表字典的互换" class="headerlink" title="字符串与列表字典的互换"></a>字符串与列表字典的互换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表 (去掉引号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"[1,2,3]"</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="comment"># 如果输入数据不安全, 使用ast.literal_eval(), eval的替代品, 更安全</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;字典 (去掉引号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"&#123;'one':1, 'two':2&#125;"</span>)</div><div class="line">&#123;<span class="string">'two'</span>: <span class="number">2</span>, <span class="string">'one'</span>: <span class="number">1</span>&#125;</div><div class="line"><span class="comment"># 如果输入数据不安全, 使用ast.literal_eval(), eval的替代品, 更安全</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = list(<span class="string">"hello"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst</div><div class="line">[<span class="string">'h'</span>, <span class="string">'e'</span>, <span class="string">'l'</span>, <span class="string">'l'</span>, <span class="string">'o'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(lst)</div><div class="line"><span class="string">'hello'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表 (指定分隔符, 如空格, 逗号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season = <span class="string">'spring, summer, autumn, winter'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season.split (<span class="string">','</span>)</div><div class="line">[<span class="string">'spring'</span>, <span class="string">' summer'</span>, <span class="string">' autumn'</span>, <span class="string">' winter'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="string">"spring"</span>, <span class="string">"summer"</span>, <span class="string">"autumn"</span>, <span class="string">"winter"</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">', '</span>.join(lst)</div><div class="line"><span class="string">'spring, summer, autumn, winter'</span></div><div class="line"></div><div class="line"><span class="comment"># 整数列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(str(e) <span class="keyword">for</span> e <span class="keyword">in</span> lst)</div><div class="line"><span class="string">'123'</span></div></pre></td></tr></table></figure>
-<h1 id="参考和资料"><a href="#参考和资料" class="headerlink" title="参考和资料"></a>参考和资料</h1><ul>
-<li><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001411031239400f7181f65f33a4623bc42276a605debf6000" target="_blank" rel="external">廖雪峰的官方网站之python教程</a></li>
-<li><a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a></li>
-<li><a href="http://codingpy.com/article/the-idiomatic-way-to-merge-dicts-in-python/" target="_blank" rel="external">怎样合并字典最符合Python语言习惯？</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/18/1628-soft-regular/" itemprop="url">
-                  正则表达式
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-18T00:00:00+11:00" content="2016-12-18">
-              2016-12-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/software/" itemprop="url" rel="index">
-                    <span itemprop="name">software</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="正则表达式基础内容"><a href="#正则表达式基础内容" class="headerlink" title="正则表达式基础内容"></a>正则表达式基础内容</h1><table>
-<thead>
-<tr>
-<th>RE 字符/范例</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>\</code></td>
-<td>跳脱/转义字符</td>
-</tr>
-<tr>
-<td><strong>占位符</strong></td>
-<td>表示一个字符</td>
-</tr>
-<tr>
-<td><code>^word</code></td>
-<td><code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;^#&#39; re.txt</code></td>
-<td>显示行首为 <code>#</code> 的行</td>
-</tr>
-<tr>
-<td><code>word$</code></td>
-<td><code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;!$&#39; re.txt</code></td>
-<td>显示行尾为 <code>!</code> 的行</td>
-</tr>
-<tr>
-<td><code>.</code></td>
-<td>代表<strong>任意一个</strong>字符, 必须有一个字符</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;e.e&#39; re.txt</code></td>
-<td>结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code></td>
-</tr>
-<tr>
-<td><code>[]</code></td>
-<td>字符集合. <strong>除<code>^</code> <code>\</code> <code>-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
-</tr>
-<tr>
-<td><code>[^]</code></td>
-<td>中括号内的第一个<code>^</code>表示补集, <del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
-<td>匹配 <code>(</code> <code>+</code> <code>*</code> <code>)</code> 中的一个字符.</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;[0-9]&#39; re.txt</code></td>
-<td>搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
-<td>排除结果 <code>oo0-oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
-</tr>
-<tr>
-<td><strong>数量符</strong></td>
-<td>跟在一个字符或组的后面, 重复该RE字符或组若干次</td>
-</tr>
-<tr>
-<td><code>*</code></td>
-<td><strong>零个或多个</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;ess*&#39; re.py</code></td>
-<td>结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code></td>
-</tr>
-<tr>
-<td>…… <code>.*</code></td>
-<td>表示任意字符</td>
-</tr>
-<tr>
-<td><code>{m,n}</code></td>
-<td><strong>连续m到n个</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>…… <code>{m,}</code></td>
-<td><strong>连续m个及以上</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>…… <code>{m}</code></td>
-<td><strong>连续m个</strong>的前一RE字符</td>
-</tr>
-<tr>
-<td>…… <code>grep -n &#39;go\{2,3\}g&#39; re.txt</code></td>
-<td>结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).</td>
-</tr>
-<tr>
-<td><code>?</code></td>
-<td><strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code></td>
-</tr>
-<tr>
-<td>…… <code>egrep -n &#39;go?d&#39; re.txt</code></td>
-<td>只能匹配<code>gd</code>和<code>god</code></td>
-</tr>
-<tr>
-<td><code>+</code></td>
-<td>重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code></td>
-</tr>
-<tr>
-<td>…… <code>egrep -n &#39;go+d&#39; re.txt</code></td>
-<td>匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del></td>
-</tr>
-<tr>
-<td><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code></td>
-<td>让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符</td>
-</tr>
-<tr>
-<td>…… <code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
-<td>会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del></td>
-</tr>
-<tr>
-<td>…… <code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
-<td><code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串</td>
-</tr>
-<tr>
-<td><strong>逻辑分组</strong></td>
-<td>对字符进行分组和判断</td>
-</tr>
-<tr>
-<td><code>()</code></td>
-<td>分组字符串</td>
-</tr>
-<tr>
-<td>…… <code>egrep &#39;A(xyz)+C&#39;</code></td>
-<td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
-</tr>
-<tr>
-<td><code>\number</code></td>
-<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
-</tr>
-<tr>
-<td>…… <code>(\d)abc\1</code></td>
-<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><code>|</code> 理解为或即可, 用来隔开多个正则表达式.</li>
-<li>譬如 <code>egrep -n &#39;gd|good&#39; re.txt</code>   只能匹配<code>gd</code>和<code>good</code></li>
-<li>譬如 <code>egrep -n &#39;g(la|oo)d&#39; re.txt</code> 只能匹配<code>glad</code>和<code>good</code></li>
-</ul>
-<h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
-<p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
-<table>
-<thead>
-<tr>
-<th>系统字符集</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>\d</code></td>
-<td>digital, 数字字符, <code>[0-9]</code></td>
-</tr>
-<tr>
-<td><code>\D</code></td>
-<td>非数字字符, <code>[^\d]</code></td>
-</tr>
-<tr>
-<td><code>\s</code></td>
-<td>space, 空白字符, <code>[ \t\r\n\f\v]</code></td>
-</tr>
-<tr>
-<td><code>\S</code></td>
-<td>非空白字符, <code>[^\s]</code></td>
-</tr>
-<tr>
-<td><code>\w</code></td>
-<td>word, 单词字符, <code>[A-Za-z0-9_]</code></td>
-</tr>
-<tr>
-<td><code>\W</code></td>
-<td>非单词字符, <code>[^\w]</code></td>
-</tr>
-<tr>
-<td><code>\A</code></td>
-<td>仅匹配字符串开头</td>
-</tr>
-<tr>
-<td><code>\Z</code></td>
-<td>仅匹配字符串结尾</td>
-</tr>
-<tr>
-<td><code>\b</code></td>
-<td>提取指定的<code>\w</code>串</td>
-</tr>
-<tr>
-<td>… <code>\bfoo\b</code></td>
-<td>匹配 <code>foo</code> <code>foo.</code> <code>(foo)</code> <code>b foo z</code>, <del>不匹配 <code>foobar</code></del></td>
-</tr>
-<tr>
-<td><code>\B</code></td>
-<td><code>[^\b]</code>, 指定部分内容提取<code>\w</code>串</td>
-</tr>
-<tr>
-<td>… <code>py\B</code></td>
-<td>匹配 <code>python</code> <code>py3</code>, <del>不匹配 <code>py</code> <code>py.</code> <code>py!</code></del></td>
-</tr>
-</tbody>
-</table>
-<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 系统字符集如下:</p>
-<table>
-<thead>
-<tr>
-<th>系统字符集</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>[:alnum:]</code></td>
-<td>单词字符, <code>[A-Za-z0-9_]</code></td>
-</tr>
-<tr>
-<td><code>[:alpha:]</code></td>
-<td>字母字符, <code>[A-Za-z]</code></td>
-</tr>
-<tr>
-<td><code>[:ascii:]</code></td>
-<td>ASCII字符, <code>[\x00-\x7F]</code></td>
-</tr>
-<tr>
-<td><code>[:blank:]</code></td>
-<td>空格字符, <code>[ \t]</code></td>
-</tr>
-<tr>
-<td><code>[:cntrl:]</code></td>
-<td>控制键字符, <code>[\x00-\x1F\x7F]</code></td>
-</tr>
-<tr>
-<td><code>[:digit:]</code></td>
-<td>数字字符, <code>[0-9]</code></td>
-</tr>
-<tr>
-<td><code>[:graph:]</code></td>
-<td>非空字符, <code>[\x21-\x7E]</code>, <code>[:blank:]</code>的补集</td>
-</tr>
-<tr>
-<td><code>[:lower:]</code></td>
-<td>小写字母, <code>[a-z]</code></td>
-</tr>
-<tr>
-<td><code>[:print:]</code></td>
-<td>可被打印的字符, <code>[\x20-\x7E]</code></td>
-</tr>
-<tr>
-<td><code>[:punct:]</code></td>
-<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\</code>^_{}~-]丨`</td>
-</tr>
-<tr>
-<td><code>[:upper:]</code></td>
-<td>大写字母 <code>[A-Z]</code></td>
-</tr>
-<tr>
-<td><code>[:space:]</code></td>
-<td>空白字符 <code>[ \t\r\n\v\f]</code></td>
-</tr>
-<tr>
-<td><code>[:word:]</code></td>
-<td>字母字符 <code>[A-Za-z_]</code></td>
-</tr>
-<tr>
-<td><code>[:xdigit:]</code></td>
-<td>16进制类型 <code>[0-9A-Fa-f]</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="BRE-基础RE"><a href="#BRE-基础RE" class="headerlink" title="BRE, 基础RE"></a>BRE, 基础RE</h2><p>即, Basic Regular Expression<br>BRE只定义了6组元字符：</p>
-<ul>
-<li><code>[]</code>, 用于在多个字符中选定一个字符进行匹配</li>
-<li><code>.</code>,  用于匹配任意字符</li>
-<li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
-<li><code>$</code>,  用于匹配行尾</li>
-<li><code>*</code>,  零个或多个的前一RE字符</li>
-<li><code>\</code>,  跳脱/转义字符</li>
-</ul>
-<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派,<br>为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪. <code>()</code> <code>{}</code> 需要使用 <code>\</code> 转义后才有特殊含义.<br>如果直接使用 <code>a{1,2}</code>, 只能去匹配 <code>a{1,2}</code> 字符串. 只有使用 <code>a\{1,2\}</code> 才能匹配为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code> <code>?</code> <code>(...|...)</code> <code>\number</code></del></p>
-<h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
-<ul>
-<li><code>{}</code> 用于表示重复匹配的次数. BRE中将<code>{}</code>当作普通字符对待，必须加<code>\</code>进行转义, 即<code>\{\}</code></li>
-<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，必须加<code>\</code>进行转义，即<code>\(\)</code></li>
-<li><code>|</code>, 完全为ERE新增的多项匹配能力定义的，BRE无多项匹配能力，只将<code>|</code>作普通字符对待</li>
-<li><code>\number</code>, ERE没有明确规定需要支持反向引用, 但不少工具都支持此功能</li>
-</ul>
-<h2 id="linux-unix下的RE表达式汇总"><a href="#linux-unix下的RE表达式汇总" class="headerlink" title="linux/unix下的RE表达式汇总"></a>linux/unix下的RE表达式汇总</h2><table>
-<thead>
-<tr>
-<th>PCRE记法</th>
-<th>vi/vim</th>
-<th>grep</th>
-<th>egrep</th>
-<th>awk</th>
-<th>sed</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>*</code></td>
-<td><code>*</code></td>
-<td><code>*</code></td>
-<td><code>*</code></td>
-<td><code>*</code></td>
-<td><code>*</code></td>
-</tr>
-<tr>
-<td><code>+</code></td>
-<td><code>\+</code></td>
-<td><code>\+</code></td>
-<td><code>+</code></td>
-<td><code>+</code></td>
-<td><code>\+</code></td>
-</tr>
-<tr>
-<td><code>?</code></td>
-<td><code>\=</code></td>
-<td><code>\?</code></td>
-<td><code>?</code></td>
-<td><code>?</code></td>
-<td><code>\?</code></td>
-</tr>
-<tr>
-<td><code>{m,n}</code></td>
-<td><code>\{m,n}</code></td>
-<td><code>\{m,n\}</code></td>
-<td><code>{m,n}</code></td>
-<td><code>{m,n}</code></td>
-<td><code>\{m,n\}</code></td>
-</tr>
-<tr>
-<td><code>\b</code></td>
-<td><code>\&lt;</code> <code>\&gt;</code></td>
-<td><code>\&lt;</code> <code>\&gt;</code></td>
-<td><code>\&lt;</code> <code>\&gt;</code></td>
-<td><code>\&lt;</code> <code>\&gt;</code></td>
-<td><code>\y</code> <code>\&lt;</code> <code>\&gt;</code></td>
-</tr>
-<tr>
-<td><code>(…)</code></td>
-<td><code>\(…\)</code></td>
-<td><code>\(…\)</code></td>
-<td><code>(…)</code></td>
-<td><code>(…)</code></td>
-<td><code>(…)</code></td>
-</tr>
-<tr>
-<td><code>\1</code> <code>\2</code></td>
-<td><code>\1</code> <code>\2</code></td>
-<td><code>\1</code> <code>\2</code></td>
-<td><code>\1</code> <code>\2</code></td>
-<td>不支持</td>
-<td><code>\1</code> <code>\2</code></td>
-</tr>
-</tbody>
-</table>
-<p>注意:</p>
-<ul>
-<li>PCRE中常用<code>\b</code>来表示<strong>单词的起始或结束位</strong>,</li>
-<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong>, 用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
-<li><code>sed</code>中的<code>\y</code>可以同时匹配这两个位置。</li>
-</ul>
-<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><table>
-<thead>
-<tr>
-<th>特殊字符</th>
-<th>bash shell中的含义</th>
-<th>RE中的含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>*</code></td>
-<td>零个到多个任意字符</td>
-<td>重复零个或多个前一RE字符</td>
-</tr>
-<tr>
-<td><code>?</code></td>
-<td>一个任意字符</td>
-<td>重复零个或一个前一RE字符</td>
-</tr>
-<tr>
-<td><code>.</code></td>
-<td>运行代码 <code>source</code></td>
-<td>一个任意字符</td>
-</tr>
-<tr>
-<td><code>[0-9a-z]</code></td>
-<td>list内的一个字符</td>
-<td>list内的一个字符</td>
-</tr>
-<tr>
-<td><code>[0-9]</code>的补集</td>
-<td><code>[!0-9]</code> ()</td>
-<td><code>[^range]</code> (<code>!</code>在RE里是普通字符)</td>
-</tr>
-<tr>
-<td><code>{}</code></td>
-<td><code>{123,abc}</code> 字符串匹配</td>
-<td><code>{m,n}</code> 重复m到n个前一RE字符</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>匹配<code>a</code>开头的任意文件<ul>
-<li>bash下 <code>ls a*</code></li>
-<li>re下 <code>ls | grep &quot;^a.*&quot;</code></li>
-</ul>
-</li>
-<li>匹配string1或string2或更多之一字符串<ul>
-<li>bash下 <code>{string1,string2,string3}</code>. 如 <code>touch a{xyz,123}.txt</code>, 结果为 <code>axyz.txt</code> <code>a123.txt</code></li>
-<li>re下 <code>(string1|string2|string3)</code>. 如 <code>ls | egrep &#39;g(la|oo)d&#39;</code>, 结果为 <code>glad</code> <code>good</code></li>
-</ul>
-</li>
-<li>连续字符匹配<ul>
-<li>bash下, 有两种连续字符表示法 <code>{0..9}</code> 和 <code>[0-9]</code>, 支持<code>[1-3a-z]</code>, <del>不支持<code>{1..3a..z}</code></del>, </li>
-<li>bash下 <code>touch {ex{1..3},ex4}.sh</code>或<code>touch {ex{1..3},ex4}.sh</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code> </li>
-<li>re下 <code>ls | egrep &quot;(ex[1-3]|ex4).sh&quot;</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code></li>
-</ul>
-</li>
-<li>简单总结, RE的功能远比bash自带的匹配符功能强大. 特别容易弄混的也就是 <code>*</code> <code>?</code> <code>[^range]</code></li>
-</ul>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="http://python.usyiyi.cn/documents/python_278/library/re.html" target="_blank" rel="external">python标准库 7.2 re — 正则表达式操作</a></li>
-<li><a href="http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html" target="_blank" rel="external">Python正则表达式指南</a></li>
-<li><a href="http://linux.vbird.org/linux_basic/0330regularex.php" target="_blank" rel="external">鸟哥的私房菜 第十一章、正規表示法與文件格式化處理</a></li>
-<li><a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank" rel="external">Linux/Unix工具与正则表达式的POSIX规范</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/17/1627-linux-cmd-bash/" itemprop="url">
-                  Bash Shell及环境变量
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-17T00:00:00+11:00" content="2016-12-17">
-              2016-12-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="入门教程"><a href="#入门教程" class="headerlink" title="入门教程"></a>入门教程</h1><p>推荐 <a href="http://c.biancheng.net/cpp/shell/" target="_blank" rel="external">C语言中文网-Shell教程</a></p>
-<ul>
-<li><a href="http://c.biancheng.net/cpp/view/6998.html" target="_blank" rel="external">第一个shell脚本</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/6999.html" target="_blank" rel="external">shell变量</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="external">shell特殊变量</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2737.html" target="_blank" rel="external">shell替换</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2736.html" target="_blank" rel="external">shell运算符</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7000.html" target="_blank" rel="external">shell注释</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7001.html" target="_blank" rel="external">shell字符串</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7002.html" target="_blank" rel="external">shell数组</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7003.html" target="_blank" rel="external">shell echo命令</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/1499.html" target="_blank" rel="external">shell printf命令</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7005.html" target="_blank" rel="external">shell if else语句</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7006.html" target="_blank" rel="external">shell case esac语句</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7007.html" target="_blank" rel="external">shell for循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7008.html" target="_blank" rel="external">shell while循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7009.html" target="_blank" rel="external">shell until循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7010.html" target="_blank" rel="external">shell跳出循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7011.html" target="_blank" rel="external">shell函数</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2491.html" target="_blank" rel="external">shell函数参数</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2738.html" target="_blank" rel="external">shell输入输出重定向</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2740.html" target="_blank" rel="external">shell文件包含</a></li>
-</ul>
-<h1 id="Bash-Shell基础操作"><a href="#Bash-Shell基础操作" class="headerlink" title="Bash Shell基础操作"></a>Bash Shell基础操作</h1><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>[Tab]</code></td>
-<td>指令或文件名自动补齐</td>
-</tr>
-<tr>
-<td><code>[Tab][Tab]</code></td>
-<td>连按两下[Tab], 列出所有可补齐的指令或档案</td>
-</tr>
-<tr>
-<td><code>[ctrl]-c</code></td>
-<td>中断指令</td>
-</tr>
-<tr>
-<td><code>[ctrl]-d</code></td>
-<td>EOF,表示输入结束</td>
-</tr>
-<tr>
-<td><code>[↑]</code> <code>[↓]</code></td>
-<td>浏览历史指令</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>stty</code></td>
-<td>查看和设置终端按键参数</td>
-</tr>
-<tr>
-<td>…… <strong><code>stty -a</code></strong></td>
-<td>查看终端所有的按键参数</td>
-</tr>
-<tr>
-<td><code>history</code></td>
-<td>查询历史指令, 建议将其设置别名<code>alias h=’history’</code></td>
-</tr>
-<tr>
-<td><code>!</code></td>
-<td>执行历史指令, 后接数字或字母</td>
-</tr>
-<tr>
-<td>…… <strong><code>!!</code></strong></td>
-<td>执行上一个指令</td>
-</tr>
-<tr>
-<td>…… <strong><code>!al</code></strong></td>
-<td>执行以al为开头的最后一个指令</td>
-</tr>
-<tr>
-<td>…… <strong><code>!12</code></strong></td>
-<td>执行第12条历史指令(先用history查看历史指令号)</td>
-</tr>
-<tr>
-<td><code>alias cmd=’command’</code></td>
-<td>设置指令别名, command为指令字符串</td>
-</tr>
-<tr>
-<td>…… <strong><code>alias h=history</code></strong></td>
-<td>设置指令history的别名为h.不用引号,单双引号皆可</td>
-</tr>
-<tr>
-<td><code>unalias cmd</code></td>
-<td>取消指令别名</td>
-</tr>
-<tr>
-<td><code>type -a command</code></td>
-<td>查询指令类型(file外部指令; alias别名指令;builtin内建指令)</td>
-</tr>
-<tr>
-<td><code>command --help</code></td>
-<td>获取command内置的帮助信息,较为简短</td>
-</tr>
-<tr>
-<td><code>man command</code></td>
-<td>获取command的帮助文件. <code>j</code> <code>k</code>上下移动, <code>q</code>退出</td>
-</tr>
-<tr>
-<td><code>sh file</code></td>
-<td>创建一个子shell, 执行file内的指令</td>
-</tr>
-<tr>
-<td><code>source file</code></td>
-<td>在当前shell内,执行file内的指令</td>
-</tr>
-<tr>
-<td><code>. file</code></td>
-<td>等同于source file</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>su -l user</code></td>
-<td>切换用户, -l表示环境变量一起变</td>
-</tr>
-<tr>
-<td>…… <strong><code>su</code></strong></td>
-<td>切换为管理员账户</td>
-</tr>
-<tr>
-<td><code>sudo command</code></td>
-<td>赋予用户临时的管理员权限 (<code>/etc/sudoers</code>决定是否支持)</td>
-</tr>
-<tr>
-<td><code>exit</code></td>
-<td>退出当前用户的终端环境</td>
-</tr>
-<tr>
-<td><code>shutdown -h now</code></td>
-<td>立刻关机</td>
-</tr>
-<tr>
-<td><code>sync; sync; shutdown -r now</code></td>
-<td>立刻重启, 重启前需要存储一下数据</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>date</code></td>
-<td>时间</td>
-</tr>
-<tr>
-<td><code>cal</code></td>
-<td>日期</td>
-</tr>
-<tr>
-<td><code>bc</code></td>
-<td>计算器, 输入quit退出</td>
-</tr>
-<tr>
-<td><code>apt-get</code></td>
-<td>ubuntu deb包软件管理</td>
-</tr>
-<tr>
-<td>…… <strong><code>sudo apt-get install packagename</code></strong></td>
-<td>安装指定软件包</td>
-</tr>
-<tr>
-<td>…… <strong><code>sudo apt-get autoremovepackagename</code></strong></td>
-<td>删除指定软件包 (包括配置文件)</td>
-</tr>
-</tbody>
-</table>
-<h1 id="变量与环境变量"><a href="#变量与环境变量" class="headerlink" title="变量与环境变量"></a>变量与环境变量</h1><ul>
-<li>系统变量一般大写, 如MAIL</li>
-<li>用户变量一般小写, 如myhome</li>
-<li>普通变量(也称shell变量)作用范围: 当前的shell</li>
-<li>环境变量(也称用户变量)作用范围: 当前的shell及其子shell</li>
-<li>环境变量开机设置文档<ul>
-<li><code>~/.bashrc</code>, <code>~/.profile</code>, <code>/etc/profile</code>, <code>/etc/bash.bashrc</code>,等等</li>
-<li>首先读取 <code>/etc/profile</code>, 最后读取 <code>~/.bashrc</code></li>
-<li>个人设定建议放在<code>~/.bashrc</code>内,并做如下修改:</li>
-<li>修改<code>HISTSIZE=50</code>  (减少记录的历史指令,安全)</li>
-<li>加入<code>alias h=&#39;history&#39;</code></li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>myhome=/home/my/</code></td>
-<td>无空格字符串,注意等号左右不要有空格</td>
-</tr>
-<tr>
-<td><code>myhome=’/home/my/’</code></td>
-<td>单引号内可包含任意字符串, 无特殊含义</td>
-</tr>
-<tr>
-<td><code>myname=”my name is”</code></td>
-<td>双引号内某些字符有特殊作用, 如 $</td>
-</tr>
-<tr>
-<td><code>read variable</code></td>
-<td>键盘输入变量, 回车表示结束输入</td>
-</tr>
-<tr>
-<td>…… <strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
-<td>提示输入变量给myname, 30秒输入时间</td>
-</tr>
-<tr>
-<td><code>echo $myhome</code></td>
-<td>变量名前加上$, 即可读取该变量的值</td>
-</tr>
-<tr>
-<td><code>echo “$myhome”</code></td>
-<td>“$变量名”,无歧义. 注意不能单引号</td>
-</tr>
-<tr>
-<td><code>echo ${myhome}</code></td>
-<td>${变量名},无歧义</td>
-</tr>
-<tr>
-<td><code>unset myhome</code></td>
-<td>删除变量</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>let val=10*10</code></td>
-<td>加上let后, val值为100,而非10*10. 用的比declare多!</td>
-</tr>
-<tr>
-<td><code>readonly VAL=’read only’</code></td>
-<td>将VAL为只读变量,不可更改和unset (等同 declare -r)</td>
-</tr>
-<tr>
-<td><code>declare -ai array</code></td>
-<td>将array声明为整数数组 (不加参数a,效果一样)</td>
-</tr>
-<tr>
-<td><code>array[1]=10*10</code></td>
-<td>数组的赋值, array定义为整数,因此array[1]值为100</td>
-</tr>
-<tr>
-<td><code>echo ${array[1]}</code></td>
-<td>使用”$array[1]”没用.若无{}, 会认为是”$array”[1]</td>
-</tr>
-<tr>
-<td><code>unset array</code></td>
-<td>将array数组变量删除</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>PATH=/home:$PATH</code></td>
-<td>新增”/home:”在PATH变量最前面</td>
-</tr>
-<tr>
-<td><code>PATH=”$PATH””:/home”</code></td>
-<td>前后都加”双引号”,无歧义. 建议这样书写</td>
-</tr>
-<tr>
-<td><code>PATH=${PATH}’:/home’</code></td>
-<td>变量名用{大括号}指明,无歧义. 新增变量也可用’单引号’</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>echo $?</code></td>
-<td>?为特殊变量,为上一指令传回的值. 0成功, !0失败</td>
-</tr>
-<tr>
-<td><code>echo $$</code></td>
-<td>获取并显示当前shell的 PID (process ID)</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>#</code> <code>##</code> <code>%</code> <code>%%</code> <code>/</code> <code>//</code></td>
-<td>变量的截取和替换. 以<code>myhome=/home/test/test.sh</code>为例</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome#/*/}</code></strong></td>
-<td><code>test/test.sh</code>,从头比较, 单次删除,故<del><code>/home/</code></del></td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome##/*/}</code></strong></td>
-<td><code>test.sh</code>, 从头比较, 全部删除,获得文件名</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome%/*}</code></strong></td>
-<td><code>/home/test</code>,从尾比较, 单次删除,获得路径</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome%%/*}</code></strong></td>
-<td>从尾比较, 全部删除,故全部被删掉</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome/test/TEST}</code></strong></td>
-<td><code>/home/TEST/test.h</code>, 从头比较, 单次替换</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome//test/TEST}</code></strong></td>
-<td><code>/home/TEST/TEST.h</code>,从头比较, 全部替换</td>
-</tr>
-<tr>
-<td><code>-</code> <code>:-</code> <code>+</code> <code>:+</code> <code>=</code> <code>:=</code> <code>?</code> <code>:?</code></td>
-<td>变量的比较和判断. 常用于判断和确保变量有效</td>
-</tr>
-<tr>
-<td>…… <strong><code>var=${str-expr}</code></strong></td>
-<td>var为目标变量, str为已有变量, expr为变量值</td>
-</tr>
-<tr>
-<td>…… <strong><code>myname=${myname:-root}</code></strong></td>
-<td>若myname不存在或为空,则myname=root</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>env</code></td>
-<td>enviroment, 显示当前环境变量,用的最多!</td>
-</tr>
-<tr>
-<td><code>set</code></td>
-<td>显示所有变量(环境变量,普通变量)</td>
-</tr>
-<tr>
-<td><code>export</code></td>
-<td>显示已成为当前环境变量的普通变量</td>
-</tr>
-<tr>
-<td>…… <strong><code>export variable</code></strong></td>
-<td>将variable设为环境变量, 等同 <code>declare -x variable</code></td>
-</tr>
-<tr>
-<td><code>locale</code></td>
-<td>查看当前语言的环境变量</td>
-</tr>
-<tr>
-<td>…… <strong><code>locale -a</code></strong></td>
-<td>查看系统支持的语言</td>
-</tr>
-</tbody>
-</table>
-<h1 id="Bash-Shell特殊符号"><a href="#Bash-Shell特殊符号" class="headerlink" title="Bash Shell特殊符号"></a>Bash Shell特殊符号</h1><table>
-<thead>
-<tr>
-<th>符号</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>*</code></td>
-<td>万用字符, 表示0或多个字符</td>
-</tr>
-<tr>
-<td><code>?</code></td>
-<td>万用字符, 表示一个字符</td>
-</tr>
-<tr>
-<td><code>!</code></td>
-<td>逻辑非, 通常在<code>[中括号]</code>内使用</td>
-</tr>
-<tr>
-<td><code>\</code></td>
-<td>转义字符, 需要转义的字符 <code>&quot;</code> <code>&#39;</code> <code>$</code> <code>\</code> <code>` \</code></td>
-</tr>
-<tr>
-<td>…… <strong><code>\n</code></strong></td>
-<td>换行</td>
-</tr>
-<tr>
-<td>…… <strong><code>\r</code></strong></td>
-<td>回车</td>
-</tr>
-<tr>
-<td>…… <strong><code>\t</code></strong></td>
-<td>水平制表符</td>
-</tr>
-<tr>
-<td>…… <strong><code>\v</code></strong></td>
-<td>垂直制表符</td>
-</tr>
-<tr>
-<td>…… <strong><code>\b</code></strong></td>
-<td>后退</td>
-</tr>
-<tr>
-<td>…… <strong><code>\a</code></strong></td>
-<td>蜂鸣</td>
-</tr>
-<tr>
-<td>…… <strong><code>\077</code></strong></td>
-<td>八进制字符</td>
-</tr>
-<tr>
-<td>…… <strong><code>\xff</code></strong></td>
-<td>十六进制</td>
-</tr>
-<tr>
-<td><code>#</code></td>
-<td>批注</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>$variable</code></td>
-<td>变量名</td>
-</tr>
-<tr>
-<td><code>${variable}</code></td>
-<td>大括号. 中间为命令区块组合,限定变量名范围</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${array[1]}</code></strong></td>
-<td>显示<code>array[1]</code> 变量值, array为数组,需用<code>{大括号}</code>包含变量名</td>
-</tr>
-<tr>
-<td><code>[a-f], [35], [!a-z]</code></td>
-<td>中括号. 中间为字符组合, <code>[仅代表一个字符]</code></td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -d ~/*[0-9]*</code></strong></td>
-<td>列出用户home目录下所有包含数字的文件和目录</td>
-</tr>
-<tr>
-<td><code>$(command)</code></td>
-<td>小括号. 中间为子shell,此命令等同于`command`</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>&#39;$string&#39;</code></td>
-<td>单引号, 特殊符号无效,变量不置换, 显示为$string</td>
-</tr>
-<tr>
-<td><code>&quot;$variable&quot;</code></td>
-<td>双引号, 特殊符号有用,变量置换</td>
-</tr>
-<tr>
-<td>`command`</td>
-<td>`(键盘1左边的字符),需要优先执行的指令</td>
-</tr>
-<tr>
-<td>…… <strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
-<td>进入当前linux的内核源码目录</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>cmd1 l cmd2 和 cm1 ll cmd2</td>
-<td>hexo解析问题, 无法再表格中正确显示<code>丨</code>, <strong>故放到表格的最后</strong></td>
-</tr>
-<tr>
-<td><code>cut</code> <code>grep</code> <code>split</code></td>
-<td>截取分割, 通常配合 <code>pipe</code>使用</td>
-</tr>
-<tr>
-<td><code>sort</code> <code>wc</code> <code>uniq</code></td>
-<td>排序命令, 通常配合 <code>pipe</code>使用</td>
-</tr>
-<tr>
-<td><code>tr</code> <code>col</code> <code>join</code> <code>paste</code> <code>expand</code></td>
-<td>字符转换, 通常配合 <code>pipe</code>使用</td>
-</tr>
-<tr>
-<td><code>cmd1;cmd2; cmd3</code></td>
-<td>可以一行写多个指令</td>
-</tr>
-<tr>
-<td><code>cmd1 &amp;&amp; cmd2</code></td>
-<td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>&gt;</code> <code>2&gt;</code> <code>&gt;&gt;</code> <code>2&gt;&gt;</code></td>
-<td>输出到文件 (&gt;写入, &gt;&gt;累加, 2错误信息)</td>
-</tr>
-<tr>
-<td>…… <strong><code>ll &gt; list.txt</code></strong></td>
-<td>将当前目录下的文件详细信息存储到list.txt文件中</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls / &gt;&gt; list.txt</code></strong></td>
-<td>将根目录下的文件信息追加到list.txt文件中</td>
-</tr>
-<tr>
-<td>…… <strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
-<td>将正确信息写到ok中,错误的写到error中</td>
-</tr>
-<tr>
-<td>…… <strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
-<td>将所有信息都写到list中 (&amp;1是数字一)</td>
-</tr>
-<tr>
-<td>…… <strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
-<td><code>/dev/null</code>相当于黑洞.只将错误写到err中</td>
-</tr>
-<tr>
-<td><code>&lt;</code> <code>&lt;&lt;</code></td>
-<td>输入信息(&lt;从文件获取, &lt;&lt;结束的输入字符)</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat &gt; catfile</code></strong></td>
-<td>从键盘获取文本并写到catfile中 (键盘按[ctrl]+d结束输入)</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
-<td>从键盘获取文本并写到catfile中(键盘输入end结束输入)</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat &gt; catfile &lt; input</code></strong></td>
-<td>导入input文件信息再写到catfile中</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><code>cmd1 | cmd2</code>  <code>pipe</code>管线命令,将cmd1的处理结果传给cmd2继续处理</li>
-<li>譬如 <code>ll | more</code>  将ll获得的数据传给more进一步处理</li>
-<li><code>cmd1 || cmd2</code>  cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</li>
-<li>譬如 <code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; || echo &quot;nofile&quot;</code> 如果<code>/tmp/test</code>存在显示<code>exist</code>,否则<code>nofile</code></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/16/1626-linux-cmd-file/" itemprop="url">
-                  linux文件与目录相关指令
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-16T00:00:00+11:00" content="2016-12-16">
-              2016-12-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="linux-文件基础"><a href="#linux-文件基础" class="headerlink" title="linux 文件基础"></a>linux 文件基础</h1><h2 id="特殊符号代表的目录"><a href="#特殊符号代表的目录" class="headerlink" title="特殊符号代表的目录:"></a>特殊符号代表的目录:</h2><table>
-<thead>
-<tr>
-<th>特殊符号</th>
-<th>目录</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>.</code></td>
-<td>代表此层目录</td>
-</tr>
-<tr>
-<td><code>..</code></td>
-<td>代表上一层目录</td>
-</tr>
-<tr>
-<td><code>~</code></td>
-<td>代表<strong>目前使用者</strong>所在的家目录</td>
-</tr>
-<tr>
-<td><code>~account</code></td>
-<td>代表<strong>account</strong>这个使用者的家目录</td>
-</tr>
-<tr>
-<td><code>~+</code></td>
-<td>当前的工作目录, 等同于<code>pwd</code></td>
-</tr>
-<tr>
-<td><code>~-</code></td>
-<td>上次的工作目录</td>
-</tr>
-</tbody>
-</table>
-<h2 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h2><table>
-<thead>
-<tr>
-<th>bit9</th>
-<th>8</th>
-<th>7</th>
-<th>6</th>
-<th>5</th>
-<th>4</th>
-<th>3</th>
-<th>2</th>
-<th>1</th>
-<th>0</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>-</td>
-<td>r</td>
-<td>w</td>
-<td>x</td>
-<td>r</td>
-<td>-</td>
-<td>x</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>bit</th>
-<th>字母</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>9</td>
-<td></td>
-<td>文件类型</td>
-</tr>
-<tr>
-<td></td>
-<td><code>d</code></td>
-<td>目录(dir)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>-</code></td>
-<td>文件</td>
-</tr>
-<tr>
-<td></td>
-<td><code>l</code></td>
-<td>链接文件(link)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>b</code></td>
-<td>块设备文件(block)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>c</code></td>
-<td>字符设备文件(character)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>s</code></td>
-<td>网络接口文件(sockets)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>p</code></td>
-<td>管道文件(FIFO, pipe)</td>
-</tr>
-<tr>
-<td>876</td>
-<td><code>rwx</code></td>
-<td>拥有人的权限, r为可读, w为可写, x为可执行</td>
-</tr>
-<tr>
-<td>543</td>
-<td><code>r-x</code></td>
-<td>同群组的权限, r为可读, -为不可写, x为可执行</td>
-</tr>
-<tr>
-<td>210</td>
-<td><code>---</code></td>
-<td>其它群组权限, 不可读, 不可写, 不可执行</td>
-</tr>
-</tbody>
-</table>
-<h1 id="文件与目录常用指令"><a href="#文件与目录常用指令" class="headerlink" title="文件与目录常用指令"></a>文件与目录常用指令</h1><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>cd</code></td>
-<td><strong>Change Directory</strong>, 变换目录</td>
-</tr>
-<tr>
-<td><code>pwd</code></td>
-<td><strong>Print Working Directory</strong>, 显示目前的目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>pwd -P</code></strong></td>
-<td>显示真实路径, 而非link路径</td>
-</tr>
-<tr>
-<td><code>mkdir dir</code></td>
-<td>Make Directory, 建立一个新的目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>mkdir -p dir1/dir2</code></strong></td>
-<td>递归建立所有目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>mkdir -m 711 dir</code></strong></td>
-<td>建立目录时,设定权限</td>
-</tr>
-<tr>
-<td><code>rmdir dir</code></td>
-<td><strong>Remove Directory</strong>, 删除一个空的目录</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>ls</code></td>
-<td><strong>List Files</strong>, 显示文件与目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -h</code></strong></td>
-<td>以KB,GB显示容量.</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -R</code></strong></td>
-<td>Recursive, 递归显示子目录信息</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -t</code></strong></td>
-<td>以时间排序</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -S</code></strong></td>
-<td>以容量大小排序</td>
-</tr>
-<tr>
-<td>…… <strong><code>ll</code></strong></td>
-<td><code>ls –al</code>, List All, 显示所有文件及信息</td>
-</tr>
-<tr>
-<td><code>cp src dst</code></td>
-<td>copy</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp -a src dst</code></strong></td>
-<td>即<code>cp -pdr</code>, 递归复制目录.不会改变属性和权限</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp -f src dst</code></strong></td>
-<td>Force, 强制复制,不询问使用者</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp -u src dst</code></strong></td>
-<td>若 src比dst新,才进行复制工作,多用于备份</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp src1 src2 src3 dir</code></strong></td>
-<td>将多个原文件拷贝到指定目录</td>
-</tr>
-<tr>
-<td><code>mv src dst</code></td>
-<td><strong>move</strong>, 移动目录和文件</td>
-</tr>
-<tr>
-<td><code>rm file_dir</code></td>
-<td><strong>remove</strong>, 移除文件</td>
-</tr>
-<tr>
-<td>…… <strong><code>rm -fr dir</code></strong></td>
-<td>强制递归删除dir下的所有文件和目录</td>
-</tr>
-<tr>
-<td><code>ln -s src dst</code></td>
-<td><strong>Symbolic Link</strong>, 创建一个符号链接</td>
-</tr>
-<tr>
-<td>…… <strong><code>ln file hardLink</code></strong></td>
-<td>实际链接, 仅支持同区块下的文件,不占用inode</td>
-</tr>
-<tr>
-<td>…… <strong><code>ln -s dir symbolicLink</code></strong></td>
-<td>符号链接, 同快捷方式,为一个文件,占用inode</td>
-</tr>
-<tr>
-<td><code>basename /dir/dir/file</code></td>
-<td>结果为<code>file</code>, 路径中取得文件名称</td>
-</tr>
-<tr>
-<td><code>dirname /dir/dir/file</code></td>
-<td>结果为<code>/dir/dir</code>, 路径中取得目录名称</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>cat file</code></td>
-<td><strong>Concatenate</strong> (连续), 连续显示文件内容</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat -n file</code></strong></td>
-<td>在前面加上行号</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat -A</code></strong></td>
-<td>即 <code>cat -vET</code>, 可显示一些特殊符号</td>
-</tr>
-<tr>
-<td><code>more</code> <code>less</code> <code>head</code> <code>tail</code></td>
-<td>都用于显示文件内容, <code>less</code>功能最强大</td>
-</tr>
-<tr>
-<td><code>od -t x1 file</code></td>
-<td>按1byte 十六进制显示文件.若x2则为2byte.</td>
-</tr>
-<tr>
-<td><code>touch file</code></td>
-<td>建立一个空文件, 修改文件时间(mtime和atime)</td>
-</tr>
-<tr>
-<td><code>file file</code></td>
-<td>读取文件类型</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>umask</code></td>
-<td>读取和设置当前默认权限, 数字是被取消的默认权限</td>
-</tr>
-<tr>
-<td>…… <strong><code>umask 022</code></strong></td>
-<td>新建文档权限为 777-022 = 755权限</td>
-</tr>
-<tr>
-<td><code>chgrp -R group file_dir</code></td>
-<td>递归改变file_dir文件/目录的群组(group必须存在)</td>
-</tr>
-<tr>
-<td><code>chown owner file_dir</code></td>
-<td>改变文件或目录的所有者(owner必须存在)</td>
-</tr>
-<tr>
-<td>…… <strong><code>chown -R owner:group dir</code></strong></td>
-<td>递归改变dir的所有者和组群</td>
-</tr>
-<tr>
-<td>…… <strong><code>chmod -R 755 file_dir</code></strong></td>
-<td>递归改名文件或目录的权限 (7=0b111=rwx)</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>which -a cmd</code></td>
-<td>搜索执行文件完整路径</td>
-</tr>
-<tr>
-<td><code>whereis file</code></td>
-<td>快速搜索文件(用数据库),实测下来没啥用</td>
-</tr>
-<tr>
-<td><code>find dir -name file</code></td>
-<td>搜索文件(整个硬盘),很强大的一个指令</td>
-</tr>
-<tr>
-<td>…… <strong><code>-name</code></strong></td>
-<td>表示按文件名搜索. 类似的参数有很多.有需要在查.</td>
-</tr>
-<tr>
-<td><code>grep pattern files</code></td>
-<td>在files中寻找 pattern项,支持正则表达式</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -r “hello” ./*</code></strong></td>
-<td>在当前文件夹下的所有文件下搜索 “hello”</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -i “Bye” *</code></strong></td>
-<td>在当前文件夹下忽略大小写搜索 ”Bye”</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -w “Test” aa bb</code></strong></td>
-<td>在aa, bb文件内,只匹配整个单词搜索 “Test”</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>tar -cvf file.tar /dir</code></td>
-<td>将/dir打包为file.tar,没有压缩</td>
-</tr>
-<tr>
-<td><code>tar -zcvf file.tar.gz /dir</code></td>
-<td>将/dir打包为file.tar.gz,用gzip压缩</td>
-</tr>
-<tr>
-<td><code>tar -jcvf file.tar.bz2 /dir</code></td>
-<td>将/dir打包为file.tar.gz2,用bzip2压缩</td>
-</tr>
-<tr>
-<td><code>tar -xvf file.tar</code></td>
-<td>还原file.tar到当前目录</td>
-</tr>
-<tr>
-<td><code>tar -zxvf file.tar.gz</code></td>
-<td>解压file.tar.gz到当前目录</td>
-</tr>
-<tr>
-<td><code>tar -jxvf file.tar.bz2</code></td>
-<td>解压file.tar.bz2到当前目录</td>
-</tr>
-<tr>
-<td><code>tar -N ‘2005/06/01’ -zcvffile.tar.gz /dir</code></td>
-<td>将/dir下比2005/06/01新的文件备份</td>
-</tr>
-<tr>
-<td><code>cpio</code></td>
-<td>文件/设备的输入输出, 多配合find进行备份</td>
-</tr>
-</tbody>
-</table>
-<p>譬如, <strong><code>find / -print | cpio -covB &gt; /dev/st0</code></strong> , 将系统数据全部写入磁带机</p>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
@@ -2974,7 +1333,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -3015,7 +1374,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-count">39</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

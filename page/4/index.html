@@ -260,6 +260,1117 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/16/1617-python-terminal/" itemprop="url">
+                  python的第一个小程序, 蓝牙及串口终端
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-16T00:00:00+11:00" content="2016-11-16">
+              2016-11-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
+<li>windows 开发环境</li>
+<li>python 2.7</li>
+<li>pywin32, windows support</li>
+<li>pyserial, serial port, com</li>
+<li>pygatt, ble</li>
+<li>pyinstaller, generate exe file</li>
+<li>qt 4.8 (pyqt 4.11), GUI</li>
+<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
+<li>略过 python 的安装++</li>
+<li>实际做项目的话, 建议使用2.7版本, 32位(这样生成的exe文件是32位的, 能兼容所有机器)</li>
+<li>安装 pywin32: <code>pip install pypiwin32</code></li>
+<li>安装 pyserial: <code>pip install pyserial</code></li>
+<li>安装 pygatt: <code>pip install pygatt</code>, 事实上, pygatt依赖于pyserial. 因此直接装pygatt也可以</li>
+<li>安装 pyinstaller: <code>pip install pyinstaller</code></li>
+<li>下载并安装 <a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt4-4.11.4-gpl-Py2.7-Qt4.8.7.exe</a><ul>
+<li>注意匹配python版本和32位/64位window</li>
+<li>pyqt5 仅支持 python3 以上版本. 我用 python2.7 是因为需要使用其它的库, 如 <a href="https://labjack.com/" target="_blank" rel="external">LabJack</a></li>
+<li><code>Qt Designer</code> 用于设计UI, 文件格式为<code>.ui</code>. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\designer.exe</code>. 最终取决于Python安装路径</li>
+<li><code>pyuic4.bat</code> 用于将 <code>.ui</code> 文件转换为 <code>.py</code> 文件. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\</code></li>
+<li>把 <code>pyuic4.bat</code> 的路径放入系统环境变量, 这样后续就能方便使用这个指令了</li>
+</ul>
+</li>
+<li>windows平台需要借助 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a> 这么一个设备才能实现BLE通讯</li>
+</ul>
+<h1 id="UI设计"><a href="#UI设计" class="headerlink" title="UI设计"></a>UI设计</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+</ul>
+<h2 id="PyQt-入门"><a href="#PyQt-入门" class="headerlink" title="PyQt 入门"></a>PyQt 入门</h2><ul>
+<li>为什么选择PyQt? (注意, 如果商用, PyQt是需要授权使用的)</li>
+<li><a href="http://ojs.pythonpapers.org/index.php/tpp/article/view/61/57" target="_blank" rel="external">PyGTK, PyQT, Tkinter and wxPython comparison</a></li>
+<li>PyQt使用入门:</li>
+<li><a href="https://www.tutorialspoint.com/pyqt/index.htm" target="_blank" rel="external">PyQt Tutorial</a>, 新手上路, 建议看到 <code>Using Qt Designer</code> 即可</li>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 整体理解Qt设计思路</li>
+<li><a href="http://www.qaulau.com/books/PyQt4_Tutorial/" target="_blank" rel="external">PyQt4教程</a>, 中文版, 分类很细, 便于查阅范例</li>
+</ul>
+<h2 id="使用-Qt-Designer-设计GUI并生成-gui-py"><a href="#使用-Qt-Designer-设计GUI并生成-gui-py" class="headerlink" title="使用 Qt Designer 设计GUI并生成 gui.py"></a>使用 Qt Designer 设计GUI并生成 gui.py</h2><ul>
+<li>使用 <code>Qt Designer</code> 设计 GUI 框架, 并保存<code>gui.ui</code>到项目路径, 如 <code>D:\ble terminal</code></li>
+<li>打开cmd终端, 并切换到 <code>D:\ble terminal</code></li>
+<li><code>pyuic4.bat -x -o gui.py gui.ui</code> 生成<code>gui.py</code>文件,<ul>
+<li><code>-x</code> 表示可执行, 即包含<code>if __name__ == &quot;__main__&quot;</code>这部分代码</li>
+<li><code>-o</code> 表示目标文件名</li>
+<li>也可以使用命令行 <code>pyuic4.bat demo.ui &gt; demo.py</code>, 效果等同于 <code>pyuic4.bat -o gui.py gui.ui</code></li>
+</ul>
+</li>
+<li>创建 <code>gui_action.py</code> 文件, 用于书写交互操作部分的代码, 基本格式如下<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> gui</div><div class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QMainWindow</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.ui.setupUi(self)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QApplication(sys.argv)</div><div class="line">    gui_action = GuiAction()</div><div class="line">    gui_action.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="UI线程通讯"><a href="#UI线程通讯" class="headerlink" title="UI线程通讯"></a>UI线程通讯</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+<li>PyQt的信号和槽, 是一种通讯机制, 可以用于QObject之间的信息交互. 可以参考:<ul>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a></li>
+<li><a href="https://www.linuxzen.com/pyqt4-xin-hao-he-cao-xiang-jie.html" target="_blank" rel="external">PyQt4 信号和槽详解</a></li>
+</ul>
+</li>
+<li>参考 <a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a></li>
+<li>关于 QThread 高阶应用和注意事项, 可参考 <a href="http://blog.csdn.net/u011012932/article/details/52186626" target="_blank" rel="external">Qt之QThread（深入理解）</a></li>
+<li>本程序使用的线程通讯框架如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        ...</div><div class="line">        <span class="comment"># queue_ble 用于传递数据给ble线程 (这样用不好, 可能有风险)</span></div><div class="line">        self.queue_ble = Queue.Queue()</div><div class="line">        <span class="comment"># thread_ble 为 ble 处理线程</span></div><div class="line">        self.thread_ble = ThreadBleServer(self.queue_ble)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cmd_send</span><span class="params">(self)</span>:</span></div><div class="line">        cmd = self.lineEdit.text()</div><div class="line">        <span class="comment"># 通过 queue_ble 传递数据给ble线程</span></div><div class="line">        self.queue_ble.put(cmd)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 简单理解, 就是将 self.ble_handle 设置为 thread_ble 信号触发后的处理函数</span></div><div class="line">        <span class="comment"># 使用 PyQt_PyObject 作为参数类型具有更好的通用性, 可以传递任何数据.</span></div><div class="line">        self.connect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line">        <span class="comment"># 启动 ble 处理线程</span></div><div class="line">        self.thread_ble.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_stop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 用于终止 thread_ble 线程</span></div><div class="line">        self.thread_ble.stop_ble()</div><div class="line">        self.disconnect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadBleServer</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.stop = <span class="keyword">False</span></div><div class="line">        self.queue = queue</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop_ble</span><span class="params">(self)</span>:</span></div><div class="line">        self.stop = <span class="keyword">True</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.stop:</div><div class="line">            <span class="comment"># 这是一个循环任务, 每100ms执行一次</span></div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">            ...</div><div class="line">            <span class="comment"># 非阻塞查询queue队列</span></div><div class="line">            command = str(self.queue.get(<span class="keyword">False</span>))</div><div class="line">            do something after get command ...</div><div class="line">            ...</div><div class="line">            <span class="comment"># 发送信号给主线程</span></div><div class="line">            self.emit(SIGNAL(<span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), <span class="string">"ble_rx_timeout"</span>, <span class="string">""</span>)</div><div class="line">            ...</div></pre></td></tr></table></figure>
+<ul>
+<li>上述代码有一个未知风险, 在 QThread 中用了属于 python threading 的 Queque. 更稳妥的方法应该使用 PyQt 的信号和槽解决这个问题, 即<br><code>self.connect(self.cmd_send, SIGNAL(&quot;send_cmd(PyQt_PyObject)&quot;), self.thread_ble)</code></li>
+<li>关于 QThread 和 Threading, 简单而言, 如果需要和PyQt打交道, 那就用 QThread, 否则就用 python 自带的 Threading</li>
+<li><a href="https://github.com/draapho/ble-terminal" target="_blank" rel="external">全部源码</a> 在 github, 注意, 作为一个练习用程序, 上述错误我没有修改! 目前为止, 没看到不良影响.</li>
+</ul>
+<h1 id="生成exe文件"><a href="#生成exe文件" class="headerlink" title="生成exe文件"></a>生成exe文件</h1><ul>
+<li>可以创建一个 <code>ble-terminal.bat</code> 文件, 点击即可运行. 但终究是显的不够专业, 没法给老板和客户交代. 内容如下:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@echo off</div><div class="line"></div><div class="line">start pythonw gui_action.py</div><div class="line">exit</div></pre></td></tr></table></figure>
+<ul>
+<li>windows下, 使用起来最简单的就是 <code>PyInstaller</code> 了. 基本一条指令, 然后需要的关联库全自动解决</li>
+<li>其它方案有 <code>Py2Exe</code>, 需要自己配置dll之类的. <code>Py2App</code> 给Mac电脑用的. <code>cx_Freeze</code> 优点是跨平台, 看了下需要先做配置文件.</li>
+<li>用一条指令即可生成 <code>.exe</code> 文件<br><code>pyinstaller.exe --windowed gui_action.py</code></li>
+<li>另外还可以指定图标, 设置版本信息(需要写好<code>version.txt</code>), 将所有内容绑到单文件. 指令为:<br><code>pyinstaller.exe --onefile --windowed --icon=app.ico --version-file=version.txt gui_action.py</code></li>
+<li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="external">Creating an Executable from a Python Script</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/15/1616-python-ble/" itemprop="url">
+                  使用python实现BLE通讯
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-15T00:00:00+11:00" content="2016-11-15">
+              2016-11-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
+<li>windows 开发环境</li>
+<li>python 2.7</li>
+<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a></li>
+<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
+</ul>
+<h1 id="闲扯"><a href="#闲扯" class="headerlink" title="闲扯"></a>闲扯</h1><ul>
+<li>背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.</li>
+<li>使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 <a href="https://github.com/jrowberg/bglib" target="_blank" rel="external">bglib</a> 这么一个python库, 还有范例!</li>
+<li>不幸的是, 自己功力不够, 基于此函数库开发出的BLE通讯, 非常不稳定… 没有痛下决心自己写, 于是继续尝试寻找资源.</li>
+<li>觅得 <a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a> 方案, 三平台全支持! windows 和 mac 下正是基于bglib实现的!</li>
+<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="external">pygatt</a> 是python的第三方库, 说明文档比较少, 测试了一下非常好用!</li>
+</ul>
+<h1 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h1><ul>
+<li>DEVICE_ADDRESS, 默认的需要connect的BLE地址</li>
+<li>基于 Bluegiga 的 <code>cable_replacement</code> 范例, 其 characteristic uuid 为 <code>e7add780-b042-4876-aae1-112855353cc1</code></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">import</span> binascii</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># Many devices, e.g. Fitbit, use random addressing - this is required to connect.</span></div><div class="line">ADDRESS_TYPE = pygatt.BLEAddressType.random</div><div class="line">DEVICE_ADDRESS = <span class="string">"00:07:80:BF:6A:73"</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">indication_callback</span><span class="params">(handle, value)</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"indication, handle %d: %s "</span> % (handle, value)</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">pytest</span><span class="params">(address=DEVICE_ADDRESS, type=pygatt.BLEAddressType.public)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        adapter = pygatt.BGAPIBackend()</div><div class="line">        adapter.start()</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.scan() ====="</span></div><div class="line">        devices = adapter.scan()</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> devices:</div><div class="line">            <span class="comment"># print dev</span></div><div class="line">            <span class="keyword">print</span> <span class="string">"address: %s, name: %s "</span> % (dev[<span class="string">'address'</span>], dev[<span class="string">'name'</span>])</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.connect() ====="</span></div><div class="line">        device = adapter.connect(address, address_type=type)</div><div class="line">        <span class="keyword">print</span> <span class="string">"address: "</span> + str(device._address)</div><div class="line">        <span class="keyword">print</span> <span class="string">"handle : "</span> + str(device._handle)</div><div class="line">        <span class="keyword">print</span> <span class="string">"rssi   : "</span> + str(device.get_rssi())</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.discover_characteristics() ====="</span></div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</div><div class="line">                      (uuid, device.get_handle(uuid), binascii.hexlify(device.char_read(uuid))))</div><div class="line">            <span class="keyword">except</span>:</div><div class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</div><div class="line">                      (uuid, device.get_handle(uuid), <span class="string">"!deny!"</span>))</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_read() / device.char_read_handle() ====="</span></div><div class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read(<span class="string">"00002a00-0000-1000-8000-00805f9b34fb"</span>)</div><div class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read_handle(<span class="number">3</span>)</div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.subscribe() ====="</span></div><div class="line">        device.subscribe(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>,</div><div class="line">                         callback=indication_callback, indication=<span class="keyword">True</span>)</div><div class="line">        <span class="comment"># device.receive_notification(8, "test")</span></div><div class="line"></div><div class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_write_handle() ====="</span></div><div class="line">        in_buf = map(ord, <span class="string">"hello world, hello BLE!!!"</span>)</div><div class="line">        <span class="comment"># send via uuid &amp; handle, maximum is 20 bytes</span></div><div class="line">        device.char_write(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>, in_buf[:<span class="number">20</span>])</div><div class="line">        device.char_write_handle(<span class="number">0x08</span>, in_buf[<span class="number">20</span>:])</div><div class="line"></div><div class="line">        <span class="keyword">while</span> (<span class="keyword">True</span>):</div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        adapter.stop()</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    pytest()</div></pre></td></tr></table></figure>
+<h1 id="BleDevice-类"><a href="#BleDevice-类" class="headerlink" title="BleDevice 类"></a>BleDevice 类</h1><ul>
+<li>为了方便使用, 自己基于 pygatt 再打包一层</li>
+<li>遗憾的是没有disconnect的通知. 可以参考 <a href="https://github.com/peplin/pygatt/issues/72" target="_blank" rel="external">Disconnect event not shown</a></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BleDevice</span><span class="params">(pygatt.BGAPIBackend)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.device = <span class="keyword">None</span></div><div class="line">        self.adapter = pygatt.BGAPIBackend()</div><div class="line">        self.adapter.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop</span><span class="params">(self)</span>:</span></div><div class="line">        self.adapter.stop()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">scan</span><span class="params">(self, timeout=<span class="number">5</span>)</span>:</span></div><div class="line">        self.devices = self.adapter.scan(timeout)</div><div class="line">        <span class="keyword">return</span> self.devices</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect_name</span><span class="params">(self, name, devices=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> devices <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            devices = self.devices</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> self.devices:</div><div class="line">            <span class="keyword">if</span> name == dev[<span class="string">'name'</span>]:</div><div class="line">                <span class="keyword">return</span> self.connect(dev[<span class="string">'address'</span>])</div><div class="line">        <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">(self, address)</span>:</span></div><div class="line">        self.device = self.adapter.connect(address)</div><div class="line">        <span class="keyword">return</span> self.device</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">discover_characteristics</span><span class="params">(self, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        characteristics = []</div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                device.char_read(uuid)</div><div class="line">                characteristics.append(</div><div class="line">                    &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">True</span>&#125;)</div><div class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">                <span class="keyword">if</span> <span class="string">"unable to read"</span> <span class="keyword">in</span> str(e).lower():</div><div class="line">                    characteristics.append(</div><div class="line">                        &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">False</span>&#125;)</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> e</div><div class="line">        <span class="keyword">return</span> characteristics</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_indication</span><span class="params">(self, uuid, device=None, callback=None, indication=True)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        device.subscribe(uuid, callback, indication)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics</span><span class="params">(self, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read(uuid)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics_handle</span><span class="params">(self, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read_handle(handle)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics</span><span class="params">(self, str, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write(uuid, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics_handle</span><span class="params">(self, str, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write_handle(handle, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    ble = BleDevice()</div><div class="line">    <span class="keyword">print</span> ble.scan()</div><div class="line">    device = ble.connect_name(<span class="string">"Bluegiga CR Demo"</span>)</div><div class="line">    <span class="keyword">print</span> device._address</div><div class="line">    chars = ble.discover_characteristics(device)</div><div class="line">    <span class="keyword">print</span> chars</div><div class="line">    <span class="comment"># print chars[0]['uuid']</span></div><div class="line">    <span class="keyword">print</span> ble.read_characteristics(chars[<span class="number">1</span>][<span class="string">'uuid'</span>])</div><div class="line">    ble.write_characteristics(<span class="string">"hello world"</span>, chars[<span class="number">0</span>][<span class="string">'uuid'</span>])</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/14/1615-software-thread/" itemprop="url">
+                  协程/进程/线程资料收集
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-14T00:00:00+11:00" content="2016-11-14">
+              2016-11-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>协程(Coroutine), 多线程(Thread), 多进程(Multiprocessing)资料繁多, 学无止境, 就集中在这一篇收集贴中. 便于查阅学习</p>
+<h1 id="自己的理解"><a href="#自己的理解" class="headerlink" title="自己的理解"></a>自己的理解</h1><ul>
+<li>协程, 任务之间不是竞争关系, 而是协作关系, 需要每个任务都需要有一颗舍己为公的心!<ul>
+<li>大家排队喝水, 喝到差不多就自己让给下一个人, 自己再去排队! 可按照优先级来插队的.</li>
+<li>遇到不讲道理的人, 那这个机制就失效了. 因为没有抢占, 大家都只会默默等待…</li>
+<li>优点, 任务切换的代价非常小. 由于没有抢占, 也就没有复杂的临界区问题. 锁的问题也变得简单.</li>
+<li>缺点, 这个世界上总有不讲理的人, 所以, 大型任务和系统不敢这么用…</li>
+<li>单片机开发是非常适合使用协程的! (资源有限, 需要减小任务切换的开销. 任务可控, 意味着易于协作)</li>
+<li>python 下可用 gevent. </li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多线程, 任务之间是竞争关系, 高优先级优先执行, 同时又有时间片限制, 避免高优先级任务霸占CPU<ul>
+<li>谁强谁喝水, 不过旁边有个管理员, 哪个家伙喝水时间太久了, 就会把他给跩一边去, 大家重新来抢.</li>
+<li>线程是共享内存的, 理解为这些水来自于同一个自来水厂(这个水厂有毒的话, 谁了逃不了),</li>
+<li>多核就是多个水龙头, 同一时刻可以有多个人在喝水.</li>
+<li>优点, 任务的开销比进程小(因为共享内存), 通讯方式多样. 加个水龙头和造个水厂的区别!!!</li>
+<li>缺点, 一大帮自私又不讲理的人在一起总是很难管理的… 需要各种锁机制来维持和谐共处…</li>
+<li>python的多线程, 由于GIL机制的存在, 是无法利用多核的. (意味着不适用于CPU密集型任务)</li>
+<li>python有一个类进程版本的线程池 <code>multiprocessing.pool.ThreadPool</code>, 可以获取返回值<br>由于本质是线程, Windows下terminate方法是没有用的.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多进程, 任务之间是竞争关系, 任务之间的数据全部隔离, 没有共享.<ul>
+<li>进程是资源分配的基本单位. 进程包含线程, 线程共用进程的资源.</li>
+<li>进程比线程安全性更高, 因为拥有独立的内存块(独立水厂供水)</li>
+<li>进程的建立和调度比线程更费时间和资源</li>
+<li>进程间的数据共享和交换很麻烦. (python例子中, 进程内 print 不会打印, 参数传递需要可以pickle)</li>
+<li>python 下推荐使用 <code>multiprocessing.pool.Pool</code>. 可以获取返回值.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>进程和线程以及多核<ul>
+<li>操作系统必须有一个进程, 创建进程时, 会分配好供这个进程使用的内存和上下文环境.</li>
+<li>线程依赖于进程, 多线程运行于同一个进程下面, 会共享同一个进程的内存.</li>
+<li>事实上, 线程是最难写好的一种多任务方式(因为共享内存).</li>
+<li>以android为例,<ul>
+<li>android的每一个应用就是一个linux进程, 所以写的再烂的应用也不会导致整个android系统崩溃.</li>
+<li>应用内支持多线程, 也事实上都对应到linux的线程, 这些线程运行在分配好的linux进程中.</li>
+</ul>
+</li>
+<li>进程和线程的概念和单核还是多核一点关系都没有! 先理解好单核再说, 真正涉及到CPU密集型任务时, 再考虑多核优化…</li>
+</ul>
+</li>
+</ul>
+<h1 id="优缺点比较"><a href="#优缺点比较" class="headerlink" title="优缺点比较"></a>优缺点比较</h1><ul>
+<li>协程具有进程和线程各自的优点. 但其缺点是需要任务间自己来协作调度(很容易写成阻塞等待), 这一点直接导致了通用性很差.</li>
+<li><a href="http://blog.csdn.net/lishenglong666/article/details/8557215" target="_blank" rel="external">多线程还是多进程的选择及区别</a>, 比较全面的一篇文章!<ul>
+<li>本文也有一个转字, 应该是综合了多种搜素结果写出来的一篇博文. 有结论, 有实验代码和过程</li>
+<li>鱼还是熊掌：浅谈多进程多线程的选择</li>
+<li>1.进程与线程</li>
+<li>一、重复周丽论文实验步骤</li>
+<li>二、增加并发数量的实验</li>
+<li>三、增加每进程/线程的工作强度的实验</li>
+<li>四、多进程和多线程在创建和销毁上的效率比较</li>
+<li>五、双核系统重复周丽论文实验步骤</li>
+<li>六、并发服务的不可测性</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>多进程</th>
+<th>多线程</th>
+<th>总结</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据共享、同步</td>
+<td>数据共享复杂，需要用IPC；数据是分开的，<strong>同步简单</strong></td>
+<td>因为共享进程数据，<strong>数据共享简单</strong>，但也是因为这个原因导致同步复杂</td>
+<td>各有优势</td>
+</tr>
+<tr>
+<td>内存、CPU</td>
+<td>占用内存多，切换复杂，CPU利用率低</td>
+<td><strong>占用内存少，切换简单，CPU利用率高</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>创建销毁、切换</td>
+<td>创建销毁、切换复杂，速度慢</td>
+<td><strong>创建销毁、切换简单，速度很快</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>编程、调试</td>
+<td><strong>编程简单，调试简单</strong></td>
+<td>编程复杂，调试复杂</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>可靠性</td>
+<td><strong>进程间不会互相影响</strong></td>
+<td>一个线程挂掉将导致整个进程挂掉</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>分布式</td>
+<td><strong>适应于多核、多机分布式</strong>；如果一台机器不够，扩展到多台机器比较简单</td>
+<td>适应于多核分布式</td>
+<td>进程占优</td>
+</tr>
+</tbody>
+</table>
+<h1 id="资料集"><a href="#资料集" class="headerlink" title="资料集"></a>资料集</h1><ul>
+<li><p><a href="https://www.tutorialspoint.com/python/python_multithreading.htm" target="_blank" rel="external">Python Multithreaded Programming</a></p>
+<ul>
+<li>Python多线程入门教程, 有详细的说明, 源代码及运行结果.</li>
+<li>主要有3个示例, 多线程, 多线程同步, 使用Queue来通讯</li>
+</ul>
+</li>
+<li><p><a href="http://www.jianshu.com/p/0e4ff7c856d3" target="_blank" rel="external">Python 多线程</a></p>
+<ul>
+<li>介绍了Python多线程的状态, 类型</li>
+<li>线程的创建, 合并(join), 同步, 锁(Lock, 死锁, RLock), 其它IPC</li>
+<li>将子线程设置<strong>后台线程</strong>(setDaemon), 让子线程随主线程一起结束.</li>
+<li>提了一下Python的GIL, 参考资料中的一篇对此做了很好的说明: <a href="http://zhuoqiang.me/python-thread-gil-and-ctypes.html" target="_blank" rel="external">python 线程，GIL 和 ctypes</a></li>
+</ul>
+</li>
+<li><p><a href="http://yoyzhou.github.io/blog/2013/02/28/python-threads-synchronization-locks/" target="_blank" rel="external">Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></p>
+<ul>
+<li>内容如题, 无需多言. 文章最后重点推荐使用Queue</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/179265" target="_blank" rel="external">理解 Python 中的多线程</a></p>
+<ul>
+<li>示例1, 请求五个不同的url. 比较了单线程和多线程性能上的差别</li>
+<li>示例2, 全局变量的线程安全问题（race condition）. BUG版和修改版</li>
+<li>示例3, 多线程环境下的原子操作. BUG版和修改版</li>
+<li>示例4, Python多线程简易版：线程池 threadpool</li>
+<li>附上了很多参考和推荐阅读的资料!</li>
+</ul>
+</li>
+<li><p>线程池 threadpool (需安装)</p>
+<ul>
+<li><a href="http://www.zhidaow.com/post/python-threadpool" target="_blank" rel="external">Python多线程简易版 - 线程池threadpool</a>, 新手上路版</li>
+<li><a href="http://chriskiehl.com/article/parallelism-in-one-line/" target="_blank" rel="external">Parallelism in one line</a>, 比较了传统方案和线程池方案, 并给出了范例</li>
+<li>这是<code>Parallelism in one line</code>的中文翻译版本, 并有遇到小坑和补充说明. <a href="https://my.oschina.net/leejun2005/blog/194270" target="_blank" rel="external">Python 并行任务技巧</a></li>
+<li><strong>注意： threadpool 是非线程安全的</strong>。<ul>
+<li>关于线程安全, 可参考<a href="http://blog.csdn.net/xiao__gui/article/details/8934832" target="_blank" rel="external">Java线程安全和非线程安全</a></li>
+<li>个人理解, 对于python的非线程安全, 编程时需要特别注意 <code>可变对象</code> 和 <code>不可变对象</code>, 弄清楚Python到底是在<code>赋值</code>还是<code>引用</code>(相当于指针)</li>
+<li>可以参考此文 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></li>
+</ul>
+</li>
+<li>初步结论, 还是比较推崇线程池的: 比起经典的方式来说简单很多，效率高，易懂，而且没什么死锁的陷阱。</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/398826" target="_blank" rel="external">Python 多线程教程：并发与并行</a></p>
+<ul>
+<li>讲了多线程, 多进程, 以及分布式任务.</li>
+<li>原作者已下载网络图片来说明问题, 转发者为了便于测试和理解, 简化了代码.</li>
+<li>1, 单线程执行. 花了19.4秒去下载91张图片</li>
+<li>2, 多线程. 下载时间变成了4.1秒. 并说明了为何有GIL的情况下, 多线程仍然是有效的(因为是IO密集型的任务)</li>
+<li>3, 多进程. 优点, 避免了GIL, 适用于CPU密集型任务. 缺点, 耗内存!</li>
+<li>4, 分布式任务. 提了一下<code>RQ</code>和<code>Celery</code></li>
+<li>5, 总结: IO密集型，多线程或多进程. CPU密集型, 多进程. 网络应用, 分布式任务</li>
+<li>6, 并发、并行区别与联系. 并发, 一个人按优先级处理多件事情(任一时刻只能做一件事情). 并行, 有多个人各自做事(多核多任务).</li>
+</ul>
+</li>
+<li><p><strong>进程池 multiprocessing.Pool 以及 multiprocessing.pool.ThreadPool</strong></p>
+<ul>
+<li><a href="https://segmentfault.com/a/1190000003044986" target="_blank" rel="external">Python 多进程实践</a><ul>
+<li>Python多进程的实现入门级文章</li>
+<li>创建子进程的方法: fork, multiprocessing, Pool 进程池</li>
+<li>IPC(进程间通讯): Queue, Pipe</li>
+</ul>
+</li>
+<li><a href="http://blog.csdn.net/seetheworld518/article/details/49639651" target="_blank" rel="external">Python 多进程 multiprocessing.Pool类详解</a></li>
+<li><a href="http://lucasb.eyer.be/snips/python-thread-pool.html" target="_blank" rel="external">Python’s undocumented ThreadPool</a>, 提了一下 ThreadPool</li>
+<li><a href="https://draapho.github.io/2016/11/28/1622-python-time/">python 延时及超时</a>, “学习过程中的例子” 中有尝试使用进程池</li>
+<li><a href="http://www.eenot.com/thread-103459-1-1.html" target="_blank" rel="external">Python 中 Ctrl+C 不能终止 Multiprocessing Pool 的解决方</a>, ThreadPool有同样的问题. 可以搜索关键字: Keyboard Interrupts multiprocessing Pool.</li>
+<li><a href="http://bugs.python.org/issue17140" target="_blank" rel="external">使用 multiprocessing.pool.ThreadPool 可能的潜在风险</a>, 本质是线程, 而且没有文档说明</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/203148" target="_blank" rel="external">浅谈 python multiprocessing（多进程）下如何共享变量</a></p>
+<ul>
+<li>1, 抛出了一个多进程的问题.</li>
+<li>2, python 多进程共享变量的几种方式</li>
+<li>3, 多进程的问题远不止这么多：数据的同步. (需要Lock)</li>
+<li>4, 总结为: 多进程最好还是用IPC(message之类的). 如果一定要用共享变量, 那也是可以的…</li>
+</ul>
+</li>
+<li><p><a href="https://liangxiansen.github.io/2016/08/08/python%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/" target="_blank" rel="external">Python之路：(十五）进程、线程和协程</a></p>
+<ul>
+<li>Python线程, 线程锁(Lock, Rlock), 其它IPC, 线程池</li>
+<li>Python进程, 进程数据共享, 进程IPC. (Python Windows下是可以用进程的, 只是不支持fork)</li>
+<li>Python协程, greenlet(主动切换), gevent(遇到IO操作, 自动切换).</li>
+</ul>
+</li>
+<li><p><strong><a href="http://xlambda.com/gevent-tutorial/" target="_blank" rel="external">gevent程序员指南</a></strong></p>
+<ul>
+<li>核心部分, 较为详细的介绍了 gevent 的原理和使用方式.</li>
+<li>数据结构, 介绍了协程之间的通讯工具</li>
+<li>真实世界的应用, 几个实际应用的例子</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/24/1614-CheatSheet-git/" itemprop="url">
+                  Git 初始设置及常用命令
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-24T00:00:00+11:00" content="2016-10-24">
+              2016-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="git示意图"><a href="#git示意图" class="headerlink" title="git示意图"></a>git示意图</h1><p>  <img src="https://draapho.github.io/images/1614/git.jpg" alt="git"></p>
+<h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><ul>
+<li><a href="http://ndpsoftware.com/git-cheatsheet.html" target="_blank" rel="external">Visual Git Cheat Sheet</a></li>
+<li><a href="https://git-scm.com/book/zh/v2" target="_blank" rel="external">Pro Git book</a></li>
+<li>廖雪峰的 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="external">Git教程</a></li>
+<li>设置SSH, 参考 <a href="https://help.github.com/categories/ssh/" target="_blank" rel="external">GitHub Help - SSH</a></li>
+<li>设置GPG, 参考 <a href="https://help.github.com/categories/gpg/" target="_blank" rel="external">GitHub Help - GPG</a></li>
+</ul>
+<h1 id="一些理解"><a href="#一些理解" class="headerlink" title="一些理解"></a>一些理解</h1><ul>
+<li>git的核心理解为指针即可, 包括 <code>workspace</code>, <code>index</code>, <code>commitHash</code><ul>
+<li><code>repository</code>是基于<code>commitHash</code>管理版本的.</li>
+<li><code>HEAD</code>, <code>HEAD^1</code>, <code>HEAD~3</code>, <code>branch</code>, <code>tags</code>都是<code>commitHash</code>的别名, 便于人们记忆和理解.</li>
+<li>可以基于 <code>git reset</code> 来检测是否完全理解git基于指针的设计思路.  </li>
+<li><code>HEAD^1</code>基于父节点, <code>HEAD~1</code>基于层次. 单层结构下没有差别. 复杂多层结构建议直接用 <code>commitHash</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">       A ---------------------  A =      = A^0                       </div><div class="line">      / \                       </div><div class="line">     B   C                      B = A^   = A^1     = A~1</div><div class="line">    /|\  |                      C = A^2  = A^2     </div><div class="line">   / | \ |                                     </div><div class="line">  D  E   F -------------------  D = A^^  = A^1^1   = A~2  </div><div class="line"> / \    / \                     E = B^2  = A^^2</div><div class="line">/   \  /   \                    F = B^3  = A^^3   </div><div class="line">G   H  I   J -----------------  G = A^^^ = A^1^1^1 = A~3                               </div><div class="line">                                H = D^2  = B^^2    = A^^^2  = A~2^2</div><div class="line">                                I = F^   = B^3^    = A^^3^</div><div class="line">                                J = F^2  = B^3^2   = A^^3^2</div></pre></td></tr></table></figure>
+<ul>
+<li>git的命令, 常见格式为 <code>git diff p1 p2 -- file</code>. 意为, 比较<code>p1</code>与<code>p2</code>两处指定file的区别<ul>
+<li><code>p1</code> 缺省指向workspace, <code>p2</code> 缺省指向index. </li>
+<li><code>--</code> 接文件或目录, 名字无歧义时可以省去<code>--</code>. (如 git checkout name 就可能有歧义, branch OR file?)</li>
+<li><code>.</code> 表示所有的文件, 如 <code>git add .</code></li>
+</ul>
+</li>
+<li>学会查看帮助, 加上 <code>-h</code> 即可. 如 <code>git checkout -h</code><ul>
+<li><code>[]</code> 表示可选项, <code>&lt;&gt;</code> 表示必填项</li>
+</ul>
+</li>
+</ul>
+<h1 id="初始安装"><a href="#初始安装" class="headerlink" title="初始安装"></a>初始安装</h1><ul>
+<li><p>新建git仓库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># Create local repository</div><div class="line"># put &quot;.gitignore&quot; to project root direct.</div><div class="line">git init                        # create local repository</div><div class="line">git add README.md               # add somefiles</div><div class="line">git commit -m &quot;first commit&quot;    # commit to local repository</div><div class="line"></div><div class="line"># link with remote repository</div><div class="line">git remote add origin url       # add remote repository, &lt;url&gt; like https://... OR ssh://...</div><div class="line">git push -u origin master       # -u, 指定默认远程主机为 origin</div><div class="line"></div><div class="line"># Clone existing repository</div><div class="line">git clone url                   # &lt;url&gt; like https://... OR ssh://...</div><div class="line"></div><div class="line"># more cmd about config</div><div class="line">git config --list               # show config</div><div class="line">git config -e                   # edit local config file</div></pre></td></tr></table></figure>
+</li>
+<li><p>单独设置参数, –global表示全局参数, 不写就是仓库自有参数</p>
+</li>
+<li>需要安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="external">p4merge</a> 用于支持 <code>difftool</code> 及 <code>mergetool</code></li>
+<li><p>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"># global setting</div><div class="line">git config --global user.name &quot;Your Name&quot;</div><div class="line">git config --global user.email &quot;email@example.com&quot;</div><div class="line"></div><div class="line"># alise setting</div><div class="line">git config --global alias.a &apos;add&apos;</div><div class="line">git config --global alias.aa &apos;add .&apos;</div><div class="line">git config --global alias.b &apos;branch&apos;</div><div class="line">git config --global alias.bb &apos;branch -a -v&apos;</div><div class="line">git config --global alias.co &apos;checkout&apos;</div><div class="line">git config --global alias.cm &apos;commit -m&apos;</div><div class="line">git config --global alias.lg &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit&quot;</div><div class="line">git config --global alias.ll &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10&quot;</div><div class="line">git config --global alias.st &apos;status&apos;</div><div class="line"></div><div class="line"># set diff color</div><div class="line">git config --global color.diff.old &quot;red normal bold&quot;</div><div class="line">git config --global color.diff.new &quot;green normal bold&quot;</div><div class="line"></div><div class="line"># solve the warning, LF will be replaced by CRLF</div><div class="line">git config --global core.autocrlf false</div><div class="line">git config --global core.safecrlf false</div><div class="line"></div><div class="line"># set difftool mergetool (need p4merge)</div><div class="line">git config --global diff.tool p4merge</div><div class="line">git config --global difftool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$LOCAL&quot; &quot;$REMOTE&quot;&apos;</div><div class="line">git config --global difftool.prompt false</div><div class="line">git config --global merge.tool p4merge</div><div class="line">git config --global mergetool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$PWD/$BASE&quot; &quot;$PWD/$REMOTE&quot; &quot;$PWD/$LOCAL&quot; &quot;$PWD/$MERGED&quot;&apos;</div><div class="line">git config --global mergetool.p4merge.trustExitCode false</div><div class="line">git config --global mergetool.keepBackup false</div></pre></td></tr></table></figure>
+</li>
+<li><p>也可使用 <code>git config -e --global</code> 打开全局配置文件, 直接设置全局参数</p>
+</li>
+<li>需要安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="external">p4merge</a> 用于支持 <code>difftool</code> 及 <code>mergetool</code></li>
+<li>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">[user]</div><div class="line">    name = https://draapho.github.io/</div><div class="line">    email = draapho@gmail.com</div><div class="line">[alias]</div><div class="line">    a = add</div><div class="line">    aa = add .</div><div class="line">    b = branch</div><div class="line">    bb = branch -a -v</div><div class="line">    co = checkout</div><div class="line">    cm = commit -m</div><div class="line">    lg = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit</div><div class="line">    ll = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10</div><div class="line">    st = status</div><div class="line">[color &quot;diff&quot;]</div><div class="line">	old = red normal bold</div><div class="line">	new = green normal bold</div><div class="line">[core]</div><div class="line">    autocrlf = false</div><div class="line">    safecrlf = false</div><div class="line">[diff]</div><div class="line">	tool = p4merge</div><div class="line">[difftool &quot;p4merge&quot;]</div><div class="line">	cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$LOCAL\&quot; \&quot;$REMOTE\&quot;</div><div class="line">[difftool]</div><div class="line">	prompt = false</div><div class="line">[merge]</div><div class="line">	tool = p4merge</div><div class="line">[mergetool &quot;p4merge&quot;]</div><div class="line">	cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$PWD/$BASE\&quot; \&quot;$PWD/$REMOTE\&quot; \&quot;$PWD/$LOCAL\&quot; \&quot;$PWD/$MERGED\&quot;</div><div class="line">	trustExitCode = false</div><div class="line">[mergetool]</div><div class="line">	keepBackup = false</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"># 查看信息</div><div class="line">git st                          # git status            # 显示工作区变更的文件</div><div class="line">git lg                          # git log 增强版        # 显示所有提交</div><div class="line">git ll                          # git lg -10            # 显示过去10次提交</div><div class="line">git shortlog -sn                                        # 显示所有提交过的用户</div><div class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</div><div class="line"></div><div class="line"># stash                                                 # 少量且短时间的使用!</div><div class="line">git stash                                               # workspace-&gt;stash(藏匿处)</div><div class="line">git stash pop                                           # stash(不保存)-&gt;workspace</div><div class="line"></div><div class="line"># 提交文件</div><div class="line">git aa                          # git add .             # workspace-&gt;index</div><div class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</div><div class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</div><div class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</div><div class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</div><div class="line"> </div><div class="line"># 分支操作</div><div class="line">git b name                      # git branch name       # 创建分支</div><div class="line">git b name commit                                       # 基于指定 commit 创建分支</div><div class="line">git b -d name                   # branch delete         # 删除分支</div><div class="line">git b -dr origin/name           # delete remote         # 删除远程分支</div><div class="line">git b -m new_name               # git branch --move     # 重命名分支</div><div class="line">git bb                          # git branch -a         # 查看所有分支</div><div class="line">git remote -v                                           # 查看远程分支</div><div class="line">git co name                     # git checkout name     # 切换分支</div><div class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</div><div class="line"></div><div class="line"># 版本合并和回退</div><div class="line">git merge branch                # 合并branch到当前分支</div><div class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</div><div class="line">git cherry-pick commit          # 合并commit到当前分支</div><div class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!  </div><div class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!        </div><div class="line">git push                                                # 推送到默认的远程主机</div><div class="line">git push -f                     # --force               # 忽略冲突, 强制推送</div><div class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</div><div class="line"></div><div class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</div><div class="line">git tag                         # 查看版本</div><div class="line">git tag v100                    # 创建版本</div><div class="line">git tag -d v100                 # 删除版本</div><div class="line">git push --tags                 # 推送tag</div><div class="line"></div><div class="line"># 查看差异 </div><div class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</div><div class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</div><div class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</div><div class="line">git diff --name-status p1 p2    # 获得变更的文件列表</div><div class="line">git diff --stat p1 p2           # 统计变更的数据</div><div class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</div><div class="line"></div><div class="line"># 撤销</div><div class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</div><div class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</div><div class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</div><div class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</div><div class="line"></div><div class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</div><div class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</div><div class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</div><div class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</div><div class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/21/1613-python-cli/" itemprop="url">
+                  python调用命令行
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-21T00:00:00+11:00" content="2016-10-21">
+              2016-10-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="python调用CLI"><a href="#python调用CLI" class="headerlink" title="python调用CLI"></a>python调用CLI</h1><ul>
+<li>CLI = Command Line Interface, 即命令行</li>
+<li>方法有很多, 通用性和安全性最好的就是<code>subprocess.Popen</code>这个方法. 见文档<ul>
+<li><a href="https://docs.python.org/2.7/library/subprocess.html#popen-constructor" target="_blank" rel="external">Subprocess management</a></li>
+<li><del><a href="https://docs.python.org/2.7/library/os.html#os.popen" target="_blank" rel="external">os.popen</a></del></li>
+<li><del><a href="https://docs.python.org/2/library/commands.html" target="_blank" rel="external">Utilities for running commands</a></del></li>
+</ul>
+</li>
+<li>example:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># CLI: Command Line Interface</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runCLI</span><span class="params">()</span>:</span></div><div class="line">    <span class="comment"># __cmd_link = self.cur_dir + "\\stlink_cli\\ST-LINK_CLI.exe -c SWD SWJCLK=5 UR"</span></div><div class="line">    __cmd_link = <span class="string">"dir"</span></div><div class="line"></div><div class="line">    <span class="comment"># 多用 shell=True. shell=False只能运行bat文件或直接在终端中执行. 此例中显示的内容也会有区别</span></div><div class="line">    _pp = Popen(__cmd_link, shell=<span class="keyword">True</span>, stdout=PIPE, stderr=PIPE)</div><div class="line">    out, err = _pp.communicate()</div><div class="line"></div><div class="line">    logging.debug(<span class="string">"cmd &gt; "</span> + __cmd_link)</div><div class="line">    logging.debug(<span class="string">"out &gt; "</span> + out.rstrip())</div><div class="line">    logging.debug(<span class="string">"err &gt; "</span> + err.rstrip())</div><div class="line">    <span class="keyword">return</span> _pp.returncode</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    logging.basicConfig(level=logging.DEBUG)</div><div class="line">    logging.debug(runCLI())</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/20/1612-python-pyqtui/" itemprop="url">
+                  PyQt 的交互操作
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-20T00:00:00+11:00" content="2016-10-20">
+              2016-10-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="environment"><a href="#environment" class="headerlink" title="environment"></a>environment</h1><ul>
+<li>Windows</li>
+<li><a href="https://www.python.org/downloads/" target="_blank" rel="external">python 2.7</a></li>
+<li><a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt 4.11.4</a></li>
+</ul>
+<h1 id="useful-guide-startup"><a href="#useful-guide-startup" class="headerlink" title="useful guide / startup"></a>useful guide / startup</h1><ul>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 简单明了的介绍了qt gui的基本特性</li>
+<li><a href="https://www.tutorialspoint.com/pyqt/" target="_blank" rel="external">PyQt Tutorial</a>, learn PyQt step by step.</li>
+<li><a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a>, 防止UI阻塞, 使用线程</li>
+</ul>
+<h1 id="Generate-basic-UI-file"><a href="#Generate-basic-UI-file" class="headerlink" title="Generate basic UI file"></a>Generate basic UI file</h1><ul>
+<li>use <code>Qt Designer</code> to create basic UI<ul>
+<li><code>New</code>-&gt;<code>Widget</code>-&gt;drag <code>PushButton</code> to <code>Form</code> Window</li>
+<li>Save it, for example <code>demo.ui</code></li>
+</ul>
+</li>
+<li>make sure <code>pyuic4.bat</code> is in the System PATH<ul>
+<li>input <code>pyuic4.bat -h</code> in shell, check the response.</li>
+</ul>
+</li>
+<li>change <code>.ui</code> to <code>.py</code> file<ul>
+<li>run <code>pyuic4.bat -x -o demo.py demo.ui</code> in the working folder.</li>
+<li><code>-o</code> means output, set the output filename.</li>
+<li><code>-x</code> will generate <code>if __name__ == &#39;__main__&#39;:</code> then can run directly</li>
+<li><code>pyuic4.bat demo.ui &gt; demo.py</code> is also OK.</li>
+</ul>
+</li>
+<li><del>the sample of <code>demo.py</code>, generated automatically by pyuic4.bat</del></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line"><span class="comment"># Form implementation generated from reading ui file 'demo.ui'</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Created by: PyQt4 UI code generator 4.11.4</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># WARNING! All changes made in this file will be lost!</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtCore, QtGui</div><div class="line"></div><div class="line"><span class="keyword">try</span>:</div><div class="line">    _fromUtf8 = QtCore.QString.fromUtf8</div><div class="line"><span class="keyword">except</span> AttributeError:</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_fromUtf8</span><span class="params">(s)</span>:</span></div><div class="line">        <span class="keyword">return</span> s</div><div class="line"></div><div class="line"><span class="keyword">try</span>:</div><div class="line">    _encoding = QtGui.QApplication.UnicodeUTF8</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_translate</span><span class="params">(context, text, disambig)</span>:</span></div><div class="line">        <span class="keyword">return</span> QtGui.QApplication.translate(context, text, disambig, _encoding)</div><div class="line"><span class="keyword">except</span> AttributeError:</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_translate</span><span class="params">(context, text, disambig)</span>:</span></div><div class="line">        <span class="keyword">return</span> QtGui.QApplication.translate(context, text, disambig)</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ui_Form</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setupUi</span><span class="params">(self, Form)</span>:</span></div><div class="line">        Form.setObjectName(_fromUtf8(<span class="string">"Form"</span>))</div><div class="line">        self.pushButton = QtGui.QPushButton(Form)</div><div class="line">        self.pushButton.setGeometry(QtCore.QRect(<span class="number">40</span>, <span class="number">40</span>, <span class="number">75</span>, <span class="number">23</span>))</div><div class="line">        self.pushButton.setObjectName(_fromUtf8(<span class="string">"pushButton"</span>))</div><div class="line"></div><div class="line">        self.retranslateUi(Form)</div><div class="line">        QtCore.QMetaObject.connectSlotsByName(Form)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">retranslateUi</span><span class="params">(self, Form)</span>:</span></div><div class="line">        Form.setWindowTitle(_translate(<span class="string">"Form"</span>, <span class="string">"Form"</span>, <span class="keyword">None</span>))</div><div class="line">        self.pushButton.setText(_translate(<span class="string">"Form"</span>, <span class="string">"PushButton"</span>, <span class="keyword">None</span>))</div><div class="line"></div><div class="line"><span class="comment"># using -x will generate the following code</span></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> sys</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    Form = QtGui.QWidget()</div><div class="line">    ui = Ui_Form()</div><div class="line">    ui.setupUi(Form)</div><div class="line">    Form.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
+<ul>
+<li><del>run &amp; check the　UI</del><ul>
+<li>run <code>python demo.py</code> in the working folder.</li>
+<li>OR run directly in editor like atom.</li>
+</ul>
+</li>
+</ul>
+<h1 id="click-then-do-sth"><a href="#click-then-do-sth" class="headerlink" title="click then do sth"></a>click then do sth</h1><ul>
+<li>create a new py file, for example <code>show.py</code>. input code like:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> demo  <span class="comment"># generated from xxx.ui</span></div><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()  <span class="comment"># QtGui.QWidget.__init__()</span></div><div class="line">        self.setupUi(self)</div><div class="line">        self.pushButton.clicked.connect(</div><div class="line">            self.handleButton)  <span class="comment"># here is important line</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handleButton</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">print</span> (<span class="string">"hello, https://draapho.github.io/"</span>)</div><div class="line">        <span class="comment"># size = self.geometry()</span></div><div class="line">        <span class="comment"># self.resize(size.width() + 2, size.height() + 2)</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    form = MyForm()</div><div class="line">    form.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
+<ul>
+<li>look at <code>self.ui.pushButton.clicked.connect(self.handleButton)</code><br>it links clicked event with handleButton function.</li>
+<li>if you want to resize the window after clicked the button. change <code>handleButton</code> to</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">handleButton</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="comment"># print ("hello, https://draapho.github.io/")</span></div><div class="line">    size = self.geometry()</div><div class="line">    self.resize(size.width() + <span class="number">2</span>, size.height() + <span class="number">2</span>)</div></pre></td></tr></table></figure>
+<h1 id="click-then-do-heavy-work"><a href="#click-then-do-heavy-work" class="headerlink" title="click then do heavy work"></a>click then do heavy work</h1><ul>
+<li><p><del>bad code, UI totally dead</del></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> demo</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.setupUi(self)</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">startCount</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.pushButton.clicked.connect(self.stopCount)</div><div class="line">        i = <span class="number">0</span></div><div class="line">        <span class="keyword">while</span> i &lt; <span class="number">15</span>:</div><div class="line">            i += <span class="number">1</span></div><div class="line">            self.pushButton.setText(str(i))</div><div class="line">            <span class="keyword">print</span> i</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stopCount</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line">        self.pushButton.setText(<span class="string">"PushButton"</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    form = MyForm()</div><div class="line">    form.show()</div><div class="line">    app.exec_()</div></pre></td></tr></table></figure>
+</li>
+<li><p>use thread, can do everything in UI</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</div><div class="line"><span class="keyword">from</span> PyQt4.QtCore <span class="keyword">import</span> QThread, SIGNAL</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> demo</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">getCountThread</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.count = <span class="number">0</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></div><div class="line">        self.wait()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> self.count &lt; <span class="number">15</span>:</div><div class="line">            self.count += <span class="number">1</span></div><div class="line">            self.emit(SIGNAL(<span class="string">'showCount(int)'</span>), self.count)</div><div class="line">            <span class="keyword">print</span> self.count</div><div class="line">            self.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.setupUi(self)</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">startCount</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.get_thread = getCountThread()</div><div class="line">        self.connect(self.get_thread, SIGNAL(<span class="string">"showCount(int)"</span>), self.showCount)</div><div class="line">        self.connect(self.get_thread, SIGNAL(<span class="string">"finished()"</span>), self.done)</div><div class="line">        self.get_thread.start()</div><div class="line">        <span class="comment"># must be under the self.get_thread.start()</span></div><div class="line">        self.pushButton.clicked.connect(self.get_thread.terminate)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">showCount</span><span class="params">(self, count)</span>:</span></div><div class="line">        self.pushButton.setText(str(count))</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">done</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.pushButton.setText(<span class="string">"PushButton"</span>)</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    form = MyForm()</div><div class="line">    form.show()</div><div class="line">    app.exec_()</div></pre></td></tr></table></figure>
+</li>
+<li><p>explanation</p>
+<ul>
+<li><code>getCountThread</code> 子线程类, 执行繁重任务</li>
+<li><code>MyForm</code>-&gt;<code>startCount</code> 点击按键后执行, 设置好信号, 启动子线程</li>
+<li><code>self.connect(self.get_thread, SIGNAL(&quot;showCount(int)&quot;), self.showCount)</code><br>准备接收来自线程的信号, 并在 <code>showCount</code> 更新UI</li>
+<li><code>self.connect(self.get_thread, SIGNAL(&quot;finished()&quot;), self.done)</code><br>准备接收来自线程的结束信号, 然后在 <code>done</code> 下更新标记和UI</li>
+<li><code>self.get_thread.start()</code><br>启动子线程</li>
+<li><code>self.pushButton.clicked.connect(self.get_thread.terminate)</code><br>将按键的功能设置为终止子线程, 必须放在 <code>self.get_thread.start()</code> 下面</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/16/1611-WinSoft-other/" itemprop="url">
                   Windows 软件系列-开发软件
                 </a>
@@ -447,1945 +1558,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/12/1610-WinSoft-atompack/" itemprop="url">
-                  Windows 软件系列-atom插件
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-12T00:00:00+11:00" content="2016-10-12">
-              2016-10-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="atom简介"><a href="#atom简介" class="headerlink" title="atom简介"></a><a href="https://atom.io/" target="_blank" rel="external">atom</a>简介</h1><ul>
-<li>界面简洁, 基本上手可用, 无需复杂设置</li>
-<li>开源免费, 而且多平台支持, 有丰富的插件库</li>
-<li>和git的整合度很好! 直观明了好用</li>
-<li>启动相对较慢, 但可接受.</li>
-<li>懒人不想折腾, atom无明显短板, 就作为主力代码编辑器了</li>
-<li>定位是 Notepad++ 为快速处理文件, atom 处理项目</li>
-<li>此篇重点介绍 atom 插件的选择和安装, 以及配置快捷键. 基础介绍见<a href="https://draapho.github.io/2016/09/30/1603-WinSoft-editor/">Windows 软件系列-文本编辑</a></li>
-</ul>
-<h1 id="atom-插件的安装方式"><a href="#atom-插件的安装方式" class="headerlink" title="atom 插件的安装方式"></a>atom 插件的安装方式</h1><ul>
-<li><code>ctrl-,</code>-&gt;<code>Settings</code>-&gt;<code>Install</code>-&gt;选择要安装的插件</li>
-<li>终端下使用命令行 <code>apm install</code>, 装完后需要重启atom.<br>有些插件只能通过这个方式安装. 譬如要安装 <code>linter</code>, 命令行输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apm install linter</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="atom-通用插件"><a href="#atom-通用插件" class="headerlink" title="atom 通用插件"></a>atom 通用插件</h1><ul>
-<li><code>Sublime-Style-Column-Selection</code> 使用 <code>alt-鼠标左键</code> 进入列选模式</li>
-<li><code>atom-beautify</code> 自动格式化代码,<ul>
-<li>需设置 <code>ctrl-b</code> 美化</li>
-</ul>
-</li>
-<li><del><code>autocomplete-paths</code></del> 辅助完成路径</li>
-<li><code>block-comment-plus</code> 批量注释, 支持多种语言<ul>
-<li>需设置 <code>ctrl-shift-/</code> 和 <code>ctrl-shift-\</code></li>
-</ul>
-</li>
-<li><code>dash</code>  文档帮助, 配合 zeal (windows/linux) 或 dash(apple), 实现快速查询API<ul>
-<li>需设置 <code>F1</code> 帮助</li>
-</ul>
-</li>
-<li><del><code>disable-keybindings</code></del> 快速禁用atom的部分快捷键</li>
-<li><code>docblockr</code> 注释辅助, 快速添加函数的注释<ul>
-<li>支持 <code>tab</code> 键直接在参数间跳转</li>
-<li><code>Align tags</code>-&gt;<code>deep</code></li>
-<li><code>Auto add method tag</code></li>
-<li><del><code>Extend double slash</code></del></li>
-</ul>
-</li>
-<li><code>highlight-selected</code> 自动高亮匹配的词,</li>
-<li><code>hyperclick</code> 快速跳转到定义处, 仅限单文件, 但可由别的插件扩展<ul>
-<li><code>Trigger keys for Windows</code> <code>ctrl-shift-click</code>. 用ctrl键和系统多选冲突</li>
-</ul>
-</li>
-<li><code>last-cursor-position</code> 浏览历史跳转<ul>
-<li>需设置 <code>ctrl-shift-z</code> <code>ctrl-shift-y</code> 进行跳转</li>
-</ul>
-</li>
-<li><code>linter</code> 语法检查基础包</li>
-<li><code>minimap</code> 文件地图</li>
-<li><code>minimap-highlight-selected</code> 在文件地图中显示匹配的词</li>
-<li><code>platformio-ide-terminal</code> 终端软件 <ul>
-<li>支持 <code>ctrl-~</code> 快速打开, <code>ctrl-enter</code> 输入选中的文本</li>
-<li><code>Close Terminal on Exit</code></li>
-<li><code>Shell Override</code>-&gt;<code>git-cmd.exe</code> 没有配置环境变量则需要使用绝对路径</li>
-<li><code>Shell Arguments</code>-&gt;<code>--no-cd --command=usr/bin/bash.exe -l -i</code></li>
-<li><code>Working Directory</code>-&gt;<code>Project</code></li>
-<li><code>Theme</code>-&gt;<code>homebrew</code> 黑底绿字</li>
-</ul>
-</li>
-<li><del><code>Project Manager</code></del> 加入项目的概念, 纯快捷键操作. 与<code>project-viewer</code>二选一即可.</li>
-<li><code>project-viewer</code> 加入项目的概念,  带UI. 与<code>Project Manager</code>二选一即可.<ul>
-<li><code>Status Bar Visibility</code></li>
-<li><code>Autohide</code></li>
-<li><code>Positon of the panel</code>-&gt;<code>Left</code></li>
-<li><del><code>Convert Old Data</code></del></li>
-</ul>
-</li>
-<li><code>script</code> 一键执行, 支持多种代码, 不弹窗<ul>
-<li>需设置 <code>F5</code> 执行</li>
-</ul>
-</li>
-<li><code>symbols-tree-view</code> 显示类/变量/函数列表<ul>
-<li><code>Auto Hide</code></li>
-<li><code>Auto Toggle</code></li>
-</ul>
-</li>
-<li><code>tabs-to-spaces</code> tab空格互相转换</li>
-<li><del><code>vim-mode</code></del> vim操作方式. 需要屏蔽按键 <code>ctrl-f</code>, 恢复为搜索按键<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&apos;atom-text-editor.vim-mode:not(.insert-mode)&apos;:</div><div class="line">  &apos;ctrl-f&apos;: &apos;unset!&apos;</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="git-插件"><a href="#git-插件" class="headerlink" title="git 插件"></a>git 插件</h1><ul>
-<li><code>git-time-machine</code> 查看单文件的git历史<ul>
-<li>需设置 <code>f6</code> 查看比较</li>
-</ul>
-</li>
-<li><del><code>git-plus</code></del> git辅助, 我是通过 <code>platformio-ide-terminal</code> 打开终端敲git命令.</li>
-<li>merge-conflicts 查看git文件冲突<ul>
-<li>需设置 <code>ctrl-f6</code> 查看冲突</li>
-</ul>
-</li>
-</ul>
-<h1 id="python-插件"><a href="#python-插件" class="headerlink" title="python 插件"></a>python 插件</h1><ul>
-<li>配置 <code>atom-beautify</code> 之python语言<ul>
-<li>安装 <a href="https://www.python.org/" target="_blank" rel="external">python</a> </li>
-<li>安装 <a href="https://github.com/hhatto/autopep8" target="_blank" rel="external">autopep8</a>, 调用 <code>pip install --upgrade autopep8</code></li>
-<li>默认就是使用 <code>autopep8</code> 优化代码, 也推荐这个使用这个工具. <code>yapf</code>的优化结果无法满足<code>linter-flake8</code>的检查.</li>
-<li>测试. 打开一个 <code>.py</code> 文件, 右键选择 <code>Beautify editor contents</code> 看是否成功了.</li>
-</ul>
-</li>
-<li><del><code>atom-python-run</code></del> <code>F5</code>运行, 但是会弹cmd窗, 改用<code>script</code></li>
-<li><code>autocomplete-python</code> python辅助, 配合 <code>hyperclick</code> 跳转很方便<ul>
-<li>设置快捷键 <code>f4</code> 跳转</li>
-<li><code>Show Descriptions</code></li>
-<li><code>Autocomplete Function Parameters</code>-&gt;<code>all</code></li>
-</ul>
-</li>
-<li><code>linter-flake8</code> 代码规范检查, 检查很严, 配合 autopep8 的自动格式化就很完美了.<ul>
-<li>终端输入 <code>pip install flake8</code> python 安装 <code>flake8</code></li>
-<li>终端输入 <code>apm install linter-flake8</code> atom 安装 <code>linter-flake8</code></li>
-<li>插件配置 <code>Ignore Error</code>-&gt;<code>E501</code> 超过79列不要提示错误</li>
-</ul>
-</li>
-</ul>
-<h1 id="c-c-插件"><a href="#c-c-插件" class="headerlink" title="c/c++ 插件"></a>c/c++ 插件</h1><ul>
-<li>配置 <code>atom-beautify</code> 之c/c++语言<ul>
-<li>安装<a href="http://uncrustify.sourceforge.net/" target="_blank" rel="external">uncrustify</a>, 可以自动美化多种语言的格式.<ul>
-<li>下载<a href="https://sourceforge.net/projects/uncrustify/files/uncrustify/uncrustify-0.63/" target="_blank" rel="external">uncrustify-0.63.0-g44ce0f1-win32.zip</a></li>
-<li>解压后, 将uncrustify目录加入环境变量, 已 <code>D:\uncrustify\</code> 为例</li>
-<li>终端内输入 <code>uncrustify -v</code>, 测试是否配置好 uncrustify</li>
-</ul>
-</li>
-<li><code>atom-beautify</code> 插件的配置, 在c和c++下分别操作一次.<ul>
-<li><code>Default Beautifier</code>-&gt;<code>Uncrustify</code> . <del>另一个选项 <code>clang-format</code> 需要安装clang, 里面带有指令<code>clang-format.exe</code></del></li>
-<li><code>Config Path</code>-&gt;<code>D:\uncrustify\cfg\linux.cfg</code> 选择格式化模板</li>
-</ul>
-</li>
-<li>测试, 打开一个 <code>.c</code> 文件, 右键选择 <code>Beautify editor contents</code> 看是否成功了.</li>
-</ul>
-</li>
-<li><code>atom-gtags</code>, 能比较好的实现跳转<ul>
-<li>设置快捷键 <code>f4</code> 跳转</li>
-<li>右键项目根目录即可 <code>Build Gtags</code></li>
-<li>放弃 <del><code>atom-ctags</code></del> 实测效果很差!</li>
-<li>比较: <a href="https://github.com/OpenGrok/OpenGrok/wiki/Comparison-with-Similar-Tools" target="_blank" rel="external">https://github.com/OpenGrok/OpenGrok/wiki/Comparison-with-Similar-Tools</a></li>
-</ul>
-</li>
-<li>基于gcc编译的配置<ul>
-<li>下载 <a href="http://www.mingw.org/" target="_blank" rel="external">MinGW</a>, 安装并设置好环境变量<ul>
-<li>安装好后, 只是 <code>MinGW Installation Manager</code>, 实际上是个绿色软件. 打开后继续安装组件</li>
-<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code> 和 <code>mingw32-gcc-g++</code>-&gt;左上 <code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
-<li>这里只需要编译c和c++文件, 无需安装其它组件了.</li>
-<li>设置 <code>...\MinGW\bin</code> 文件夹到系统环境变量中</li>
-<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 <code>make</code> 指令了</li>
-<li>测试. 终端中输入 <code>make -v</code> 和 <code>gcc -v</code>, 看是否可以识别到指令</li>
-</ul>
-</li>
-<li><del><code>gpp-compiler</code></del> <code>f5</code>运行, 但会弹cmd窗, 决定使用内置终端</li>
-<li><code>linter-gcc</code> 基于gcc进行语法检查<ul>
-<li><code>GCC Excutable Path</code>-&gt;<code>gcc</code> 或 <code>g++</code>, 没有配置环境变量的话, 使用绝对路径, 注意斜杠!</li>
-<li><code>GCC Include Paths</code>-&gt;<code>.../MinGW/include/*</code> 注意斜杠方向! 加入必要头文件.</li>
-<li>只在保存时, 才会进行语法检查</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><del>基于clang编译的配置</del><ul>
-<li>彻底放弃这个系列, 不用vs, 基于mingw的配置失败.</li>
-<li>相关软件和参考如下</li>
-<li><del><code>autocomplete-clang</code></del> 自动完成</li>
-<li><del><code>linter-clang</code></del> 语法检查</li>
-<li><a href="http://llvm.org/" target="_blank" rel="external">clang官网</a>. 官网进入的链接是找不到windows下编译好的版本的.</li>
-<li>下载特定版本的clang, 如 <code>LLVM-3.9.0</code>, 使用链接:<a href="http://llvm.org/releases/3.9.0/" target="_blank" rel="external">http://llvm.org/releases/3.9.0/</a></li>
-<li>参考 <a href="http://m.blog.csdn.net/article/details?id=49902519" target="_blank" rel="external">解决llvm/clang在windows下编译时找不到头文件和Lib的问题</a></li>
-</ul>
-</li>
-</ul>
-<h1 id="markdown插件"><a href="#markdown插件" class="headerlink" title="markdown插件"></a>markdown插件</h1><ul>
-<li>atom已经支持markdown, 使用<code>ctrl-shift-m</code>即可预览. 如果要增强功能, 可以使用插件</li>
-<li><del><code>markdown-preview-enhanced</code></del> markdown, 导出为pdf时, 制图显示有问题<ul>
-<li><code>Break On Single Newline</code></li>
-<li><code>Enable Typographer</code></li>
-<li><code>Math Rendering Option</code>-&gt;<code>MathJax</code></li>
-<li><del><code>Enable Wiki Link Syntax</code></del></li>
-<li><del><code>Use GitHub.com syntax theme</code></del></li>
-<li><del><code>Print Background when generating pdf</code></del> 否则pdf不显示制图</li>
-<li><del><code>Use Github style when generating pdf</code></del> 否则pdf不显示制图</li>
-<li><del><code>Open preview pane automatically when opening a markdown file</code></del></li>
-<li><code>Image Uploader</code>-&gt;<code>sm.ms</code> 建议这个. <code>imgur</code> 有时限</li>
-<li><code>Mermaid Theme</code>-&gt;<code>mermaid.forest.css</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="atom快捷键配置"><a href="#atom快捷键配置" class="headerlink" title="atom快捷键配置"></a>atom快捷键配置</h1><ul>
-<li>使用 <code>ctrl-.</code> 查看按键冲突. 如果无效, 试试点到非编辑区(如目录树)试试.</li>
-<li><code>ctrl-,</code>-&gt;<code>Settings</code>-&gt;<code>Keybindings</code>-&gt;<code>your keymap file</code>-&gt;打开<code>keymap.cson</code></li>
-<li>自定义快捷键方式可参考 <a href="http://flight-manual.atom.io/using-atom/sections/basic-customization/#_customizing_keybindings" target="_blank" rel="external">Basic Customization</a></li>
-<li>很明显, 要备份自己的快捷键设置, 只需要保存这份 <code>keymap.cson</code> 文件</li>
-<li>最后禁用插件里不需要的快捷键, 或者使用 <code>disable-keybindings</code>.<ul>
-<li><code>Keybindings</code> -&gt; <del><code>Enable</code></del>. 屏蔽以下插件:</li>
-<li><code>atom-beautify</code>, <code>atom-gtags</code>, <code>autocomplete-python</code></li>
-<li><code>block-comment-plus</code>, <code>dash</code>, <code>git-time-machine</code></li>
-<li><code>highlight-selected</code>, <code>hyperclick</code>, </li>
-<li><code>script</code>, <code>symbols-tree-view</code>, <code>tabs-to-spaces</code></li>
-</ul>
-</li>
-<li><p>我的 <code>keymap.cson</code> 配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div></pre></td><td class="code"><pre><div class="line"># atom 大致原则是, 小窗口&gt;大窗口, 然后才是客户配置&gt;插件配置&gt;系统配置</div><div class="line"># 因此优先级 &apos;body&apos; &lt; &apos;atom-workspace&apos; &lt; &apos;atom-text-editor&apos; &lt; &apos;atom-text-editor:not([mini])&apos;</div><div class="line"></div><div class="line">&apos;atom-text-editor[data-grammar~=python]:not(.mini)&apos;:</div><div class="line">  &apos;f4&apos;: &apos;autocomplete-python:go-to-definition&apos;</div><div class="line">  &apos;shift-f4&apos;: &apos;autocomplete-python:go-to-definition&apos;</div><div class="line">  &apos;alt-shift-s&apos;: &apos;autocomplete-python:override-method&apos;</div><div class="line"></div><div class="line">&apos;atom-text-editor[data-grammar~=c]:not(.mini)&apos;:</div><div class="line">  &apos;f4&apos;: &apos;atom-gtags:get-definitions&apos;</div><div class="line">  &apos;shift-f4&apos;: &apos;atom-gtags:get-references&apos;</div><div class="line"></div><div class="line">&apos;.platform-win32 atom-workspace atom-text-editor:not([mini])&apos;:</div><div class="line"># character                            </div><div class="line">  &apos;ctrl-b&apos;: &apos;atom-beautify:beautify-editor&apos;</div><div class="line">  &apos;ctrl-d&apos;: &apos;core:delete&apos;</div><div class="line">  &apos;ctrl-shift-d&apos;: &apos;editor:delete-line&apos;</div><div class="line">  &apos;ctrl-j&apos;: &apos;core:move-down&apos; </div><div class="line">  &apos;ctrl-k&apos;: &apos;core:move-up&apos;   </div><div class="line">  &apos;ctrl-l&apos;: &apos;core:move-right&apos;</div><div class="line">  &apos;ctrl-h&apos;: &apos;core:move-left&apos;</div><div class="line">  &apos;ctrl-shift-j&apos;: &apos;editor:move-line-down&apos;</div><div class="line">  &apos;ctrl-shift-k&apos;: &apos;editor:move-line-up&apos;</div><div class="line">  &apos;ctrl-shift-l&apos;: &apos;editor:move-to-end-of-word&apos;</div><div class="line">  &apos;ctrl-shift-h&apos;: &apos;editor:move-to-beginning-of-word&apos;</div><div class="line">  &apos;alt-shift-j&apos;: &apos;editor:join-lines&apos;</div><div class="line">  &apos;ctrl-m&apos;: &apos;bookmarks:toggle-bookmark&apos;  </div><div class="line">  &apos;ctrl-r&apos;: &apos;core:redo&apos;</div><div class="line">  &apos;ctrl-u&apos;: &apos;core:undo&apos;</div><div class="line">  &apos;ctrl-shift-v&apos;: &apos;editor:duplicate-lines&apos;</div><div class="line">  &apos;ctrl-shift-W&apos;: &apos;tabs:close-other-tabs&apos;</div><div class="line">  &apos;ctrl-shift-x&apos;: &apos;editor:select-line&apos;</div><div class="line">  &apos;ctrl-shift-y&apos;: &apos;last-cursor-position:next&apos;</div><div class="line">  &apos;ctrl-shift-z&apos;: &apos;last-cursor-position:previous&apos;</div><div class="line"># special</div><div class="line">  &apos;ctrl-4&apos;: &apos;editor:move-to-end-of-screen-line&apos;         # ctrl-$</div><div class="line">  &apos;ctrl-6&apos;: &apos;editor:move-to-first-character-of-line&apos;    # ctrl-^</div><div class="line">  &apos;ctrl-$&apos;: &apos;editor:select-to-end-of-line&apos;              # ctrl-shift-$</div><div class="line">  &apos;ctrl-^&apos;: &apos;editor:select-to-first-character-of-line&apos;  # ctrl-shift-^</div><div class="line">  &apos;ctrl-?&apos;: &apos;block-comment-plus:toggle&apos;                 # ctrl-shift-/</div><div class="line">  &apos;ctrl-|&apos;: &apos;block-comment-plus:toggle&apos;                 # ctrl-shift-\</div><div class="line">  &apos;ctrl-]&apos;: &apos;bracket-matcher:select-inside-brackets&apos;</div><div class="line">  &apos;ctrl-[&apos;: &apos;bracket-matcher:go-to-matching-bracket&apos;</div><div class="line">  &apos;ctrl-.&apos;: &apos;tabs-to-spaces:untabify-all&apos;</div><div class="line">  &apos;ctrl-&gt;&apos;: &apos;tabs-to-spaces:tabify&apos;                     # ctrl-shift-.</div><div class="line"># alt</div><div class="line">  &apos;alt-0&apos;: &apos;editor:fold-all&apos;</div><div class="line">  &apos;alt-)&apos;: &apos;editor:unfold-all&apos;                          # alt-shift-0</div><div class="line">  &apos;alt-!&apos;: &apos;editor:unfold-all&apos;                          # alt-shift-1</div><div class="line">  &apos;alt-1&apos;: &apos;editor:fold-at-indent-level-1&apos;</div><div class="line">  &apos;alt-2&apos;: &apos;editor:fold-at-indent-level-2&apos;</div><div class="line">  &apos;alt-3&apos;: &apos;editor:fold-at-indent-level-3&apos;</div><div class="line">  &apos;alt-4&apos;: &apos;editor:fold-at-indent-level-4&apos;</div><div class="line">  &apos;alt-5&apos;: &apos;editor:fold-at-indent-level-5&apos;</div><div class="line">  &apos;alt-6&apos;: &apos;editor:fold-at-indent-level-6&apos;</div><div class="line">  &apos;alt-7&apos;: &apos;editor:fold-at-indent-level-7&apos;</div><div class="line">  &apos;alt-8&apos;: &apos;editor:fold-at-indent-level-8&apos;</div><div class="line">  &apos;alt-9&apos;: &apos;editor:fold-at-indent-level-9&apos;</div><div class="line"># f1-f6</div><div class="line">  &apos;f1&apos;: &apos;dash:shortcut&apos;</div><div class="line">  &apos;ctrl-f2&apos;: &apos;bookmarks:view-all&apos;</div><div class="line">  &apos;ctrl-shift-f2&apos;: &apos;bookmarks:clear-bookmarks&apos;</div><div class="line">  &apos;ctrl-f3&apos;: &apos;find-and-replace:select-all&apos;</div><div class="line">  &apos;f5&apos;: &apos;script:run&apos;</div><div class="line">  &apos;f6&apos;: &apos;git-time-machine:toggle&apos;</div><div class="line">  &apos;ctrl-f6&apos;: &apos;merge-conflicts:detect&apos;</div><div class="line">  &apos;shift-f6&apos;: &apos;merge-conflicts:next-unresolved&apos;</div><div class="line">  &apos;ctrl-shift-f6&apos;: &apos;merge-conflicts:previous-unresolved&apos;</div><div class="line"></div><div class="line">&apos;body&apos;:</div><div class="line">  &apos;ctrl-j&apos;: &apos;core:move-down&apos;</div><div class="line">  &apos;ctrl-k&apos;: &apos;core:move-up&apos;</div><div class="line">  &apos;ctrl-r&apos;: &apos;core:redo&apos;</div><div class="line">  &apos;ctrl-u&apos;: &apos;core:undo&apos;</div><div class="line">  &apos;ctrl-shift-S&apos;: &apos;window:save-all&apos;</div><div class="line"># unset ctrl-k *</div><div class="line">  &apos;ctrl-k up&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k down&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k left&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k right&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-w&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-alt-w&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-p&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-n&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-up&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-down&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-left&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-right&apos;: &apos;unset!&apos;</div><div class="line">&apos;atom-workspace atom-text-editor&apos;:</div><div class="line">  &apos;ctrl-k ctrl-u&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-l&apos;: &apos;unset!&apos;</div><div class="line">&apos;atom-workspace atom-text-editor:not([mini])&apos;:</div><div class="line">  &apos;ctrl-k ctrl-0&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-1&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-2&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-3&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-4&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-5&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-6&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-7&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-8&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k ctrl-9&apos;: &apos;unset!&apos;</div><div class="line">&apos;.platform-win32, .platform-linux&apos;: </div><div class="line">  &apos;ctrl-k ctrl-b&apos;: &apos;unset!&apos;</div><div class="line">&apos;.platform-win32 .tree-view, .platform-linux .tree-view&apos;:</div><div class="line">  &apos;ctrl-k right&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k l&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k left&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k h&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k up&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k k&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k down&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-k j&apos;: &apos;unset!&apos;</div><div class="line">&apos;.platform-win32 atom-text-editor, .platform-linux atom-text-editor&apos;:</div><div class="line">  &apos;ctrl-k ctrl-d&apos;: &apos;unset!&apos;</div><div class="line">  &apos;ctrl-u&apos;: &apos;unset!&apos;</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="参考和资料"><a href="#参考和资料" class="headerlink" title="参考和资料"></a>参考和资料</h1><ul>
-<li><a href="http://flight-manual.atom.io/" target="_blank" rel="external">Atom Flight Manual</a>, atom手册</li>
-<li><a href="https://atom.io/packages" target="_blank" rel="external">atom Packages</a>, atom插件中心</li>
-<li>我的 <a href="https://draapho.github.io/2016/10/08/1607-Shortcut-win/">Windows快捷键</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/10/1609-WinSoft-terminal/" itemprop="url">
-                  Windows 软件系列-终端
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-10T00:00:00+11:00" content="2016-10-10">
-              2016-10-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="ConEmu-简介"><a href="#ConEmu-简介" class="headerlink" title="ConEmu 简介"></a><a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu</a> 简介</h1><ul>
-<li><a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu</a> 即 Console Emulate, 一款终端模拟器, 完全免费, 可以通过他加载多种终端如 cmd, shell, bash, putty 而且便于管理!</li>
-<li>简而言之, 凡是喜欢用命令行方式的, windows就请使用这款软件, 分分钟变身geek或者hacker的感觉…</li>
-<li>右键文件夹打开ConEmu就自动进入此文件夹, <code>ConEmu Inside</code> 甚至能嵌入到文件夹中.</li>
-<li>顺便说一句, cmder就是他的马甲, 核心还是ConEmu.</li>
-</ul>
-<h2 id="我的ConEmu"><a href="#我的ConEmu" class="headerlink" title="我的ConEmu"></a>我的ConEmu</h2><ul>
-<li>我希望的ConEmu, 就是想输命令行, 打开ConEmu就行!</li>
-<li>本文的配置可以在ConEmu中执行:<ul>
-<li><code>cmd</code> <code>shell</code> windows自带终端</li>
-<li><code>git</code> windows下安装好git即可, 包含了<code>git-bash</code></li>
-<li><code>mingw</code> windows下用gnu工具链编译c, c++</li>
-<li><code>putty</code> ssh链接远程linux, 串口链接嵌入式linux</li>
-<li><code>cygwin</code> windows下模拟linux运行环境 (目前尚未使用, 在用传统的虚拟机)</li>
-<li>其它指令如: <code>hexo</code> 博客使用, <code>choco</code> 安装软件使用, <code>apm</code> atom下载插件使用.</li>
-</ul>
-</li>
-<li>快速在指定文件夹下打开ConEmu, 可在 <code>Listary</code> 关联快捷键 <code>ctrl-~</code></li>
-<li>快速在Notepad++下打开ConEmu, 关联快捷键 <code>ctrl-~</code></li>
-</ul>
-<h2 id="自制ConEmu绿色版"><a href="#自制ConEmu绿色版" class="headerlink" title="自制ConEmu绿色版"></a>自制ConEmu绿色版</h2><ul>
-<li>下载 <a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu便携版</a><ul>
-<li>解压后放在理想的文件夹中. 下面以 <code>D:\Green\ConEmu</code> 路径为例.</li>
-</ul>
-</li>
-<li>下载 <a href="https://mridgers.github.io/clink/" target="_blank" rel="external">clink便携版</a>, 用于增强终端操作, 如复制拷贝快捷键等<ul>
-<li>解压后, 所有文件放入 <code>D:\Green\ConEmu\ConEmu\clink</code>, 这里面原来就有个 <code>Readme.txt</code>, 说的非常清楚了</li>
-</ul>
-</li>
-<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="external">git便携版</a>, 版本管理软件<ul>
-<li>解压后命名为 <code>Git</code> 放到 <code>D:\Green\ConEmu\plugins</code>,</li>
-</ul>
-</li>
-<li>下载并使用默认设置安装 <a href="http://www.mingw.org/" target="_blank" rel="external">mingw</a>, 用于在win下使用gnu工具编译<ul>
-<li>只是装了 <code>MinGW Installation Manager</code> (实际上是个绿色软件). 打开后继续安装组件</li>
-<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code>和<code>mingw32-gcc-g++</code>-&gt;左上<code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
-<li>我只需要编译c和c++文件, <code>msys</code>也已经由git软件实现了, 因此无需安装其它组件了.</li>
-<li>然后把整个 <code>MinGW</code> 文件夹放到 <code>D:\Green\ConEmu\plugins</code></li>
-<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 <code>make</code> 指令了</li>
-</ul>
-</li>
-<li>下载 <a href="http://www.putty.org/" target="_blank" rel="external">putty.zip</a>, ssh远程连接软件及串口软件<ul>
-<li>解压后命名为 <code>putty</code> 放到 <code>D:\Green\ConEmu\plugins</code></li>
-</ul>
-</li>
-<li><p>然后需要将上述软件加入环境变量, 这个可以在ConEmu设置中完成!!!</p>
-<ul>
-<li><p>打开ConEmu, <code>Setting</code>-&gt;<code>Startup</code>-&gt;<code>Environment</code>-&gt;<code>set PATH=%ConEmuBaseDir%\Scripts;%PATH%</code> 下面加上如下语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># git PATH</div><div class="line">set PATH=%ConEmuDir%\plugins\Git;%PATH%</div><div class="line">set PATH=%ConEmuDir%\plugins\Git\cmd;%PATH%</div><div class="line"># mingw PATH</div><div class="line">set PATH=%ConEmuDir%\plugins\MinGW\bin;%PATH%</div><div class="line"># putty PATH%</div><div class="line">set PATH=%ConEmuDir%\plugins\putty;%PATH%</div></pre></td></tr></table></figure>
-</li>
-<li><p>这样, ConEmu在启动时, 会自动加入上述软件到PATH中</p>
-</li>
-<li>如果使用 <strong>更通用的做法</strong>, 把上述环境变量删除或注释掉.</li>
-</ul>
-</li>
-<li>自制ConEmu绿色版就初步完成, 下面只需要配置了.</li>
-</ul>
-<h2 id="更通用的做法"><a href="#更通用的做法" class="headerlink" title="更通用的做法"></a>更通用的做法</h2><ul>
-<li>用上述方法有三个缺点<ul>
-<li>git便携版不支持ssh或GPG免密远程同步, 每次都要求输入用户名和密码, 非常麻烦.</li>
-<li>如果不用ConEmu, 那么其它终端, 如atom下的终端就无法使用上述软件.</li>
-<li>发现putty会新打开一个窗口, 而不是嵌入到ConEmu中.</li>
-</ul>
-</li>
-<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="external">git安装版</a>, 使用默认配置安装即可.<ul>
-<li>为了便于使用, 建议把git的根目录也加入环境变量, 这样就能直接调用 <code>git-cmd.exe</code></li>
-</ul>
-</li>
-<li>设置 <code>D:\Green\ConEmu\plugins\MinGW\bin</code> 文件夹到系统环境变量中</li>
-<li>设置 <code>D:\Green\ConEmu\plugins\putty</code> 文件夹到系统环境变量中</li>
-<li>还可以考虑下载安装 <a href="https://www.cygwin.com/" target="_blank" rel="external">cygwin</a> 并加入ConEmu中, 这是一款Windows下的Linux模拟器. 注意安装和卸载都比较麻烦.<h2 id="ConEmu的设置"><a href="#ConEmu的设置" class="headerlink" title="ConEmu的设置"></a>ConEmu的设置</h2></li>
-<li>所有设置都会存放在 <code>conEmu.xml</code> 里, 所以设置的备份很简单</li>
-<li>首次打开会有设置向导 <code>fast configuration</code>, 用于生成 <code>conEmu.xml</code></li>
-<li>可以在设置好环境变量, 安装好git后, 删除<code>conEmu.xml</code>重新运行, 这样ConEmu会自动检测加入<code>Git bash</code> 和 <code>putty</code>, 省心不少. clink放在指定路径后, 其功能也会自动启用.</li>
-<li>配置过程如下, 需要图文版可参考 <a href="https://higoge.github.io/2015/07/22/tools02/" target="_blank" rel="external">工具02：cmd的替代品ConEmu+Clink</a>, 配置上略有区别, 进入 <code>Settings</code> 后<ul>
-<li><code>Main</code>-&gt;<code>Appearance</code>-&gt;<code>Generic</code>-&gt;<code>Single instance mode (...)</code></li>
-<li><code>Main</code>-&gt;<code>Confirm</code>-&gt;<code>CLose confirmations</code>-&gt;<del><code>When running process was detected</code></del></li>
-<li><code>Startup</code>-&gt;<code>Specified named task</code>-&gt;<code>Bash:: Git bash</code> 更改打开时默认使用的终端类型</li>
-<li><code>Startup</code>-&gt;<code>Environment</code> 启动时, 会加载这里的环境变量. 配置好系统环境变量的话, 可以全部删除</li>
-<li>注册鼠标右键 <code>ConEmu Here</code> 和 <code>ConEmu Inside</code>, 并设置为使用 <code>Git bash</code> 启动<ul>
-<li><code>Integration</code>-&gt;<code>ConEmu Here</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
-<li><code>Integration</code>-&gt;<code>ConEmu Inside</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
-</ul>
-</li>
-<li><code>Integration</code>-&gt;<code>Default term</code>-&gt;<code>Force ConEmu as default terminal for console applications</code></li>
-<li>添加 <code>tasks</code>. 选择 <code>Startup</code>-&gt;<code>Tasks</code>, 根据现有例子依样画葫芦即可.<ul>
-<li><code>Bash::Git bash</code>: <code>git-cmd.lnk --no-cd --command=usr/bin/bash.exe -l -i</code> 也可以点击<code>File path...</code>使用绝对路径替代快捷方式.</li>
-<li><code>Bash::Git bash(Admin)</code>: <code>*git-cmd.exe --no-cd --command=usr/bin/bash.exe -l -i</code> 最前面加个<code>*</code>就是管理员权限了.</li>
-<li><code>Putty::default</code>: <code>putty.exe</code> 同样, 可能需要使用绝对路径, 点击<code>File path...</code>选择即可</li>
-<li><code>Putty::Ubuntu</code>: <code>putty.exe -new_console -load &quot;ubuntu&quot;</code> 需要putty设置好名为<code>ubuntu</code>的session</li>
-<li><code>Cygwin</code>: <code>set HOME=d:\cygwin\home\XXX &amp; &quot;d:\cygwin\bin\mintty.exe&quot; -i /Cygwin.ico -</code> 这条指令没有测试过.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="Putty"><a href="#Putty" class="headerlink" title="Putty"></a><a href="http://www.putty.org/" target="_blank" rel="external">Putty</a></h1><ul>
-<li><a href="http://www.putty.org/" target="_blank" rel="external">Putty</a> 可用于ssh连接远程主机, 也支持串口. 使用简单, 完全免费</li>
-<li>putty的配置, 一个配置就是一个<code>Session</code>. 可以参考<a href="http://blog.csdn.net/tianlesoftware/article/details/5831605" target="_blank" rel="external">Putty 工具 保存配置的 小技巧</a></li>
-<li>putty免密登录, 没有尝试, 可以参考如下两篇文章.<ul>
-<li><a href="https://segmentfault.com/a/1190000000639516" target="_blank" rel="external">PuTTY的自动登录设置</a></li>
-<li><a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="external">windows 上用程序putty使用 ssh自动登录linux</a></li>
-</ul>
-</li>
-</ul>
-<h2 id="设置Default"><a href="#设置Default" class="headerlink" title="设置Default"></a>设置Default</h2><ul>
-<li><code>Window</code>-&gt;<code>Lines of scrollback</code>-<code>20000</code>  回看更多历史屏幕信息</li>
-<li><code>Window</code>-&gt;<code>Apperance</code>-&gt;<code>Vertical line</code>, <code>Cursor blinks</code> 游标闪烁</li>
-<li><code>Window</code>-&gt;<code>Colours</code>-&gt;<code>Default Backgroud</code>-&gt;<code>R0 G43 B54</code> 使用ConEmu背景色</li>
-<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code>-&gt;<code>None</code> 默认串口不用流控制</li>
-<li><code>Session</code>-&gt;<code>Saved Sessions</code>-&gt;输入 <code>Default Settings</code>-&gt;<code>Save</code> 默认值设置完成</li>
-</ul>
-<h2 id="设置ssh"><a href="#设置ssh" class="headerlink" title="设置ssh"></a>设置ssh</h2><ul>
-<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>SSH</code>-&gt;<code>Host Name (or IP address)</code>-&gt;<code>10.0.0.99</code> 或者  <code>username@10.0.0.99</code> 来指定登录名</li>
-<li><code>Session</code>-&gt;<code>Saved Session</code> <code>Ubuntu</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
-<li>如果需要免密登录, 明文的很简单, 调用 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code> 即可</li>
-<li>如果需要密码加密, 稍微麻烦点. 参考 <a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="external">windows 上用程序putty使用 ssh自动登录linux</a>. 我不需要这个功能, 略过不表.</li>
-</ul>
-<h2 id="设置serial"><a href="#设置serial" class="headerlink" title="设置serial"></a>设置serial</h2><ul>
-<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>Serial</code>-&gt;<code>Serial line</code> <code>COM4</code>-&gt;<code>Speed</code> <code>9600</code> 即串口4, 波特率9600</li>
-<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code> <code>None</code> 这里可以设置其它串口参数, 不支持自动回显.</li>
-<li><code>Session</code>-&gt;<code>Saved Session</code> <code>COM4-9600</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
-</ul>
-<h2 id="配置的导入和导出"><a href="#配置的导入和导出" class="headerlink" title="配置的导入和导出"></a>配置的导入和导出</h2><ul>
-<li>putty直接把配置存放在注册表中. 所以思路就是导入导出注册表</li>
-<li>cmd下-&gt;<code>regedit</code>-&gt;打开注册表</li>
-<li>找到 <code>HKEY_CURRENT_USER\Software\SimonTatham</code></li>
-<li>在 <code>SimonTatham</code> 这个节点上点击右键, 选择导出, 保存为<code>config.reg</code>. 这里不单单是putty的配置</li>
-<li>恢复时, 管理员权限执行 <code>config.reg</code> 即可</li>
-</ul>
-<h2 id="putty的调用"><a href="#putty的调用" class="headerlink" title="putty的调用"></a>putty的调用</h2><ul>
-<li>基本用法 <code>putty.exe -load &quot;session_name&quot;</code></li>
-<li>自动登录 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code></li>
-<li>更多调用方式可查看 <code>PUTTY.CHM 3.8.x</code> 包含于下载的<code>putty.zip</code>中</li>
-</ul>
-<h2 id="对比TeraTerm"><a href="#对比TeraTerm" class="headerlink" title="对比TeraTerm"></a>对比<a href="https://ttssh2.osdn.jp/index.html.en" target="_blank" rel="external">TeraTerm</a></h2><ul>
-<li>TeraTerm相比于putty设置显得更复杂, 至少串口的功能比putty的要多一点</li>
-<li>TeraTerm有自己的脚本语句, 可以实现比较复杂的自动化功能</li>
-<li>TeraTerm在ConEmu字体显示有问题.</li>
-<li>putty完全满足需求, 配置简单, 完美兼容ConEmu, 因此没有考虑TeraTerm</li>
-</ul>
-<h1 id="Cygwin"><a href="#Cygwin" class="headerlink" title="Cygwin"></a><a href="https://www.cygwin.com/" target="_blank" rel="external">Cygwin</a></h1><ul>
-<li>是windows下的unix仿真环境, 可以用来做交叉编译, 因此可替代虚拟机安装linux.</li>
-<li>安装, 可以参考 <a href="http://velep.com/archives/747.html" target="_blank" rel="external">cygwin介绍、安装及其使用</a></li>
-<li>交叉编译, 可以参考<ul>
-<li><a href="http://mazhijing.blog.51cto.com/215535/39539/" target="_blank" rel="external">Cygwin 安装  基本使用 交叉编译vivi kernel</a></li>
-<li><a href="http://www.360doc.com/content/12/0929/14/5013584_238783155.shtml" target="_blank" rel="external">在cygwin中安装gcc编译器</a></li>
-</ul>
-</li>
-<li>卸载, 因为权限问题, Cygwin卸载很麻烦. 可以参考两篇文章, 已经是最简单的方法了<ul>
-<li><a href="http://blog.csdn.net/yelangjueqi/article/details/45199209" target="_blank" rel="external">window 下完全卸载Cygwin最简单方法</a>, 就是在运行一次 <code>setup.exe</code> 来卸载</li>
-<li><a href="http://blog.163.com/zhuandi_h/blog/static/180270288201282204521376/" target="_blank" rel="external">Win7 完全删除cygwin（本人已删除成功）</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/09/1608-WinSoft-path/" itemprop="url">
-                  Windows 软件系列-自定义环境变量
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-09T00:00:00+11:00" content="2016-10-09">
-              2016-10-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="自定义环境变量"><a href="#自定义环境变量" class="headerlink" title="自定义环境变量"></a>自定义环境变量</h1><ul>
-<li>测试过几个例子, 简单的调用没问题, 但带参调用就会有各种无法预料的问题.</li>
-<li><code>ConEmu.lnk</code> 后面不支持带参数, <code>git-cmd.lnk</code> 支持带参, 但有奇怪现象.</li>
-<li><code>Typora.lnk</code> <code>zeal.lnk</code> 没有问题.</li>
-<li>使用此方法可以配合 <code>win-r</code> 快速打开文件夹, 软件等功能! 我没有使用, 因为有更好的替代方案.</li>
-<li>!!!注意!!!, 带参调用 <code>.lnk</code> 不完全等同于 <code>.exe</code>, 还是没有linux的链接来的便捷</li>
-</ul>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>做软件开发是绕不过环境变量 <code>PATH</code> 的设置的, 经常到后来 <code>PATH</code> 就变得非常长, 难以管理维护.</li>
-<li>借助linux链接的概念, 实验了一下windows的快捷方式是否也可以用命令行执行, 发现是可行的!</li>
-<li>譬如创建 <code>ConEmu.exe</code> 的快捷方式 <code>ConEmu.lnk</code> (.lnk不会显示). 此时, 在cmd内执行 <code>ConEmu.lnk</code> 等同于执行 <code>ConEmu.exe</code></li>
-<li>这样, 就有办法简化自定义 <code>PATH</code> 的数量了, 只需添加一个用户路径到 <code>PATH</code> 中, 如<code>D:\Green\userpath\bin</code>, 然后把用户软件的 <code>.exe</code> 和 <code>.lnk</code> 放到这个目录下面就可以了.</li>
-</ul>
-<h2 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h2><ul>
-<li>譬如, 配置 <code>D:\Green\cli\bin</code> 到环境变量中.</li>
-<li><code>我的电脑</code>-&gt;右键<code>属性</code> 或者 <code>控制面板</code>-&gt;<code>系统和安全</code>-&gt;<code>系统</code>-&gt;<code>高级系统设置</code></li>
-<li>弹出 <code>系统属性</code> 页面-&gt;<code>高级</code> 标签-&gt;最下面 <code>环境变量...</code>-&gt;<code>系统变量</code>-&gt;<code>Path</code>-&gt;加入自定义路径如 <code>D:\Green\cli\bin</code>, windows7的话需要分隔符<code>;</code></li>
-<li><code>D:\Green\cli\bin</code> 只是个例子, 可以自己规定任意一个文件夹, 便于记忆即可.</li>
-</ul>
-<h2 id="添加软件"><a href="#添加软件" class="headerlink" title="添加软件"></a>添加软件</h2><ul>
-<li>MinGW, windows下提供 gnu 工具链, 像linux下一样使用 make 编译即可<br>把 <code>.\MinGW\bin</code> 下的所有文件复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>Pandoc, 格式转换软件. 众多markdown编辑器需要此软件来转换格式<br>把 <code>pandoc.exe</code> 和 <code>pandoc-citeproc.exe</code> 复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>putty, ssh和串口终端软件, 多用于远程连接<br><del>putty所有文件复制一份到 <code>D:\Green\cli\bin</code></del>, 放个 <code>putty.exe</code> 即可</li>
-<li>uncrustify, 编程语言格式化软件. 可格式化 c, c++, d, java 等众多语言<br>把 <code>uncrustify.exe</code> 复制到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>下述软件创建快捷方式, 然后放到 <code>D:\Green\cli\bin</code> 即可</li>
-<li><del><code>ConEmu.lnk</code></del> 模拟终端软件, 可整合多种终端如cmd, shell, bash, putty</li>
-<li><del><code>Cygwin.lnk</code></del> 模拟linux环境, 可以部分充当windows下的linux虚拟机使用</li>
-<li><del><code>git-cmd.lnk</code></del> 启动git, 供ConEmu调用</li>
-<li><code>Typora.lnk</code> 一款markdown编辑器</li>
-<li><code>zeal.lnk</code> 软件API离线查询工具, windows下的dash</li>
-</ul>
-<h2 id="便捷性"><a href="#便捷性" class="headerlink" title="便捷性"></a>便捷性</h2><ul>
-<li>上述软件主要是辅助作用, 我会在常用软件中调用上述软件. 如notepad++, atom, ConEmu中</li>
-<li>以 notepad++ 调用 <code>zeal.lnk</code> 为例.</li>
-<li><code>notepad++</code>-&gt;<code>Run</code>-&gt;<code>Run...</code>-&gt;输入 <code>zeal.lnk $(CURRENT_WORD)</code>-&gt;<code>Save...</code>-&gt;<code>Name:``help</code>, 快捷键<code>F1</code>-&gt;<code>OK</code></li>
-<li>配置好以后, 写代码遇到需要查询的地方, 只要选中关键词, 按 <code>F1</code> 就会自动调用 zeal 了</li>
-<li>以后环境变了, 只需要重新创建一下 <code>zeal.lnk</code> 然后放到 <code>D:\Green\userpath\bin</code> 即可.</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/08/1607-CheatSheet-win/" itemprop="url">
-                  Windows快捷键
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-08T00:00:00+11:00" content="2016-10-08">
-              2016-10-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="专用快捷键"><a href="#专用快捷键" class="headerlink" title="专用快捷键"></a>专用快捷键</h1><table>
-<thead>
-<tr>
-<th>atom</th>
-<th>备注</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ctrl-shift-p</code></td>
-<td>palette</td>
-<td>调出命令板</td>
-</tr>
-<tr>
-<td><code>ctrl-alt-i</code></td>
-<td>information</td>
-<td>调用控制台</td>
-</tr>
-<tr>
-<td><code>ctrl-,</code></td>
-<td></td>
-<td>打开设置面板</td>
-</tr>
-<tr>
-<td><code>ctrl-.</code></td>
-<td>非编辑区有效</td>
-<td>调试快捷键</td>
-</tr>
-<tr>
-<td>+<code>ctrl-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示有冲突的文件</td>
-</tr>
-<tr>
-<td>+<code>shift-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示下一个冲突</td>
-</tr>
-<tr>
-<td>+<code>ctrl-shift-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示上一个冲突</td>
-</tr>
-<tr>
-<td><strong>eclipse</strong></td>
-<td><strong>备注</strong></td>
-<td><strong>说明</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-o</code></td>
-<td></td>
-<td>显示函数列表</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-o</code></td>
-<td></td>
-<td>自动处理 include/import</td>
-</tr>
-<tr>
-<td><code>alt-shift-s</code></td>
-<td>source</td>
-<td>显示代码常用操作</td>
-</tr>
-<tr>
-<td><code>alt-/</code></td>
-<td></td>
-<td>代码提示</td>
-</tr>
-<tr>
-<td>+ <code>ctrl \</code></td>
-<td><del><code>ctrl-tab</code></del></td>
-<td>切换<code>.c``.h</code>文件</td>
-</tr>
-<tr>
-<td>+ <code>alt-\</code></td>
-<td><code>alt-shift-a</code></td>
-<td>列选模式</td>
-</tr>
-<tr>
-<td>+ <code>ctrl-f3</code></td>
-<td><code>ctrl-1</code></td>
-<td>快速修复</td>
-</tr>
-<tr>
-<td>+ <code>alt-shift-f</code></td>
-<td><code>ctrl-shift-t</code></td>
-<td>查找类</td>
-</tr>
-</tbody>
-</table>
-<h1 id="编辑器快捷键"><a href="#编辑器快捷键" class="headerlink" title="编辑器快捷键"></a>编辑器快捷键</h1><table>
-<thead>
-<tr>
-<th>文件操作</th>
-<th>助记</th>
-<th>说明</th>
-<th>来源</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ctrl-n</code></td>
-<td>new</td>
-<td>创建文件</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-o</code></td>
-<td>open</td>
-<td>打开文件</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-s</code></td>
-<td>save</td>
-<td>保存</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-s</code></td>
-<td>save</td>
-<td>保存所有</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-w</code></td>
-<td>windows</td>
-<td>关闭当前页</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-w</code></td>
-<td>windows</td>
-<td>关闭其它页面</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-t</code></td>
-<td>tags</td>
-<td>恢复关闭的文件</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-tab</code></td>
-<td>tab</td>
-<td>下一个标签</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-tab</code></td>
-<td>tab</td>
-<td>上一个标签</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>f1</code></td>
-<td></td>
-<td>help</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-f1</code></td>
-<td></td>
-<td>google搜索选定内容</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>文件编辑</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-a</code></td>
-<td>all</td>
-<td>全部选中</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制文档路径</td>
-<td>atom</td>
-</tr>
-<tr>
-<td><code>ctrl-d</code></td>
-<td>delete</td>
-<td>删除</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-d</code></td>
-<td>delete</td>
-<td>删除当前行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-</code> <code>h</code> <code>j</code> <code>k</code> <code>l</code></td>
-<td>vim</td>
-<td>上下左右</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-h</code> <code>ctrl-←</code></td>
-<td>vim h</td>
-<td>左移到词首</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-l</code> <code>ctrl-→</code></td>
-<td>vim l</td>
-<td>右移到词尾</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-j</code> <code>ctrl-↓</code></td>
-<td>vim j</td>
-<td>向下移行</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-k</code> <code>ctrl-↑</code></td>
-<td>vim k</td>
-<td>向上移行</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>alt-shift-j</code></td>
-<td>vim J</td>
-<td>合并行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><del><code>ctrl-t</code></del></td>
-<td>禁用掉</td>
-<td>避免<code>ctrl-y</code>失效</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-v</code></td>
-<td>velcro</td>
-<td>黏贴</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-v</code></td>
-<td>ctrl-v</td>
-<td>复制当前行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-x</code></td>
-<td></td>
-<td>剪切</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-x</code></td>
-<td>ctrl-x</td>
-<td>剪切当前行</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-y</code> <code>ctrl-r</code></td>
-<td>redo</td>
-<td>恢复更改</td>
-<td>windows / vim</td>
-</tr>
-<tr>
-<td><code>ctrl-z</code> <code>ctrl-u</code></td>
-<td>undo</td>
-<td>撤销更改</td>
-<td>windows / vim</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-y</code></td>
-<td></td>
-<td>下一个浏览记录</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-z</code></td>
-<td></td>
-<td>上一个浏览记录</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>alt-鼠标</code> <code>alt-\</code></td>
-<td></td>
-<td>列选模式</td>
-<td>notepad++ / custom</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>下面新增一行</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-enter</code></td>
-<td>enter</td>
-<td>上面新增一行</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>tab</code> <code>shift-tab</code></td>
-<td></td>
-<td>插入缩进/删除缩进</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-^</code></td>
-<td>vim</td>
-<td>移到行首</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-^</code></td>
-<td>vim</td>
-<td>选到行首</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-$</code></td>
-<td>vim</td>
-<td>移到行尾</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-$</code></td>
-<td>vim</td>
-<td>选到行尾</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>查找与替换</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-f</code></td>
-<td>find</td>
-<td>查找</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-f</code></td>
-<td>find</td>
-<td>多文件查找</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>f3</code> <code>shift-f3</code></td>
-<td></td>
-<td>查找下一个 / 查找上一个</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-f3</code></td>
-<td></td>
-<td>选中所有匹配的关键字</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-m</code></td>
-<td>mark</td>
-<td>打标记</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>f2</code> <code>shift-f2</code></td>
-<td>tag</td>
-<td>下一个标记/上一个标记</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-f2</code></td>
-<td>tag</td>
-<td>显示所有标签</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-f2</code></td>
-<td>tag</td>
-<td>清空所有标签</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-.</code></td>
-<td>..</td>
-<td>TAB转为空格</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-.</code></td>
-<td>&gt;&gt;</td>
-<td>空格转为TAB</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>代码专用</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-b</code></td>
-<td>beautify</td>
-<td>格式化代码</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-m</code></td>
-<td>markdown</td>
-<td>markdown预览</td>
-<td>atom</td>
-</tr>
-<tr>
-<td><code>alt-0</code> <code>alt-shift-0</code></td>
-<td>0-9</td>
-<td>折叠代码/展开代码</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-[</code> <code>ctrl-]</code></td>
-<td></td>
-<td>移动/全选对应括号</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-鼠标</code> <code>shift-鼠标</code></td>
-<td></td>
-<td>跳转</td>
-<td>eclipse / custom</td>
-</tr>
-<tr>
-<td><code>f4</code> <code>shift-f4</code></td>
-<td></td>
-<td>跳转 / 跳回</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>f5</code></td>
-<td>run</td>
-<td>运行</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>f6</code></td>
-<td></td>
-<td>比较文件</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-/</code></td>
-<td><code>//</code></td>
-<td>单行注释翻转</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-/</code></td>
-<td><code>/*</code></td>
-<td>多行注释</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-\</code></td>
-<td><code>/*</code></td>
-<td>取消多行注释</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-~</code></td>
-<td></td>
-<td>打开终端</td>
-<td>sublime</td>
-</tr>
-</tbody>
-</table>
-<h1 id="Win系统快捷键"><a href="#Win系统快捷键" class="headerlink" title="Win系统快捷键"></a>Win系统快捷键</h1><table>
-<thead>
-<tr>
-<th>Listary</th>
-<th>助记</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>win-~</code></td>
-<td></td>
-<td>打开Listary</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>打开文件</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>打开路径</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制路径</td>
-</tr>
-<tr>
-<td><code>ctrl+j</code> <code>ctrl+k</code></td>
-<td>vim j,k</td>
-<td>下一个 / 上一个(需设置)</td>
-</tr>
-<tr>
-<td><strong>Ditto</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>文件夹/应用</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-q</code></td>
-<td>quick paste</td>
-<td>打开ditto面板</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>黏贴</td>
-</tr>
-<tr>
-<td><code>shift-enter</code></td>
-<td>enter</td>
-<td>纯文本黏贴</td>
-</tr>
-<tr>
-<td><strong>AHK</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>功能</strong></td>
-</tr>
-<tr>
-<td><code>鼠标中键</code></td>
-<td></td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>shift-鼠标中键</code></td>
-<td></td>
-<td>剪切</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-鼠标中键</code></td>
-<td></td>
-<td>复制当前路径</td>
-</tr>
-<tr>
-<td><code>鼠标右键</code></td>
-<td></td>
-<td>首次黏贴</td>
-</tr>
-<tr>
-<td><code>ctrl-鼠标右键</code></td>
-<td></td>
-<td>黏贴</td>
-</tr>
-<tr>
-<td><code>ctrl-~</code></td>
-<td></td>
-<td>打开终端 (关联路径)</td>
-</tr>
-<tr>
-<td><code>alt-win-鼠标中键</code></td>
-<td></td>
-<td>复制屏幕颜色</td>
-</tr>
-<tr>
-<td><code>alt-win-←↑↓→</code></td>
-<td></td>
-<td>单像素移动鼠标</td>
-</tr>
-<tr>
-<td><code>alt-win-d</code></td>
-<td>date</td>
-<td>输入当前日期</td>
-</tr>
-<tr>
-<td><strong>AHK快捷方式</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>文件夹/应用</strong></td>
-</tr>
-<tr>
-<td><code>alt-a</code> <code>win-a</code></td>
-<td>all / audio</td>
-<td>我的电脑 / 音频处理软件</td>
-</tr>
-<tr>
-<td><code>alt-b</code> <code>win-b</code></td>
-<td>backup</td>
-<td>backup / FreeFileSync</td>
-</tr>
-<tr>
-<td><code>alt-c</code> <code>win-c</code></td>
-<td>c盘 / caculate</td>
-<td>c盘 / 计算器</td>
-</tr>
-<tr>
-<td><code>alt-d</code> <code>win-d</code></td>
-<td>download</td>
-<td>download / 迅雷</td>
-</tr>
-<tr>
-<td><code>alt-e</code> <code>win-e</code></td>
-<td>e盘 / editor</td>
-<td>e盘 / 编辑器</td>
-</tr>
-<tr>
-<td><code>alt-f</code> <code>win-f</code></td>
-<td>f盘 / find</td>
-<td>f盘 / everything</td>
-</tr>
-<tr>
-<td><code>alt-g</code> <code>win-g</code></td>
-<td>green / google</td>
-<td>绿色软件 / 浏览器</td>
-</tr>
-<tr>
-<td><code>win-h</code></td>
-<td>help</td>
-<td>zeal 文档帮助</td>
-</tr>
-<tr>
-<td><code>win-i</code></td>
-<td>ie</td>
-<td>IE核浏览器</td>
-</tr>
-<tr>
-<td><code>win-j</code></td>
-<td>记账</td>
-<td>MoneyHome</td>
-</tr>
-<tr>
-<td><code>alt-l</code> <code>win-l</code></td>
-<td>life / look</td>
-<td>life / 视频搜索</td>
-</tr>
-<tr>
-<td><code>alt-m</code> <code>win-m</code></td>
-<td>music</td>
-<td>music / mcool</td>
-</tr>
-<tr>
-<td><code>win-n</code></td>
-<td>notepad</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>alt-p</code> <code>win-p</code></td>
-<td>picture</td>
-<td>picture / Paint.Net</td>
-</tr>
-<tr>
-<td><code>alt-s</code> <code>win-s</code></td>
-<td>study / ScreenShot</td>
-<td>study / 截屏</td>
-</tr>
-<tr>
-<td><code>alt-v</code> <code>win-v</code></td>
-<td>video</td>
-<td>video / PotPlayer</td>
-</tr>
-<tr>
-<td><code>alt-w</code> <code>win-w</code></td>
-<td>work / word</td>
-<td>work / word</td>
-</tr>
-<tr>
-<td><code>win-x</code></td>
-<td>虚拟机</td>
-<td>Hyper-V</td>
-</tr>
-<tr>
-<td><code>alt-y</code> <code>win-y</code></td>
-<td>移动硬盘 / 翻译</td>
-<td>y盘 / 有道词典</td>
-</tr>
-<tr>
-<td><code>win-z</code></td>
-<td>证券</td>
-<td>证券</td>
-</tr>
-</tbody>
-</table>
-<h1 id="大致原则"><a href="#大致原则" class="headerlink" title="大致原则"></a>大致原则</h1><ul>
-<li><code>ctrl</code> 基本操作</li>
-<li><code>shift</code> 反向操作/块操作</li>
-<li><code>alt</code> 处理文件-AHK使用</li>
-<li><code>win</code> 打开应用-AHK使用</li>
-<li><code>alt-win</code> 特殊应用-AHK使用</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/03/1606-WinSoft-cloud/" itemprop="url">
-                  Windows 软件系列-基于NFS的家庭网
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-03T00:00:00+11:00" content="2016-10-03">
-              2016-10-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="家庭网设想"><a href="#家庭网设想" class="headerlink" title="家庭网设想"></a>家庭网设想</h1><h2 id="理想的云"><a href="#理想的云" class="headerlink" title="理想的云"></a>理想的云</h2><ul>
-<li>理想的家庭网是由NAS做数据中心, 是家里的云</li>
-<li>需要使用千兆网来支持数据分享(如视频流)</li>
-<li>考虑到设备多样性, 可使用多种分享模式, 如NFS, windows共享服务等等</li>
-<li>理想很丰满, 现实很骨干. 由于预算, 稳定性, 易用性等问题, 多半会用折中方案</li>
-<li>可以看看混乱的方案推荐: <a href="https://www.zhihu.com/question/20791825" target="_blank" rel="external">如何实现一个简单的家庭云存储（NAS）系统？</a></li>
-</ul>
-<h2 id="现实的云"><a href="#现实的云" class="headerlink" title="现实的云"></a>现实的云</h2><ul>
-<li>理想之所以遥远, 往往是因为没有明确需求, 导致什么都想要! 所以, 先明确需求<ul>
-<li>NAS是用来折腾和看电影的(电影存在硬盘上, 能在沙发上和床上观影).</li>
-<li>日常资料还是存储在本地硬盘比较便捷</li>
-<li>有安全需求, 要备份或镜像本地资料到家庭云(<strong>双设备备份</strong>, 相比NAS的各种RAID, 一大优势是<strong>防偷</strong>)</li>
-<li>做嵌入式开发, 需要在windows上装linux虚拟机, 然后数据共享</li>
-<li>关键数据出问题时, 在可靠和有把握的环境下来恢复数据.</li>
-</ul>
-</li>
-<li>给出最终使用的方案. 折腾记就不写在此文了.<ul>
-<li>使用 Intel NUC 作为桌面主机和云服务器. 小巧, 够用(不玩游戏), 省电.</li>
-<li>使用 Hyper-V 安装 家用NAS 和 Ubuntu.</li>
-<li>另有嵌入式linux开发板, 投影仪, 手机等设备需要和云交换数据.</li>
-<li>使用 <a href="https://www.hanewin.net/nfs-e.htm" target="_blank" rel="external">HaneWIN</a> 向其它设备提供NFS服务</li>
-<li>使用 <a href="http://www.freefilesync.org/" target="_blank" rel="external">freefilesync</a> 备份资料到移动硬盘(和理想中的备份方式差好多…)</li>
-</ul>
-</li>
-</ul>
-<h1 id="HaneWIN"><a href="#HaneWIN" class="headerlink" title="HaneWIN"></a><a href="https://www.hanewin.net/nfs-e.htm" target="_blank" rel="external">HaneWIN</a></h1><ul>
-<li><a href="https://www.hanewin.net/nfs-e.htm" target="_blank" rel="external">HaneWIN</a>是收费软件, 个人用户收费 EUR 19.80. 只需简单功能可尝试免费的 <a href="http://freenfs.sourceforge.net/" target="_blank" rel="external">Free NFS</a></li>
-<li>需要支持嵌入式linux端的NFS(只支持NFS v2), 配置见图:<br><img src="https://draapho.github.io/images/1606/haneWIN_NFS.PNG" alt="haneWIN_NFS"></li>
-<li>务必使用<code>UTF-8 character set</code><br><img src="https://draapho.github.io/images/1606/haneWIN_Server.PNG" alt="haneWIN_Server"></li>
-<li><p>重点说一下<code>Exports</code>这一块, 即把文件通过NFS分享出去.<br><img src="https://draapho.github.io/images/1606/haneWIN_Exports.PNG" alt="haneWIN_Exports"></p>
-<ul>
-<li><code>E:\Downloads -name:Downloads 10.0.0.99</code><br>就是把本地<code>Downloads</code>文件夹分享给<code>ip=10.0.0.99</code>的机器, 对外名称为<code>Downloads</code></li>
-<li><code>-mapall:0:0</code> 是提供给linux端root权限. (这句最短? 花了一周时间才实验成功啊…)</li>
-<li><code>-range 10.0.0.1 10.0.0.111</code> 是设置ip范围, 这里是从<code>10.0.0.1</code>-<code>10.0.0.111</code></li>
-<li><p>语法规则不多, 详见<a href="https://www.hanewin.net/doc/nfs/nfsd.htm" target="_blank" rel="external">官网说明</a>. 可用参数如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># The following options are supported:</div><div class="line">-name:&lt;sharename&gt;   assigns a name to the exported path as an alternate name for mounting.</div><div class="line">-alldirs    allows the host(s) to mount at any point within the filesystem.</div><div class="line">-umask:&lt;mask&gt;   set the umask for group and world permissions on the filesystem, default 022</div><div class="line">-readonly   limits access to reading</div><div class="line">-public Enables WebNFS access.</div><div class="line">-lowercase  maps all file names to lowercase, otherwise case is preserved.</div><div class="line">-exec   forces in access rights the x bit for all files.</div><div class="line">-mapall:&lt;uid&gt;[:&lt;gid&gt;]   all Unix user-ids and group-ids are mapped to the specified user-id and group-id.</div><div class="line">-maproot:&lt;uid&gt;[:&lt;gid&gt;]  the Unix super user root is mapped to the specified user-id, group-id. Without a mapping entry root will be mapped to user and group nobody.</div><div class="line">-range  IP adresses are interpreted in pairs as from-to ranges enabling client access from all addresses in a range (more flexible than the unix -net -mask options).</div></pre></td></tr></table></figure>
-</li>
-<li><p>再举几个例子:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># exports example</div><div class="line">c:\ftp -range 192.168.1.1 192.168.1.10</div><div class="line">c:\public -public -readonly</div><div class="line">c:\tools -readonly 192.168.1.4</div></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>如果NFS被成功加载, 那么会在<code>Mounts</code>页显示出来<br><img src="https://draapho.github.io/images/1606/haneWIN_Mounts.PNG" alt="haneWIN_Mounts"></p>
-</li>
-<li>参考<ul>
-<li><a href="http://www.nasyun.com/thread-25086-1-1.html" target="_blank" rel="external">GEN8折腾日记-第三方NFS工具 hanewin 设置(需登录)</a></li>
-<li><a href="http://wenku.baidu.com/view/c78baefefad6195f302ba665.html" target="_blank" rel="external">GEN8折腾日记-第三方NFS工具 hanewin 设置(百度文库)</a></li>
-<li><a href="https://www.chiphell.com/thread-1240623-1-1.html" target="_blank" rel="external">群晖加载Windows NFS文件</a></li>
-</ul>
-</li>
-</ul>
-<h1 id="Hyper-V"><a href="#Hyper-V" class="headerlink" title="Hyper-V"></a>Hyper-V</h1><ul>
-<li>从Win8开始, Hyper-V是Windows自带的软件.</li>
-<li>启用Hper-V, <code>控制面板</code>-&gt;<code>程序和功能</code>-&gt;<code>启用或关闭Windows功能</code>-&gt;<code>Hyper-V</code><br><img src="https://draapho.github.io/images/1606/HyperV_Enable.PNG" alt="HyperV_Enable"></li>
-<li>设置虚拟网络<br><img src="https://draapho.github.io/images/1606/HyperV_NIC1.PNG" alt="HyperV_NIC1"><br><img src="https://draapho.github.io/images/1606/HyperV_NIC2.PNG" alt="HyperV_NIC2"></li>
-<li>新建虚拟机<br><img src="https://draapho.github.io/images/1606/HyperV_Install1.png" alt="HyperV_Install1"><br><img src="https://draapho.github.io/images/1606/HyperV_Install2.png" alt="HyperV_Install2"><br><img src="https://draapho.github.io/images/1606/HyperV_Install3.png" alt="HyperV_Install3"></li>
-<li>安装Ubuntu 32位服务器版本, 用于交叉编译. (另一个备选方案是用cygwin)</li>
-<li>安装家用NAS, 用于多设备(投影仪, 平板, 手机)看硬盘上的影片.</li>
-</ul>
-<h1 id="NAS和智能路由器"><a href="#NAS和智能路由器" class="headerlink" title="NAS和智能路由器"></a>NAS和智能路由器</h1><h2 id="两者的区别"><a href="#两者的区别" class="headerlink" title="两者的区别"></a>两者的区别</h2><ul>
-<li>NAS, Network Attached Storage. 家用的话, 大多定位于多媒体观赏和数据备份两个核心功能.</li>
-<li>专做NAS的厂家, <a href="https://www.synology.com/" target="_blank" rel="external">Synology(群晖)</a> 和 <a href="https://www.qnap.com/" target="_blank" rel="external">QNAP(威联通)</a> 比较有名</li>
-<li>智能路由器, 从小米路由器到airport extreme.</li>
-<li>两者区别的话, 就是一个更专业, 一个更娱乐.<br>所谓专业, 就是更多的权限设置和管理(对用户不友好), 更多的功能, 更高的安全要求.<br>所谓娱乐, 就是傻瓜易上手, 能用好用为主要需求.<br>简而言之, 一个是专业单反, 一个是傻瓜机, 然后有一些就是处于中间位置的微单…</li>
-</ul>
-<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><ul>
-<li>大多数的家庭, 对此类产品的第一要求就是<strong>好用</strong>. 只有Geek一类的人需要<strong>好玩</strong>.</li>
-<li>NAS在宣传上, 必然会强调数据安全, 列出诸如支持多种RAID这种让非专业人士云里雾里的概念.</li>
-<li>而普通家庭最大的数据安全问题就是数据过于集中, 防偷防意外损坏之类的风险防范反而不足了.</li>
-<li>因此, 家用云市场应该侧重于易于配置和使用. 家庭的数据安全问题不是靠一台专业NAS设备就能解决的.</li>
-<li>结论: 在家用市场, 智能路由器有更好的市场前景.</li>
-</ul>
-<h2 id="数据安全"><a href="#数据安全" class="headerlink" title="数据安全"></a>数据安全</h2><ul>
-<li>家庭环境的话, 建议用移动硬盘备份关键资料(即RAID1), 然后分开存储, 当然也可以基于SFTP等服务自动备份. 这样可以做到物理上相对独立, 而且因为用的是RAID1, 数据出问题后的恢复也非常简单.</li>
-<li>中小企业就需要用到稍微专业一点的NAS才比较好了. 话说, 很多本土企业对数据安全这一块很不上心啊…</li>
-<li>推荐完全免费的同步软件<a href="http://www.freefilesync.org/" target="_blank" rel="external">freefilesync</a>, 买块硬盘, 家用足够了.</li>
-</ul>
-<h2 id="个人推荐"><a href="#个人推荐" class="headerlink" title="个人推荐"></a>个人推荐</h2><ul>
-<li>听说过家庭云, 不知道具体需求, 买个便宜的小米路由器先体验体验.</li>
-<li>苹果爱好者直接上 airport extreme, 二千元可以给手机平板太多额外的存储空间了.</li>
-<li>想要玩NAS的, 可以先用虚拟机装了体验一下效果.</li>
-<li>如果买专业的NAS, 推荐直接用企业入门级产品QNAP的<code>TS-251</code>或<code>TS-253 Pro</code>,内置虚拟机, 可玩性很高.</li>
-<li>群晖的机器不太推荐, 因为数据的存储格式很奇怪, 万一出点问题自己一点办法也没有!</li>
-<li>组装机也不是太推荐, 因为功耗美观服务都要考虑进去.</li>
-</ul>
-<h1 id="同步软件freefilesync"><a href="#同步软件freefilesync" class="headerlink" title="同步软件freefilesync"></a>同步软件<a href="http://www.freefilesync.org/" target="_blank" rel="external">freefilesync</a></h1><ul>
-<li><a href="http://www.freefilesync.org/" target="_blank" rel="external">freefilesync</a>是一款完全免费的同步软件, 可以完全媲美GoodSync</li>
-<li>支持sftp, 所以也可以通过网络自动备份数据</li>
-<li>家庭用户使用RAID1, 即关键资料双硬盘完整备份, 然后分开存放就足够了.</li>
-</ul>
-<h1 id="远程开机"><a href="#远程开机" class="headerlink" title="远程开机"></a>远程开机</h1><p>如果是7x24小时开机当服务器用, 则不用考虑这一块. 远程开机是针对虚拟机和组装机用户说的.</p>
-<h2 id="LAN唤醒"><a href="#LAN唤醒" class="headerlink" title="LAN唤醒"></a>LAN唤醒</h2><ul>
-<li>LAN唤醒需要主板的支持, 不支持无线网络, 必须使用有线. 新一点的机器一般都能支持.</li>
-<li>启用主板的WOL功能<ul>
-<li>开机进入BIOS, 寻找<code>wake on lan``resume on lan``power on PME``power on by PCI-E device``Power on by Onboard LAN</code>等与电源管理和唤醒有关的选项并使能</li>
-</ul>
-</li>
-<li>设置网卡驱动<ul>
-<li><code>设备管理器</code>-&gt;<code>网络适配器</code>-&gt;选择有线网卡设备-&gt;右键<code>属性</code>-&gt;在<code>高级</code>和<code>电源管理</code>标签下-&gt;启用<code>唤醒模式``唤醒魔包``幻数据包``唤醒计算机</code>之类的选项</li>
-</ul>
-</li>
-<li>配置 WIN10 WOL(Wake on Lan 远程唤醒) 最大的坑就是要关闭 “启用快速启动(推荐)”, 而默认是打开的. 另外, <ul>
-<li><code>控制面板</code>-&gt;<code>硬件和声音</code>-&gt;<code>电源选项</code>-&gt;左边栏<code>选择电源按钮的功能</code>-&gt;弹出<code>系统设置</code>页面-&gt;<code>关机设置</code>-&gt;<del><code>启用快速启动(推荐)</code></del></li>
-</ul>
-</li>
-<li>电脑非正常关机后, 是无法远程唤醒的.</li>
-<li>建议分级测试.<ol>
-<li>可以先确定bios配置正确. 配置好bios, 进入winPE之类的系统, 选择关机, 看WOL是否起作用.</li>
-<li>然后进入win10配置网卡的相关选项, 然后让机器进入睡眠模式, 看WOL是否起作用.</li>
-<li>最后win10关机, 测试WOL是否起作用.</li>
-<li>“启用快速启动(推荐)”, 位于 控制面板\硬件和声音\电源选项\唤醒时需要密码(系统设置)\关机设置.</li>
-<li>注意: bios设置内关于PCI节能的设置特别注意, 考虑全部关闭</li>
-</ol>
-</li>
-<li>Android端WOL软件推荐. <code>Wake On LAN</code> 配置简单, 界面友好.</li>
-<li>参考链接<ul>
-<li><a href="https://www.teamviewer.com/zhCN/res/pdf/Teamviewer9-Manual-Wake-on-LAN-zhCN.pdf" target="_blank" rel="external">TeamViewer手册-LAN唤醒</a></li>
-<li><a href="http://www.iplaysoft.com/wol.html" target="_blank" rel="external">WOL 网络唤醒远程开机设置方法教程 + 多款软件下载！(手机远程开启电脑)</a></li>
-</ul>
-</li>
-</ul>
-<h2 id="WAN远程唤醒"><a href="#WAN远程唤醒" class="headerlink" title="WAN远程唤醒"></a>WAN远程唤醒</h2><ul>
-<li>WAN远程唤醒的前提是配置好LAN唤醒.</li>
-<li>需要设置路由器, 设置过程非常复杂, 而且免费的不稳定.</li>
-<li>我买了向日葵开机棒, 但实际体验不好. 一是向日葵的服务器不太稳定, 而是远程操作意义不大, 纯玩性质.</li>
-<li>所以, 建议普通用户不用折腾这块了. 真有异地工作, 资料同步的需求, 用公共云, github, BitBucket都很好.</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/01/1605-Stm32Selection/" itemprop="url">
-                  stm32选型及资料搜索指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-01T00:00:00+10:00" content="2016-10-01">
-              2016-10-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2426,7 +1603,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-count">39</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

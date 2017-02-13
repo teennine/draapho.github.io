@@ -1,0 +1,845 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+Linux 内存的基础概念内存的几个概念
+Virtual Mem">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 0.11 源码阅读笔记-内存的基础概念">
+<meta property="og:url" content="https://draapho.github.io/2017/01/26/1704-linux-source1/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+Linux 内存的基础概念内存的几个概念
+Virtual Mem">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-address-convert.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-address-convert-detail.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-logical2linear.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-linear2physical.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-address-pdpt.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-code-address.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-address-relationship.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-mulit-process.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-switch-process.jpg">
+<meta property="og:updated_time" content="2017-02-13T02:45:50.882Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 0.11 源码阅读笔记-内存的基础概念">
+<meta name="twitter:description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+Linux 内存的基础概念内存的几个概念
+Virtual Mem">
+<meta name="twitter:image" content="https://draapho.github.io/images/1704/1-address-convert.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/01/26/1704-linux-source1/"/>
+
+
+  <title> Linux 0.11 源码阅读笔记-内存的基础概念 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 0.11 源码阅读笔记-内存的基础概念
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-26T00:00:00+11:00" content="2017-01-26">
+              2017-01-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
+<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
+<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
+<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
+<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
+<li>分段机制<ul>
+<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
+<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
+</ul>
+</li>
+<li>分页机制<ul>
+<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
+<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
+<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
+<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
+<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
+<li>页表, Page Table, 对应80x86的 Page Table</li>
+</ul>
+</li>
+<li>任务状态段<ul>
+<li>TSS (Task State Segment)</li>
+<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
+<li>TSS存放于GDT内</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
+<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
+<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
+<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
+<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
+<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
+<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
+<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
+<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
+<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
+<li>0为最高优先级, 对应于Linux内核态</li>
+<li>3为最低优先级, 对应于Linux用户态</li>
+<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
+<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
+<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
+</ul>
+<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
+<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag">#linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/23/1704-linux-source/" rel="next" title="Linux 0.11 源码阅读笔记-总览">
+                <i class="fa fa-chevron-left"></i> Linux 0.11 源码阅读笔记-总览
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/28/1704-linux-source2/" rel="prev" title="Linux 0.11 源码阅读笔记-启动程序">
+                Linux 0.11 源码阅读笔记-启动程序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-内存的基础概念"><span class="nav-number">2.</span> <span class="nav-text">Linux 内存的基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的几个概念"><span class="nav-number">2.1.</span> <span class="nav-text">内存的几个概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存地址的转换"><span class="nav-number">2.2.</span> <span class="nav-text">内存地址的转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#80x86-多任务"><span class="nav-number">2.3.</span> <span class="nav-text">80x86 多任务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

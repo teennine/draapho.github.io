@@ -1,0 +1,855 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+启动程序 boot启动引导时内核在内存中的位置和移动情况
+
+80">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 0.11 源码阅读笔记-启动程序">
+<meta property="og:url" content="https://draapho.github.io/2017/01/28/1704-linux-source2/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+启动程序 boot启动引导时内核在内存中的位置和移动情况
+
+80">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-bios-boot.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-setup-memory.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-head-memory.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-main-memory.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-main-flow.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-fork-function.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/2-session-process.jpg">
+<meta property="og:updated_time" content="2017-02-13T02:45:50.898Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 0.11 源码阅读笔记-启动程序">
+<meta name="twitter:description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+启动程序 boot启动引导时内核在内存中的位置和移动情况
+
+80">
+<meta name="twitter:image" content="https://draapho.github.io/images/1704/2-bios-boot.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/01/28/1704-linux-source2/"/>
+
+
+  <title> Linux 0.11 源码阅读笔记-启动程序 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 0.11 源码阅读笔记-启动程序
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-28T00:00:00+11:00" content="2017-01-28">
+              2017-01-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><em>启动引导时内核在内存中的位置和移动情况</em><br><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"></p>
+<ol>
+<li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
+<li>bootsect.s 被BIOS读入到内存地址 0x7C00(31Kb) 处开始运行后, 立刻把自己移到 0x90000(576Kb) 处.</li>
+<li>接着, bootsect.s 把 setup.s 读入到 0x90200 处, system模块(即内核)读入到 0x10000 处.<ul>
+<li>此版本内核模块不会超过 0x80000, 即512K大小, 因此不会覆盖掉0x90000处的内容</li>
+<li>setup.s 需要一些 ROM BIOS 保留下来的一些系统参数(如显卡模式, 硬盘参数等), 这些参数被BIOS放在内存起始处, 大小为1Kb.</li>
+<li>因而 bootsect.s 只能先把内核放到 0x10000 处而不是直接放到 0x0000 处!</li>
+</ul>
+</li>
+<li>bootsect.s 把执行权交给 setup.s.</li>
+<li>然后, setup.s 把BIOS预留在内存起始处的参数存储到0x90000处(覆盖了bootsect.s), 再把system模块移到内存起始处 (0x0000)</li>
+<li>setup.s 把执行权交给 head.s, linux系统代码加载过程完成, linux开始启动!</li>
+</ol>
+<p>备注:</p>
+<ul>
+<li>启动过程涉及到很多80x86的硬件知识, 没必要深究, 重点是理解启动过程和思路!</li>
+<li>因为目录linux早已支持arm体系结构, 嵌入式也以arm为主. 涉及到硬件的部分需要时再深入了解即可.</li>
+</ul>
+<h2 id="bootsect-s"><a href="#bootsect-s" class="headerlink" title="bootsect.s"></a>bootsect.s</h2><ul>
+<li>bootsect.s 是磁盘引导块程序, 放在磁盘的一个扇区中(引导扇区).</li>
+<li>PC上电, BIOS自检后, BIOS会把引导扇区bootsect加载到内存地址0x7C00处并执行.</li>
+<li>bootsect 立刻把自己挪到 0x90000 处并继续执行</li>
+<li>利用BISO中断0x13获取启动引导盘参数, 准备读取1.44MB启动磁盘内的后续部分(setup.s + system模块)</li>
+<li>加载 setup.s 到 0x90200 处</li>
+<li>在屏幕上显示 “Loading system…”</li>
+<li>把system模块加载到0x10000处</li>
+<li>长跳到 setup.s, 执行 setup.s</li>
+</ul>
+<h2 id="setup-s"><a href="#setup-s" class="headerlink" title="setup.s"></a>setup.s</h2><ul>
+<li>setup.s 是一个操作系统加载程序. 主要作用读取BIOS保留的系统参数, 移动system模块到内存0x0000处, 并执行head.s代码</li>
+<li>setup.s 首先是把BIOS预留在内存0x0000处的参数保存到内存 0x90000 处, 会覆盖掉已经没有用的 bootsect.s 代码</li>
+<li>主要参数有: 光标位置, 扩展内存数, 显示页面, 显示模式, 字符列数, 显示内存, 显示状态, 显卡特性, 硬盘参数, 根设备号</li>
+<li>接着 setup.s 将system模块从 0x10000-0x8ffff 整体向下移动到 0x0000 处.</li>
+<li>然后 setup.s 加载 idtr 和 gdtr (中断/全局描述符表寄存器), 重设中断号, 设置CPU进入32位保护模式运行</li>
+<li>跳转到 system模块的 head.s 继续运行(运行在32位保护模式下)</li>
+</ul>
+<p><em>setup.s 结束后内中的程序示意图</em><br><img src="https://draapho.github.io/images/1704/2-setup-memory.jpg" alt="setup-memory"></p>
+<h2 id="head-s"><a href="#head-s" class="headerlink" title="head.s"></a>head.s</h2><ul>
+<li>head.s 位于整个linux操作系统最前面, 主要功能就是为linux的执行检测和初始化系统环境</li>
+<li>设置系统堆栈</li>
+<li>设置idt(中断描述符表) 和 gdt(全局表述符表)</li>
+<li>检测A20地址线是否已真的开启 (就是能读取1M以上的内存地址)</li>
+<li>将页目录表放在内存地址0处 (会覆盖自己idt部分的内容)</li>
+<li>最后, heads利用返回指令, 弹出main.c的入口地址, 运行main()程序</li>
+</ul>
+<p><em>head.s 结束后, system模块在内存中的示意图</em><br><img src="https://draapho.github.io/images/1704/2-head-memory.jpg" alt="head-memory"></p>
+<h2 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h2><p><em>main初始化完成后, 内存功能示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-memory.jpg" alt="maim-memory"></p>
+<p><em>内核初始化程序流程示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-flow.jpg" alt="maim-flow"></p>
+<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
+<p><em>进程(process), 进程组(process group) 和 会话期(session) 的关系图</em><br><img src="https://draapho.github.io/images/1704/2-session-process.jpg" alt="session-process"></p>
+<ul>
+<li>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag">#linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/26/1704-linux-source1/" rel="next" title="Linux 0.11 源码阅读笔记-内存的基础概念">
+                <i class="fa fa-chevron-left"></i> Linux 0.11 源码阅读笔记-内存的基础概念
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/31/1704-linux-source3/" rel="prev" title="Linux 0.11 源码阅读笔记-内核代码">
+                Linux 0.11 源码阅读笔记-内核代码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启动程序-boot"><span class="nav-number">2.</span> <span class="nav-text">启动程序 boot</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#bootsect-s"><span class="nav-number">2.1.</span> <span class="nav-text">bootsect.s</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#setup-s"><span class="nav-number">2.2.</span> <span class="nav-text">setup.s</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#head-s"><span class="nav-number">2.3.</span> <span class="nav-text">head.s</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#main-c"><span class="nav-number">2.4.</span> <span class="nav-text">main.c</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,861 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+文件系统
+几个核心点:
+
+Linux下一切皆文件, 文件即i节点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 0.11 源码阅读笔记-文件系统">
+<meta property="og:url" content="https://draapho.github.io/2017/02/13/1704-linux-source5/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+文件系统
+几个核心点:
+
+Linux下一切皆文件, 文件即i节点">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-map.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-hard-disk.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-minix.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-super-block.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-inode.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-file-info.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-izone.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/5-fs-inode-find.jpg">
+<meta property="og:updated_time" content="2017-02-13T06:05:44.060Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 0.11 源码阅读笔记-文件系统">
+<meta name="twitter:description" content="总览
+Linux 0.11 源码阅读笔记-总览
+Linux 0.11 源码阅读笔记-内存的基础概念
+Linux 0.11 源码阅读笔记-启动程序
+Linux 0.11 源码阅读笔记-内核代码
+Linux 0.11 源码阅读笔记-设备驱动程序
+Linux 0.11 源码阅读笔记-文件系统
+Linux 0.11 源码阅读笔记-内存管理
+
+文件系统
+几个核心点:
+
+Linux下一切皆文件, 文件即i节点">
+<meta name="twitter:image" content="https://draapho.github.io/images/1704/5-fs-map.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/02/13/1704-linux-source5/"/>
+
+
+  <title> Linux 0.11 源码阅读笔记-文件系统 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux 0.11 源码阅读笔记-文件系统
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-13T00:00:00+11:00" content="2017-02-13">
+              2017-02-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p><img src="https://draapho.github.io/images/1704/5-fs-map.jpg" alt="fs"></p>
+<p>几个核心点:</p>
+<ul>
+<li>Linux下<strong>一切皆文件, 文件即i节点!</strong></li>
+<li>文件名和i节点的关联, 在目录项结构中实现.<br>索引过程为: <strong>目录inode-&gt;目录名/文件名-&gt;对应inode-&gt;具体内容</strong></li>
+<li>任何读写硬盘的过程都是通过内存的buffer(高速缓冲)实现的, 系统不能直接读写硬盘! 由此产生异步问题.<br>调用过程为: <strong>系统函数-&gt;buffer-&gt;硬盘</strong></li>
+<li>Linux对内存条的分配和使用. <code>Buffer</code> <code>Memory</code> 的概念和用途. <code>Buffer Head</code> <code>Buffer Hash List</code>.<br><code>Buffer</code> 介于高速的CPU指令和低速的硬盘之间, 用于缓存CPU对硬盘的读写内容, 提高CPU执行效率.<br><code>Memory</code> 是系统可用的内存. 系统变量, <code>malloc</code> 都是用的这块空间.<br><code>虚拟内存</code> 把使用频率低的 <code>Memory</code> 暂时搬到硬盘, 以便存放使用频率更高的内存数据. 依赖于硬盘读写操作!</li>
+</ul>
+<h2 id="硬盘设备分区"><a href="#硬盘设备分区" class="headerlink" title="硬盘设备分区"></a>硬盘设备分区</h2><p>硬盘设备上的分区和文件系统<br><img src="https://draapho.github.io/images/1704/5-fs-hard-disk.jpg" alt="hard disk"></p>
+<ul>
+<li>主引导扇区: 存放硬盘引导程序和分区表信息.</li>
+<li>分区表: 标明了每个分区的类型, 起止位置以及占用的扇区数.</li>
+<li>相关文件: <code>kernel/blk_drv/hd.c</code></li>
+</ul>
+<p>下面, 将以MINIX1.0为例说明文件系统的基本概念.<br>Linux使用的其它的文件系统核心概念都是一样的! 只是支持的大小, 寻址速度, 文件上限有区别.</p>
+<h2 id="MINIX1-0-文件系统"><a href="#MINIX1-0-文件系统" class="headerlink" title="MINIX1.0 文件系统"></a>MINIX1.0 文件系统</h2><p>MINIX1.0 文件系统布局示意图<br><img src="https://draapho.github.io/images/1704/5-fs-minix.jpg" alt="minix"></p>
+<ul>
+<li>引导块: 上电时, BISO自动读入的部分. 有了引导块内引导程序, BIOS才能启动系统</li>
+<li>Super Block(超级块): 存放文件系统的结构信息, 说明各部分的大小. <code>super_block[8]</code>, 可加载8个文件系统</li>
+<li>Inode Bitmap(i节点位图): 记录i节点的使用情况, 1bit代表一个i节点. <code>s_imap[8]</code>, 占用8个块, 可表示8191个i节点情况</li>
+<li>Zone Bitmap(逻辑块位图): 记录数据区的使用情况, 1bit代表一个盘块(block). <code>s_zmap[8]</code>, 占用8个块, 最大支持64M的硬盘</li>
+<li>Inode(i节点): 每个文件或目录名唯一对应一个i节点, 在i节点中, 储存 id信息, 文件长度, 时间信息, 实际数据所在位置等等</li>
+<li>Zone Data(数据区): <code>8 (bit/byte)  * 1024 (byte/block) * 8(zmap blocks) * 1024 (byte/block)= 64M byte</code></li>
+</ul>
+<p>MINIX1.0 的超级块数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-super-block.jpg" alt="super block"></p>
+<h2 id="inode-详解"><a href="#inode-详解" class="headerlink" title="inode 详解"></a>inode 详解</h2><p>MINIX1.0 的i节点数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-inode.jpg" alt="inode"></p>
+<ul>
+<li><code>i_nlinks</code>: <strong>硬链接</strong>计数器. 因此硬连接具有相同的inode号, 硬连接不能跨文件系统!</li>
+</ul>
+<p>命令 <code>ls -l</code> 显示的文件信息, 多数信息读取i节点就可获得<br><img src="https://draapho.github.io/images/1704/5-fs-file-info.jpg" alt="file info"></p>
+<ul>
+<li>符号连接 <code>s</code>: 就是常说的<strong>软连接</strong>, 类似于windows下的快捷方式, 占用i节点, 在对应的数据块内存放路径</li>
+</ul>
+<p><code>i_zone[9]</code> i节点的逻辑块数组功能.<br><img src="https://draapho.github.io/images/1704/5-fs-izone.jpg" alt="izone"></p>
+<ul>
+<li><code>i_zone[0-6]</code> 直接块号: 存放文件开始的7个磁盘块号. 此时文件大小: <code>7*1024(byte/block)=7K byte</code></li>
+<li><code>i_zone[7]</code> 一次间接块号: 地址占用2byte, 因此一个数据块可存放512个地址. 此时可寻块 <code>7+512 blocks</code></li>
+<li><code>i_zone[8]</code> 二次间接块号: 此时可寻块 <code>7+512+512*512 blocks</code>, 文件的最大可达 <code>512M byte</code></li>
+<li><code>/dev/</code>下设备文件的 <code>i_zone[0]</code>: 设备文件不占用硬盘, 因此i节点仅保存设备的属性和设备号.</li>
+</ul>
+<h2 id="文件名的存储及查找"><a href="#文件名的存储及查找" class="headerlink" title="文件名的存储及查找"></a>文件名的存储及查找</h2><p>Linux 0.11 的目录项结构<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 定义在 include/linux/fs.h 文件中</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> NAME_LEN 14                 <span class="comment">// 名字长度值</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ROOT_INO 1                  <span class="comment">// 根i节点</span></span></div><div class="line"></div><div class="line"><span class="comment">// 文件目录项结构</span></div><div class="line"><span class="keyword">struct</span> dir_entry &#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> inode;           <span class="comment">// i节点号</span></div><div class="line">    <span class="keyword">char</span> name[NAME_LEN];            <span class="comment">// 文件名</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>可见, linux下的文件名称都存在了目录项的数据里面, 并且唯一关联其i节点号.</li>
+<li>每个目录项占用16字节, 因此, 一个盘块可以存放 <code>1024/16=64</code> 个目录项</li>
+<li>对于空目录, 也至少会有名称未 <code>.</code> 和 <code>..</code> 两项, 指向 <code>当前目录inode</code> 和 <code>上级目录inode</code></li>
+<li>因此, 空目录的硬连接计数值<code>i_nlinks</code>为2, 每多一个文件, <code>i_nlinks</code>再加1.</li>
+</ul>
+<p>通过文件名最终找到对应文件盘块位置的示意图<br><img src="https://draapho.github.io/images/1704/5-fs-inode-find.jpg" alt="inode find"></p>
+<p>整个搜索过程是根据<code>目录项结构</code>及对应的<code>inode 号</code>, 逐步深入路径的过程.<br>以路径名 <code>/usr/bin/vi</code> 搜索对应的i节点, 然后读取文件内容为例:</p>
+<ol>
+<li>根目录 <code>/</code> 具有固定的 inode号 <code>1</code>.</li>
+<li>读取<code>inode 1</code>的数据块, 搜索名为<code>usr</code>的目录项, 从而得到<code>/usr</code>的inode号, 假设为 <code>23</code></li>
+<li>读取<code>inode 23</code>的数据块, 搜索名为<code>bin</code>的目录项, 假设<code>/usr/bin</code>的inode号为 <code>61</code></li>
+<li>读取<code>inode 61</code>的数据块, 搜索名为<code>vi</code>的文件名, 假设获得<code>/usr/bin/vi</code>的inode号 <code>98</code></li>
+<li>读取<code>inode 98</code>的数据块, 根据i节点信息, 如 <code>i_size</code> <code>i_zone[9]</code>, 最终读取文件内容</li>
+</ol>
+<h1 id="内存的分配和使用"><a href="#内存的分配和使用" class="headerlink" title="内存的分配和使用"></a>内存的分配和使用</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag">#linux</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/01/1704-linux-source4/" rel="next" title="Linux 0.11 源码阅读笔记-设备驱动程序">
+                <i class="fa fa-chevron-left"></i> Linux 0.11 源码阅读笔记-设备驱动程序
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/15/1704-linux-source6/" rel="prev" title="Linux 0.11 源码阅读笔记-内存管理">
+                Linux 0.11 源码阅读笔记-内存管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件系统"><span class="nav-number">2.</span> <span class="nav-text">文件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#硬盘设备分区"><span class="nav-number">2.1.</span> <span class="nav-text">硬盘设备分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MINIX1-0-文件系统"><span class="nav-number">2.2.</span> <span class="nav-text">MINIX1.0 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#inode-详解"><span class="nav-number">2.3.</span> <span class="nav-text">inode 详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件名的存储及查找"><span class="nav-number">2.4.</span> <span class="nav-text">文件名的存储及查找</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存的分配和使用"><span class="nav-number">3.</span> <span class="nav-text">内存的分配和使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
