@@ -91,9 +91,9 @@ Linux 0.11 源码阅读笔记-设备驱动程序
 Linux 0.11 源码阅读笔记-文件系统
 Linux 0.11 源码阅读笔记-内存管理
 
-内存管理
-参考
-Linux 内核完全注释 内核版本0.11 -">
+内存管理本人手工制作的 Linux 0.11 内存管理图解
+
+虚">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 0.11 源码阅读笔记-内存管理">
 <meta property="og:url" content="https://draapho.github.io/2017/02/15/1704-linux-source6/index.html">
@@ -107,11 +107,13 @@ Linux 0.11 源码阅读笔记-设备驱动程序
 Linux 0.11 源码阅读笔记-文件系统
 Linux 0.11 源码阅读笔记-内存管理
 
-内存管理
-参考
-Linux 内核完全注释 内核版本0.11 -">
+内存管理本人手工制作的 Linux 0.11 内存管理图解
+
+虚">
 <meta property="og:image" content="https://draapho.github.io/images/1704/6-mm-map.jpg">
-<meta property="og:updated_time" content="2017-02-13T10:46:13.034Z">
+<meta property="og:image" content="https://draapho.github.io/images/1704/6-mm-process.jpg">
+<meta property="og:image" content="https://draapho.github.io/images/1704/6-mm-malloc.jpg">
+<meta property="og:updated_time" content="2017-02-14T05:59:21.353Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 0.11 源码阅读笔记-内存管理">
 <meta name="twitter:description" content="总览
@@ -123,9 +125,9 @@ Linux 0.11 源码阅读笔记-设备驱动程序
 Linux 0.11 源码阅读笔记-文件系统
 Linux 0.11 源码阅读笔记-内存管理
 
-内存管理
-参考
-Linux 内核完全注释 内核版本0.11 -">
+内存管理本人手工制作的 Linux 0.11 内存管理图解
+
+虚">
 <meta name="twitter:image" content="https://draapho.github.io/images/1704/6-mm-map.jpg">
 
 
@@ -361,7 +363,30 @@ Linux 内核完全注释 内核版本0.11 -">
 <li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
 <li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
 </ul>
-<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p>本人手工制作的 <strong>Linux 0.11 内存管理图解</strong><br><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
+<ul>
+<li>虚拟内存的实现, 使用的是页面出错异常处理. 然后调用 <code>do_no_page()</code> 来读取硬盘数据(必要时先回写), 腾出内存空间.</li>
+<li>写时复制 (copy on write) 机制, 新建进程时, linux不会立刻复制进程数据.<br>只有某个进程需要进行数据写操作时, 才真正开始执行复制操作.<br>好处是, 节约内存, 加快创建进程的速度.</li>
+<li>Linux 0.11版本的内存管理的主要文件 <code>/mm/memory.c</code></li>
+<li>内存的一些基础概念请参考 <a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+</ul>
+<h1 id="进程的内存空间"><a href="#进程的内存空间" class="headerlink" title="进程的内存空间"></a>进程的内存空间</h1><p>进程代码和数据在其逻辑地址空间中的分布<br><img src="https://draapho.github.io/images/1704/6-mm-process.jpg" alt="mm"></p>
+<ul>
+<li>Linux 0.11 每个进程只能有64M byte的逻辑内存.</li>
+<li>环境参数块最多128K</li>
+<li>堆栈指针是在逻辑地址的高位, 向下增长</li>
+<li>bss是进程未初始化的数据段, 第一页会被初始化为0</li>
+<li>使用需求加载机制 (Load on demand), 因此在加载运行文件时, 只是分配64M的线性地址空间, 没有分配任何真正的物理内存.</li>
+<li>此时, 内核在执行代码或加载数据时, 会触发缺页异常中断, 此时才调用 <code>do_no_page</code> 加载内容到物理内存.</li>
+</ul>
+<h1 id="内存的分配-malloc"><a href="#内存的分配-malloc" class="headerlink" title="内存的分配 malloc"></a>内存的分配 <code>malloc</code></h1><p>使用存储桶原理进行内存的分配管理<br><img src="https://draapho.github.io/images/1704/6-mm-malloc.jpg" alt="mm"></p>
+<ul>
+<li>实现很巧妙. 指针应用的出神入化</li>
+<li>仅内核代码可以调用.</li>
+<li>基本思想: 对申请的不同的内存块大小, 使用存储桶分别进行处理.</li>
+<li>提高内存利用率, 可有效避免内存碎片化.</li>
+<li>源码文件 <code>/lib/malloc.c</code></li>
+</ul>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
@@ -529,7 +554,7 @@ Linux 内核完全注释 内核版本0.11 -">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存管理"><span class="nav-number">2.</span> <span class="nav-text">内存管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存管理"><span class="nav-number">2.</span> <span class="nav-text">内存管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进程的内存空间"><span class="nav-number">3.</span> <span class="nav-text">进程的内存空间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存的分配-malloc"><span class="nav-number">4.</span> <span class="nav-text">内存的分配 malloc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
           </div>
         </section>

@@ -91,8 +91,7 @@ Linux 0.11 源码阅读笔记-设备驱动程序
 Linux 0.11 源码阅读笔记-文件系统
 Linux 0.11 源码阅读笔记-内存管理
 
-Linux 内存的基础概念内存的几个概念
-Virtual Mem">
+Linux 内存的基础概念内存条的分配Linux0.11 对物理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 0.11 源码阅读笔记-内存的基础概念">
 <meta property="og:url" content="https://draapho.github.io/2017/01/26/1704-linux-source1/index.html">
@@ -106,8 +105,8 @@ Linux 0.11 源码阅读笔记-设备驱动程序
 Linux 0.11 源码阅读笔记-文件系统
 Linux 0.11 源码阅读笔记-内存管理
 
-Linux 内存的基础概念内存的几个概念
-Virtual Mem">
+Linux 内存的基础概念内存条的分配Linux0.11 对物理">
+<meta property="og:image" content="https://draapho.github.io/images/1704/1-memory.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1704/1-address-convert.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1704/1-address-convert-detail.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1704/1-logical2linear.jpg">
@@ -118,7 +117,7 @@ Virtual Mem">
 <meta property="og:image" content="https://draapho.github.io/images/1704/1-address-relationship.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1704/1-mulit-process.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1704/1-switch-process.jpg">
-<meta property="og:updated_time" content="2017-02-13T10:46:11.670Z">
+<meta property="og:updated_time" content="2017-02-14T03:14:07.547Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux 0.11 源码阅读笔记-内存的基础概念">
 <meta name="twitter:description" content="总览
@@ -130,9 +129,8 @@ Linux 0.11 源码阅读笔记-设备驱动程序
 Linux 0.11 源码阅读笔记-文件系统
 Linux 0.11 源码阅读笔记-内存管理
 
-Linux 内存的基础概念内存的几个概念
-Virtual Mem">
-<meta name="twitter:image" content="https://draapho.github.io/images/1704/1-address-convert.jpg">
+Linux 内存的基础概念内存条的分配Linux0.11 对物理">
+<meta name="twitter:image" content="https://draapho.github.io/images/1704/1-memory.jpg">
 
 
 
@@ -367,7 +365,13 @@ Virtual Mem">
 <li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
 <li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
 </ul>
-<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
+<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存条的分配"><a href="#内存条的分配" class="headerlink" title="内存条的分配"></a>内存条的分配</h2><p><em>Linux0.11 对物理内存条的分配</em><br><img src="https://draapho.github.io/images/1704/1-memory.jpg" alt="memory"></p>
+<ul>
+<li><code>内核模块</code>, Linux Kernel的代码</li>
+<li><code>高速缓冲 Buffer</code>, 缓存内核对硬盘的读写操作. 仅部分内核函数可用</li>
+<li><code>主内存 Memory</code>, 应用程序可用的内存区. 虚拟内存也是针对这一块区域而言的.</li>
+</ul>
+<h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
 <li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
 <li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
 <li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
@@ -582,7 +586,7 @@ Virtual Mem">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-内存的基础概念"><span class="nav-number">2.</span> <span class="nav-text">Linux 内存的基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的几个概念"><span class="nav-number">2.1.</span> <span class="nav-text">内存的几个概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存地址的转换"><span class="nav-number">2.2.</span> <span class="nav-text">内存地址的转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#80x86-多任务"><span class="nav-number">2.3.</span> <span class="nav-text">80x86 多任务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-内存的基础概念"><span class="nav-number">2.</span> <span class="nav-text">Linux 内存的基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存条的分配"><span class="nav-number">2.1.</span> <span class="nav-text">内存条的分配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的几个概念"><span class="nav-number">2.2.</span> <span class="nav-text">内存的几个概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存地址的转换"><span class="nav-number">2.3.</span> <span class="nav-text">内存地址的转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#80x86-多任务"><span class="nav-number">2.4.</span> <span class="nav-text">80x86 多任务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
           </div>
         </section>
