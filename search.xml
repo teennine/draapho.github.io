@@ -4,6 +4,102 @@
   
     
     <entry>
+      <title><![CDATA[嵌入式linux环境搭建]]></title>
+      <url>https://draapho.github.io/2017/02/16/1705-linux-envirnment/</url>
+      <content type="html"><![CDATA[<h1 id="嵌入式linux开发环境搭建思路"><a href="#嵌入式linux开发环境搭建思路" class="headerlink" title="嵌入式linux开发环境搭建思路"></a>嵌入式linux开发环境搭建思路</h1><ol>
+<li><code>PC windows</code> 所有资料存在windows目录下, 所有操作在windows环境下.<br><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
+<li><code>PC linux</code> 装在虚拟机里, 提供交叉编译环境.</li>
+<li><code>Embedded linux</code> 固化uboot, kernel, 使用nfs加载文件系统.</li>
+</ol>
+<p>整个环境的搭建思路基于尽可能少的文件传输, 系统切换操作, 以便提高效率. 可以选择的方案有NFS方案, windows文件共享方案.<br>细化下去有:</p>
+<ul>
+<li>windows做NFS服务器</li>
+<li>ubuntu做NFS服务器</li>
+<li>ubuntu使用samba来支持windows文件共享</li>
+<li>交叉使用上述方案.</li>
+</ul>
+<p>一些列折腾之后, 最后顺利基于hanewin, win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享.<br>而且使用这个方案还有一个好处, 开发文件都存放在熟悉的windows环境下, 修改/维护/备份都很方便.</p>
+<h2 id="PC-windows-win10"><a href="#PC-windows-win10" class="headerlink" title="PC windows win10"></a><code>PC windows</code> win10</h2><p>ip addr: <code>10.0.0.98</code><br>gateway: <code>10.0.0.138</code></p>
+<ol>
+<li>配置为静态IP. <code>10.0.0.98</code></li>
+<li>当NFS服务器, 向PC linux和Embedded linux, u-boot提供NFS服务.<br>使用了hanewin, 注意使能 nfs version2 以及权限设置 (-mapall:0:0)<br>(hanewin不是免费软件, 也可以试试FreeNFS)</li>
+<li>虚拟机安装 PC linux</li>
+<li>烧录工具, jlink, OpenJtag, dnw, 网络传输.<br>早期需要使用. 开发到应用层就可以不用了.<br>用基于nfs的网络传输, 放弃使用dnw.</li>
+<li>使用putty, 远程登录控制 PC linux.<br>文本编辑器建议用vim</li>
+<li>使用串口, 可用putty 或 TeraTerm, 远程登录控制 Embedded linux,<br>文本编辑器只能用vi</li>
+</ol>
+<p>设置IP, 安装虚拟机属于常规内容, 按下不表.<br>NFS服务器 <code>HaneWIN</code> 的配置见 <a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows 软件系列-基于NFS的家庭网-HaneWIN</a><br>其中 <code>Exports</code> 内容如下:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># for linux</span></div><div class="line">E:\My_Study\linux -name:study -mapall:0:0 10.0.0.100</div><div class="line">E:\My_Work\linux -name:work -mapall:0:0 10.0.0.100</div><div class="line"></div><div class="line"><span class="comment"># for embedded linux.</span></div><div class="line">E:\My_Study\linux\jz2440\ -name:jz2440 -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"></div><div class="line"><span class="comment"># for loading file system, should be no limit, root account</span></div><div class="line"><span class="comment">#E:\My_Study\linux\jz2440\nfs\fs_qtopia -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</span></div><div class="line">E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"><span class="comment">#E:\My_Study\linux\jz2440\nfs\fs_mini -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</span></div></pre></td></tr></table></figure></p>
+<h2 id="PC-linux-ubuntu-serve-16-04-32bit"><a href="#PC-linux-ubuntu-serve-16-04-32bit" class="headerlink" title="PC linux ubuntu serve 16.04 32bit"></a><code>PC linux</code> ubuntu serve 16.04 32bit</h2><p>ip addr: <code>10.0.0.100</code><br>gateway: <code>10.0.0.138</code></p>
+<ol>
+<li>配置为静态IP. (弄不好就是无法上外网. 这里折腾半天)</li>
+<li>安装NFS客户端. 开机mount NFS文件</li>
+<li>安装SSH服务, 以便在windows下使用putty</li>
+<li>安装交叉编译工具并测试<br>arm-linux-gcc 3.4.5 (对于2440系列, 别用新版本, 不停的有坑)<br>u-boot-tools<br>mkyaffs2image</li>
+</ol>
+<h2 id="Embedded-Linux-jz2440v3"><a href="#Embedded-Linux-jz2440v3" class="headerlink" title="Embedded Linux jz2440v3"></a><code>Embedded Linux</code> jz2440v3</h2><p>ip addr: <code>10.0.0.111</code><br>gateway: <code>10.0.0.138</code></p>
+<ol>
+<li><p>用 jlink 或 openJtag <strong>烧录u-boot</strong></p>
+<ul>
+<li>u-boot的编译</li>
+<li>需要工具jlink或OpenJtag, 一般开发板都会事先烧录好</li>
+</ul>
+</li>
+<li><p>基于u-boot, 用dnw或网络传输 <strong>烧录内核文件</strong></p>
+<ul>
+<li>最后成功使用nfs, 在u-boot下烧录内核文件. 彻底放弃dnw, 接线也更简洁.</li>
+<li>注意hanewin不支持多层文件夹!!!</li>
+<li><del>dnw 需要在window下安装驱动, win7/win10下支持不好. win10 有数字签名问题 (重启即失效)</del></li>
+<li><del>dnw 在虚拟机下的linux没有尝试成功, 因为我用的hyper-v虚拟机, 要连接到物理usb太麻烦.</del></li>
+<li><del>网络传输我这边表现很不稳定, 而且操作上也比dnw繁琐.</del></li>
+<li><del>我最终使用的是 windows 下的dnw. 因为只是烧录内核的时候需要使用.</del></li>
+</ul>
+</li>
+<li><p>基于u-boot, 更改 <strong>file system</strong> 的加载方式为nfs系统, 并自动加载</p>
+<ul>
+<li><p>以jz2440的u-boot为例, 进入u-boot命令行模式, 将其设置为nfs加载file system</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.100:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</div><div class="line"><span class="comment"># (默认值: set bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0)</span></div><div class="line">save        <span class="comment"># 保存修改</span></div><div class="line">reset       <span class="comment"># 重启. (稍后再重启, 先修改好 filesystem 内的初始化文件)</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>修改开发板的 filesystem 下 <code>/etc/init.d/rcS</code>, 实现开机自动加载file system</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 修改 ip 地址  (这个必须要改, 以便支持整个filesystem作为NFS的加载)</span></div><div class="line">ifconfig eth0 10.0.0.111</div><div class="line"><span class="comment"># 再自动挂载window上的其它文件 (这个不必须, 只是为了开发更灵活方便)</span></div><div class="line">mkdir /mnt/nfs</div><div class="line">mount -t nfs -o nolock,vers=2 10.0.0.98:/jz2440 /mnt/nfs</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="折腾记"><a href="#折腾记" class="headerlink" title="折腾记"></a>折腾记</h1><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><ol>
+<li>之前玩过NAS, 所以有现成的hanewin让windows做NFS服务器.</li>
+<li>Ubuntu上安装 nfs-common, 顺利加载NFS文件. 编译了u-boot和kernel, 一切正常</li>
+<li>开发板手动挂载nfs, 也成功了</li>
+<li>开发板开机通过nfs挂载文件系统时, 各种permssion deny.</li>
+<li>明显权限问题, 退回到ubuntu下, 尝试在ubuntu下也做个NFS服务器, 然后windows再倒过来加载.</li>
+<li>发现在ubuntu下, 不能把加载过来的NFS文件再次通过NFS分享出去, 应该是出于安全考虑, 没有深入追究.</li>
+<li>被第五条思路折腾了挺久, 最后是因为win10专业版下没有找到能做NFS客户端的软件而放弃.</li>
+<li>折腾一圈后, 又想到windows共享文件方法, 结果Ubuntu 14.04安装Samba提示依赖错误, 搜索半天网络, 没有解决. 按下不表.</li>
+<li>返璞归真, 在ubuntu下老老实实修改权限为777, 编译文件系统, 烧录测试… 结果开发板开机依旧提示错误…</li>
+<li>一天后, 理了理思路, 再分析. 应该还是权限问题没跑, 要么chmod, 要么uid, gid问题. 毕竟是windows下NFS传过来的文件.</li>
+<li>开始研究hanewin的权限问题, 翻到官网的说明, 确实有几个参数可以设置用户和权限.</li>
+<li>一通假设加穷举后, 顺利解决用户和权限问题. 再回到开发板开机通过nfs挂载文件系统, 终于成功了, 而且还是最理想的只需要windows当NFS服务器即可.</li>
+<li>期间还因为使用的arm-linux-gcc 4.3.2 版本, 编译成功, 加载部分fs可以运行, 部分fs有问题.一度以为是有些fs源码有问题, 多个问题交织在一起, 所以排错过程就显得异常痛苦迷茫了.</li>
+<li>嵌入式开发的起步阶段, 基本就是想打主线游戏, 但不停的有分支任务, 分支任务的分支打断你, 让人直直的想骂这tmd是谁设计的鬼游戏, 还让不让人玩下去…</li>
+<li>我想说, 只有保持着对主线好奇, 不忘要打败大boss的初心, 并在分支任务中寻求一点满足感, 才能坚持下去.</li>
+</ol>
+<h2 id="编译器的巨坑"><a href="#编译器的巨坑" class="headerlink" title="编译器的巨坑"></a><del>编译器的巨坑</del></h2><p>刚开始用了 arm-linux-gcc 4.3.2, 编译u-boot时遇到了第一个坑, 还给解决了.<br>于是”顺利”使用 arm-linux-gcc 4.3.2 编译了u-boot, kernel, led驱动程序.<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
+<p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法 (<strong>巨坑的开始</strong>):</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
+<p>最后, 对于 arm-linux-gcc 版本问题, 又研究了一下. 应该说不是新版本不能用, 而是需要设置.<br>对应编译原理之类的基本不懂, 暂时也没有时间去验证, 此处写出来提供一个思路, 感觉是可行的.<br>关键点有这么几个.</p>
+<ul>
+<li>要使用 arm-none-linux-gnueabi</li>
+<li>要指定arm架构 -</li>
+<li>指定使用的库</li>
+</ul>
+<p>这个在上面uboot的例子也能看出一二了. 在网上还有人提到:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 编译 hello.c 时, 需要用如下命令</span></div><div class="line">arm-none-linux-gnueabi-gcc -o hello hello.c -static <span class="comment"># 特别指明了 static不能省略!</span></div><div class="line"><span class="comment"># 配置Makefile时, 需要指明arm架构</span></div><div class="line">CC=<span class="string">"arm-none-linux-gnueabi-gcc -march=armv4t"</span></div><div class="line"><span class="comment"># 指定交叉编译工具</span></div><div class="line"><span class="built_in">export</span> CROSS_COMPILE=/usr/<span class="built_in">local</span>/arm-2008q3/bin/arm-none-linux-gnueabi-</div><div class="line"><span class="comment"># 最后, 还是没明白 arm-linux-gcc 和 arm-none-linux-gnueabi-gcc的区别.</span></div><div class="line"><span class="comment"># 因为打开 arm-linux-gcc 4.3.2 bin下的 arm-linux-gcc 可以看到如下内容:</span></div><div class="line"><span class="built_in">exec</span> arm-none-linux-gnueabi-gcc -march=armv4t $*</div></pre></td></tr></table></figure></p>
+<p>找到二篇详细说明的, 放上链接<br><a href="http://www.veryarm.com/296.html" target="_blank" rel="external">arm交叉编译器gnueabi、none-eabi、arm-eabi、gnueabihf、gnueabi区别</a><br><a href="http://blog.csdn.net/u013467442/article/details/44197725" target="_blank" rel="external">arm-none-linux-gnueabi交叉工具链安装,介绍，区别总结</a></p>
+<h1 id="新技术-docker-https-docs-docker-com"><a href="#新技术-docker-https-docs-docker-com" class="headerlink" title="新技术 docker(https://docs.docker.com/)"></a>新技术 <code>docker</code>(<a href="https://docs.docker.com/" target="_blank" rel="external">https://docs.docker.com/</a>)</h1><p>Linux下的环境搭建一直让人比较痛苦, 这也直接使得 <code>Docker</code> 优势尽显. 需要学一学.</p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Linux 0.11 源码阅读笔记-内存管理]]></title>
       <url>https://draapho.github.io/2017/02/15/1704-linux-source6/</url>
       <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
@@ -762,7 +858,8 @@
     <entry>
       <title><![CDATA[Embedded Linux 入门有感]]></title>
       <url>https://draapho.github.io/2017/01/18/1702-linux-hard/</url>
-      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
+      <content type="html"><![CDATA[<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><p><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记</a><br><a href="https://draapho.github.io/2017/02/16/1705-linux-envirnment/">嵌入式linux环境搭建</a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
 <p>自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,<br>但在没有具体项目要求的情况下, 学习Embedded Linux的过程充满了痛苦和不解, 始终没有坚持下来.</p>
 <p>如今, 打算再次开始系统的学习Embedded Linux, 因而在此记录一下之前的学习感受, 分析一下困难之所在, 并制定好学习规则和方式.</p>
 <h1 id="为何困难"><a href="#为何困难" class="headerlink" title="为何困难"></a>为何困难</h1><h2 id="linux上手困难"><a href="#linux上手困难" class="headerlink" title="linux上手困难"></a>linux上手困难</h2><p>对新手而言, linux的学习曲线很陡峭. 相信刚上手的话, 如何安装软件, 如何使用编辑器都是问题!</p>
@@ -5156,6 +5253,31 @@
     </entry>
     
     <entry>
+      <title><![CDATA[stm32选型及资料搜索指南]]></title>
+      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
+      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Vim常用快捷键]]></title>
       <url>https://draapho.github.io/2016/10/01/1604-CheatSheet-vim/</url>
       <content type="html"><![CDATA[<h1 id="Vim常用快捷键"><a href="#Vim常用快捷键" class="headerlink" title="Vim常用快捷键"></a>Vim常用快捷键</h1><h2 id="进入输入模式"><a href="#进入输入模式" class="headerlink" title="进入输入模式"></a>进入输入模式</h2><table>
@@ -5525,31 +5647,6 @@
 <li><a href="https://www.gosquared.com/blog/vi-linux-terminal-help-sheet" target="_blank" rel="external">VI (Linux Terminal) Help Sheet</a><br><img src="https://downloads.gosquared.com/help_sheets/10/VI-Help-Sheet-large.jpg" alt="VI Help Sheet"></li>
 <li><a href="http://blog.vgod.tw/2009/12/08/vim-cheat-sheet-for-programmers/" target="_blank" rel="external">給程式設計師的Vim入門圖解說明</a><br><img src="http://blog.vgod.tw.s3.amazonaws.com/wp-content/uploads/2009/12/vim-cheat-sheet-diagram.png" alt="Vim入門圖解說明"></li>
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="external">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[stm32选型及资料搜索指南]]></title>
-      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
-      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
