@@ -324,10 +324,13 @@
         
           
             <h1 id="嵌入式linux开发环境搭建思路"><a href="#嵌入式linux开发环境搭建思路" class="headerlink" title="嵌入式linux开发环境搭建思路"></a>嵌入式linux开发环境搭建思路</h1><ol>
-<li><code>PC windows</code> 所有资料存在windows目录下, 所有操作在windows环境下.<br><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
-<li><code>PC linux</code> 装在虚拟机里, 提供交叉编译环境.</li>
-<li><code>Embedded linux</code> 固化uboot, kernel, 使用nfs加载文件系统.</li>
+<li>PC windows 所有资料存在windows目录下, 所有操作在windows环境下.</li>
+<li>PC linux 装在虚拟机里, 提供交叉编译环境.</li>
+<li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统.</li>
 </ol>
+<ul>
+<li>PC windows 下的NFS设置可参考: <a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
+</ul>
 <p>整个环境的搭建思路基于尽可能少的文件传输, 系统切换操作, 以便提高效率. 可以选择的方案有NFS方案, windows文件共享方案.<br>细化下去有:</p>
 <ul>
 <li>windows做NFS服务器</li>
@@ -336,7 +339,7 @@
 <li>交叉使用上述方案.</li>
 </ul>
 <p>一些列折腾之后, 最后顺利基于hanewin, win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享.<br>而且使用这个方案还有一个好处, 开发文件都存放在熟悉的windows环境下, 修改/维护/备份都很方便.</p>
-<h2 id="PC-windows-win10"><a href="#PC-windows-win10" class="headerlink" title="PC windows win10"></a><code>PC windows</code> win10</h2><p>ip addr: <code>10.0.0.98</code><br>gateway: <code>10.0.0.138</code></p>
+<h2 id="PC-windows-win10"><a href="#PC-windows-win10" class="headerlink" title="PC windows, win10"></a>PC windows, win10</h2><p>ip addr: <code>10.0.0.98</code><br>gateway: <code>10.0.0.138</code></p>
 <ol>
 <li>配置为静态IP. <code>10.0.0.98</code></li>
 <li>当NFS服务器, 向PC linux和Embedded linux, u-boot提供NFS服务.<br>使用了hanewin, 注意使能 nfs version2 以及权限设置 (-mapall:0:0)<br>(hanewin不是免费软件, 也可以试试FreeNFS)</li>
@@ -345,15 +348,15 @@
 <li>使用putty, 远程登录控制 PC linux.<br>文本编辑器建议用vim</li>
 <li>使用串口, 可用putty 或 TeraTerm, 远程登录控制 Embedded linux,<br>文本编辑器只能用vi</li>
 </ol>
-<p>设置IP, 安装虚拟机属于常规内容, 按下不表.<br>NFS服务器 <code>HaneWIN</code> 的配置见 <a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows 软件系列-基于NFS的家庭网-HaneWIN</a><br>其中 <code>Exports</code> 内容如下:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># for linux</span></div><div class="line">E:\My_Study\linux -name:study -mapall:0:0 10.0.0.100</div><div class="line">E:\My_Work\linux -name:work -mapall:0:0 10.0.0.100</div><div class="line"></div><div class="line"><span class="comment"># for embedded linux.</span></div><div class="line">E:\My_Study\linux\jz2440\ -name:jz2440 -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"></div><div class="line"><span class="comment"># for loading file system, should be no limit, root account</span></div><div class="line"><span class="comment">#E:\My_Study\linux\jz2440\nfs\fs_qtopia -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</span></div><div class="line">E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"><span class="comment">#E:\My_Study\linux\jz2440\nfs\fs_mini -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</span></div></pre></td></tr></table></figure></p>
-<h2 id="PC-linux-ubuntu-serve-16-04-32bit"><a href="#PC-linux-ubuntu-serve-16-04-32bit" class="headerlink" title="PC linux ubuntu serve 16.04 32bit"></a><code>PC linux</code> ubuntu serve 16.04 32bit</h2><p>ip addr: <code>10.0.0.100</code><br>gateway: <code>10.0.0.138</code></p>
+<p>设置IP, 安装虚拟机属于常规内容, 按下不表.<br>NFS服务器 HaneWIN 的配置见 <strong><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows 软件系列-基于NFS的家庭网</a></strong><br>其中 <code>Exports</code> 内容如下:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># for linux</span></div><div class="line">E:\My_Study\linux -name:study -mapall:0:0 10.0.0.100</div><div class="line">E:\My_Work\linux -name:work -mapall:0:0 10.0.0.100</div><div class="line"></div><div class="line"><span class="comment"># for embedded linux.</span></div><div class="line">E:\My_Study\linux\jz2440\ -name:jz2440 -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"></div><div class="line"><span class="comment"># for loading file system, should be no limit, root account</span></div><div class="line"><span class="comment">#E:\My_Study\linux\jz2440\nfs\fs_qtopia -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</span></div><div class="line">E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"><span class="comment">#E:\My_Study\linux\jz2440\nfs\fs_mini -name:fs -mapall:0:0 -range 10.0.0.1 10.0.0.111</span></div></pre></td></tr></table></figure></p>
+<h2 id="PC-linux-ubuntu-serve-16-04-32bit"><a href="#PC-linux-ubuntu-serve-16-04-32bit" class="headerlink" title="PC linux ubuntu serve 16.04 32bit"></a>PC linux ubuntu serve 16.04 32bit</h2><p>ip addr: <code>10.0.0.100</code><br>gateway: <code>10.0.0.138</code></p>
 <ol>
 <li>配置为静态IP. (弄不好就是无法上外网. 这里折腾半天)</li>
 <li>安装NFS客户端. 开机mount NFS文件</li>
 <li>安装SSH服务, 以便在windows下使用putty</li>
 <li>安装交叉编译工具并测试<br>arm-linux-gcc 3.4.5 (对于2440系列, 别用新版本, 不停的有坑)<br>u-boot-tools<br>mkyaffs2image</li>
 </ol>
-<h2 id="Embedded-Linux-jz2440v3"><a href="#Embedded-Linux-jz2440v3" class="headerlink" title="Embedded Linux jz2440v3"></a><code>Embedded Linux</code> jz2440v3</h2><p>ip addr: <code>10.0.0.111</code><br>gateway: <code>10.0.0.138</code></p>
+<h2 id="Embedded-Linux-jz2440v3"><a href="#Embedded-Linux-jz2440v3" class="headerlink" title="Embedded Linux jz2440v3"></a>Embedded Linux jz2440v3</h2><p>ip addr: <code>10.0.0.111</code><br>gateway: <code>10.0.0.138</code></p>
 <ol>
 <li><p>用 jlink 或 openJtag <strong>烧录u-boot</strong></p>
 <ul>
