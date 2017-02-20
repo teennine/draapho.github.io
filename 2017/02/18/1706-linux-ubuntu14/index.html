@@ -1,0 +1,813 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="embedded linux,environment," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="环境及结论
+大环境的搭建思路可参考嵌入式linux环境搭建
+gateway ip 10.0.0.138
+PC windows: win10 64bit, ip 10.0.0.98
+PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100
+Embedded Linux: jz2440v3 ip 10.0.0.111
+
+
+探索嵌入式linux环">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式linux环境搭建1-Ubuntu14">
+<meta property="og:url" content="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="环境及结论
+大环境的搭建思路可参考嵌入式linux环境搭建
+gateway ip 10.0.0.138
+PC windows: win10 64bit, ip 10.0.0.98
+PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100
+Embedded Linux: jz2440v3 ip 10.0.0.111
+
+
+探索嵌入式linux环">
+<meta property="og:updated_time" content="2017-02-20T03:36:20.648Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="嵌入式linux环境搭建1-Ubuntu14">
+<meta name="twitter:description" content="环境及结论
+大环境的搭建思路可参考嵌入式linux环境搭建
+gateway ip 10.0.0.138
+PC windows: win10 64bit, ip 10.0.0.98
+PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100
+Embedded Linux: jz2440v3 ip 10.0.0.111
+
+
+探索嵌入式linux环">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/"/>
+
+
+  <title> 嵌入式linux环境搭建1-Ubuntu14 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                嵌入式linux环境搭建1-Ubuntu14
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-18T00:00:00+11:00" content="2017-02-18">
+              2017-02-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
+<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a><ul>
+<li>gateway ip <code>10.0.0.138</code></li>
+<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
+<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
+<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
+</ul>
+</li>
+<li>探索嵌入式linux环境搭建的各方案可行性.</li>
+<li>使用环境: Ubuntu 14.04.5 LTS 32bit 桌面版 (安装在win10的虚拟机内)</li>
+<li>成功验证了win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享的方案</li>
+<li>最终遇到了gcc编译器的坑, 就决定换到CentOS系统练练手.</li>
+<li>在win 10 下使用虚拟机安装在win10下, 略过不表.</li>
+<li>实验结论:<ul>
+<li>win10(非企业版)下, 没有找到nfs客户端. 因此没法使用 <strong>ubuntu做NFS服务器</strong> 的方案</li>
+<li>ubuntu下安装samba来支持windows文件共享, 失败告终. 因此没法使用 <strong>ubuntu使用samba来支持windows文件共享</strong> 的方案</li>
+<li>linux不允许把NFS挂载过来的文件再使用NFS服务共享出去. 因此没法使用 <strong>交叉使用上述方案</strong></li>
+<li>还好, 最终 <strong>windows做NFS服务器</strong> 成功了</li>
+</ul>
+</li>
+</ul>
+<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 查看 make 和 gcc 工具 (非交叉编译用)</span></div><div class="line">make -v                     <span class="comment"># GNU Make 3.81</span></div><div class="line">gcc -v                      <span class="comment"># gcc version 4.8.4</span></div></pre></td></tr></table></figure>
+<h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><p>个人更喜欢用静态IP, 这样putty的设置更直观方便.<br>如果要使用动态IP, 可以设置 windwos 的 HaneWIN, 用<code>-range</code>来指定nfs客户端的网址段</p>
+<p>刚开始怎么样都不能上外网, 突然按照下面的顺序就好了… 原因不明<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">sudo vim /etc/network/interfaces</div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line"></div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static</div><div class="line">    address  10.0.0.100</div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  10.0.0.138</div><div class="line">    dns-nameservers   8.8.8.8  10.0.0.138</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line">sudo reboot</div></pre></td></tr></table></figure></p>
+<h1 id="安装nfs服务-服务器-客户端"><a href="#安装nfs服务-服务器-客户端" class="headerlink" title="安装nfs服务(服务器/客户端)"></a>安装nfs服务(服务器/客户端)</h1><p>最终方案里, windows下用了HaneWIN 做NFS服务器, 虚拟机ubuntu下安装客户端就可以了.<br>这里为了做实验, nfs服务器和客户端都安装了, 可以参考:<br><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04" target="_blank" rel="external">How To Set Up an NFS Mount on Ubuntu 14.04</a></p>
+<h2 id="nfs-客户端的安装"><a href="#nfs-客户端的安装" class="headerlink" title="nfs 客户端的安装"></a>nfs 客户端的安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装 nfs 客户端软件</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install nfs-common</div><div class="line"></div><div class="line"><span class="comment"># 建立空文件夹用于挂载nfs</span></div><div class="line">sudo mkdir -p /mnt/nfs/study</div><div class="line">sudo mkdir -p /mnt/nfs/work</div><div class="line"></div><div class="line"><span class="comment"># 开机自动挂载(参考文章中的客户端自动挂载方法没有起作用)</span></div><div class="line">sudo vim /etc/rc.local</div><div class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></div><div class="line">    sudo mount 10.0.0.98:/study /mnt/nfs/study</div><div class="line">    sudo mount 10.0.0.98:/work /mnt/nfs/work</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line"><span class="comment"># 建立软连接(快捷方式), 可忽略此步骤</span></div><div class="line">sudo ln <span class="_">-s</span> /mnt/nfs/study /home/user/study</div><div class="line">sudo ln <span class="_">-s</span> /mnt/nfs/work /home/user/work</div></pre></td></tr></table></figure>
+<h2 id="nfs-服务器的安装"><a href="#nfs-服务器的安装" class="headerlink" title="nfs 服务器的安装"></a><del>nfs 服务器的安装</del></h2><p>实际上没有用到linux的nfs服务器功能, 最终用的是windows下的HaneWIN给开发板提供的nfs服务!!!<br>因为最后测试下来, <strong>linux不允许把NFS挂载过来的文件再使用NFS服务共享出去</strong>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 虚拟机ubuntu 安装服务器, 供开发板端使用nfs.</span></div><div class="line">apt-get install nfs-kernel-server</div><div class="line">sudo vim /etc/exports</div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="comment"># 加入要共享的文件夹, 一个文件夹一行即可</span></div><div class="line">    <span class="comment"># 注意! 由windows 共享过来的目录无法再由ubuntu共享出去</span></div><div class="line">    /home/draapho 10.0.0.*(rw,no_root_squash,async,no_subtree_check)</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line"><span class="comment"># 重启服务</span></div><div class="line">sudo exportfs <span class="_">-a</span></div><div class="line">sudo /etc/init.d/nfs-kernel-server restart</div></pre></td></tr></table></figure>
+<h2 id="其它实验"><a href="#其它实验" class="headerlink" title="其它实验"></a><del>其它实验</del></h2><p>win10(非企业版)下, 没有找到nfs客户端. 因此无法让linux当nfs服务器, win10做nfs客户端.<br>ubuntu下安装samba来支持windows文件共享, 失败告终</p>
+<h1 id="安装ssh服务-用putty远程登录"><a href="#安装ssh服务-用putty远程登录" class="headerlink" title="安装ssh服务, 用putty远程登录"></a>安装ssh服务, 用putty远程登录</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装ssh服务</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install openssh-server</div><div class="line"><span class="comment"># 如果有依赖包冲突, 执行如下指令</span></div><div class="line">sudo apt-get install openssh-client=1:6.6p1-2ubuntu1</div><div class="line"></div><div class="line"><span class="comment"># 查看是否已经运行</span></div><div class="line">sudo ps <span class="_">-e</span> | grep ssh</div><div class="line"><span class="comment"># 启动服务</span></div><div class="line">sudo service ssh start</div></pre></td></tr></table></figure>
+<h1 id="安装-u-boot-tools-工具"><a href="#安装-u-boot-tools-工具" class="headerlink" title="安装 u-boot-tools 工具"></a>安装 u-boot-tools 工具</h1><p>安装 u-boot-tools, 内核编译后生成uImage使用.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装 mkimage</span></div><div class="line">sudo apt-get install u-boot-tools</div><div class="line"><span class="comment"># 验证</span></div><div class="line">mkimage -V</div></pre></td></tr></table></figure></p>
+<h1 id="安装-mkyaffs2image-工具"><a href="#安装-mkyaffs2image-工具" class="headerlink" title="安装 mkyaffs2image 工具"></a>安装 mkyaffs2image 工具</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></div><div class="line">sudo chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></div><div class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></div></pre></td></tr></table></figure>
+<h1 id="安装及使用交叉编译工具gcc"><a href="#安装及使用交叉编译工具gcc" class="headerlink" title="安装及使用交叉编译工具gcc"></a>安装及使用交叉编译工具gcc</h1><p>在 arm-linux-gcc 4.3.2 上走的比较远, 结果证明遇到坑了!<br>建议不要尝试最新版本的编译器, 老老实实使用开发板提供的 <code>gcc-3.4.5-glibc-2.3.6</code> 编译器版本.</p>
+<h2 id="安装-arm-linux-gcc-4-3-2"><a href="#安装-arm-linux-gcc-4-3-2" class="headerlink" title="安装 arm-linux-gcc 4.3.2"></a><del>安装 arm-linux-gcc 4.3.2</del></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 直接拷贝解压 arm-linux-gcc-4.3.2.tar.bz2</span></div><div class="line"><span class="comment"># 事后证明, gcc-4.3.2 不能正确编译(但能成功编译)2440的linux内核和驱动</span></div><div class="line">sudo tar xjvf arm-linux-gcc-4.3.2.tar.bz2 -C /usr/<span class="built_in">local</span>/</div><div class="line"></div><div class="line"><span class="comment"># 添加路径到环境变量</span></div><div class="line">sudo vim /etc/bash.bashrc</div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="keyword">if</span> [ <span class="_">-d</span> /usr/<span class="built_in">local</span>/arm/4.3.2 ] ; <span class="keyword">then</span></div><div class="line">        PATH=/usr/<span class="built_in">local</span>/arm/4.3.2/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></div><div class="line">    <span class="keyword">fi</span></div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line"><span class="comment"># 测试安装结果</span></div><div class="line"><span class="built_in">source</span> /etc/bash.bashrc                             <span class="comment"># 不重启更新PATH</span></div><div class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>                                          <span class="comment"># 查看PATH</span></div><div class="line">arm-linux-gcc -v                                    <span class="comment"># 测试是否安装成功</span></div></pre></td></tr></table></figure>
+<p>如果希望sudo超级账户也能用 make 指令 (没有测试过)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sudo <span class="_">-s</span>                                             <span class="comment"># 登录超级账户</span></div><div class="line">vi /etc/profile                                     <span class="comment"># 打开profile</span></div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/arm/4.3.2/bin</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
+<h2 id="遇到问题并解决-结果是坑"><a href="#遇到问题并解决-结果是坑" class="headerlink" title="遇到问题并解决, 结果是坑"></a><del>遇到问题并解决, 结果是坑</del></h2><p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/embedded-linux/" rel="tag">#embedded linux</a>
+          
+            <a href="/tags/environment/" rel="tag">#environment</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/16/1705-linux-env/" rel="next" title="嵌入式linux环境搭建">
+                <i class="fa fa-chevron-left"></i> 嵌入式linux环境搭建
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/19/1706-linux-centos7/" rel="prev" title="嵌入式linux环境搭建2-CentOS7">
+                嵌入式linux环境搭建2-CentOS7 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">44</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">54</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境及结论"><span class="nav-number">1.</span> <span class="nav-text">环境及结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装必要的软件"><span class="nav-number">2.</span> <span class="nav-text">安装必要的软件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置静态IP"><span class="nav-number">3.</span> <span class="nav-text">设置静态IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装nfs服务-服务器-客户端"><span class="nav-number">4.</span> <span class="nav-text">安装nfs服务(服务器/客户端)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nfs-客户端的安装"><span class="nav-number">4.1.</span> <span class="nav-text">nfs 客户端的安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nfs-服务器的安装"><span class="nav-number">4.2.</span> <span class="nav-text">nfs 服务器的安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它实验"><span class="nav-number">4.3.</span> <span class="nav-text">其它实验</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装ssh服务-用putty远程登录"><span class="nav-number">5.</span> <span class="nav-text">安装ssh服务, 用putty远程登录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-u-boot-tools-工具"><span class="nav-number">6.</span> <span class="nav-text">安装 u-boot-tools 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-mkyaffs2image-工具"><span class="nav-number">7.</span> <span class="nav-text">安装 mkyaffs2image 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装及使用交叉编译工具gcc"><span class="nav-number">8.</span> <span class="nav-text">安装及使用交叉编译工具gcc</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-arm-linux-gcc-4-3-2"><span class="nav-number">8.1.</span> <span class="nav-text">安装 arm-linux-gcc 4.3.2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到问题并解决-结果是坑"><span class="nav-number">8.2.</span> <span class="nav-text">遇到问题并解决, 结果是坑</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
