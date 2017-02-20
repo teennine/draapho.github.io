@@ -102,7 +102,7 @@ Windows NFS 环境搭建
 PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
 第一次尝试, 失败告终, 嵌入式linux环境搭建1-Ubuntu14
 第二次尝试, 失败告终, 嵌入式linux环境搭建2-CentOS7">
-<meta property="og:updated_time" content="2017-02-20T12:36:39.027Z">
+<meta property="og:updated_time" content="2017-02-20T12:38:24.391Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建">
 <meta name="twitter:description" content="嵌入式linux开发环境搭建思路
@@ -405,12 +405,10 @@ PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
 </ul>
 </li>
 <li><p>基于u-boot, 更改 <strong>file system</strong> 的加载方式为nfs系统, 并自动加载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 以jz2440的u-boot为例, 进入u-boot命令行模式, 将其设置为nfs加载file system</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</div><div class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></div><div class="line"><span class="comment"># (默认值: 'set bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0')</span></div><div class="line">save        <span class="comment"># 保存修改</span></div><div class="line">reset       <span class="comment"># 重启.</span></div></pre></td></tr></table></figure>
 </li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 以jz2440的u-boot为例, 进入u-boot命令行模式, 将其设置为nfs加载file system</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</div><div class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></div><div class="line"><span class="comment"># (默认值: 'set bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0')</span></div><div class="line">save        <span class="comment"># 保存修改</span></div><div class="line">reset       <span class="comment"># 重启. (稍后再重启, 先修改好 filesystem 内的初始化文件)</span></div></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 打开开发板的 filesystem 下 '/etc/init.d/rcS' 添加如下内容</span></div><div class="line"><span class="comment"># 可实现开机自动加载file system</span></div><div class="line"></div><div class="line"><span class="comment"># 修改 ip 地址</span></div><div class="line"><span class="comment"># ifconfig eth0 10.0.0.111</span></div><div class="line"></div><div class="line"><span class="comment"># 自动挂载window上的其它文件 (这个不必须, 只是为了开发更灵活方便)</span></div><div class="line">mkdir /mnt/nfs</div><div class="line">mount -t nfs -o nolock,vers=2 10.0.0.98:/jz2440 /mnt/nfs</div></pre></td></tr></table></figure>
-<ol>
-<li>jz2440的环境搭建可参考:<ul>
+<li><p>jz2440的环境搭建可参考:</p>
+<ul>
 <li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux-jz2440环境搭建</a></li>
 </ul>
 </li>
