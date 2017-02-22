@@ -339,7 +339,7 @@
 </ul>
 <p><strong>PC linux 建议使用Ubuntu 32bit, 交叉编译工具必须使用 <code>arm-linux-gcc-3.4.5-glibc-2.3.6</code></strong></p>
 <h1 id="嵌入式linux简介"><a href="#嵌入式linux简介" class="headerlink" title="嵌入式linux简介"></a>嵌入式linux简介</h1><h2 id="linux软件层次"><a href="#linux软件层次" class="headerlink" title="linux软件层次"></a>linux软件层次</h2><ul>
-<li>引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的;<ul>
+<li>引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的<ul>
 <li>PC linux: 分为 BIOS (固件程序) 和 BootLoader(GRUB等程序)</li>
 <li>执行过程: BIOS执行硬件检测 和 资源分配, 之后将BootLoader读取到内存中, 开始执行BootLoader内容</li>
 <li>执行作用: 将内核读取到内存中, 跳转到内核的入口运行, 正式执行操作系统程序</li>
@@ -348,12 +348,78 @@
 <li>执行作用: 和 pc linux 是一样的. 读取内核并执行.</li>
 </ul>
 </li>
-<li>Linux内核 (kernel): 嵌入式开发板定制的内核 和 其启动参数;</li>
-<li>文件系统 (file system): 即Linux中的文件系统;</li>
-<li>应用程序: 即用户执行的应用程序, 应用程序 和 内核之间可能包含嵌入式的图形界面;</li>
+<li>Linux内核 (kernel): 嵌入式开发板定制的内核 和 其启动参数</li>
+<li>文件系统 (file system): 即Linux中的文件系统</li>
+<li>应用程序: 即用户执行的应用程序</li>
 </ul>
 <h2 id="jz2440的分区和启动"><a href="#jz2440的分区和启动" class="headerlink" title="jz2440的分区和启动"></a>jz2440的分区和启动</h2><p>s3c2440 的线性地址分配:<br><img src="https://draapho.github.io/images/1707/address-mapping.jpg" alt="address mapping"></p>
-<p>jz2440 的分区: (在uboot下, 用 <code>mtdparts</code> 查看分区情况)<br>| jz2440 物理设备   | 大小(byte) | 线性地址                      |<br>| ————- | ——– | ————————- |<br>| SFR Area      | 寄存器    | 0x4800_0000 - 0x5B00_0020 |<br>| SDRAM         | 64M      | 0x3000_0000 - 0x3400_0000 |<br>|               |          |                           |<br>| Nor Flash     | 2M       | 0x0000_0000 - 0x0020_0000 |<br>| - u-boot      | -        | 0x0000_0000 开始          |<br>|               |          |                           |<br>| Nand Flash    | 256M     | 非总线设备, 无法映射地址 |<br>| - bootloader  | 256K     | 0x0000_0000 - 0x0004_0000 |<br>| - params      | 128K     | 0x0004_0000 - 0x0006_0000 |<br>| - kernel      | 2M       | 0x0006_0000 - 0x0026_0000 |<br>| - root        | 253.6M   | 0x0026_0000 - 0x1000_0000 |</p>
+<p>jz2440 的分区: (在uboot下, 用 <code>mtdparts</code> 查看分区情况)</p>
+<table>
+<thead>
+<tr>
+<th>jz2440 物理设备</th>
+<th>大小(byte)</th>
+<th>线性地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SFR Area</td>
+<td>寄存器</td>
+<td>0x4800_0000 - 0x5B00_0020</td>
+</tr>
+<tr>
+<td>SDRAM</td>
+<td>64M</td>
+<td>0x3000_0000 - 0x3400_0000</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Nor Flash</td>
+<td>2M</td>
+<td>0x0000_0000 - 0x0020_0000</td>
+</tr>
+<tr>
+<td>- u-boot</td>
+<td>-</td>
+<td>0x0000_0000 开始</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Nand Flash</td>
+<td>256M</td>
+<td>非总线设备, 无法映射地址</td>
+</tr>
+<tr>
+<td>- bootloader</td>
+<td>256K</td>
+<td>0x0000_0000 - 0x0004_0000</td>
+</tr>
+<tr>
+<td>- params</td>
+<td>128K</td>
+<td>0x0004_0000 - 0x0006_0000</td>
+</tr>
+<tr>
+<td>- kernel</td>
+<td>2M</td>
+<td>0x0006_0000 - 0x0026_0000</td>
+</tr>
+<tr>
+<td>- root</td>
+<td>253.6M</td>
+<td>0x0026_0000 - 0x1000_0000</td>
+</tr>
+</tbody>
+</table>
 <p>自己的开发板启动方式:</p>
 <ul>
 <li>Nor flash: JLink 只能烧录 Nor flash. 默认使用这种方式! 使用nfs文件系统<br><img src="https://draapho.github.io/images/1707/nor-flash-boot.png" alt="Nor flash boot"></li>
@@ -384,7 +450,7 @@
 </ol>
 <p>这里以 fs_mini_mdev.tar.bz2 为例进行开发. 无UI, shell操作.</p>
 <h2 id="制作-filesystem"><a href="#制作-filesystem" class="headerlink" title="制作 filesystem"></a><del>制作 filesystem</del></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu shell</span></div><div class="line"></div><div class="line">sudo tar xjf fs_mini_mdev.tar.bz2             <span class="comment"># 解压缩, 必须加sudo</span></div><div class="line">mkyaffs2image fs_mini_mdev fs_mini_mdev.yaffs <span class="comment"># 生成文件系统 fs_mini_mdev.yaffs</span></div></pre></td></tr></table></figure>
-<h2 id="使用-nfs-烧录-filesystem"><a href="#使用-nfs-烧录-filesystem" class="headerlink" title="~~ 使用 nfs 烧录 filesystem ~~"></a>~~ 使用 nfs 烧录 filesystem ~~</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 uboot</span></div><div class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址</span></div><div class="line"><span class="comment"># 将 .../fs_mini_mdev.yaffs 拷贝到 /jz2440/</span></div><div class="line"></div><div class="line"><span class="comment"># fs: 在OpenJTAG&gt; 提示符下 (实际不用, 用nfs加载fs)</span></div><div class="line">nfs 30000000 10.0.0.98:/jz2440/fs_mini_mdev.yaffs2</div><div class="line">nand erase root</div><div class="line">nand write.yaffs 30000000 260000 ‭88AC40‬       <span class="comment"># 要算文件大小, 很麻烦.</span></div><div class="line"></div><div class="line"><span class="comment"># 设置为从flash启动 file system. 在OpenJTAG&gt; 提示符下</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</div><div class="line">save</div><div class="line">reset</div></pre></td></tr></table></figure>
+<h2 id="使用-nfs-烧录-filesystem"><a href="#使用-nfs-烧录-filesystem" class="headerlink" title="使用 nfs 烧录 filesystem"></a><del>使用 nfs 烧录 filesystem</del></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 uboot</span></div><div class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址</span></div><div class="line"><span class="comment"># 将 .../fs_mini_mdev.yaffs 拷贝到 /jz2440/</span></div><div class="line"></div><div class="line"><span class="comment"># fs: 在OpenJTAG&gt; 提示符下 (实际不用, 用nfs加载fs)</span></div><div class="line">nfs 30000000 10.0.0.98:/jz2440/fs_mini_mdev.yaffs2</div><div class="line">nand erase root</div><div class="line">nand write.yaffs 30000000 260000 ‭88AC40‬       <span class="comment"># 要算文件大小, 很麻烦.</span></div><div class="line"></div><div class="line"><span class="comment"># 设置为从flash启动 file system. 在OpenJTAG&gt; 提示符下</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</div><div class="line">save</div><div class="line">reset</div></pre></td></tr></table></figure>
 <h2 id="直接加载-nfs-文件系统"><a href="#直接加载-nfs-文件系统" class="headerlink" title="直接加载 nfs 文件系统"></a>直接加载 nfs 文件系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 uboot</span></div><div class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址</span></div><div class="line"></div><div class="line"><span class="comment"># uboot, 从NFS加载文件系统. 在OpenJTAG&gt; 提示符下</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</div><div class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></div><div class="line">save        <span class="comment"># 保存修改</span></div><div class="line">reset       <span class="comment"># 重启. (稍后再重启, 先修改好 filesystem 内的初始化文件)</span></div><div class="line"></div><div class="line"><span class="comment"># 参数简要说明:</span></div><div class="line"><span class="comment"># 'root=/dev/nfs' 加载nfs文件系统</span></div><div class="line"><span class="comment"># 'nfsroot=10.0.0.98:/fs' nfs文件系统的来源, 此处是由win10当nfs服务器, 共享出/fs文件夹</span></div><div class="line"><span class="comment"># 'ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off' 分别表示:</span></div><div class="line"><span class="comment">#  ip= 开发板ip : nfs服务器ip: 网关ip : 子网掩码 :: 开发板网口 : off</span></div></pre></td></tr></table></figure>
 <h2 id="加载其它nfs文件"><a href="#加载其它nfs文件" class="headerlink" title="加载其它nfs文件"></a>加载其它nfs文件</h2><p>为了方便开发调试, 可以加载其它nfs文件到开发板linux中</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 shell</span></div><div class="line"></div><div class="line"><span class="comment"># 开发板手动加载nfs文件</span></div><div class="line">mkdir /mnt/jz2440</div><div class="line">mount -t nfs -o nolock,vers=2 10.0.0.98:/jz2440 /mnt/jz2440</div><div class="line"></div><div class="line">// 开机自动加载nfs文件</div><div class="line">mkdir /mnt/jz2440</div><div class="line">vi /etc/init.d/rcS                          <span class="comment"># 可以在windows下直接改</span></div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句: =====</span></div><div class="line">    <span class="comment"># mkdir /mnt/jz2440     # 建议手动创建, 需要容错的话, 可加上这句</span></div><div class="line">    mount -t nfs -o nolock,vers=2 10.0.0.98:/jz2440 /mnt/jz2440</div><div class="line">    ln <span class="_">-s</span> /mnt/jz2440 /jz2440</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vi =====</span></div></pre></td></tr></table></figure>
