@@ -329,6 +329,7 @@
 <li><strong>images (镜像)</strong>: docker 以镜像为基础. 镜像是只读的, 不包含任何动态数据, 内容不可更改!<br>基于基础镜像, 可以在加入自己需要的app和服务后, 打包成自己的具有特殊功能的镜像.</li>
 <li><strong>container (容器)</strong>: 容器就是镜像运行时的实体 (类似于类和实例的关系).<br>容器必须基于镜像运行. 可以基于同一个镜像创建多个容器, 来实现不同的功能或服务.<br>容器可以被创建, 启动, 停止, 删除, 暂停等等<br>容器的本质就是进程, 运行时实现某种功能, 只是这个进程的上下文用的是虚拟化的镜像环境.</li>
 <li><strong>Docker Registry (仓库)</strong>: 用于存储, 分发镜像的仓库.<br>其中 <a href="https://hub.docker.com/" target="_blank" rel="external">Docker Hub</a> 就是官方的镜像仓储服务.<br>其运行模式和 <a href="https://github.com/" target="_blank" rel="external">github</a> 一样, 公开资料免费, 私有资料收费<br>当然, 也可以建立自己的私有 Docker Registry</li>
+<li><strong>Docker Volume</strong>, Docker的数据服务.<br>docker 体系要让自己表现更像应用程序, 就离不开对数据的存储和隔离.<br>而docker容器是非持久化的, 可以随时创建和删除, 无法满足数据存储的基本要求.<br>因此提供了Docker Volume. 包括 data volume 和 data volume container</li>
 </ul>
 <h2 id="docker的技术架构"><a href="#docker的技术架构" class="headerlink" title="docker的技术架构"></a>docker的技术架构</h2><p><img src="https://draapho.github.io/images/1708/docker-structure.jpg" alt="docker-structure"></p>
 <ul>
@@ -340,15 +341,15 @@
 <li>Docker container: Docker容器是Docker架构中服务交付的最终体现形式<br>Docker按照业务的需求, 依赖关系和配置文件打包相应的Docker容器</li>
 </ul>
 <h2 id="初步评估结论"><a href="#初步评估结论" class="headerlink" title="初步评估结论"></a>初步评估结论</h2><ul>
-<li>感觉docker 的野心和潜力都很大. 如跨平台, 容器应用化, 功能化, 服务化.</li>
+<li>感觉docker 的野心和潜力都很大. 如镜像管理, 跨平台, 容器应用化, 功能化, 服务化.</li>
 <li>可以看出主要发展方向是网络和云方面的 (新的项目都是针对网络集群的).</li>
-<li>基本已经可以跨平台使用(Docker machine), 但windows依旧需要依赖于虚拟机, 运行性能一般.</li>
-<li>我的初衷就是: <strong>一劳永逸的制作一个用于开发2440系列编译环境的pc linux系统</strong><br>就此而言, docker可用, 但初始配置并不轻松. windows下运行docker也没有更大的优势.<br>因此暂不急于使用docker来配置这么一个主机编译环境.  </li>
+<li>基本已经可以跨平台使用(Docker machine).</li>
+<li>我的初衷就是: <strong>一劳永逸的制作一个用于开发2440系列编译环境的pc linux系统</strong><br>就此而言, docker可用, 但初始配置并不轻松.<br>因此暂不急于使用docker来配置这么一个主机编译环境.  </li>
 </ul>
 <h1 id="Docker-的安装"><a href="#Docker-的安装" class="headerlink" title="Docker 的安装"></a>Docker 的安装</h1><p>全程参考官网<br><a href="https://docs.docker.com/engine/getstarted/" target="_blank" rel="external">Get started with Docker</a></p>
-<h2 id="Windows-10-64bit"><a href="#Windows-10-64bit" class="headerlink" title="Windows 10 64bit"></a>Windows 10 64bit</h2><p>可直接下载安装 docker, 无需安装在虚拟机下面. 家中的win10是家庭版, 但也能正常安装运行docker.</p>
+<h2 id="Windows-10-64bit-直接安装"><a href="#Windows-10-64bit-直接安装" class="headerlink" title="Windows 10 64bit 直接安装"></a>Windows 10 64bit 直接安装</h2><p>可直接下载安装 docker, 无需安装在虚拟机下面. 家中的win10是家庭版, 但也能正常安装运行docker.</p>
 <p>使用默认设置就能运行, 说一下文件共享. 譬如勾选 <code>E</code> 盘共享后, shell 应该这样用:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># docker下, 显示E盘全部内容</span></div><div class="line">docker run -v e:/:/data alpine ls /data</div><div class="line"><span class="comment"># e:/       表示使能的windows e盘.</span></div><div class="line"><span class="comment"># :/data    docker容器下, 加载为 /data 目录</span></div><div class="line"><span class="comment"># alpine    一个小巧的linux内核, 基于此内核运行指令. 改为ubuntu效果也是一样的</span></div><div class="line"><span class="comment"># ls /data  在屏幕上列出 /data (就是e盘) 的内容</span></div><div class="line"></div><div class="line"><span class="comment"># 因此, 官网范例表示, 显示 c:/Users 下的内容</span></div><div class="line">docker run -v c:/Users:/data alpine ls /data</div></pre></td></tr></table></figure></p>
-<h2 id="ToolBox-安装"><a href="#ToolBox-安装" class="headerlink" title="ToolBox 安装"></a>ToolBox 安装</h2><p>参考<a href="https://docs.docker.com/toolbox/toolbox_install_windows/" target="_blank" rel="external">Install Docker Toolbox on Windows</a></p>
+<h2 id="ToolBox-基于虚拟机的安装"><a href="#ToolBox-基于虚拟机的安装" class="headerlink" title="ToolBox 基于虚拟机的安装"></a>ToolBox 基于虚拟机的安装</h2><p>参考<a href="https://docs.docker.com/toolbox/toolbox_install_windows/" target="_blank" rel="external">Install Docker Toolbox on Windows</a></p>
 <ul>
 <li>机器要求: 64bit 操作系统, 支持并使能IVT虚拟技术</li>
 <li>Windows Vista 及以上版本, 安装默认的 NDIS6 driver 即可.</li>
@@ -365,14 +366,6 @@
 <li>运行过 Docker Quickstart Terminal 后, docker自动生成了ssh密钥.<br>一般存储在 <code>C:\Users\my_name\.docker\machine\machines\default\</code> 或者 <code>%HOMEPATH%\.ssh</code>下面<br><code>id_rsa</code> 是私钥, <code>id_rsa.pub</code> 是公钥</li>
 <li>打开 <code>puttygen.exe</code>-&gt;<code>Load an existing private key file</code>-&gt;<code>Load</code>-&gt;选择文件格式为 <code>All Files (*.*)</code>-&gt;选择<code>id_rsa</code>-&gt;弹出框 <code>OK</code><br>接着 <code>puttygen.exe</code> 主界面下-&gt;<code>Save private key</code>-&gt;保存为<code>id_rsa.ppk</code></li>
 <li>打开 <code>putty.exe</code>-&gt;左边<code>Connection</code>-&gt;<code>SSH</code>-&gt;<code>Auth</code>-&gt;右边<code>Private key file for authentication</code>-&gt;<code>Browse...</code>-&gt;选择<code>id_rsa.ppk</code><br>接着 <code>putty.exe</code>-&gt;左边<code>Session</code>-&gt;右边<code>Connection type:</code>点选<code>SSH</code>-&gt;<code>Host Name (or IP address)</code>填如<code>docker@10.0.0.100</code>-&gt;<code>Port</code>填入<code>22</code><br>最后 <code>Saved Sessions</code> 填入期望的名称如 <code>boot2docker</code>-&gt;<code>Save</code>-&gt;<code>Open</code>-&gt;连接成功!</li>
-</ul>
-<h2 id="关于数据存储"><a href="#关于数据存储" class="headerlink" title="关于数据存储"></a>关于数据存储</h2><p>提供了 <strong>Docker Volume</strong>, 暂时知道一下即可.<br>总是用共享文件或者sshfs是有安全隐患的, 因为会对所有的 docker 容器可见, 并且是可写的.<br>譬如某个容器执行了删除操作, 那么就真的把这些共享文件给删除了…</p>
-<p>docker 体系要让自己表现更像应用程序, 就离不开对数据的存储和隔离.<br>而docker容器是非持久化的, 可以随时创建和删除, 无法满足数据存储的基本要求.<br>因此提供了Docker Volume</p>
-<ul>
-<li>docker volume 包括 data volume 和 data volume container</li>
-<li>data volume 是类似将主机上的文件夹或者文件挂载到 container 里面</li>
-<li>data volume container 是将文件保存在一个单独的数据容器中</li>
-<li>实际上, 上述共享文件也用到了</li>
 </ul>
 <h1 id="Docker-常用指令"><a href="#Docker-常用指令" class="headerlink" title="Docker 常用指令"></a>Docker 常用指令</h1><p>可参考:</p>
 <ul>
