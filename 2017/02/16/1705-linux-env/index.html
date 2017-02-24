@@ -102,7 +102,7 @@ Windows NFS 环境搭建
 PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
 第一次尝试, 失败告终, 嵌入式linux环境搭建1-Ubuntu14
 第二次尝试, 失败告终, 嵌入式linux环境搭建2-CentOS7">
-<meta property="og:updated_time" content="2017-02-23T10:01:46.947Z">
+<meta property="og:updated_time" content="2017-02-24T11:36:33.173Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建">
 <meta name="twitter:description" content="嵌入式linux开发环境搭建思路
@@ -441,7 +441,12 @@ PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
 </ul>
 <p>这个在上面uboot的例子也能看出一二了. 在网上还有人提到:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 编译 hello.c 时, 需要用如下命令</span></div><div class="line">arm-none-linux-gnueabi-gcc -o hello hello.c -static <span class="comment"># 特别指明了 static不能省略!</span></div><div class="line"><span class="comment"># 配置Makefile时, 需要指明arm架构</span></div><div class="line">CC=<span class="string">"arm-none-linux-gnueabi-gcc -march=armv4t"</span></div><div class="line"><span class="comment"># 指定交叉编译工具</span></div><div class="line"><span class="built_in">export</span> CROSS_COMPILE=/usr/<span class="built_in">local</span>/arm-2008q3/bin/arm-none-linux-gnueabi-</div><div class="line"><span class="comment"># 最后, 还是没明白 arm-linux-gcc 和 arm-none-linux-gnueabi-gcc的区别.</span></div><div class="line"><span class="comment"># 因为打开 arm-linux-gcc 4.3.2 bin下的 arm-linux-gcc 可以看到如下内容:</span></div><div class="line"><span class="built_in">exec</span> arm-none-linux-gnueabi-gcc -march=armv4t $*</div></pre></td></tr></table></figure></p>
 <p>找到二篇详细说明的, 放上链接<br><a href="http://www.veryarm.com/296.html" target="_blank" rel="external">arm交叉编译器gnueabi、none-eabi、arm-eabi、gnueabihf、gnueabi区别</a><br><a href="http://blog.csdn.net/u013467442/article/details/44197725" target="_blank" rel="external">arm-none-linux-gnueabi交叉工具链安装,介绍，区别总结</a></p>
-<h1 id="新技术-docker"><a href="#新技术-docker" class="headerlink" title="新技术 docker"></a>新技术 <a href="https://docs.docker.com/" target="_blank" rel="external">docker</a></h1><p>Linux下的环境搭建一直让人比较痛苦, 这也直接使得 <code>Docker</code> 优势尽显. 需要学一学.</p>
+<h1 id="新技术-Docker"><a href="#新技术-Docker" class="headerlink" title="新技术 Docker"></a>新技术 <a href="https://docs.docker.com/" target="_blank" rel="external">Docker</a></h1><p>Linux下的环境搭建一直让人比较痛苦, 这也直接使得 <code>Docker</code> 优势尽显.<br>简单研究了一下Docker, 这个方案是可行的!<br>可参考 <a href="https://draapho.github.io/2017/02/23/1708-docker/">Docker 初学笔记</a></p>
+<p>基于Docker的ARM交叉编译环境, 已经有人在做了.</p>
+<ul>
+<li><a href="https://github.com/dockcross/dockcross" target="_blank" rel="external">dockcross/dockcross</a>, 但S3C2440是ARM9, 采用的ARMv4架构</li>
+<li><a href="http://hackaday.com/2016/09/01/how-to-use-docker-to-cross-compile-for-raspberry-pi-and-more/" target="_blank" rel="external">HOW TO USE DOCKER TO CROSS COMPILE FOR RASPBERRY PI</a></li>
+</ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
@@ -555,7 +560,7 @@ PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">44</span>
+              <span class="site-state-item-count">46</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -572,7 +577,7 @@ PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">54</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -612,7 +617,7 @@ PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#嵌入式linux开发环境搭建思路"><span class="nav-number">1.</span> <span class="nav-text">嵌入式linux开发环境搭建思路</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PC-windows-win10"><span class="nav-number">1.1.</span> <span class="nav-text">PC windows, win10</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PC-linux-ubuntu-serve-16-04-32bit"><span class="nav-number">1.2.</span> <span class="nav-text">PC linux ubuntu serve 16.04 32bit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedded-Linux-jz2440v3"><span class="nav-number">1.3.</span> <span class="nav-text">Embedded Linux jz2440v3</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#折腾记"><span class="nav-number">2.</span> <span class="nav-text">折腾记</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验过程"><span class="nav-number">2.1.</span> <span class="nav-text">实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译器的巨坑"><span class="nav-number">2.2.</span> <span class="nav-text">编译器的巨坑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新技术-docker"><span class="nav-number">3.</span> <span class="nav-text">新技术 docker</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#嵌入式linux开发环境搭建思路"><span class="nav-number">1.</span> <span class="nav-text">嵌入式linux开发环境搭建思路</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PC-windows-win10"><span class="nav-number">1.1.</span> <span class="nav-text">PC windows, win10</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PC-linux-ubuntu-serve-16-04-32bit"><span class="nav-number">1.2.</span> <span class="nav-text">PC linux ubuntu serve 16.04 32bit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Embedded-Linux-jz2440v3"><span class="nav-number">1.3.</span> <span class="nav-text">Embedded Linux jz2440v3</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#折腾记"><span class="nav-number">2.</span> <span class="nav-text">折腾记</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验过程"><span class="nav-number">2.1.</span> <span class="nav-text">实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译器的巨坑"><span class="nav-number">2.2.</span> <span class="nav-text">编译器的巨坑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新技术-Docker"><span class="nav-number">3.</span> <span class="nav-text">新技术 Docker</span></a></li></ol></div>
             
           </div>
         </section>
