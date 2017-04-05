@@ -4,6 +4,93 @@
   
     
     <entry>
+      <title><![CDATA[jz2440 裸板程序的开发]]></title>
+      <url>https://draapho.github.io/2017/04/05/1710-jz2440-led/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>s3c2440 的裸板开发和单片机无异, 此文主要目的是<strong>熟悉linux下的交叉编译环境和开发方式</strong>.</p>
+<h1 id="crt0-S-文件"><a href="#crt0-S-文件" class="headerlink" title="crt0.S 文件"></a><code>crt0.S</code> 文件</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">@******************************************************************************</div><div class="line">@ File：crt0.S</div><div class="line">@ 功能：通过它转入C程序</div><div class="line">@******************************************************************************</div><div class="line"></div><div class="line">.text</div><div class="line">.global _start</div><div class="line">_start:</div><div class="line">            ldr     r0, =0x53000000     @ WATCHDOG寄存器地址</div><div class="line">            mov     r1, #0x0</div><div class="line">            str     r1, [r0]            @ 写入0，禁止WATCHDOG，否则CPU会不断重启</div><div class="line"></div><div class="line">            ldr     sp, =1024*4         @ 设置堆栈，注意：不能大于4k, 因为现在可用的内存只有4K</div><div class="line">                                        @ nand flash中的代码在复位后会移到内部ram中，此ram只有4K</div><div class="line">            bl      main                @ 调用C程序中的main函数</div><div class="line">halt_loop:</div><div class="line">            b       halt_loop</div></pre></td></tr></table></figure>
+<h1 id="led-c-文件"><a href="#led-c-文件" class="headerlink" title="led.c 文件"></a><code>led.c</code> 文件</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/************************************</span></div><div class="line"> * 按下按钮, 就点亮对应的LED灯.</div><div class="line"> * KEY: EINT0, EINT2, EINT11</div><div class="line"> * KEY: GPF0,  GPF2,  GPG3</div><div class="line"> * LED: D12,   D11,   D10</div><div class="line"> * LED: GPF6,  GPF5,  GPF4</div><div class="line">/*</div><div class="line"></div><div class="line">// s3c2440 对应的寄存器地址. 需要看数据手册.</div><div class="line">#define GPFCON      (*(volatile unsigned long *)0x56000050)</div><div class="line">#define GPFDAT      (*(volatile unsigned long *)0x56000054)</div><div class="line">#define GPFUP       (*(volatile unsigned long *)0x56000058)</div><div class="line">#define GPGCON      (*(volatile unsigned long *)0x56000060)</div><div class="line">#define GPGDAT      (*(volatile unsigned long *)0x56000064)</div><div class="line">#define GPGUP       (*(volatile unsigned long *)0x56000068)</div><div class="line"></div><div class="line">#define PIN0        (1&lt;&lt;0)</div><div class="line">#define PIN1        (1&lt;&lt;1)</div><div class="line">#define PIN2        (1&lt;&lt;2)</div><div class="line">#define PIN3        (1&lt;&lt;3)</div><div class="line">#define PIN4        (1&lt;&lt;4)</div><div class="line">#define PIN5        (1&lt;&lt;5)</div><div class="line">#define PIN6        (1&lt;&lt;6)</div><div class="line">#define PIN7        (1&lt;&lt;7)</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    GPFCON = 0x1500;        // set LED pin as output</div><div class="line">    GPFDAT = 0x00;</div><div class="line">    GPGCON = 0x00;</div><div class="line"></div><div class="line">    while (1) &#123;</div><div class="line">        if (GPFDAT &amp; PIN0) &#123;</div><div class="line">            GPFDAT |= PIN6;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN6;</div><div class="line">        &#125;</div><div class="line">        if (GPFDAT &amp; PIN2) &#123;</div><div class="line">            GPFDAT |= PIN5;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN5;</div><div class="line">        &#125;</div><div class="line">        if (GPGDAT &amp; PIN3) &#123;</div><div class="line">            GPFDAT |= PIN4;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN4;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="Makefile-文件"><a href="#Makefile-文件" class="headerlink" title="Makefile 文件"></a><code>Makefile</code> 文件</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 目标文件 : 依赖文件1 依赖文件2</span></div><div class="line">led.bin : crt0.S led.c</div><div class="line">    <span class="comment"># 汇编-&gt;目标文件</span></div><div class="line">    arm-linux-gcc -g -c -o crt0.o crt0.S</div><div class="line">    <span class="comment"># C-&gt;汇编</span></div><div class="line">    arm-linux-gcc -g -c -o led.o led.c</div><div class="line">    <span class="comment"># 目标文件链接为 led_elf, 初始地址为0</span></div><div class="line">    arm-linux-ld -Ttext 0x0000000 -g  crt0.o led.o -o led_elf</div><div class="line">    <span class="comment"># 用 led_elf文件生成 烧录文件 led.bin</span></div><div class="line">    arm-linux-objcopy -O binary -S led_elf led.bin</div><div class="line">    <span class="comment"># 反汇编</span></div><div class="line">    arm-linux-objdump -D -m arm led_elf &gt; led.dis</div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">    rm -f led.dis led.bin led_elf *.o</div></pre></td></tr></table></figure>
+<h1 id="编译和烧录"><a href="#编译和烧录" class="headerlink" title="编译和烧录"></a>编译和烧录</h1><ul>
+<li>将上述三个文件放入同一个目录, 譬如 <code>/led_test</code><ul>
+<li><code>crt0.S</code> 可理解为硬件初始化, 使用模板即可</li>
+<li><code>led.c</code> 需要自己写, 软件的大部分开发工作用C语言实现</li>
+<li><code>Makefile</code> 写的非常直白的makefile, 不适用于复杂的工程.</li>
+</ul>
+</li>
+<li>使用Linux主机进行编译.<ul>
+<li>即登录 Ubuntu, 即配置好交叉编译环境的Linux主机</li>
+<li>shell 下进入 <code>/led_test</code> 目录</li>
+<li>输入指令 <code>make</code> 即可, 就会得到 <code>led.bin</code> 文件</li>
+<li>清空编译和链接文件, 输入 <code>make clean</code>, 就相当于执行了 <code>rm -f led.dis led.bin led_elf *.o</code></li>
+</ul>
+</li>
+<li>将 <code>led.bin</code> 烧录到 Flash 中, 最后重启开发板.<ul>
+<li>有多种烧录方式, 我这边使用的是 JLINK, 用JFlash烧录即可 (只支持烧录 Nor Flash)</li>
+<li>s3c2440 属于 ARM9 系列. 使用Nor Flash启动时, SRAM 起始地址为 0x4000_0000</li>
+</ul>
+</li>
+<li>然后, 如果开发的是嵌入式linux, 基本流程也是这样的 (注意区分两个Linux):<ul>
+<li><ol>
+<li>在电脑上开发软件 (Windows, Linux, Mac 随便的)</li>
+</ol>
+</li>
+<li><ol>
+<li>在<strong>Linux主机</strong>上进行编译(就是交叉编译), 获得一个可执行文件.</li>
+</ol>
+</li>
+<li><ol>
+<li>把可执行文件烧录/加载到<strong>嵌入式Linux(开发板)</strong>上, 运行即可.</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[快速读懂 makefile]]></title>
+      <url>https://draapho.github.io/2017/04/04/1709-linux-makefile/</url>
+      <content type="html"><![CDATA[<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong></p>
+<hr>
+<h1 id="Makefile最基本的组成"><a href="#Makefile最基本的组成" class="headerlink" title="Makefile最基本的组成"></a>Makefile最基本的组成</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">target: dependencies</div><div class="line">[TAB] command</div><div class="line"></div><div class="line">目标: 依赖1 依赖2</div><div class="line">[TAB] 命令</div></pre></td></tr></table></figure>
+<ul>
+<li><code>target</code> 可以是object文件，也可以是可执行文件，也可以是target关键字。<br> 可以一次写多个文件作为同一批次的target。</li>
+<li><code>dependencies</code> 有的是源文件，有的是链接文件，如果没有的话可以不写；<br> 想要编target必须先准备好dependencies。</li>
+<li><code>clean</code> 是一个特殊的target，一般要做的是rm清理工作；</li>
+<li><code>make</code>命令在执行的时候会检查目标文件是否存在, 并比较target文件和dependencies文件的修改日期，<br>如果存在更新的dependencies文件，那么对应的command就会执行，否则的话就不执行，还使用已存在target文件。</li>
+<li><code>command</code> 必须要以<code>TAB</code>来对齐， 一般会是gcc/g++的编译命令；</li>
+<li>细化到模块一般会有若干个分支target，形成层级的target依赖关系。</li>
+</ul>
+<p>举个例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 编译和链接一起做了, 看不到中间的.o目标文件</span></div><div class="line">hello: hello.c a.c</div><div class="line">    gcc -o hello hello.c a.c</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 对于大型系统, 更推荐的是编译和链接分开, 如下:</span></div><div class="line">hello: hello.o a.o                  <span class="comment"># 可执行文件hello 依赖于 hello.o 和 a.o</span></div><div class="line">    gcc -o hello hello.o a.o        <span class="comment"># 执行链接</span></div><div class="line"></div><div class="line">hello.o: hello.c                    <span class="comment"># 目标文件依赖于hello.c</span></div><div class="line">    gcc -o hello.o -c hello.c       <span class="comment"># 编译出目标文件</span></div><div class="line"></div><div class="line">a.o : a.c                           <span class="comment"># 另一个目标文件</span></div><div class="line">    gcc -o a.o -c a.c               <span class="comment"># -o: object 目标文件, -c: compile 编译</span></div></pre></td></tr></table></figure></p>
+<h1 id="隐形规则和变量"><a href="#隐形规则和变量" class="headerlink" title="隐形规则和变量"></a>隐形规则和变量</h1><p>为了使得makefile的内容尽量少一些废话，GNU为makefile加入了一些约定的规则。</p>
+<ul>
+<li>如果<code>target</code>文件的名称是<code>aa.o</code>，那么make会主动的把同名的源代码文件（如<code>aa.c</code>,<code>aa.cpp</code>）加入到依赖中去。</li>
+<li><code>target</code> 和 <code>dependencies</code> 处: 用 <code>%</code> 通配任意的非空字符串</li>
+<li><code>command</code> 处: <code>$@</code>目标文件, <code>$&lt;</code>依赖1, <code>$^</code>所有的依赖文件, <code>$?</code>比目标文件新的依赖. 这三个叫自动变量.</li>
+<li>变量在定义或被赋值时不加$()，在使用其值时要加 <code>$()</code></li>
+<li>常用<code>$(CC)</code>来代替具体的编译器，比如 <code>CC=g++</code></li>
+<li>常用<code>$(CFLAGS)</code>来代替C语言编译选项，比如 <code>CFLAGS=-c -Wall</code><br>还会指定头文件include路径，比如 <code>CFLAGS+=-I/usr/include</code></li>
+<li>常用<code>$(LDFLAGS)</code>来指定库文件lib路径，比如 <code>LDFLAGS+=-L/usr/lib</code></li>
+<li>常用<code>$(LDLIBS)</code>来指定要链接的库名称，比如 <code>LDLIBS+=-llibname</code></li>
+</ul>
+<p>修改上面的例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 先使用通配符 % 及自动变量</span></div><div class="line">hello: hello.o a.o</div><div class="line">    gcc -o $@ $^                    <span class="comment"># $@ 表示hello, $^ 表示两个.o文件</span></div><div class="line"></div><div class="line">%.o : %.c                           <span class="comment"># 对应了hello.o 和 a.o 两条语句!</span></div><div class="line">    gcc -o $@ -c $&lt;                 <span class="comment"># $@ 表示 .o 文件, $&lt; 表示第一个依赖, 即 .c 文件</span></div><div class="line"></div><div class="line"><span class="comment"># 然后使用更多的变量 $()</span></div><div class="line">hello: hello.o a.o</div><div class="line">    $(CC) -o $@ $^                  <span class="comment"># CC=gcc, 因此 $(CC)表示gcc</span></div><div class="line"></div><div class="line">%.o : %.c                           <span class="comment"># 使用更多的编译参数变量</span></div><div class="line">    $(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $&lt;</div></pre></td></tr></table></figure></p>
+<h1 id="伪目标"><a href="#伪目标" class="headerlink" title="伪目标"></a>伪目标</h1><p><code>.PHONY</code> 经常被用来作为伪目标。 它的使用目的是这样的：<br>因为当类似clean这样的target关键字作为target并且没有依赖文件时，<br>假如目录下有一个文件也叫clean时，make clean命令则会以为我想编clean这个目标文件，<br>恰好clean文件又不会比依赖文件更旧，所以下面的command就不会被执行。</p>
+<p>现在我们用.PHONY作为target，clean作为依赖。<br>这就是告诉make，clean它是一个target，而不是一个普通的文件。</p>
+<p>加入 clean 的例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">hello: hello.o a.o                          <span class="comment"># 执行文件hello, 依赖于.o文件</span></div><div class="line">    $(CC) -o $@ $^                          <span class="comment"># 进行链接</span></div><div class="line"></div><div class="line">%.o : %.c                                   <span class="comment"># 目标文件.o 依赖于同名的.c文件</span></div><div class="line">    $(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $&lt; <span class="comment"># 编译出目标文件</span></div><div class="line"></div><div class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></div><div class="line">clean:                                      <span class="comment"># 目标指令, 可调用 make clean 来执行了!</span></div><div class="line">    rm -rf *.o                              <span class="comment"># 删除所有的.o文件</span></div></pre></td></tr></table></figure></p>
+<h1 id="文件引用和条件判断"><a href="#文件引用和条件判断" class="headerlink" title="文件引用和条件判断"></a>文件引用和条件判断</h1><ul>
+<li>如果makefile中引入其他makefile， 使用 <code>include</code> 即可</li>
+<li>条件语句的基本结构一般由 <code>ifeq</code> <code>else</code> <code>endif</code> 三个关键字组成</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">include another.mk                          <span class="comment"># 调用 another.mk</span></div><div class="line">include foo *.mk $(bar)                     <span class="comment"># 更复杂的调用</span></div><div class="line"></div><div class="line"></div><div class="line">libs_for_gcc = -lgnu                        # 变量赋值</div><div class="line">normal_libs =</div><div class="line"></div><div class="line">ifeq ($(CC),gcc)                            <span class="comment"># 条件判断 $(CC) 是否为gcc</span></div><div class="line">    libs=$(libs_for_gcc)                    <span class="comment"># 变量赋值</span></div><div class="line">else</div><div class="line">    libs=$(normal_libs)</div><div class="line">endif</div><div class="line"></div><div class="line">foo: $(objects)                             <span class="comment"># 目标: 依赖</span></div><div class="line">ifeq ($(CC),gcc)</div><div class="line">    $(CC) -o foo $(objects) $(libs_for_gcc) <span class="comment"># 执行的命令</span></div><div class="line">else</div><div class="line">    $(CC) -o foo $(objects) $(normal_libs)</div><div class="line">endif</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Docker 初学笔记]]></title>
       <url>https://draapho.github.io/2017/02/23/1708-docker/</url>
       <content type="html"><![CDATA[<h1 id="Docker-总览"><a href="#Docker-总览" class="headerlink" title="Docker 总览"></a>Docker 总览</h1><h2 id="几个重要概念"><a href="#几个重要概念" class="headerlink" title="几个重要概念"></a>几个重要概念</h2><ul>
@@ -865,7 +952,9 @@
       <url>https://draapho.github.io/2017/01/19/1703-linux-command/</url>
       <content type="html"><![CDATA[<p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="external">Unix/Linux 命令速查表</a></em></strong></p>
 <hr>
-<table>
+<h1 id="搜索指令-find-grep"><a href="#搜索指令-find-grep" class="headerlink" title="搜索指令 find grep"></a>搜索指令 <code>find</code> <code>grep</code></h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">find -name april*                   <span class="comment"># 当前目录下查找以april开始的文件</span></div><div class="line">find -iname april*                  <span class="comment"># 忽略大小写</span></div><div class="line">find /home -size +512k              <span class="comment"># 查大于512k的文件</span></div><div class="line">find /home -size -512k              <span class="comment"># 查小于512k的文件</span></div><div class="line">find /home -links +2                <span class="comment"># 查硬连接数大于2的文件或目录</span></div><div class="line">find /home -perm 0700               <span class="comment"># 查权限为700的文件或目录</span></div><div class="line"></div><div class="line">find -name tom.txt -user kim        <span class="comment"># 查找名称为tom.txt且用户为kim的文件</span></div><div class="line">find -name ap* -or -name may*       <span class="comment"># 查找以ap或may开头的文件</span></div><div class="line">find -name wa* -not -type l         <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></div><div class="line">find -name wa* ! -type l            <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></div><div class="line"><span class="comment"># 对于 -type, 有 b=block, d=dictory, c=character, p=pipe, l=link, f=file</span></div><div class="line"></div><div class="line">find / -iname <span class="string">"MyCProgram.c"</span> -exec md5sum &#123;&#125; \; <span class="comment"># 对所有找到的文件进行MD5验证</span></div><div class="line">find / -name filename -ok rm -rf &#123;&#125; \;          <span class="comment"># 确认删除找到的文件</span></div><div class="line">find . -mtime +3 | xargs rm -rf                 <span class="comment"># 删除3天以前的文件</span></div><div class="line">find . -size +3000k -exec ls -ld &#123;&#125; \;          <span class="comment"># 查找大于3M的文件</span></div><div class="line">find . -size -3000k | xargs <span class="built_in">echo</span> <span class="string">""</span> &gt;./file.log <span class="comment"># 查找小于3M的文件并写入file.log</span></div><div class="line">find . -type f | xargs grep <span class="string">"hostname"</span>          <span class="comment"># 在普通文件中搜索hostname这个词</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">ls <span class="_">-l</span> | grep <span class="string">'^a'</span>                   <span class="comment"># 只显示以a开头的文件名。</span></div><div class="line">grep <span class="string">'test'</span> d*                      <span class="comment"># 显示所有以d开头的文件中包含test的行。</span></div><div class="line">grep <span class="string">'test'</span> aa bb cc                <span class="comment"># 显示在aa，bb，cc文件中匹配test的行。</span></div><div class="line">grep -i pattern files               <span class="comment"># 不区分大小写地搜索。默认情况区分大小写</span></div><div class="line">grep <span class="_">-l</span> pattern files               <span class="comment"># 只列出匹配的文件名，</span></div><div class="line">grep -L pattern files               <span class="comment"># 列出不匹配的文件名，</span></div><div class="line">grep -w pattern files               <span class="comment"># 只匹配整个单词(如匹配‘magic’，而不是‘magical’)</span></div><div class="line">grep -C number pattern files        <span class="comment"># 匹配的上下文分别显示[number]行，</span></div><div class="line">grep pattern1 | pattern2 files      <span class="comment"># 显示匹配 pattern1 或 pattern2 的行，</span></div><div class="line">grep pattern1 files | grep pattern2 <span class="comment"># 显示既匹配 pattern1 又匹配 pattern2的行</span></div></pre></td></tr></table></figure>
+<h1 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h1><table>
 <thead>
 <tr>
 <th>文件命令</th>
@@ -1016,22 +1105,6 @@
 <tr>
 <td><code>ssh-copy-id user@host</code></td>
 <td>将密钥添加到 host 以实现无密码登录</td>
-</tr>
-<tr>
-<td><strong>搜索</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>grep pattern files</code></td>
-<td>搜索 files 中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><code>grep -r pattern dir</code></td>
-<td>递归搜索 dir 中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><code>command l(竖杠) grep pattern</code></td>
-<td>搜索 command 输出中匹配 pattern 的内容</td>
 </tr>
 <tr>
 <td><strong>系统信息</strong></td>

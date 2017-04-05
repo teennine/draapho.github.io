@@ -84,146 +84,20 @@
 
 <meta name="description" content="转载自 Unix/Linux 命令速查表
 
-
-
-
-文件命令
-指令说明
-
-
-
-
-ls
-列出目录
-
-
-ls -al
-使用格式化列出隐藏文件
-
-
-cd dir
-更改目录到 dir
-
-
-cd
-更改到 home 目录
-
-
-pwd
-显示当前目录
-
-
-mkdir dir
-创建目录 dir
-
-
-rm file
-删除 file
-
-
-rm -r dir
-删除目录 dir
-
-
-rm -f file
-强制删除 file">
+搜索指令 find grep12345678910111213141516171819find -name april*                   # 当前目录下查找以april开始的文件find -iname april*                  # 忽略大小写find /home -size +512k">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Unix/Linux 命令参考">
 <meta property="og:url" content="https://draapho.github.io/2017/01/19/1703-linux-command/index.html">
 <meta property="og:site_name" content="DRA&PHO">
 <meta property="og:description" content="转载自 Unix/Linux 命令速查表
 
-
-
-
-文件命令
-指令说明
-
-
-
-
-ls
-列出目录
-
-
-ls -al
-使用格式化列出隐藏文件
-
-
-cd dir
-更改目录到 dir
-
-
-cd
-更改到 home 目录
-
-
-pwd
-显示当前目录
-
-
-mkdir dir
-创建目录 dir
-
-
-rm file
-删除 file
-
-
-rm -r dir
-删除目录 dir
-
-
-rm -f file
-强制删除 file">
-<meta property="og:updated_time" content="2017-01-21T22:37:13.569Z">
+搜索指令 find grep12345678910111213141516171819find -name april*                   # 当前目录下查找以april开始的文件find -iname april*                  # 忽略大小写find /home -size +512k">
+<meta property="og:updated_time" content="2017-04-04T06:05:25.547Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Unix/Linux 命令参考">
 <meta name="twitter:description" content="转载自 Unix/Linux 命令速查表
 
-
-
-
-文件命令
-指令说明
-
-
-
-
-ls
-列出目录
-
-
-ls -al
-使用格式化列出隐藏文件
-
-
-cd dir
-更改目录到 dir
-
-
-cd
-更改到 home 目录
-
-
-pwd
-显示当前目录
-
-
-mkdir dir
-创建目录 dir
-
-
-rm file
-删除 file
-
-
-rm -r dir
-删除目录 dir
-
-
-rm -f file
-强制删除 file">
+搜索指令 find grep12345678910111213141516171819find -name april*                   # 当前目录下查找以april开始的文件find -iname april*                  # 忽略大小写find /home -size +512k">
 
 
 
@@ -451,7 +325,9 @@ rm -f file
       
         <p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="external">Unix/Linux 命令速查表</a></em></strong></p>
 <hr>
-<table>
+<h1 id="搜索指令-find-grep"><a href="#搜索指令-find-grep" class="headerlink" title="搜索指令 find grep"></a>搜索指令 <code>find</code> <code>grep</code></h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">find -name april*                   <span class="comment"># 当前目录下查找以april开始的文件</span></div><div class="line">find -iname april*                  <span class="comment"># 忽略大小写</span></div><div class="line">find /home -size +512k              <span class="comment"># 查大于512k的文件</span></div><div class="line">find /home -size -512k              <span class="comment"># 查小于512k的文件</span></div><div class="line">find /home -links +2                <span class="comment"># 查硬连接数大于2的文件或目录</span></div><div class="line">find /home -perm 0700               <span class="comment"># 查权限为700的文件或目录</span></div><div class="line"></div><div class="line">find -name tom.txt -user kim        <span class="comment"># 查找名称为tom.txt且用户为kim的文件</span></div><div class="line">find -name ap* -or -name may*       <span class="comment"># 查找以ap或may开头的文件</span></div><div class="line">find -name wa* -not -type l         <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></div><div class="line">find -name wa* ! -type l            <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></div><div class="line"><span class="comment"># 对于 -type, 有 b=block, d=dictory, c=character, p=pipe, l=link, f=file</span></div><div class="line"></div><div class="line">find / -iname <span class="string">"MyCProgram.c"</span> -exec md5sum &#123;&#125; \; <span class="comment"># 对所有找到的文件进行MD5验证</span></div><div class="line">find / -name filename -ok rm -rf &#123;&#125; \;          <span class="comment"># 确认删除找到的文件</span></div><div class="line">find . -mtime +3 | xargs rm -rf                 <span class="comment"># 删除3天以前的文件</span></div><div class="line">find . -size +3000k -exec ls -ld &#123;&#125; \;          <span class="comment"># 查找大于3M的文件</span></div><div class="line">find . -size -3000k | xargs <span class="built_in">echo</span> <span class="string">""</span> &gt;./file.log <span class="comment"># 查找小于3M的文件并写入file.log</span></div><div class="line">find . -type f | xargs grep <span class="string">"hostname"</span>          <span class="comment"># 在普通文件中搜索hostname这个词</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">ls <span class="_">-l</span> | grep <span class="string">'^a'</span>                   <span class="comment"># 只显示以a开头的文件名。</span></div><div class="line">grep <span class="string">'test'</span> d*                      <span class="comment"># 显示所有以d开头的文件中包含test的行。</span></div><div class="line">grep <span class="string">'test'</span> aa bb cc                <span class="comment"># 显示在aa，bb，cc文件中匹配test的行。</span></div><div class="line">grep -i pattern files               <span class="comment"># 不区分大小写地搜索。默认情况区分大小写</span></div><div class="line">grep <span class="_">-l</span> pattern files               <span class="comment"># 只列出匹配的文件名，</span></div><div class="line">grep -L pattern files               <span class="comment"># 列出不匹配的文件名，</span></div><div class="line">grep -w pattern files               <span class="comment"># 只匹配整个单词(如匹配‘magic’，而不是‘magical’)</span></div><div class="line">grep -C number pattern files        <span class="comment"># 匹配的上下文分别显示[number]行，</span></div><div class="line">grep pattern1 | pattern2 files      <span class="comment"># 显示匹配 pattern1 或 pattern2 的行，</span></div><div class="line">grep pattern1 files | grep pattern2 <span class="comment"># 显示既匹配 pattern1 又匹配 pattern2的行</span></div></pre></td></tr></table></figure>
+<h1 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h1><table>
 <thead>
 <tr>
 <th>文件命令</th>
@@ -602,22 +478,6 @@ rm -f file
 <tr>
 <td><code>ssh-copy-id user@host</code></td>
 <td>将密钥添加到 host 以实现无密码登录</td>
-</tr>
-<tr>
-<td><strong>搜索</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>grep pattern files</code></td>
-<td>搜索 files 中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><code>grep -r pattern dir</code></td>
-<td>递归搜索 dir 中匹配 pattern 的内容</td>
-</tr>
-<tr>
-<td><code>command l(竖杠) grep pattern</code></td>
-<td>搜索 command 输出中匹配 pattern 的内容</td>
 </tr>
 <tr>
 <td><strong>系统信息</strong></td>
@@ -912,7 +772,7 @@ rm -f file
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-count">48</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -929,7 +789,7 @@ rm -f file
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-count">57</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -969,7 +829,7 @@ rm -f file
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#搜索指令-find-grep"><span class="nav-number">1.</span> <span class="nav-text">搜索指令 find grep</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用命令表"><span class="nav-number">2.</span> <span class="nav-text">常用命令表</span></a></li></ol></div>
             
           </div>
         </section>

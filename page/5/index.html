@@ -260,6 +260,404 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/21/1618-python-variable/" itemprop="url">
+                  python基础： 深入理解 python 中的赋值、引用、拷贝、作用域
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-21T00:00:00+11:00" content="2016-11-21">
+              2016-11-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></em></strong></p>
+<hr>
+<h1 id="python的赋值"><a href="#python的赋值" class="headerlink" title="python的赋值"></a>python的赋值</h1><p>在 python 中赋值语句总是建立对象的引用值，而不是复制对象。因此，python 变量更像是指针，而不是数据存储区域，<br><img src="https://draapho.github.io/images/1618/python_point_1.jpg" alt="python_point"><br>这点和大多数 OO 语言类似吧，比如 C++、java 等 ~</p>
+<h1 id="先来看个问题吧："><a href="#先来看个问题吧：" class="headerlink" title="先来看个问题吧："></a>先来看个问题吧：</h1><h2 id="一个赋值问题"><a href="#一个赋值问题" class="headerlink" title="一个赋值问题"></a>一个赋值问题</h2><p>在Python中，令<code>values=[0,1,2];values[1]=values</code>,为何结果是<code>[0,[...],2]</code>? <a href="http://www.zhihu.com/question/21000872" target="_blank" rel="external">链接</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>values = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>values[<span class="number">1</span>] = values</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>values</div><div class="line">[<span class="number">0</span>, [...], <span class="number">2</span>]       <span class="comment"># 实际结果, 为何要赋值无限次?</span></div><div class="line">[<span class="number">0</span>, [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>], <span class="number">2</span>]   <span class="comment"># 预想结果</span></div></pre></td></tr></table></figure>
+<p>可以说 Python 没有赋值，只有引用。你这样相当于创建了一个引用自身的结构，所以导致了无限循环。为了理解这个问题，有个基本概念需要搞清楚。</p>
+<p>Python 没有「变量」，我们平时所说的变量其实只是「标签」，是引用。</p>
+<p>执行 <code>values = [0, 1, 2]</code> 的时候，Python 做的事情是首先创建一个列表对象 [0, 1, 2]，然后给它贴上名为 values 的标签。</p>
+<p>如果随后又执行 <code>values = [3, 4, 5]</code> 的话，Python 做的事情是创建另一个列表对象 [3, 4, 5]，然后把刚才那张名为 values 的标签从前面的 [0, 1, 2] 对象上撕下来，重新贴到 [3, 4, 5] 这个对象上。</p>
+<p>至始至终，并没有一个叫做 values 的列表对象容器存在，Python 也没有把任何对象的值复制进 values 去。过程如图所示：</p>
+<p><img src="https://draapho.github.io/images/1618/python_point_2.jpg" alt="python_point"></p>
+<p>执行 <code>values[1] = values</code> 的时候，Python 做的事情则是把 values 这个标签所引用的列表对象的第二个元素指向 values 所引用的列表对象本身。执行完毕后，values 标签还是指向原来那个对象，只不过那个对象的结构发生了变化，从之前的列表 [0, 1, 2] 变成了 [0, ?, 2]，而这个 ? 则是指向那个对象本身的一个引用。如图所示：</p>
+<p><img src="https://draapho.github.io/images/1618/python_point_3.jpg" alt="python_point"></p>
+<h2 id="浅复制及其风险"><a href="#浅复制及其风险" class="headerlink" title="浅复制及其风险"></a>浅复制及其风险</h2><p>要达到你所需要的效果，即得到 [0, [0, 1, 2], 2] 这个对象，你不能直接将 values[1] 指向 values 引用的对象本身，而是需要吧 [0, 1, 2] 这个对象「复制」一遍，得到一个新对象，再将 values[1] 指向这个复制后的对象。Python 里面复制对象的操作因对象类型而异，复制列表 values 的操作是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">values[:] <span class="comment">#生成对象的拷贝或者是复制序列，不再是引用和共享变量，但此法只能顶层复制</span></div></pre></td></tr></table></figure>
+<p>所以你需要执行 <code>values[1] = values[:]</code> </p>
+<p>Python 做的事情是，先 dereference 得到 values 所指向的对象 [0, 1, 2]，然后执行 [0, 1, 2][:] 复制操作得到一个新的对象，内容也是 [0, 1, 2]，然后将 values 所指向的列表对象的第二个元素指向这个复制二来的列表对象，最终 values 指向的对象是 [0, [0, 1, 2], 2]。过程如图所示：</p>
+<p><img src="https://draapho.github.io/images/1618/python_point_4.jpg" alt="python_point"></p>
+<p>往更深处说，values[:] 复制操作是所谓的「浅复制」(shallow copy)，当列表对象有嵌套的时候也会产生出乎意料的错误，比如为何要赋值无限次</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">a = [<span class="number">0</span>, [<span class="number">1</span>, <span class="number">2</span>], <span class="number">3</span>]</div><div class="line">b = a[:]</div><div class="line">a[<span class="number">0</span>] = <span class="number">8</span></div><div class="line">a[<span class="number">1</span>][<span class="number">1</span>] = <span class="number">9</span></div></pre></td></tr></table></figure>
+<p>问：此时 a 和 b 分别是多少？</p>
+<p>正确答案是 a 为 [8, [1, 9], 3]，b 为 [0, [1, 9], 3]。发现没？b 的第二个元素也被改变了。想想是为什么？不明白的话看下图</p>
+<p><img src="https://draapho.github.io/images/1618/python_point_5.jpg" alt="python_point"></p>
+<h2 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h2><p>正确的复制嵌套元素的方法是进行「深复制」(deep copy)，方法是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> copy</div><div class="line"></div><div class="line">a = [<span class="number">0</span>, [<span class="number">1</span>, <span class="number">2</span>], <span class="number">3</span>]</div><div class="line">b = copy.deepcopy(a)</div><div class="line">a[<span class="number">0</span>] = <span class="number">8</span></div><div class="line">a[<span class="number">1</span>][<span class="number">1</span>] = <span class="number">9</span></div></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1618/python_point_6.jpg" alt="python_point"></p>
+<h1 id="引用-VS-拷贝："><a href="#引用-VS-拷贝：" class="headerlink" title="引用 VS 拷贝："></a>引用 VS 拷贝：</h1><ul>
+<li>没有限制条件的分片表达式（L[:]）能够复制序列，但此法只能浅层复制。</li>
+<li>字典 copy 方法，D.copy() 能够复制字典，但此法只能浅层复制</li>
+<li>有些内置函数，例如 list，能够生成拷贝 list(L)</li>
+<li>copy 标准库模块能够生成完整拷贝：deepcopy 本质上是递归 copy</li>
+<li>对于不可变对象和可变对象来说，浅复制都是复制的引用，只是因为复制不变对象和复制不变对象的引用是等效的（因为对象不可变，当改变时会新建对象重新赋值）。所以看起来浅复制只复制不可变对象（整数，实数，字符串等），对于可变对象，浅复制其实是创建了一个对于该对象的引用，也就是说只是给同一个对象贴上了另一个标签而已。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">L = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">D = &#123;<span class="string">'a'</span>:<span class="number">1</span>, <span class="string">'b'</span>:<span class="number">2</span>&#125;</div><div class="line">A = L[:]</div><div class="line">B = D.copy()</div><div class="line"><span class="keyword">print</span> <span class="string">"L, D"</span></div><div class="line"><span class="keyword">print</span>  L, D</div><div class="line"><span class="keyword">print</span> <span class="string">"A, B"</span></div><div class="line"><span class="keyword">print</span> A, B</div><div class="line"><span class="keyword">print</span> <span class="string">"--------------------"</span></div><div class="line">A[<span class="number">1</span>] = <span class="string">'NI'</span></div><div class="line">B[<span class="string">'c'</span>] = <span class="string">'spam'</span></div><div class="line"><span class="keyword">print</span> <span class="string">"L, D"</span></div><div class="line"><span class="keyword">print</span>  L, D</div><div class="line"><span class="keyword">print</span> <span class="string">"A, B"</span></div><div class="line"><span class="keyword">print</span> A, B</div><div class="line"></div><div class="line"></div><div class="line">L, D</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;</div><div class="line">A, B</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;</div><div class="line">--------------------</div><div class="line">L, D</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;</div><div class="line">A, B</div><div class="line">[<span class="number">1</span>, <span class="string">'NI'</span>, <span class="number">3</span>] &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'c'</span>: <span class="string">'spam'</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<h1 id="增强赋值以及共享引用："><a href="#增强赋值以及共享引用：" class="headerlink" title="增强赋值以及共享引用："></a>增强赋值以及共享引用：</h1><p>x = x + y，x 出现两次，必须执行两次，性能不好，合并必须新建对象 x，然后复制两个列表合并</p>
+<p>属于复制/拷贝</p>
+<p>x += y，x 只出现一次，也只会计算一次，性能好，不生成新对象，只在内存块末尾增加元素。</p>
+<p>当 x、y 为list时， += 会自动调用 extend 方法进行合并运算，in-place change。</p>
+<p>属于共享引用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">L = [<span class="number">1</span>, <span class="number">2</span>]</div><div class="line">M = L</div><div class="line">L = L + [<span class="number">3</span>, <span class="number">4</span>]</div><div class="line"><span class="keyword">print</span> L, M</div><div class="line"><span class="keyword">print</span> <span class="string">"-------------------"</span></div><div class="line">L = [<span class="number">1</span>, <span class="number">2</span>]</div><div class="line">M = L</div><div class="line">L += [<span class="number">3</span>, <span class="number">4</span>]</div><div class="line"><span class="keyword">print</span> L, M</div><div class="line"></div><div class="line"></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>] [<span class="number">1</span>, <span class="number">2</span>]</div><div class="line">-------------------</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>] [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</div></pre></td></tr></table></figure>
+<h1 id="python-从-2k-到-3k，语句变函数引发的变量作用域问题"><a href="#python-从-2k-到-3k，语句变函数引发的变量作用域问题" class="headerlink" title="python 从 2k 到 3k，语句变函数引发的变量作用域问题"></a>python 从 2k 到 3k，语句变函数引发的变量作用域问题</h1><p>先看段代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></div><div class="line">    a = <span class="keyword">False</span></div><div class="line">    <span class="keyword">exec</span> (<span class="string">"a = True"</span>)</div><div class="line">    <span class="keyword">print</span> (<span class="string">"a = "</span>, a)</div><div class="line">test()</div><div class="line"></div><div class="line">b = <span class="keyword">False</span></div><div class="line"><span class="keyword">exec</span> (<span class="string">"b = True"</span>)</div><div class="line"><span class="keyword">print</span> (<span class="string">"b = "</span>, b)</div></pre></td></tr></table></figure>
+<p>在 python 2k 和 3k 下 你会发现他们的结果不一样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="number">2</span>K：</div><div class="line">a =  <span class="keyword">True</span></div><div class="line">b =  <span class="keyword">True</span></div><div class="line"></div><div class="line"><span class="number">3</span>K：</div><div class="line">a =  <span class="keyword">False</span></div><div class="line">b =  <span class="keyword">True</span></div></pre></td></tr></table></figure>
+<p>这是为什么呢？</p>
+<p>因为 3k 中 exec 由语句变成函数了，而在函数中变量默认都是局部的，也就是说<br>你所见到的两个 a，是两个不同的变量，分别处于不同的命名空间中，而不会冲突。</p>
+<p>具体参考 《learning python》P331-P332</p>
+<p>知道原因了，我们可以这么改改：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></div><div class="line">    a = <span class="keyword">False</span></div><div class="line">    ldict = locals()</div><div class="line">    exec(<span class="string">"a=True"</span>,globals(),ldict)</div><div class="line">    a = ldict[<span class="string">'a'</span>]</div><div class="line">    print(a)</div><div class="line"></div><div class="line">test()</div><div class="line"></div><div class="line">b = <span class="keyword">False</span></div><div class="line">exec(<span class="string">"b = True"</span>, globals())</div><div class="line">print(<span class="string">"b = "</span>, b)</div></pre></td></tr></table></figure>
+<p>这是一个典型的 python 2k 移植到 3k 不兼容的案例，类似的还有很多，也算是移植的坑吧~</p>
+<p>具体的 2k 与 3k 有哪些差异可以看这里： <a href="http://woodpecker.org.cn/diveintopython3/porting-code-to-python-3-with-2to3.html" target="_blank" rel="external"><strong>使用 2to3 将代码移植到 Python 3</strong></a></p>
+<h1 id="深入理解-python-变量作用域及其陷阱"><a href="#深入理解-python-变量作用域及其陷阱" class="headerlink" title="深入理解 python 变量作用域及其陷阱"></a>深入理解 python 变量作用域及其陷阱</h1><h2 id="可变对象-amp-不可变对象"><a href="#可变对象-amp-不可变对象" class="headerlink" title="可变对象 &amp; 不可变对象"></a>可变对象 &amp; 不可变对象</h2><ul>
+<li>在Python中，对象分为两种：可变对象和不可变对象，</li>
+<li>不可变对象包括int，float，long，str，tuple等，可变对象包括list，set，dict等。</li>
+<li>需要注意的是：这里说的不可变指的是值的不可变。对于不可变类型的变量，如果要更改变量，则会创建一个新值，把变量绑定到新值上，而旧值如果没有被引用就等待垃圾回收。另外，不可变的类型可以计算hash值，作为字典的key。</li>
+<li>可变类型数据对对象操作的时候，不需要再在其他地方申请内存，只需要在此对象后面连续申请(+/-)即可，也就是它的内存地址会保持不变，但区域会变长或者变短。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">'xianglong.me'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)</div><div class="line"><span class="number">140443303134352</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">'1saying.com'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)</div><div class="line"><span class="number">140443303131776</span></div><div class="line"><span class="comment"># 重新赋值之后，变量a的内存地址已经变了</span></div><div class="line"><span class="comment"># 'xianglong.me'是str类型，不可变，所以赋值操作知识重新创建了str '1saying.com'对象，然后将变量a指向了它</span></div><div class="line"> </div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a_list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>id(a_list)</div><div class="line"><span class="number">140443302951680</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a_list.append(<span class="number">4</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>id(a_list)</div><div class="line"><span class="number">140443302951680</span></div><div class="line"><span class="comment"># list重新赋值之后，变量a_list的内存地址并未改变</span></div><div class="line"><span class="comment"># [1, 2, 3]是可变的，append操作只是改变了其value，变量a_list指向没有变</span></div></pre></td></tr></table></figure>
+<h2 id="函数值传递"><a href="#函数值传递" class="headerlink" title="函数值传递"></a>函数值传递</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func_int</span><span class="params">(a)</span>:</span></div><div class="line">    a += <span class="number">4</span></div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func_list</span><span class="params">(a_list)</span>:</span></div><div class="line">    a_list[<span class="number">0</span>] = <span class="number">4</span></div><div class="line"> </div><div class="line">t = <span class="number">0</span></div><div class="line">func_int(t)</div><div class="line"><span class="keyword">print</span> t</div><div class="line"><span class="comment"># output: 0</span></div><div class="line"> </div><div class="line">t_list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">func_list(t_list)</div><div class="line"><span class="keyword">print</span> t_list</div><div class="line"><span class="comment"># output: [4, 2, 3]</span></div></pre></td></tr></table></figure>
+<p>对于上面的输出，不少Python初学者都比较疑惑：第一个例子看起来像是传值，而第二个例子确实传引用。其实，解释这个问题也非常容易，主要是因为可变对象和不可变对象的原因：对于可变对象，对象的操作不会重建对象，而对于不可变对象，每一次操作就重建新的对象。</p>
+<p>在函数参数传递的时候，Python其实就是把参数里传入的变量对应的对象的引用依次赋值给对应的函数内部变量。参照上面的例子来说明更容易理解，func_int中的局部变量”a”其实是全部变量”t”所指向对象的另一个引用，由于整数对象是不可变的，所以当func_int对变量”a”进行修改的时候，实际上是将局部变量”a”指向到了整数对象”1”。所以很明显，func_list修改的是一个可变的对象，局部变量”a”和全局变量”t_list”指向的还是同一个对象。</p>
+<h2 id="为什么修改全局的dict变量不用global关键字"><a href="#为什么修改全局的dict变量不用global关键字" class="headerlink" title="为什么修改全局的dict变量不用global关键字"></a>为什么修改全局的dict变量不用global关键字</h2><p>为什么修改字典d的值不用global关键字先声明呢？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">s = <span class="string">'foo'</span></div><div class="line">d = &#123;<span class="string">'a'</span>:<span class="number">1</span>&#125;</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">()</span>:</span></div><div class="line">    s = <span class="string">'bar'</span></div><div class="line">    d[<span class="string">'b'</span>] = <span class="number">2</span></div><div class="line">f()</div><div class="line"><span class="keyword">print</span> s  <span class="comment"># foo</span></div><div class="line"><span class="keyword">print</span> d  <span class="comment"># &#123;'a': 1, 'b': 2&#125;</span></div></pre></td></tr></table></figure>
+<p>这是因为，在s = ‘bar’这句中，它是“有歧义的“，因为它既可以是表示引用全局变量s，也可以是创建一个新的局部变量，所以在python中，默认它的行为是创建局部变量，除非显式声明global，global定义的本地变量会变成其对应全局变量的一个别名，即是同一个变量。</p>
+<p>在d[‘b’]=2这句中，它是“明确的”，因为如果把d当作是局部变量的话，它会报KeyError，所以它只能是引用全局的d,故不需要多此一举显式声明global。</p>
+<p>上面这两句赋值语句其实是不同的行为，一个是<strong>rebinding（不可变对象）</strong>, 一个是<strong>mutation（可变对象）</strong>.</p>
+<p>但是如果是下面这样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">d = &#123;<span class="string">'a'</span>:<span class="number">1</span>&#125;</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">()</span>:</span></div><div class="line">    d = &#123;&#125;</div><div class="line">    d[<span class="string">'b'</span>] = <span class="number">2</span></div><div class="line">f()</div><div class="line"><span class="keyword">print</span> d  <span class="comment"># &#123;'a': 1&#125;</span></div></pre></td></tr></table></figure>
+<p>在d = {}这句，它是”有歧义的“了，所以它是创建了局部变量d，而不是引用全局变量d，所以d[‘b’]=2也是操作的局部变量。</p>
+<p>推而远之，这一切现象的本质就是”它是否是明确的“。</p>
+<p>仔细想想，就会发现不止dict不需要global，所有”明确的“东西都不需要global。因为int类型str类型之类的不可变对象，每一次操作就重建新的对象，他们只有一种修改方法，即x = y， 恰好这种修改方法同时也是创建变量的方法，所以产生了歧义，不知道是要修改还是创建。而dict/list/对象等可变对象，操作不会重建对象，可以通过dict[‘x’]=y或list.append()之类的来修改，跟创建变量不冲突，不产生歧义，所以都不用显式global。</p>
+<h2 id="可变对象-list-的-和-append-extend-差别在哪？"><a href="#可变对象-list-的-和-append-extend-差别在哪？" class="headerlink" title="可变对象 list 的 = 和 append/extend 差别在哪？"></a>可变对象 list 的 = 和 append/extend 差别在哪？</h2><p>接上面 5.3 的理论，下面咱们再看一例常见的错误：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="comment"># 测试utf-8编码</span></div><div class="line"><span class="keyword">import</span> sys</div><div class="line">reload(sys)</div><div class="line">sys.setdefaultencoding(<span class="string">'utf-8'</span>)</div><div class="line"></div><div class="line">list_a = []</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">a</span><span class="params">()</span>:</span></div><div class="line">    list_a = [<span class="number">1</span>]      <span class="comment">## 语句1</span></div><div class="line">a()</div><div class="line"><span class="keyword">print</span> list_a    <span class="comment"># []</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">"======================"</span></div><div class="line"></div><div class="line">list_b = []</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">b</span><span class="params">()</span>:</span></div><div class="line">    list_b.append(<span class="number">1</span>)    <span class="comment">## 语句2</span></div><div class="line">b()</div><div class="line"><span class="keyword">print</span> list_b    <span class="comment"># [1]</span></div></pre></td></tr></table></figure>
+<p>大家可以看到为什么 语句1 不能改变 list_a 的值，而 语句2 却可以？他们的差别在哪呢？</p>
+<p><strong>因为 = 创建了局部变量，而 .append() 或者 .extend() 重用了全局变量。</strong></p>
+<h2 id="陷阱：使用可变的默认参数"><a href="#陷阱：使用可变的默认参数" class="headerlink" title="陷阱：使用可变的默认参数"></a>陷阱：使用可变的默认参数</h2><p>我多次见到过如下的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(a, b, c=[])</span>:</span></div><div class="line"><span class="comment"># append to c</span></div><div class="line"><span class="comment"># do some more stuff</span></div></pre></td></tr></table></figure>
+<p>永远不要使用可变的默认参数，可以使用如下的代码代替：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(a, b, c=None)</span>:</span></div><div class="line">    <span class="keyword">if</span> c <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        c = []</div><div class="line">    <span class="comment"># append to c</span></div><div class="line">    <span class="comment"># do some more stuff</span></div></pre></td></tr></table></figure>
+<p>‍‍与其解释这个问题是什么，不如展示下使用可变默认参数的影响：‍‍</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">In[<span class="number">2</span>]: <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(a, b, c=[])</span>:</span></div><div class="line"><span class="meta">... </span>       c.append(a)</div><div class="line"><span class="meta">... </span>       c.append(b)</div><div class="line"><span class="meta">... </span>       print(c)</div><div class="line">...</div><div class="line">In[<span class="number">3</span>]: foo(<span class="number">1</span>, <span class="number">1</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">1</span>]</div><div class="line">In[<span class="number">4</span>]: foo(<span class="number">1</span>, <span class="number">1</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>]</div><div class="line">In[<span class="number">5</span>]: foo(<span class="number">1</span>, <span class="number">1</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>]</div></pre></td></tr></table></figure>
+<p>同一个变量c在函数调用的每一次都被反复引用。这可能有一些意想不到的后果。</p>
+<h1 id="REF："><a href="#REF：" class="headerlink" title="REF："></a>REF：</h1><ul>
+<li><a href="http://www.zhihu.com/question/21000872/answer/16856382" target="_blank" rel="external">《learning python》：P130、P134、P202、P204 、P245</a></li>
+<li><a href="http://blog.segmentfault.com/sunisdown/1190000000640834" target="_blank" rel="external">理解 Python 的 LEGB</a></li>
+<li><a href="http://cenalulu.github.io/python/default-mutable-arguments/" target="_blank" rel="external">Python函数参数默认值的陷阱和原理深究</a></li>
+<li><a href="http://python.jobbole.com/81564/" target="_blank" rel="external">潜在的Python陷阱</a></li>
+<li><a href="http://segmentfault.com/a/1190000000743526" target="_blank" rel="external">陷阱！python参数默认值</a></li>
+<li><a href="http://xianglong.me/article/python-variable-quote-copy-and-scope/" target="_blank" rel="external">Python中的变量、引用、拷贝和作用域</a></li>
+<li><a href="http://www.cnblogs.com/wanxsb/archive/2013/05/07/3064783.html" target="_blank" rel="external">Python入门基础知识(1) :locals() 和globals()</a></li>
+<li><a href="http://bit.ly/29vnLvz" target="_blank" rel="external">Python程序员写代码时应该避免的16个“坑”</a></li>
+</ul>
+<hr>
+<p><strong><em>转载自 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/16/1617-python-terminal/" itemprop="url">
+                  python的第一个小程序, 蓝牙及串口终端
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-16T00:00:00+11:00" content="2016-11-16">
+              2016-11-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
+<li>windows 开发环境</li>
+<li>python 2.7</li>
+<li>pywin32, windows support</li>
+<li>pyserial, serial port, com</li>
+<li>pygatt, ble</li>
+<li>pyinstaller, generate exe file</li>
+<li>qt 4.8 (pyqt 4.11), GUI</li>
+<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
+<li>略过 python 的安装++</li>
+<li>实际做项目的话, 建议使用2.7版本, 32位(这样生成的exe文件是32位的, 能兼容所有机器)</li>
+<li>安装 pywin32: <code>pip install pypiwin32</code></li>
+<li>安装 pyserial: <code>pip install pyserial</code></li>
+<li>安装 pygatt: <code>pip install pygatt</code>, 事实上, pygatt依赖于pyserial. 因此直接装pygatt也可以</li>
+<li>安装 pyinstaller: <code>pip install pyinstaller</code></li>
+<li>下载并安装 <a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt4-4.11.4-gpl-Py2.7-Qt4.8.7.exe</a><ul>
+<li>注意匹配python版本和32位/64位window</li>
+<li>pyqt5 仅支持 python3 以上版本. 我用 python2.7 是因为需要使用其它的库, 如 <a href="https://labjack.com/" target="_blank" rel="external">LabJack</a></li>
+<li><code>Qt Designer</code> 用于设计UI, 文件格式为<code>.ui</code>. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\designer.exe</code>. 最终取决于Python安装路径</li>
+<li><code>pyuic4.bat</code> 用于将 <code>.ui</code> 文件转换为 <code>.py</code> 文件. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\</code></li>
+<li>把 <code>pyuic4.bat</code> 的路径放入系统环境变量, 这样后续就能方便使用这个指令了</li>
+</ul>
+</li>
+<li>windows平台需要借助 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a> 这么一个设备才能实现BLE通讯</li>
+</ul>
+<h1 id="UI设计"><a href="#UI设计" class="headerlink" title="UI设计"></a>UI设计</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+</ul>
+<h2 id="PyQt-入门"><a href="#PyQt-入门" class="headerlink" title="PyQt 入门"></a>PyQt 入门</h2><ul>
+<li>为什么选择PyQt? (注意, 如果商用, PyQt是需要授权使用的)</li>
+<li><a href="http://ojs.pythonpapers.org/index.php/tpp/article/view/61/57" target="_blank" rel="external">PyGTK, PyQT, Tkinter and wxPython comparison</a></li>
+<li>PyQt使用入门:</li>
+<li><a href="https://www.tutorialspoint.com/pyqt/index.htm" target="_blank" rel="external">PyQt Tutorial</a>, 新手上路, 建议看到 <code>Using Qt Designer</code> 即可</li>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 整体理解Qt设计思路</li>
+<li><a href="http://www.qaulau.com/books/PyQt4_Tutorial/" target="_blank" rel="external">PyQt4教程</a>, 中文版, 分类很细, 便于查阅范例</li>
+</ul>
+<h2 id="使用-Qt-Designer-设计GUI并生成-gui-py"><a href="#使用-Qt-Designer-设计GUI并生成-gui-py" class="headerlink" title="使用 Qt Designer 设计GUI并生成 gui.py"></a>使用 Qt Designer 设计GUI并生成 gui.py</h2><ul>
+<li>使用 <code>Qt Designer</code> 设计 GUI 框架, 并保存<code>gui.ui</code>到项目路径, 如 <code>D:\ble terminal</code></li>
+<li>打开cmd终端, 并切换到 <code>D:\ble terminal</code></li>
+<li><code>pyuic4.bat -x -o gui.py gui.ui</code> 生成<code>gui.py</code>文件,<ul>
+<li><code>-x</code> 表示可执行, 即包含<code>if __name__ == &quot;__main__&quot;</code>这部分代码</li>
+<li><code>-o</code> 表示目标文件名</li>
+<li>也可以使用命令行 <code>pyuic4.bat demo.ui &gt; demo.py</code>, 效果等同于 <code>pyuic4.bat -o gui.py gui.ui</code></li>
+</ul>
+</li>
+<li>创建 <code>gui_action.py</code> 文件, 用于书写交互操作部分的代码, 基本格式如下<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> gui</div><div class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QMainWindow</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.ui.setupUi(self)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QApplication(sys.argv)</div><div class="line">    gui_action = GuiAction()</div><div class="line">    gui_action.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="UI线程通讯"><a href="#UI线程通讯" class="headerlink" title="UI线程通讯"></a>UI线程通讯</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+<li>PyQt的信号和槽, 是一种通讯机制, 可以用于QObject之间的信息交互. 可以参考:<ul>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a></li>
+<li><a href="https://www.linuxzen.com/pyqt4-xin-hao-he-cao-xiang-jie.html" target="_blank" rel="external">PyQt4 信号和槽详解</a></li>
+</ul>
+</li>
+<li>参考 <a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a></li>
+<li>关于 QThread 高阶应用和注意事项, 可参考 <a href="http://blog.csdn.net/u011012932/article/details/52186626" target="_blank" rel="external">Qt之QThread（深入理解）</a></li>
+<li>本程序使用的线程通讯框架如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        ...</div><div class="line">        <span class="comment"># queue_ble 用于传递数据给ble线程 (这样用不好, 可能有风险)</span></div><div class="line">        self.queue_ble = Queue.Queue()</div><div class="line">        <span class="comment"># thread_ble 为 ble 处理线程</span></div><div class="line">        self.thread_ble = ThreadBleServer(self.queue_ble)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cmd_send</span><span class="params">(self)</span>:</span></div><div class="line">        cmd = self.lineEdit.text()</div><div class="line">        <span class="comment"># 通过 queue_ble 传递数据给ble线程</span></div><div class="line">        self.queue_ble.put(cmd)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 简单理解, 就是将 self.ble_handle 设置为 thread_ble 信号触发后的处理函数</span></div><div class="line">        <span class="comment"># 使用 PyQt_PyObject 作为参数类型具有更好的通用性, 可以传递任何数据.</span></div><div class="line">        self.connect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line">        <span class="comment"># 启动 ble 处理线程</span></div><div class="line">        self.thread_ble.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_stop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 用于终止 thread_ble 线程</span></div><div class="line">        self.thread_ble.stop_ble()</div><div class="line">        self.disconnect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadBleServer</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.stop = <span class="keyword">False</span></div><div class="line">        self.queue = queue</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop_ble</span><span class="params">(self)</span>:</span></div><div class="line">        self.stop = <span class="keyword">True</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.stop:</div><div class="line">            <span class="comment"># 这是一个循环任务, 每100ms执行一次</span></div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">            ...</div><div class="line">            <span class="comment"># 非阻塞查询queue队列</span></div><div class="line">            command = str(self.queue.get(<span class="keyword">False</span>))</div><div class="line">            do something after get command ...</div><div class="line">            ...</div><div class="line">            <span class="comment"># 发送信号给主线程</span></div><div class="line">            self.emit(SIGNAL(<span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), <span class="string">"ble_rx_timeout"</span>, <span class="string">""</span>)</div><div class="line">            ...</div></pre></td></tr></table></figure>
+<ul>
+<li>上述代码有一个未知风险, 在 QThread 中用了属于 python threading 的 Queque. 更稳妥的方法应该使用 PyQt 的信号和槽解决这个问题, 即<br><code>self.connect(self.cmd_send, SIGNAL(&quot;send_cmd(PyQt_PyObject)&quot;), self.thread_ble)</code></li>
+<li>关于 QThread 和 Threading, 简单而言, 如果需要和PyQt打交道, 那就用 QThread, 否则就用 python 自带的 Threading</li>
+<li><a href="https://github.com/draapho/ble-terminal" target="_blank" rel="external">全部源码</a> 在 github, 注意, 作为一个练习用程序, 上述错误我没有修改! 目前为止, 没看到不良影响.</li>
+</ul>
+<h1 id="生成exe文件"><a href="#生成exe文件" class="headerlink" title="生成exe文件"></a>生成exe文件</h1><ul>
+<li>可以创建一个 <code>ble-terminal.bat</code> 文件, 点击即可运行. 但终究是显的不够专业, 没法给老板和客户交代. 内容如下:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@echo off</div><div class="line"></div><div class="line">start pythonw gui_action.py</div><div class="line">exit</div></pre></td></tr></table></figure>
+<ul>
+<li>windows下, 使用起来最简单的就是 <code>PyInstaller</code> 了. 基本一条指令, 然后需要的关联库全自动解决</li>
+<li>其它方案有 <code>Py2Exe</code>, 需要自己配置dll之类的. <code>Py2App</code> 给Mac电脑用的. <code>cx_Freeze</code> 优点是跨平台, 看了下需要先做配置文件.</li>
+<li>用一条指令即可生成 <code>.exe</code> 文件<br><code>pyinstaller.exe --windowed gui_action.py</code></li>
+<li>另外还可以指定图标, 设置版本信息(需要写好<code>version.txt</code>), 将所有内容绑到单文件. 指令为:<br><code>pyinstaller.exe --onefile --windowed --icon=app.ico --version-file=version.txt gui_action.py</code></li>
+<li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="external">Creating an Executable from a Python Script</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/15/1616-python-ble/" itemprop="url">
                   使用python实现BLE通讯
                 </a>
@@ -1216,392 +1614,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/20/1612-python-pyqtui/" itemprop="url">
-                  PyQt 的交互操作
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-20T00:00:00+11:00" content="2016-10-20">
-              2016-10-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="environment"><a href="#environment" class="headerlink" title="environment"></a>environment</h1><ul>
-<li>Windows</li>
-<li><a href="https://www.python.org/downloads/" target="_blank" rel="external">python 2.7</a></li>
-<li><a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt 4.11.4</a></li>
-</ul>
-<h1 id="useful-guide-startup"><a href="#useful-guide-startup" class="headerlink" title="useful guide / startup"></a>useful guide / startup</h1><ul>
-<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 简单明了的介绍了qt gui的基本特性</li>
-<li><a href="https://www.tutorialspoint.com/pyqt/" target="_blank" rel="external">PyQt Tutorial</a>, learn PyQt step by step.</li>
-<li><a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a>, 防止UI阻塞, 使用线程</li>
-</ul>
-<h1 id="Generate-basic-UI-file"><a href="#Generate-basic-UI-file" class="headerlink" title="Generate basic UI file"></a>Generate basic UI file</h1><ul>
-<li>use <code>Qt Designer</code> to create basic UI<ul>
-<li><code>New</code>-&gt;<code>Widget</code>-&gt;drag <code>PushButton</code> to <code>Form</code> Window</li>
-<li>Save it, for example <code>demo.ui</code></li>
-</ul>
-</li>
-<li>make sure <code>pyuic4.bat</code> is in the System PATH<ul>
-<li>input <code>pyuic4.bat -h</code> in shell, check the response.</li>
-</ul>
-</li>
-<li>change <code>.ui</code> to <code>.py</code> file<ul>
-<li>run <code>pyuic4.bat -x -o demo.py demo.ui</code> in the working folder.</li>
-<li><code>-o</code> means output, set the output filename.</li>
-<li><code>-x</code> will generate <code>if __name__ == &#39;__main__&#39;:</code> then can run directly</li>
-<li><code>pyuic4.bat demo.ui &gt; demo.py</code> is also OK.</li>
-</ul>
-</li>
-<li><del>the sample of <code>demo.py</code>, generated automatically by pyuic4.bat</del></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line"><span class="comment"># Form implementation generated from reading ui file 'demo.ui'</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Created by: PyQt4 UI code generator 4.11.4</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># WARNING! All changes made in this file will be lost!</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtCore, QtGui</div><div class="line"></div><div class="line"><span class="keyword">try</span>:</div><div class="line">    _fromUtf8 = QtCore.QString.fromUtf8</div><div class="line"><span class="keyword">except</span> AttributeError:</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_fromUtf8</span><span class="params">(s)</span>:</span></div><div class="line">        <span class="keyword">return</span> s</div><div class="line"></div><div class="line"><span class="keyword">try</span>:</div><div class="line">    _encoding = QtGui.QApplication.UnicodeUTF8</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_translate</span><span class="params">(context, text, disambig)</span>:</span></div><div class="line">        <span class="keyword">return</span> QtGui.QApplication.translate(context, text, disambig, _encoding)</div><div class="line"><span class="keyword">except</span> AttributeError:</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_translate</span><span class="params">(context, text, disambig)</span>:</span></div><div class="line">        <span class="keyword">return</span> QtGui.QApplication.translate(context, text, disambig)</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ui_Form</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setupUi</span><span class="params">(self, Form)</span>:</span></div><div class="line">        Form.setObjectName(_fromUtf8(<span class="string">"Form"</span>))</div><div class="line">        self.pushButton = QtGui.QPushButton(Form)</div><div class="line">        self.pushButton.setGeometry(QtCore.QRect(<span class="number">40</span>, <span class="number">40</span>, <span class="number">75</span>, <span class="number">23</span>))</div><div class="line">        self.pushButton.setObjectName(_fromUtf8(<span class="string">"pushButton"</span>))</div><div class="line"></div><div class="line">        self.retranslateUi(Form)</div><div class="line">        QtCore.QMetaObject.connectSlotsByName(Form)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">retranslateUi</span><span class="params">(self, Form)</span>:</span></div><div class="line">        Form.setWindowTitle(_translate(<span class="string">"Form"</span>, <span class="string">"Form"</span>, <span class="keyword">None</span>))</div><div class="line">        self.pushButton.setText(_translate(<span class="string">"Form"</span>, <span class="string">"PushButton"</span>, <span class="keyword">None</span>))</div><div class="line"></div><div class="line"><span class="comment"># using -x will generate the following code</span></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> sys</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    Form = QtGui.QWidget()</div><div class="line">    ui = Ui_Form()</div><div class="line">    ui.setupUi(Form)</div><div class="line">    Form.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
-<ul>
-<li><del>run &amp; check the　UI</del><ul>
-<li>run <code>python demo.py</code> in the working folder.</li>
-<li>OR run directly in editor like atom.</li>
-</ul>
-</li>
-</ul>
-<h1 id="click-then-do-sth"><a href="#click-then-do-sth" class="headerlink" title="click then do sth"></a>click then do sth</h1><ul>
-<li>create a new py file, for example <code>show.py</code>. input code like:</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> demo  <span class="comment"># generated from xxx.ui</span></div><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()  <span class="comment"># QtGui.QWidget.__init__()</span></div><div class="line">        self.setupUi(self)</div><div class="line">        self.pushButton.clicked.connect(</div><div class="line">            self.handleButton)  <span class="comment"># here is important line</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handleButton</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">print</span> (<span class="string">"hello, https://draapho.github.io/"</span>)</div><div class="line">        <span class="comment"># size = self.geometry()</span></div><div class="line">        <span class="comment"># self.resize(size.width() + 2, size.height() + 2)</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    form = MyForm()</div><div class="line">    form.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
-<ul>
-<li>look at <code>self.ui.pushButton.clicked.connect(self.handleButton)</code><br>it links clicked event with handleButton function.</li>
-<li>if you want to resize the window after clicked the button. change <code>handleButton</code> to</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">handleButton</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="comment"># print ("hello, https://draapho.github.io/")</span></div><div class="line">    size = self.geometry()</div><div class="line">    self.resize(size.width() + <span class="number">2</span>, size.height() + <span class="number">2</span>)</div></pre></td></tr></table></figure>
-<h1 id="click-then-do-heavy-work"><a href="#click-then-do-heavy-work" class="headerlink" title="click then do heavy work"></a>click then do heavy work</h1><ul>
-<li><p><del>bad code, UI totally dead</del></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> demo</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.setupUi(self)</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">startCount</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.pushButton.clicked.connect(self.stopCount)</div><div class="line">        i = <span class="number">0</span></div><div class="line">        <span class="keyword">while</span> i &lt; <span class="number">15</span>:</div><div class="line">            i += <span class="number">1</span></div><div class="line">            self.pushButton.setText(str(i))</div><div class="line">            <span class="keyword">print</span> i</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stopCount</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line">        self.pushButton.setText(<span class="string">"PushButton"</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    form = MyForm()</div><div class="line">    form.show()</div><div class="line">    app.exec_()</div></pre></td></tr></table></figure>
-</li>
-<li><p>use thread, can do everything in UI</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</div><div class="line"><span class="keyword">from</span> PyQt4.QtCore <span class="keyword">import</span> QThread, SIGNAL</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> demo</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">getCountThread</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.count = <span class="number">0</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></div><div class="line">        self.wait()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> self.count &lt; <span class="number">15</span>:</div><div class="line">            self.count += <span class="number">1</span></div><div class="line">            self.emit(SIGNAL(<span class="string">'showCount(int)'</span>), self.count)</div><div class="line">            <span class="keyword">print</span> self.count</div><div class="line">            self.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.setupUi(self)</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">startCount</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.get_thread = getCountThread()</div><div class="line">        self.connect(self.get_thread, SIGNAL(<span class="string">"showCount(int)"</span>), self.showCount)</div><div class="line">        self.connect(self.get_thread, SIGNAL(<span class="string">"finished()"</span>), self.done)</div><div class="line">        self.get_thread.start()</div><div class="line">        <span class="comment"># must be under the self.get_thread.start()</span></div><div class="line">        self.pushButton.clicked.connect(self.get_thread.terminate)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">showCount</span><span class="params">(self, count)</span>:</span></div><div class="line">        self.pushButton.setText(str(count))</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">done</span><span class="params">(self)</span>:</span></div><div class="line">        self.pushButton.clicked.disconnect()</div><div class="line">        self.pushButton.setText(<span class="string">"PushButton"</span>)</div><div class="line">        self.pushButton.clicked.connect(self.startCount)</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app = QtGui.QApplication(sys.argv)</div><div class="line">    form = MyForm()</div><div class="line">    form.show()</div><div class="line">    app.exec_()</div></pre></td></tr></table></figure>
-</li>
-<li><p>explanation</p>
-<ul>
-<li><code>getCountThread</code> 子线程类, 执行繁重任务</li>
-<li><code>MyForm</code>-&gt;<code>startCount</code> 点击按键后执行, 设置好信号, 启动子线程</li>
-<li><code>self.connect(self.get_thread, SIGNAL(&quot;showCount(int)&quot;), self.showCount)</code><br>准备接收来自线程的信号, 并在 <code>showCount</code> 更新UI</li>
-<li><code>self.connect(self.get_thread, SIGNAL(&quot;finished()&quot;), self.done)</code><br>准备接收来自线程的结束信号, 然后在 <code>done</code> 下更新标记和UI</li>
-<li><code>self.get_thread.start()</code><br>启动子线程</li>
-<li><code>self.pushButton.clicked.connect(self.get_thread.terminate)</code><br>将按键的功能设置为终止子线程, 必须放在 <code>self.get_thread.start()</code> 下面</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/16/1611-WinSoft-other/" itemprop="url">
-                  Windows 软件系列-开发软件
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-16T00:00:00+11:00" content="2016-10-16">
-              2016-10-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="eclipse"><a href="#eclipse" class="headerlink" title="eclipse"></a><a href="https://eclipse.org/downloads/" target="_blank" rel="external">eclipse</a></h1><ul>
-<li><a href="https://eclipse.org/downloads/" target="_blank" rel="external">eclipse</a> 就不做介绍了.</li>
-<li>设置主题<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>General</code>-&gt;<code>Appearance</code>-&gt;<code>Color Theme</code>-&gt;<code>Sublime Text 2</code></li>
-</ul>
-</li>
-<li>设置编辑界面<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt; <code>General</code>-&gt;<code>Editors</code>-&gt;<code>Text Editors</code>-&gt;<ul>
-<li><code>Insert spaces for tabs</code></li>
-<li><code>Show print margin</code></li>
-<li><code>Show whitespace characters</code>-&gt;<code>configure visibility</code>-&gt;<del><code>Carriage Return</code></del> <del><code>Line Feed</code></del></li>
-</ul>
-</li>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt; <code>General</code>-&gt;<code>Editors</code>-&gt;<code>Text Editors</code>-&gt;<code>Quick Diff</code><ul>
-<li><code>Enable Quick Diff</code></li>
-<li><code>Use this reference source:</code>-&gt;<code>A Git Revision</code></li>
-<li>需要装好git</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>设置路径<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>Team</code>-&gt;<code>Git</code>-&gt;<code>Default repository folder:</code>-&gt;<code>${project_loc}</code></li>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>Terminal</code>-&gt;<code>Local Terminal</code>-&gt;<code>Initial Working Directory</code>-&gt;<code>${project_loc}</code></li>
-<li>注意, 上述两项需要有git项目并编译后, 才可以成功设置</li>
-</ul>
-</li>
-<li>设置快捷键<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>General</code>-&gt;<code>Keys</code> 可设置快捷键</li>
-<li>快捷键设置要求见 <a href="https://draapho.github.io/2016/10/08/1607-Shortcut-win/">Windows快捷键</a></li>
-<li>配置文件名为 <code>org.eclipse.ui.workbench.prefs</code>, 路径如下, $workspace$ 表示 eclipse 的工作路径.</li>
-<li><code>$workspace$\.metadata\.plugins\org.eclipse.core.runtime\.settings</code>下</li>
-<li>TrueSTUIDO版的快捷键见TureSTUDIO</li>
-</ul>
-</li>
-</ul>
-<h1 id="TrueSTUIDO"><a href="#TrueSTUIDO" class="headerlink" title="TrueSTUIDO"></a><a href="http://atollic.com/truestudio/" target="_blank" rel="external">TrueSTUIDO</a></h1><ul>
-<li><a href="http://atollic.com/truestudio/" target="_blank" rel="external">TrueSTUIDO</a>是一款免费的ARM IDE, 基于eclipse. 免费版有5s广告.</li>
-<li>快捷键配置文件<ul>
-<li>我的配置文件 <a href="https://github.com/draapho/Blog/tree/master/_blog_stuff/eclipse/org.eclipse.ui.workbench.prefs" target="_blank" rel="external">org.eclipse.ui.workbench.prefs</a></li>
-<li>下载后直接覆盖放入 <code>$workspace$/.metadata/.plugins/org.eclipse.core.runtime/.settings/</code></li>
-</ul>
-</li>
-<li><a href="https://www.youtube.com/watch?v=R2hfq4S_-B0" target="_blank" rel="external">TrueSTUIDO Download and Reset (no debug)</a><ul>
-<li><code>Run</code>-&gt;<code>Debug Configurations...</code>-&gt;<code>Embedded C/C++...</code>下的文件-&gt;<code>Startup Scripts</code></li>
-<li>delete all context after <code>load</code> and input <code>quit</code></li>
-<li><code>Window</code>-&gt;<code>Perspective</code>-&gt;<code>Customize Pespective...</code>-&gt;<code>Launch</code>-&gt;选择 <code>Debug</code> 和 <code>Run</code></li>
-</ul>
-</li>
-<li>生成指定格式<ul>
-<li>项目右键 <code>Properties</code>-&gt;<code>C/C++ Build</code>-&gt;<code>Settings</code>-&gt;<code>Tool Settings</code>-&gt;<code>Other</code>-&gt;<code>Output format</code>-&gt;<code>Convert build output</code>-&gt;<code>Intel Hex</code> or <code>Binary</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="RealView-MDK"><a href="#RealView-MDK" class="headerlink" title="RealView MDK"></a>RealView MDK</h1><ul>
-<li>RVMDK 设置成utf8格式. <code>Edit</code>-&gt;<code>Configuration</code>-&gt;<code>Editor</code>-&gt;<code>Encoding</code>-&gt;<code>UTF8</code></li>
-</ul>
-<h1 id="Source-Insight"><a href="#Source-Insight" class="headerlink" title="Source Insight"></a>Source Insight</h1><ul>
-<li>添加完文件后, 需要同步. <code>Project</code>-&gt;<code>Synchronize Files...</code></li>
-<li>添加文件类型. <code>Options</code>-&gt;<code>Document Options</code>-&gt;<code>Document Type</code>, 在file filter内增加文件类型即可</li>
-</ul>
-<h1 id="使用mingw编译C语言"><a href="#使用mingw编译C语言" class="headerlink" title="使用mingw编译C语言"></a>使用mingw编译C语言</h1><ul>
-<li>主要用于写一些小程序用来验证或测试. 与linux开发习惯一致, 而且免费轻巧快捷.</li>
-<li><p>下载 <a href="http://www.mingw.org/" target="_blank" rel="external">MinGW</a>, 安装并设置好环境变量.</p>
-<ul>
-<li>安装好后, 只是 MinGW Installation Manager, 实际上是个绿色软件. 打开后继续安装组件</li>
-<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code> 和 <code>mingw32-gcc-g++</code>-&gt;左上 <code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
-<li>这里只需要编译c和c++文件, 无需安装其它组件了.</li>
-<li>设置 <code>...\MinGW\bin</code> 文件夹到系统环境变量中</li>
-<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 make 指令了</li>
-<li>测试. 终端中输入 <code>make -v</code> 和 <code>gcc -v</code>, 看是否可以识别到指令</li>
-</ul>
-</li>
-<li><p>建立一个工作目录, 建立2个文件即可. 一个 <code>.c</code>, 另一个 <code>makefile</code> 即可</p>
-<ul>
-<li><p>创建并命名为 <code>main.c</code></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdio.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"\r\nhello: %s\r\n"</span>, <span class="string">"DRA&amp;PHO"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>创建并命名为 <code>makefile</code></p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">test:main.o</div><div class="line">    gcc -o hello main.o</div><div class="line"></div><div class="line">main.o:main.c</div><div class="line">    gcc -c main.c</div></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>打开终端, 切换到这个工作目录</p>
-<ul>
-<li>输入 <code>make</code> 即可编译, 会生成 <code>main.o</code> <code>hello.exe</code> 两个文件</li>
-<li>输入 <code>./hello.exe</code> 执行, 终端就会输出 <code>hello: DRA&amp;PHO</code></li>
-</ul>
-</li>
-<li>资料和参考<ul>
-<li><a href="http://blog.csdn.net/zhanghan3/article/details/1334308" target="_blank" rel="external">windows下使用makefile编译C语言</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1647,7 +1659,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-count">48</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1664,7 +1676,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-count">57</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
