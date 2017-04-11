@@ -4,6 +4,212 @@
   
     
     <entry>
+      <title><![CDATA[ezos简要用户手册]]></title>
+      <url>https://draapho.github.io/2017/04/10/1712-ezos/</url>
+      <content type="html"><![CDATA[<h1 id="ezos开发历史"><a href="#ezos开发历史" class="headerlink" title="ezos开发历史"></a>ezos开发历史</h1><p>ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.<br>并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.<br>由于使用起来非常方便, 代码为纯C语言, 简单易懂, 因此命名为 ezos, 即easy OS.</p>
+<p>后续由 TCS 胡工加入了任务参数, 静态任务, 可实例化任务的概念.<br>整合这些概念后, 重写了部分代码, 将ezos的版本升级至较为实用的V1.3.1.在这个阶段, 使用ezos做了功能较为复杂的项目, 并发现一些任务通讯和同步的问题,<br>在借鉴了抢占式RTOS的一些特性后, 决心重写ezos, 将其变为真正的协作式RTOS. 同时要求代码依旧清晰简洁, 可适用于资源较少的8位单片机应用.</p>
+<p>基于以上想法, 将ezos的提升到了V2开始的主版本. 将代码改为linux书写规范, 进化为协作式OS, 支持254级优先级. 使用了链表, 重写所有系统函数.<br>还有, 非常重要的是, 增加了任务间的通讯方式, 支持信号量, 互斥量, 事件, 邮箱, 消息队列.
+ </p>
+<h1 id="ezos-原理介绍"><a href="#ezos-原理介绍" class="headerlink" title="ezos 原理介绍"></a>ezos 原理介绍</h1><p>ezos是协作式的操作系统, 即支持优先级, 支持任务间通讯. 但任务的轮询调度不是抢占式的, 而必须由任务自己放弃CPU的控制权.<br>即当有一更高优先级的任务需要运行时, ezos并不会马上剥夺现有任务CPU的控制权, 必须等待现有任务自己放弃CPU的控制权, 更高优先级的任务才会被运行.</p>
+<p>一个软件系统是否需要使用操作系统, 操作系统的好坏, 个人明确强调, 没有最好只有最合适!<br>这是嵌入式行业的原则之一, 如果有最好最合适的, 那就成了通用的PC行业软件开发, 而非嵌入式软件开发了.</p>
+<p>对于软件功能非常简单的嵌入式系统, 前后台/超循环模式可能就是最好的! 资源开销小, 代码直观, 易于调试.<br>对于有一定复杂度的嵌入式系统, 就需要使用操作系统了, 否则软件会变得难以开发, 难以理解和阅读, 难以维护和升级……<br>对于一般复杂度的嵌入式软件, 使用协作式的操作系统是个不错的选择, 相对于抢占式的操作系统, 其缺点为响应时间较慢(但并非不可控制). 优点为系统代码和占用资源很小, 任务流程容易预测, 便于调试和开发.<br>抢占式操作系统的一个最大特点是: 任务随时随地都可能被优先级更高的任务剥夺运行权, 因此也就需要程序员充分考虑任务的原子性要求, 但这是需要培训和经验积累的.<br>问题的严重性更在于, 此类问题很难跟踪调试, 容易让产品是不稳定的. 因此使用协作式的操作系统, 对程序员的要求较低, 也更易于开发出稳定可靠的产品.</p>
+<h2 id="ezos的任务数据"><a href="#ezos的任务数据" class="headerlink" title="ezos的任务数据"></a>ezos的任务数据</h2><p>ezos的任务数据存放在 ezos_task_t task_link[__EZOS_TASK_NUM];<br>ezos内置一个idle任务数据, 取名idle, 优先级最低, 为255. 可以简单理解为它是任务数据的表头.<br>当调用ezos_add(), ezos_delete()时, 会自行分配或释放此数据空间.</p>
+<h2 id="任务链表和回收链表"><a href="#任务链表和回收链表" class="headerlink" title="任务链表和回收链表"></a>任务链表和回收链表</h2><p>ezos核心思想是两组单向链表: <code>任务链表</code> 和 <code>回收链表</code></p>
+<ul>
+<li><code>任务链表</code>为单向循环链表, 链表起始节点存放着系统空闲任务.<br>后面的节点按照任务优先级的先后顺序进行排序.<br>对于同优先级的任务, 任务添加或任务改变自身状态时, 会将该任务节点放到同优先级链表节点的末尾.<br>因此, 任务链表从idle往后, 一定是按照优先级顺序排列好的!</li>
+</ul>
+<p>举例来说, 任务列表如下: 优先级1 -&gt; 优先级3 -&gt; 优先级3 -&gt; 优先级10 -&gt; 优先级11 -&gt; idle(255)<br>则ezos 会按照顺序依次查询任务列表中任务的状态. 更根据状态确定是执行任务还是跳过任务.<br>上表中, 如果新增一个优先级为2的任务, 则此任务会被放在优先级1和优先级3之间.<br>如果新增一个优先级为3的任务, 则此任务会被放在优先级10之前.<br>另外, 如果第一个优先级3的任务运行过后, 也会被放在优先级10之前, 以便让同优先级的其它任务运行.</p>
+<ul>
+<li><code>回收链表</code>为单向非循环链表, 被删除的任务节点放到到回收链表中.<br>而被添加的任务节点从回收链表取出并分配到任务链表中.</li>
+</ul>
+<h2 id="ezos的任务状态"><a href="#ezos的任务状态" class="headerlink" title="ezos的任务状态:"></a>ezos的任务状态:</h2><p>源码见 <a href="https://github.com/draapho/ezos" target="_blank" rel="external">github-ezos</a></p>
+<ol>
+<li>任务删除状态(EZOS_DELETE), 即终止状态. 任务不在任务链表中, 不会运行.</li>
+<li>任务阻塞状态(EZOS_SUSPEND), 任务已在任务链表中, 但被阻塞, 不会被运行. 任务延时也属于阻塞状态.</li>
+<li>任务就绪状态(EZOS_READY), 任务已在任务队列中, 可以运行, 但未必正在运行.</li>
+<li>任务运行状态(EZOS_RUNNING), 任务已在任务列表中, 并正在运行.</li>
+</ol>
+<h2 id="ezos任务调度"><a href="#ezos任务调度" class="headerlink" title="ezos任务调度"></a>ezos任务调度</h2><p>借助于ezos任务链表的良好设计, ezos任务调度非常简单, 每次都是从头开始寻找处于就绪态的任务,运行完某个任务后就从头重新开始搜寻.<br>由于任务链表是按照优先级顺序排序的,这样就实现了高优先级任务的快速响应. 而同优先级任务则是轮询处理的.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">ezos_schedule</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</div><div class="line">    &#123;</div><div class="line">        task = idle.next;</div><div class="line"><span class="comment">// 寻找就绪的任务</span></div><div class="line">        <span class="keyword">while</span> (task-&gt;status != EZOS_READY)  task = task-&gt;next;</div><div class="line">        run = task;</div><div class="line">        run-&gt;status = EZOS_RUNNING;</div><div class="line">        ezos_enable_int(mask);</div><div class="line"><span class="comment">// 运行任务函数</span></div><div class="line">        task-&gt;pfun(&amp;task-&gt;state, &amp;task-&gt;para);</div><div class="line">        mask = ezos_disable_int();</div><div class="line"><span class="comment">// 自动删除任务</span></div><div class="line">        <span class="keyword">if</span> (run-&gt;status == EZOS_RUNNING) ezos_delete_cur();</div><div class="line">        run = &amp;idle;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="任务的重载"><a href="#任务的重载" class="headerlink" title="任务的重载"></a>任务的重载</h1><p>由于加入了任务的命名体系, 对于可重载的函数就可以添加多个任务了. 而所有的任务操作依据就是任务的名称.<br>任务的名称是不可重复的.对于静态任务函数, 一般将其函数名命名为任务名称即可,<br>方便又好记.对于可重载函数的多个任务, 建议使用 <code>函数名+0</code>, <code>函数名+1</code> 的方式来命名任务名称.</p>
+<h1 id="ezos-使用方法"><a href="#ezos-使用方法" class="headerlink" title="ezos 使用方法"></a>ezos 使用方法</h1><h2 id="ezos-基础函数"><a href="#ezos-基础函数" class="headerlink" title="ezos 基础函数"></a>ezos 基础函数</h2><p>为了让ezos工作起来, 相关的基础函数有3个.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ezos_init();        <span class="comment">// ezos初始化函数, main函数尽早调用</span></div><div class="line">ezos_scan_1ms();    <span class="comment">// 1ms定时函数, 1ms定时中断调用</span></div><div class="line">ezos_schedule();    <span class="comment">// ezos调度函数, 为死循环. main函数最后调用</span></div></pre></td></tr></table></figure>
+<h2 id="ezos调试函数"><a href="#ezos调试函数" class="headerlink" title="ezos调试函数"></a>ezos调试函数</h2><p>主要有两个调试函数.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ezos_trash_num_min_get();   <span class="comment">// 获取系统最小的剩余任务空间</span></div><div class="line">ezos_idle_tick_max_get();   <span class="comment">// 获取idle任务运行间隔最大时间</span></div></pre></td></tr></table></figure></p>
+<ul>
+<li><p><code>ezos_trash_num_min_get</code> 获取系统最小的剩余任务空间.<br>可用来判断设置的任务数量是否合适, 太小会让任务添加失败, 太大会造成RAM的浪费(但不会造成运算效率的浪费).<br>在稳定运行系统一定的时间后, 根据观察结构, 调整 <code>__EZOS_TASK_NUM</code> 值即可, 建议根据结果, 再预留2-5个任务较为合理</p>
+</li>
+<li><p><code>ezos_idle_tick_max_get</code> 获取idle任务运行间隔最大时间.<br>可用来判断CPU是否任务过重, 以及任务切换最慢响应时间(最低优先级任务的最差情况).</p>
+</li>
+<li><p>而最高优先级任务的最差情况. 根据协作式的特点分析可知:<br>最高优先级任务的响应时间 = 某个独占CPU时间最长的ezos任务<br>因此, 在ezos任务中, 不要使用独占CPU的长延时!!! 如果任务过重, 可手动拆分成多个小任务, 完成一次小任务就主动放弃一次CPU的控制权.</p>
+</li>
+</ul>
+<h2 id="常用的任务函数"><a href="#常用的任务函数" class="headerlink" title="常用的任务函数"></a>常用的任务函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ezos_t</span> ezos_add(<span class="keyword">void</span> *name,                 <span class="comment">// 任务名称(ID), 该任务的唯一标识</span></div><div class="line">    <span class="keyword">void</span> (*pfun)(<span class="keyword">ezos_s_t</span>*, <span class="keyword">ezos_p_t</span>*),     <span class="comment">// 任务函数</span></div><div class="line">    <span class="keyword">ezos_p_t</span> para,                          <span class="comment">// 任务初始参数</span></div><div class="line">    <span class="keyword">int32_t</span> delay_time,                     <span class="comment">// 任务延时时间</span></div><div class="line">    <span class="keyword">uint8_t</span> priority);                      <span class="comment">// 任务优先级</span></div><div class="line"></div><div class="line">quick_add();                <span class="comment">// 快速添加任务, 用的较多, 输入参数只需pfun和priority.</span></div><div class="line">force_add();                <span class="comment">// 强制添加任务, 会先删除该任务, 再重新添加</span></div><div class="line"></div><div class="line">ezos_delay(<span class="keyword">int32_t</span> time);   <span class="comment">// 任务延时函数</span></div></pre></td></tr></table></figure>
+<h2 id="ezos编程范例"><a href="#ezos编程范例" class="headerlink" title="ezos编程范例"></a>ezos编程范例</h2><p>源码见 <a href="https://github.com/draapho/ezos" target="_blank" rel="external">github-ezos</a></p>
+<ol>
+<li>单次任务, 见范例 <code>app_lcd</code> 之 <code>task_lcd</code></li>
+<li>循环任务, 见范例 <code>app_rtc</code> 之 <code>task_rtc_1s</code></li>
+<li>状态机任务, 见范例 <code>app_race_led</code> 之 <code>task_race_led</code></li>
+<li>复杂任务, 见范例 <code>app_bell</code> 之 <code>task_bell_1s</code></li>
+<li>可重入任务, 见范例 <code>app_sem</code> 之 <code>task_led</code></li>
+<li>任务的拆分, 见范例 <code>ITT100 dv_pic</code> 之 <code>SavePIPtoSPI</code></li>
+</ol>
+<p> </p>
+<h1 id="ezos之任务通讯"><a href="#ezos之任务通讯" class="headerlink" title="ezos之任务通讯"></a>ezos之任务通讯</h1><p>ezos的任务通讯相关函数统一放在 <code>ezos_ipc.c</code> 文件下.<br>ezos会将所有的添加的ipc串成一个链表. 其数据结构如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> __ezos_ipc</div><div class="line">&#123;</div><div class="line">    <span class="keyword">void</span> *next;         <span class="comment">// 下个IPC指针</span></div><div class="line">    <span class="keyword">void</span> *name;         <span class="comment">// 当前IPC指针</span></div><div class="line">    <span class="keyword">ezos_t</span> type;        <span class="comment">// IPC类型</span></div><div class="line">&#125;;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> __ezos_ipc   <span class="keyword">ezos_ipc_t</span>;</div></pre></td></tr></table></figure>
+<p>此数据结构相当于ipc的父类, 基于此父类, 下面会衍生出各个IPC子类,<br>如信号量:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">ezos_ipc_t</span> ipc; <span class="comment">// IPC父类</span></div><div class="line">    <span class="keyword">uint8_t</span> value;  <span class="comment">// 信号量值</span></div><div class="line">&#125; <span class="keyword">ezos_sem_t</span>;</div></pre></td></tr></table></figure>
+<p>所有IPC的添加与删除都是对此链表的操作, 使用函数为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ezos_t</span> ezos_ipc_add(<span class="keyword">void</span> *name, <span class="keyword">ezos_t</span> type)</div><div class="line"><span class="keyword">ezos_t</span> ezos_ipc_delete(<span class="keyword">void</span> *name)</div></pre></td></tr></table></figure>
+<h2 id="IPC的使用"><a href="#IPC的使用" class="headerlink" title="IPC的使用"></a>IPC的使用</h2><p>IPC的释放/发送较简单, IPC的获取/接收使用稍有复杂, 主要是需要判断IPC的返回值, 并进行相关操作.此处已信号量(sem)为例.<br>原函数见:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ezos_t</span> ezos_sem_release(<span class="keyword">ezos_sem_t</span> *sem)</div><div class="line"><span class="keyword">ezos_t</span> ezos_sem_take(<span class="keyword">ezos_sem_t</span> *sem, <span class="keyword">int32_t</span> timeout)</div></pre></td></tr></table></figure>
+<p>对于 ezos_sem_take, 返回值种类有4种! 依次为:</p>
+<ol>
+<li><code>EZOS_OK</code>,      获取信号量成功</li>
+<li><code>EZOS_WAIT</code>,    需要等待信号量, 返回此值后, 原函数需要return</li>
+<li><code>EZOS_TIMEOUT</code>, 信号量等待超时</li>
+<li><code>EZOS_ERROR</code>,   指定信号量有错误, 说明代码有误</li>
+</ol>
+<p>使用信号量时, 基本格式为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">EZOS_TASK(task_sem)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">ezos_t</span> val;</div><div class="line">    val = ezos_sem_take(lock, <span class="number">10</span>);</div><div class="line">    <span class="keyword">if</span> (val == EZOS_WAIT) <span class="keyword">return</span>;                       <span class="comment">// 直接返回等待</span></div><div class="line">    <span class="keyword">if</span> (val == EZOS_OK)           &#123;do_something();&#125;     <span class="comment">// 成功获取信号量</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (val == EZOS_TIMEOUT) &#123;do_something();&#125;     <span class="comment">// 信号量超时处理</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (val == EZOS_ERROR)   &#123;exception();&#125;        <span class="comment">// 异常处理</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="IPC编程范例"><a href="#IPC编程范例" class="headerlink" title="IPC编程范例"></a>IPC编程范例</h2><ol>
+<li>信号量(sem), 见范例 <code>app_sem</code></li>
+<li>互斥量(mutex) 及 事件(event) 与 信号量类型, 略</li>
+<li>邮箱(mailbox),  见范例 <code>app_mail</code></li>
+<li>消息队列(message),  见范例 <code>app_message</code></li>
+</ol>
+<h1 id="ezos-源码"><a href="#ezos-源码" class="headerlink" title="ezos 源码"></a>ezos 源码</h1><p>已将源码放在了 <a href="https://github.com/draapho/ezos" target="_blank" rel="external">github-ezos</a><br>该源码是一个针对stm32f1xx系列的工程模板文件.<br>分层非常清楚, 整个代码结构框架如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">         --------------- 最高层 ----------------</div><div class="line">        |                                       |</div><div class="line">层一    |        applications (应用层)          |</div><div class="line">        |                                       |</div><div class="line">         ---------------------------------------</div><div class="line">        |                                       |</div><div class="line">层二    |          components (组件层)          |</div><div class="line">        |                                       |</div><div class="line"> --------------------------------------------------------</div><div class="line">|                  API (应用程序编程接口)                |</div><div class="line"> --------------------------------------------------------</div><div class="line">        |                                       |</div><div class="line">层三    |             OS (操作系统)             |</div><div class="line">        |                                       |</div><div class="line">         ---------------------------------------</div><div class="line">        |                                       |</div><div class="line">层四    |            drivers (驱动层)           |</div><div class="line">        |                                       |</div><div class="line"> --------------------------------------------------------</div><div class="line">|                CMSIS （Cortex软件标准接口）            |</div><div class="line"> --------------------------------------------------------</div><div class="line">        |                                       |</div><div class="line">层五    |           libraries (芯片库)          |</div><div class="line">        |                                       |</div><div class="line">         --------------- 最低层 ----------------</div></pre></td></tr></table></figure>
+<ol>
+<li><p>applications：应用层</p>
+<ul>
+<li>包含了main文件, 中断处理文件, 系统配置文件</li>
+<li>不建议直接调用最底层 Libraries</li>
+<li>放在bsp中, 有利于使用不同的开发板开发应用</li>
+</ul>
+</li>
+<li><p>components：组件层</p>
+<ul>
+<li>按大功能划分的软件组件。如音频组件、UI组件</li>
+<li>不建议直接调用最底层 Libraries</li>
+<li>用户可在此处添加特定工程的组件层</li>
+<li>用户可在此处添加常用的组件层(完善模板)</li>
+</ul>
+</li>
+<li><p>OS：操作系统</p>
+<ul>
+<li>有些操作系统需要提供标准接口函数, 比drivers层高.</li>
+<li>ezos操作系统与drivers同层，相互不得调用</li>
+</ul>
+</li>
+<li><p>drivers：PCB板级驱动</p>
+<ul>
+<li>如按键、EEPROM、模拟I2C等等</li>
+<li>该层要能对上屏蔽掉最底层 Libraries<br>这样起到承上启下的作用,方便跨平台移植</li>
+<li>用户可在此处添加特定的驱动</li>
+<li>用户可在此处添加常用的驱动(完善模板)</li>
+</ul>
+</li>
+<li><p>libraries：MCU外设库</p>
+<ul>
+<li>此部分由芯片厂商提供，是标准库</li>
+<li>用户不得修改此层</li>
+</ul>
+</li>
+<li><p>bsp：板级支持包</p>
+<ul>
+<li>applications应用层放在此包中</li>
+<li>components特定工程组件层放在此包中</li>
+<li>提供开发板工程模板</li>
+</ul>
+</li>
+<li><p>documents：文档说明</p>
+<ul>
+<li>提供 doxygen 注释风格的模板，说明，软件</li>
+<li>STM32工程模板说明</li>
+<li>用户可在此处添加其它说明性文件</li>
+</ul>
+</li>
+<li><p>API：Application Programming Interface，应用程序编程接口</p>
+<ul>
+<li>API旨在提供软件抽象层，加快项目的开发和移植速度</li>
+<li>层一、层二的应用都应该基于API函数来使用</li>
+<li>API函数由 Drivers 和 OS 提供, Libraries不得提供函数到应用接口</li>
+<li>API函数必须使用标准C书写，与软件平台和硬件完全无关</li>
+</ul>
+</li>
+<li><p>CMSIS：Cortex Microcontroller Software Interface Standard，Cortex软件标准接口</p>
+<ul>
+<li>CMSIS是ARM公司发布的一个标准接口，旨在提供Cortex-M处理器系列硬件抽象层</li>
+<li>仅 Drivers 和 OS 可直接调用 CMSIS 的函数</li>
+<li>目前仅提供了芯片核心部分的CMSIS，芯片外设标准库仍是由ST官方书写的</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[使用网络爬虫抓取商品价格并分析]]></title>
+      <url>https://draapho.github.io/2017/04/10/1711-web-spider/</url>
+      <content type="html"><![CDATA[<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>基于 <a href="http://www.chemistwarehouse.com.au/" target="_blank" rel="external">Chemist Warehouse</a> 的商品, 抓取其每天的价格变化. 并根据历史信息, 判断其价格变化规律, 以便在打折时购买.</p>
+<p>因此, 用户需求有如下几点:</p>
+<ul>
+<li>抓取网站价格, 需要知道其商品全名, 原价, 打折价, 打折日期, 持续时间</li>
+<li>存储这些数据, 供日后分析使用</li>
+<li>数据挖掘和分析, 已直观的方式多维度显示出来(譬如单品的打折规律, 打折力度, 打折持续时间. 全年的打折规律)</li>
+</ul>
+<p>进一步, 技术分析如下:</p>
+<ul>
+<li>全程使用python即可满足全部需求.</li>
+<li>网络爬虫难度不高, 仅需针对特定商品, 每天抓一次, 无需多线程/进程, 无需登录, 无验证码, 无需考虑反爬虫, 无需额外加载JS程序.</li>
+<li>数据存储, 使用MySQL, 数据需要去重, 仅记录关键信息. 以便减少数据存储量, 简化数据挖掘和分析的工作</li>
+<li>数据图表显示, 使用 matplotlib 即可.</li>
+</ul>
+<p>最终源码见 <a href="https://github.com/draapho/chemistwarehouse-spider" target="_blank" rel="external">github</a></p>
+<h1 id="网络爬虫"><a href="#网络爬虫" class="headerlink" title="网络爬虫"></a>网络爬虫</h1><p>花了二天时间, 简单过了一遍网络爬虫的关键技术. 参考资料如下:</p>
+<ul>
+<li><a href="http://cuiqingcai.com/1052.html" target="_blank" rel="external">Python爬虫学习系列教程-静觅</a></li>
+<li><a href="https://github.com/lining0806/PythonSpiderNotes" target="_blank" rel="external">Python入门网络爬虫之精华版</a></li>
+<li><a href="http://www.w3school.com.cn/xpath/xpath_syntax.asp" target="_blank" rel="external">XPath 语法</a></li>
+</ul>
+<p>本着项目导向, 做出结果为先的思路, 没有一步步的实验. 上来先看了几个爬虫框架.</p>
+<ul>
+<li><code>pyspider</code> 基于web UI, 感觉很直观, 适合于随便玩玩. 个人不喜欢, 二次开发不方便.</li>
+<li>python 下另外一个很有名的框架就是 <code>scrapy</code>, 可惜我连配置安装都没有成功的做完. 适合二次开发.<br>应该是公司网络安全机制比较高, 遇到的问题基本都是SSL相关的, 解决了2-3个, 剩下的实在没有思路去解决了…<br>另外scrapy依赖的库也比较多, 因此初装也就比较麻烦. 安装推荐参考<a href="https://docs.scrapy.org/en/latest/intro/install.html#" target="_blank" rel="external">官网的 Installation guide</a></li>
+<li>使用 <code>requests</code> <code>urllib</code> <code>lxml</code> 库. 简单项目直接用这个就够了.</li>
+<li>最终抓数据只用了 <code>lxml</code> 一个库就完成了数据抓取, 去重的工作. 关键源码如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</div><div class="line"></div><div class="line"><span class="comment"># 获取url的原始数据</span></div><div class="line">doc = html.parse(url)</div><div class="line"><span class="comment"># 获取指定的数据值</span></div><div class="line">names = doc.xpath(<span class="string">'//a[@class="product-container search-result"]/@title'</span>)</div><div class="line"><span class="comment"># 处理数据, 准备存入数据库即可.</span></div><div class="line">name = map(string.strip, names)</div></pre></td></tr></table></figure>
+<p>另:<br>遇到过了错误 <code>There was a problem confirming the ssl certificate: [SSL: CERTIFICATE_VERIFY_FAILED]</code><br>使用 <code>pip --trusted-host pypi.python.org install lxml</code> 即可避免. 也是安全性问题导致的.</p>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><p>同样地, 该项目对数据存储的要求也很低. 直接选择使用MySQL.</p>
+<p>参考资料如下:</p>
+<ul>
+<li><a href="http://www.runoob.com/python/python-mysql.html" target="_blank" rel="external">python操作mysql数据库</a></li>
+<li><a href="http://www.crazyant.net/686.html" target="_blank" rel="external">Python操作Mysql实例代码教程（查询手册）</a></li>
+<li><a href="http://www.cnblogs.com/mr-wid/archive/2013/05/09/3068229.html" target="_blank" rel="external">21分钟 MySQL 入门教程</a></li>
+</ul>
+<p>Windows 下配置使用MySQL:</p>
+<ul>
+<li>下载运行 <a href="https://dev.mysql.com/downloads/windows/" target="_blank" rel="external">MySQL Installer</a></li>
+<li>必须安装 <code>MySQL Server</code>. 建议安装 <code>MySQL Workbench</code>, 为可视化图像, 便于管理查看.</li>
+<li>将<code>mysql.exe</code>的路径添加<code>PATH</code>环境变量.</li>
+<li><p>创建新的数据库(Workbecn下, 英文为<code>schema</code>), 命名为 <code>chemistwarehouse</code>. 或者输入指令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql -u root -p      <span class="comment"># 登录本机的MySQL数据库服务</span></div><div class="line"><span class="comment"># mysql&gt;              # 成功后, 提示符变为 mysql&gt;</span></div><div class="line">create database chemistwarehouse; <span class="comment"># 创建一个数据库</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>安装 <a href="https://sourceforge.net/projects/mysql-python/" target="_blank" rel="external">MySQL for Python</a><br>然后, 在python下面测试一下是否可以成功连接到刚建立的 <code>chemistwarehouse</code> 数据库.<br>成功的话, 会打印版本信息.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initDatabase</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="comment"># 连接mysql的方法：connect('ip','user','password','dbname')</span></div><div class="line">        connect_db = db.connect(</div><div class="line">            <span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'root'</span>, <span class="string">'chemistwarehouse'</span>)</div><div class="line">        <span class="comment"># 所有的查询，都在连接con的一个模块cursor上面运行的</span></div><div class="line">        cur = connect_db.cursor()</div><div class="line">        <span class="comment"># 执行一个查询</span></div><div class="line">        cur.execute(<span class="string">"SELECT VERSION()"</span>)</div><div class="line">        <span class="comment"># 取得上个查询的结果，是单个结果</span></div><div class="line">        data = cur.fetchone()</div><div class="line">        <span class="keyword">print</span> <span class="string">"Database version : %s "</span> % data</div><div class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">        logging.error(e)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        <span class="keyword">if</span> connect_db:</div><div class="line">            <span class="comment"># 无论如何，连接记得关闭</span></div><div class="line">            connect_db.close()</div><div class="line"></div><div class="line">initDatabase()</div></pre></td></tr></table></figure>
+</li>
+<li><p>至此, 就可以在python下正常使用MySQL数据库了.<br>将提取出来的数据去重后, 按一定的格式保存进数据库即可.</p>
+</li>
+</ul>
+<h1 id="数据显示"><a href="#数据显示" class="headerlink" title="数据显示"></a>数据显示</h1><hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[jz2440 裸板程序的开发]]></title>
       <url>https://draapho.github.io/2017/04/05/1710-jz2440-led/</url>
       <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>s3c2440 的裸板开发和单片机无异, 此文主要目的是<strong>熟悉linux下的交叉编译环境和开发方式</strong>.</p>

@@ -1,0 +1,885 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="embedded,ezos," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="ezos开发历史ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.由于使用起来非常方便,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ezos简要用户手册">
+<meta property="og:url" content="https://draapho.github.io/2017/04/10/1712-ezos/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="ezos开发历史ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.由于使用起来非常方便,">
+<meta property="og:updated_time" content="2017-04-10T03:29:56.104Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ezos简要用户手册">
+<meta name="twitter:description" content="ezos开发历史ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.由于使用起来非常方便,">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/04/10/1712-ezos/"/>
+
+
+  <title> ezos简要用户手册 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ezos简要用户手册
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-10T00:00:00+10:00" content="2017-04-10">
+              2017-04-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="ezos开发历史"><a href="#ezos开发历史" class="headerlink" title="ezos开发历史"></a>ezos开发历史</h1><p>ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.<br>并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.<br>由于使用起来非常方便, 代码为纯C语言, 简单易懂, 因此命名为 ezos, 即easy OS.</p>
+<p>后续由 TCS 胡工加入了任务参数, 静态任务, 可实例化任务的概念.<br>整合这些概念后, 重写了部分代码, 将ezos的版本升级至较为实用的V1.3.1.在这个阶段, 使用ezos做了功能较为复杂的项目, 并发现一些任务通讯和同步的问题,<br>在借鉴了抢占式RTOS的一些特性后, 决心重写ezos, 将其变为真正的协作式RTOS. 同时要求代码依旧清晰简洁, 可适用于资源较少的8位单片机应用.</p>
+<p>基于以上想法, 将ezos的提升到了V2开始的主版本. 将代码改为linux书写规范, 进化为协作式OS, 支持254级优先级. 使用了链表, 重写所有系统函数.<br>还有, 非常重要的是, 增加了任务间的通讯方式, 支持信号量, 互斥量, 事件, 邮箱, 消息队列.
+ </p>
+<h1 id="ezos-原理介绍"><a href="#ezos-原理介绍" class="headerlink" title="ezos 原理介绍"></a>ezos 原理介绍</h1><p>ezos是协作式的操作系统, 即支持优先级, 支持任务间通讯. 但任务的轮询调度不是抢占式的, 而必须由任务自己放弃CPU的控制权.<br>即当有一更高优先级的任务需要运行时, ezos并不会马上剥夺现有任务CPU的控制权, 必须等待现有任务自己放弃CPU的控制权, 更高优先级的任务才会被运行.</p>
+<p>一个软件系统是否需要使用操作系统, 操作系统的好坏, 个人明确强调, 没有最好只有最合适!<br>这是嵌入式行业的原则之一, 如果有最好最合适的, 那就成了通用的PC行业软件开发, 而非嵌入式软件开发了.</p>
+<p>对于软件功能非常简单的嵌入式系统, 前后台/超循环模式可能就是最好的! 资源开销小, 代码直观, 易于调试.<br>对于有一定复杂度的嵌入式系统, 就需要使用操作系统了, 否则软件会变得难以开发, 难以理解和阅读, 难以维护和升级……<br>对于一般复杂度的嵌入式软件, 使用协作式的操作系统是个不错的选择, 相对于抢占式的操作系统, 其缺点为响应时间较慢(但并非不可控制). 优点为系统代码和占用资源很小, 任务流程容易预测, 便于调试和开发.<br>抢占式操作系统的一个最大特点是: 任务随时随地都可能被优先级更高的任务剥夺运行权, 因此也就需要程序员充分考虑任务的原子性要求, 但这是需要培训和经验积累的.<br>问题的严重性更在于, 此类问题很难跟踪调试, 容易让产品是不稳定的. 因此使用协作式的操作系统, 对程序员的要求较低, 也更易于开发出稳定可靠的产品.</p>
+<h2 id="ezos的任务数据"><a href="#ezos的任务数据" class="headerlink" title="ezos的任务数据"></a>ezos的任务数据</h2><p>ezos的任务数据存放在 ezos_task_t task_link[__EZOS_TASK_NUM];<br>ezos内置一个idle任务数据, 取名idle, 优先级最低, 为255. 可以简单理解为它是任务数据的表头.<br>当调用ezos_add(), ezos_delete()时, 会自行分配或释放此数据空间.</p>
+<h2 id="任务链表和回收链表"><a href="#任务链表和回收链表" class="headerlink" title="任务链表和回收链表"></a>任务链表和回收链表</h2><p>ezos核心思想是两组单向链表: <code>任务链表</code> 和 <code>回收链表</code></p>
+<ul>
+<li><code>任务链表</code>为单向循环链表, 链表起始节点存放着系统空闲任务.<br>后面的节点按照任务优先级的先后顺序进行排序.<br>对于同优先级的任务, 任务添加或任务改变自身状态时, 会将该任务节点放到同优先级链表节点的末尾.<br>因此, 任务链表从idle往后, 一定是按照优先级顺序排列好的!</li>
+</ul>
+<p>举例来说, 任务列表如下: 优先级1 -&gt; 优先级3 -&gt; 优先级3 -&gt; 优先级10 -&gt; 优先级11 -&gt; idle(255)<br>则ezos 会按照顺序依次查询任务列表中任务的状态. 更根据状态确定是执行任务还是跳过任务.<br>上表中, 如果新增一个优先级为2的任务, 则此任务会被放在优先级1和优先级3之间.<br>如果新增一个优先级为3的任务, 则此任务会被放在优先级10之前.<br>另外, 如果第一个优先级3的任务运行过后, 也会被放在优先级10之前, 以便让同优先级的其它任务运行.</p>
+<ul>
+<li><code>回收链表</code>为单向非循环链表, 被删除的任务节点放到到回收链表中.<br>而被添加的任务节点从回收链表取出并分配到任务链表中.</li>
+</ul>
+<h2 id="ezos的任务状态"><a href="#ezos的任务状态" class="headerlink" title="ezos的任务状态:"></a>ezos的任务状态:</h2><p>源码见 <a href="https://github.com/draapho/ezos" target="_blank" rel="external">github-ezos</a></p>
+<ol>
+<li>任务删除状态(EZOS_DELETE), 即终止状态. 任务不在任务链表中, 不会运行.</li>
+<li>任务阻塞状态(EZOS_SUSPEND), 任务已在任务链表中, 但被阻塞, 不会被运行. 任务延时也属于阻塞状态.</li>
+<li>任务就绪状态(EZOS_READY), 任务已在任务队列中, 可以运行, 但未必正在运行.</li>
+<li>任务运行状态(EZOS_RUNNING), 任务已在任务列表中, 并正在运行.</li>
+</ol>
+<h2 id="ezos任务调度"><a href="#ezos任务调度" class="headerlink" title="ezos任务调度"></a>ezos任务调度</h2><p>借助于ezos任务链表的良好设计, ezos任务调度非常简单, 每次都是从头开始寻找处于就绪态的任务,运行完某个任务后就从头重新开始搜寻.<br>由于任务链表是按照优先级顺序排序的,这样就实现了高优先级任务的快速响应. 而同优先级任务则是轮询处理的.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">ezos_schedule</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</div><div class="line">    &#123;</div><div class="line">        task = idle.next;</div><div class="line"><span class="comment">// 寻找就绪的任务</span></div><div class="line">        <span class="keyword">while</span> (task-&gt;status != EZOS_READY)  task = task-&gt;next;</div><div class="line">        run = task;</div><div class="line">        run-&gt;status = EZOS_RUNNING;</div><div class="line">        ezos_enable_int(mask);</div><div class="line"><span class="comment">// 运行任务函数</span></div><div class="line">        task-&gt;pfun(&amp;task-&gt;state, &amp;task-&gt;para);</div><div class="line">        mask = ezos_disable_int();</div><div class="line"><span class="comment">// 自动删除任务</span></div><div class="line">        <span class="keyword">if</span> (run-&gt;status == EZOS_RUNNING) ezos_delete_cur();</div><div class="line">        run = &amp;idle;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="任务的重载"><a href="#任务的重载" class="headerlink" title="任务的重载"></a>任务的重载</h1><p>由于加入了任务的命名体系, 对于可重载的函数就可以添加多个任务了. 而所有的任务操作依据就是任务的名称.<br>任务的名称是不可重复的.对于静态任务函数, 一般将其函数名命名为任务名称即可,<br>方便又好记.对于可重载函数的多个任务, 建议使用 <code>函数名+0</code>, <code>函数名+1</code> 的方式来命名任务名称.</p>
+<h1 id="ezos-使用方法"><a href="#ezos-使用方法" class="headerlink" title="ezos 使用方法"></a>ezos 使用方法</h1><h2 id="ezos-基础函数"><a href="#ezos-基础函数" class="headerlink" title="ezos 基础函数"></a>ezos 基础函数</h2><p>为了让ezos工作起来, 相关的基础函数有3个.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ezos_init();        <span class="comment">// ezos初始化函数, main函数尽早调用</span></div><div class="line">ezos_scan_1ms();    <span class="comment">// 1ms定时函数, 1ms定时中断调用</span></div><div class="line">ezos_schedule();    <span class="comment">// ezos调度函数, 为死循环. main函数最后调用</span></div></pre></td></tr></table></figure>
+<h2 id="ezos调试函数"><a href="#ezos调试函数" class="headerlink" title="ezos调试函数"></a>ezos调试函数</h2><p>主要有两个调试函数.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ezos_trash_num_min_get();   <span class="comment">// 获取系统最小的剩余任务空间</span></div><div class="line">ezos_idle_tick_max_get();   <span class="comment">// 获取idle任务运行间隔最大时间</span></div></pre></td></tr></table></figure></p>
+<ul>
+<li><p><code>ezos_trash_num_min_get</code> 获取系统最小的剩余任务空间.<br>可用来判断设置的任务数量是否合适, 太小会让任务添加失败, 太大会造成RAM的浪费(但不会造成运算效率的浪费).<br>在稳定运行系统一定的时间后, 根据观察结构, 调整 <code>__EZOS_TASK_NUM</code> 值即可, 建议根据结果, 再预留2-5个任务较为合理</p>
+</li>
+<li><p><code>ezos_idle_tick_max_get</code> 获取idle任务运行间隔最大时间.<br>可用来判断CPU是否任务过重, 以及任务切换最慢响应时间(最低优先级任务的最差情况).</p>
+</li>
+<li><p>而最高优先级任务的最差情况. 根据协作式的特点分析可知:<br>最高优先级任务的响应时间 = 某个独占CPU时间最长的ezos任务<br>因此, 在ezos任务中, 不要使用独占CPU的长延时!!! 如果任务过重, 可手动拆分成多个小任务, 完成一次小任务就主动放弃一次CPU的控制权.</p>
+</li>
+</ul>
+<h2 id="常用的任务函数"><a href="#常用的任务函数" class="headerlink" title="常用的任务函数"></a>常用的任务函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ezos_t</span> ezos_add(<span class="keyword">void</span> *name,                 <span class="comment">// 任务名称(ID), 该任务的唯一标识</span></div><div class="line">    <span class="keyword">void</span> (*pfun)(<span class="keyword">ezos_s_t</span>*, <span class="keyword">ezos_p_t</span>*),     <span class="comment">// 任务函数</span></div><div class="line">    <span class="keyword">ezos_p_t</span> para,                          <span class="comment">// 任务初始参数</span></div><div class="line">    <span class="keyword">int32_t</span> delay_time,                     <span class="comment">// 任务延时时间</span></div><div class="line">    <span class="keyword">uint8_t</span> priority);                      <span class="comment">// 任务优先级</span></div><div class="line"></div><div class="line">quick_add();                <span class="comment">// 快速添加任务, 用的较多, 输入参数只需pfun和priority.</span></div><div class="line">force_add();                <span class="comment">// 强制添加任务, 会先删除该任务, 再重新添加</span></div><div class="line"></div><div class="line">ezos_delay(<span class="keyword">int32_t</span> time);   <span class="comment">// 任务延时函数</span></div></pre></td></tr></table></figure>
+<h2 id="ezos编程范例"><a href="#ezos编程范例" class="headerlink" title="ezos编程范例"></a>ezos编程范例</h2><p>源码见 <a href="https://github.com/draapho/ezos" target="_blank" rel="external">github-ezos</a></p>
+<ol>
+<li>单次任务, 见范例 <code>app_lcd</code> 之 <code>task_lcd</code></li>
+<li>循环任务, 见范例 <code>app_rtc</code> 之 <code>task_rtc_1s</code></li>
+<li>状态机任务, 见范例 <code>app_race_led</code> 之 <code>task_race_led</code></li>
+<li>复杂任务, 见范例 <code>app_bell</code> 之 <code>task_bell_1s</code></li>
+<li>可重入任务, 见范例 <code>app_sem</code> 之 <code>task_led</code></li>
+<li>任务的拆分, 见范例 <code>ITT100 dv_pic</code> 之 <code>SavePIPtoSPI</code></li>
+</ol>
+<p> </p>
+<h1 id="ezos之任务通讯"><a href="#ezos之任务通讯" class="headerlink" title="ezos之任务通讯"></a>ezos之任务通讯</h1><p>ezos的任务通讯相关函数统一放在 <code>ezos_ipc.c</code> 文件下.<br>ezos会将所有的添加的ipc串成一个链表. 其数据结构如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> __ezos_ipc</div><div class="line">&#123;</div><div class="line">    <span class="keyword">void</span> *next;         <span class="comment">// 下个IPC指针</span></div><div class="line">    <span class="keyword">void</span> *name;         <span class="comment">// 当前IPC指针</span></div><div class="line">    <span class="keyword">ezos_t</span> type;        <span class="comment">// IPC类型</span></div><div class="line">&#125;;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> __ezos_ipc   <span class="keyword">ezos_ipc_t</span>;</div></pre></td></tr></table></figure>
+<p>此数据结构相当于ipc的父类, 基于此父类, 下面会衍生出各个IPC子类,<br>如信号量:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">ezos_ipc_t</span> ipc; <span class="comment">// IPC父类</span></div><div class="line">    <span class="keyword">uint8_t</span> value;  <span class="comment">// 信号量值</span></div><div class="line">&#125; <span class="keyword">ezos_sem_t</span>;</div></pre></td></tr></table></figure>
+<p>所有IPC的添加与删除都是对此链表的操作, 使用函数为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ezos_t</span> ezos_ipc_add(<span class="keyword">void</span> *name, <span class="keyword">ezos_t</span> type)</div><div class="line"><span class="keyword">ezos_t</span> ezos_ipc_delete(<span class="keyword">void</span> *name)</div></pre></td></tr></table></figure>
+<h2 id="IPC的使用"><a href="#IPC的使用" class="headerlink" title="IPC的使用"></a>IPC的使用</h2><p>IPC的释放/发送较简单, IPC的获取/接收使用稍有复杂, 主要是需要判断IPC的返回值, 并进行相关操作.此处已信号量(sem)为例.<br>原函数见:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ezos_t</span> ezos_sem_release(<span class="keyword">ezos_sem_t</span> *sem)</div><div class="line"><span class="keyword">ezos_t</span> ezos_sem_take(<span class="keyword">ezos_sem_t</span> *sem, <span class="keyword">int32_t</span> timeout)</div></pre></td></tr></table></figure>
+<p>对于 ezos_sem_take, 返回值种类有4种! 依次为:</p>
+<ol>
+<li><code>EZOS_OK</code>,      获取信号量成功</li>
+<li><code>EZOS_WAIT</code>,    需要等待信号量, 返回此值后, 原函数需要return</li>
+<li><code>EZOS_TIMEOUT</code>, 信号量等待超时</li>
+<li><code>EZOS_ERROR</code>,   指定信号量有错误, 说明代码有误</li>
+</ol>
+<p>使用信号量时, 基本格式为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">EZOS_TASK(task_sem)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">ezos_t</span> val;</div><div class="line">    val = ezos_sem_take(lock, <span class="number">10</span>);</div><div class="line">    <span class="keyword">if</span> (val == EZOS_WAIT) <span class="keyword">return</span>;                       <span class="comment">// 直接返回等待</span></div><div class="line">    <span class="keyword">if</span> (val == EZOS_OK)           &#123;do_something();&#125;     <span class="comment">// 成功获取信号量</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (val == EZOS_TIMEOUT) &#123;do_something();&#125;     <span class="comment">// 信号量超时处理</span></div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (val == EZOS_ERROR)   &#123;exception();&#125;        <span class="comment">// 异常处理</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="IPC编程范例"><a href="#IPC编程范例" class="headerlink" title="IPC编程范例"></a>IPC编程范例</h2><ol>
+<li>信号量(sem), 见范例 <code>app_sem</code></li>
+<li>互斥量(mutex) 及 事件(event) 与 信号量类型, 略</li>
+<li>邮箱(mailbox),  见范例 <code>app_mail</code></li>
+<li>消息队列(message),  见范例 <code>app_message</code></li>
+</ol>
+<h1 id="ezos-源码"><a href="#ezos-源码" class="headerlink" title="ezos 源码"></a>ezos 源码</h1><p>已将源码放在了 <a href="https://github.com/draapho/ezos" target="_blank" rel="external">github-ezos</a><br>该源码是一个针对stm32f1xx系列的工程模板文件.<br>分层非常清楚, 整个代码结构框架如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">         --------------- 最高层 ----------------</div><div class="line">        |                                       |</div><div class="line">层一    |        applications (应用层)          |</div><div class="line">        |                                       |</div><div class="line">         ---------------------------------------</div><div class="line">        |                                       |</div><div class="line">层二    |          components (组件层)          |</div><div class="line">        |                                       |</div><div class="line"> --------------------------------------------------------</div><div class="line">|                  API (应用程序编程接口)                |</div><div class="line"> --------------------------------------------------------</div><div class="line">        |                                       |</div><div class="line">层三    |             OS (操作系统)             |</div><div class="line">        |                                       |</div><div class="line">         ---------------------------------------</div><div class="line">        |                                       |</div><div class="line">层四    |            drivers (驱动层)           |</div><div class="line">        |                                       |</div><div class="line"> --------------------------------------------------------</div><div class="line">|                CMSIS （Cortex软件标准接口）            |</div><div class="line"> --------------------------------------------------------</div><div class="line">        |                                       |</div><div class="line">层五    |           libraries (芯片库)          |</div><div class="line">        |                                       |</div><div class="line">         --------------- 最低层 ----------------</div></pre></td></tr></table></figure>
+<ol>
+<li><p>applications：应用层</p>
+<ul>
+<li>包含了main文件, 中断处理文件, 系统配置文件</li>
+<li>不建议直接调用最底层 Libraries</li>
+<li>放在bsp中, 有利于使用不同的开发板开发应用</li>
+</ul>
+</li>
+<li><p>components：组件层</p>
+<ul>
+<li>按大功能划分的软件组件。如音频组件、UI组件</li>
+<li>不建议直接调用最底层 Libraries</li>
+<li>用户可在此处添加特定工程的组件层</li>
+<li>用户可在此处添加常用的组件层(完善模板)</li>
+</ul>
+</li>
+<li><p>OS：操作系统</p>
+<ul>
+<li>有些操作系统需要提供标准接口函数, 比drivers层高.</li>
+<li>ezos操作系统与drivers同层，相互不得调用</li>
+</ul>
+</li>
+<li><p>drivers：PCB板级驱动</p>
+<ul>
+<li>如按键、EEPROM、模拟I2C等等</li>
+<li>该层要能对上屏蔽掉最底层 Libraries<br>这样起到承上启下的作用,方便跨平台移植</li>
+<li>用户可在此处添加特定的驱动</li>
+<li>用户可在此处添加常用的驱动(完善模板)</li>
+</ul>
+</li>
+<li><p>libraries：MCU外设库</p>
+<ul>
+<li>此部分由芯片厂商提供，是标准库</li>
+<li>用户不得修改此层</li>
+</ul>
+</li>
+<li><p>bsp：板级支持包</p>
+<ul>
+<li>applications应用层放在此包中</li>
+<li>components特定工程组件层放在此包中</li>
+<li>提供开发板工程模板</li>
+</ul>
+</li>
+<li><p>documents：文档说明</p>
+<ul>
+<li>提供 doxygen 注释风格的模板，说明，软件</li>
+<li>STM32工程模板说明</li>
+<li>用户可在此处添加其它说明性文件</li>
+</ul>
+</li>
+<li><p>API：Application Programming Interface，应用程序编程接口</p>
+<ul>
+<li>API旨在提供软件抽象层，加快项目的开发和移植速度</li>
+<li>层一、层二的应用都应该基于API函数来使用</li>
+<li>API函数由 Drivers 和 OS 提供, Libraries不得提供函数到应用接口</li>
+<li>API函数必须使用标准C书写，与软件平台和硬件完全无关</li>
+</ul>
+</li>
+<li><p>CMSIS：Cortex Microcontroller Software Interface Standard，Cortex软件标准接口</p>
+<ul>
+<li>CMSIS是ARM公司发布的一个标准接口，旨在提供Cortex-M处理器系列硬件抽象层</li>
+<li>仅 Drivers 和 OS 可直接调用 CMSIS 的函数</li>
+<li>目前仅提供了芯片核心部分的CMSIS，芯片外设标准库仍是由ST官方书写的</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/embedded/" rel="tag">#embedded</a>
+          
+            <a href="/tags/ezos/" rel="tag">#ezos</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/10/1711-web-spider/" rel="next" title="使用网络爬虫抓取商品价格并分析">
+                <i class="fa fa-chevron-left"></i> 使用网络爬虫抓取商品价格并分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">50</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ezos开发历史"><span class="nav-number">1.</span> <span class="nav-text">ezos开发历史</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ezos-原理介绍"><span class="nav-number">2.</span> <span class="nav-text">ezos 原理介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ezos的任务数据"><span class="nav-number">2.1.</span> <span class="nav-text">ezos的任务数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任务链表和回收链表"><span class="nav-number">2.2.</span> <span class="nav-text">任务链表和回收链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ezos的任务状态"><span class="nav-number">2.3.</span> <span class="nav-text">ezos的任务状态:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ezos任务调度"><span class="nav-number">2.4.</span> <span class="nav-text">ezos任务调度</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#任务的重载"><span class="nav-number">3.</span> <span class="nav-text">任务的重载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ezos-使用方法"><span class="nav-number">4.</span> <span class="nav-text">ezos 使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ezos-基础函数"><span class="nav-number">4.1.</span> <span class="nav-text">ezos 基础函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ezos调试函数"><span class="nav-number">4.2.</span> <span class="nav-text">ezos调试函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用的任务函数"><span class="nav-number">4.3.</span> <span class="nav-text">常用的任务函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ezos编程范例"><span class="nav-number">4.4.</span> <span class="nav-text">ezos编程范例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ezos之任务通讯"><span class="nav-number">5.</span> <span class="nav-text">ezos之任务通讯</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IPC的使用"><span class="nav-number">5.1.</span> <span class="nav-text">IPC的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IPC编程范例"><span class="nav-number">5.2.</span> <span class="nav-text">IPC编程范例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ezos-源码"><span class="nav-number">6.</span> <span class="nav-text">ezos 源码</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
