@@ -104,7 +104,7 @@ L2CAP, Logical Link Control and Adaptation">
 <meta property="og:image" content="https://draapho.github.io/images/1713/ble-connect.png">
 <meta property="og:image" content="https://draapho.github.io/images/1713/ble-gatt1.png">
 <meta property="og:image" content="https://draapho.github.io/images/1713/ble-gatt.gif">
-<meta property="og:updated_time" content="2017-04-20T06:52:44.750Z">
+<meta property="og:updated_time" content="2017-04-21T11:58:22.107Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BLE基础概念">
 <meta name="twitter:description" content="ble 架构
@@ -418,16 +418,69 @@ L2CAP, Logical Link Control and Adaptation">
 </tr>
 </tbody>
 </table>
-<h2 id="Scanning"><a href="#Scanning" class="headerlink" title="Scanning"></a>Scanning</h2><pre><code>参数 | 数值 | 说明
-</code></pre><p>——–|———-|———<br>Scan interval |  2.5 ms to 10240 ms | 定义扫描时间间隔<br>Scan window |  2.5 ms to 10240 ms | 定义扫描时间窗口<br>Scan mode | Active / Passive | 主动扫描(会发送Scan Request)</p>
+<h2 id="Scanning"><a href="#Scanning" class="headerlink" title="Scanning"></a>Scanning</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scan interval</td>
+<td>2.5 ms to 10240 ms</td>
+<td>定义扫描时间间隔</td>
+</tr>
+<tr>
+<td>Scan window</td>
+<td>2.5 ms to 10240 ms</td>
+<td>定义扫描时间窗口</td>
+</tr>
+<tr>
+<td>Scan mode</td>
+<td>Active / Passive</td>
+<td>主动扫描(会发送Scan Request)</td>
+</tr>
+</tbody>
+</table>
 <p>上图:<br><img src="https://draapho.github.io/images/1713/ble-scan.PNG" alt="ble scan"></p>
 <h2 id="Connections"><a href="#Connections" class="headerlink" title="Connections"></a>Connections</h2><ul>
 <li>建立通讯后, 设备的角色被分为 Master 和 Slave</li>
 <li>发起建立通讯的设备, 即 Initiating 状态的扫描者, 为 Master</li>
-<li><p>之前在广播状态的设备, 即 Advertising 状态的广播者, 为 Slave</p>
-<p>参数 | 数值 | 说明<br>——–|———-|———<br>Minimum Connection Interval |  7.5 ms | 允许的最小连接间隔<br>Maximum Connection Interval |  4000 ms | 允许的最大连接间隔<br>Connection (slave) latency | 0 to 500 | Slaver允许的延迟次数<br>Supervision timeout | 100 ms to 32000 ms | 设置一个失败超时时间</p>
-</li>
+<li>之前在广播状态的设备, 即 Advertising 状态的广播者, 为 Slave</li>
 </ul>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Minimum Connection Interval</td>
+<td>7.5 ms</td>
+<td>允许的最小连接间隔</td>
+</tr>
+<tr>
+<td>Maximum Connection Interval</td>
+<td>4000 ms</td>
+<td>允许的最大连接间隔</td>
+</tr>
+<tr>
+<td>Connection (slave) latency</td>
+<td>0 to 500</td>
+<td>Slaver允许的延迟次数</td>
+</tr>
+<tr>
+<td>Supervision timeout</td>
+<td>100 ms to 32000 ms</td>
+<td>设置一个失败超时时间</td>
+</tr>
+</tbody>
+</table>
 <p>对于 <code>Connection latency</code>, 就是Master会持续发送多个数据包来等待Slaver的回应.</p>
 <p>BLE点对点连接的数据交换示意图, 也同时说明了频道的变化:<br><img src="https://draapho.github.io/images/1713/ble-connect.png" alt="ble connect.png"></p>
 <h1 id="GAP"><a href="#GAP" class="headerlink" title="GAP"></a>GAP</h1><p>通用访问服务, 是对LL层的广播,监听,建立连接功能的抽象, 便于开发人员来理解和开发</p>
