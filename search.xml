@@ -4,6 +4,219 @@
   
     
     <entry>
+      <title><![CDATA[C语言知识巩固]]></title>
+      <url>https://draapho.github.io/2017/05/17/1715_c/</url>
+      <content type="html"><![CDATA[<h1 id="常数的数据类型"><a href="#常数的数据类型" class="headerlink" title="常数的数据类型"></a>常数的数据类型</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1234            <span class="comment">// default type, int</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123456l         <span class="comment">// long</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1234u           <span class="comment">// unsigned int</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123456ul        <span class="comment">// unsigned long</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123.4f          <span class="comment">// float</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1e-2f           <span class="comment">// float</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123.4           <span class="comment">// default type, double</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1e-2            <span class="comment">// default type, double</span></span></div></pre></td></tr></table></figure>
+<h1 id="字符和字符串"><a href="#字符和字符串" class="headerlink" title="字符和字符串"></a>字符和字符串</h1><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">#define X    'x'        // 直接使用字母, 会自动转换为ASCII编码</div><div class="line">#define CR   '\015'     // 八进制表示CR, 以\0开头</div><div class="line">#define CR   '\13'      // 十进制表示CR, 以\开头</div><div class="line">#define CR   '\x0D'     // 十六进制表示CR, 以\x开头</div><div class="line">#define CR   '\r'       // 特殊表示法</div><div class="line"></div><div class="line">// 字符串, 独立使用多个双引号, 也表示一串字符串</div><div class="line">char short_str[] = "hello," " world" "!";</div><div class="line">char long_str[] = "this is a very very long string,"</div><div class="line">                  "so you can set it in multi lines "</div><div class="line">                  "by this way"</div></pre></td></tr></table></figure>
+<h1 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"># <span class="number">1.</span> == 和 != 优先级高于位操作符 &amp; | ^</div><div class="line"><span class="keyword">if</span> ((x &amp; MASK) == <span class="number">0</span>)        <span class="comment">// (x &amp; MASK) 括号不能省!</span></div><div class="line"><span class="keyword">if</span> ( x &amp; y == <span class="number">0</span>)            <span class="comment">// 含义为 x &amp; (y==0)</span></div><div class="line"></div><div class="line"># <span class="number">2.</span> 赋值运算符优先级最低 (只比逗号高一级别)</div><div class="line"><span class="keyword">if</span> ((c = getchar()) != EOF) <span class="comment">// c获得输入值, 然后判断是否是结束符</span></div><div class="line"><span class="keyword">if</span> (c = getchar() != EOF)   <span class="comment">// 含义为 c = (getchar() != EOF), 所以c的赋值为 TRUE 或者 FALSE</span></div><div class="line"></div><div class="line"># <span class="number">3.</span> &amp;&amp; 的优先级 高于 ||</div><div class="line"><span class="keyword">if</span> ((cond1 || cond2) &amp;&amp; cond3)  <span class="comment">// 先或再与</span></div><div class="line"><span class="keyword">if</span> (cond1 || cond2 &amp;&amp; cond3)    <span class="comment">// 含义为 cond1 || (cond2 &amp;&amp; cond3)</span></div><div class="line"></div><div class="line"># <span class="number">4.</span> 算数运算优先级高于位移运算</div><div class="line">(msb &lt;&lt; <span class="number">4</span>) + lsb            <span class="comment">// 先位移, 再做加法</span></div><div class="line">msb &lt;&lt; <span class="number">4</span> + lsb              <span class="comment">// 含义为 msb &lt;&lt; (4 + lsb)</span></div><div class="line"></div><div class="line"># <span class="number">5.</span> 先-&gt;/./&amp;, 然后++/--, 最后 *,</div><div class="line">++p-&gt;len                    <span class="comment">// ++(p-&gt;len), len值++</span></div><div class="line">p-&gt;len++                    <span class="comment">// (p-&gt;len)++, len值++</span></div><div class="line">(++p)-&gt;len                  <span class="comment">// 先加p的值, 然后取len值</span></div><div class="line">p++-&gt;len                    <span class="comment">// (p++)-&gt;len 先加p的值, 然后取len值</span></div><div class="line">p-&gt;++len                    <span class="comment">// p-&gt;(++len) 语法错误, 不知道len是什么!</span></div><div class="line"></div><div class="line">++*p                        <span class="comment">// ++(*p), 内容++</span></div><div class="line">(*p)++                      <span class="comment">// 内容++</span></div><div class="line">*p++                        <span class="comment">// *(p++), 地址++, 然后取内容</span></div><div class="line"></div><div class="line">++*p-&gt;str                   <span class="comment">// ++(*p-&gt;str). str指向的内容++</span></div><div class="line">(*p-&gt;str)++                 <span class="comment">// str指向的内容++</span></div><div class="line">*p-&gt;str++                   <span class="comment">// *(p-&gt;str), (p-&gt;str)++. 取出str的内容, 然后str地址++</span></div><div class="line">*p++-&gt;str                   <span class="comment">// *p-&gt;str, p++. 取出str的内容, 然后p++</span></div><div class="line">*++p-&gt;str                   <span class="comment">// *(++p-&gt;str). str地址++, 然后取str的内容</span></div><div class="line">*p-&gt;++str                   <span class="comment">// *p-&gt;(++str) 语法错误, 不知道str是什么!</span></div><div class="line"></div><div class="line">++*p.len                    <span class="comment">// ++*(p.len), 多数情况下p是指针, 因此语法错误</span></div><div class="line">++(*p).len                  <span class="comment">// ++(p-&gt;len), str值++</span></div><div class="line">(*p++).len                  <span class="comment">// p++-&gt;len, p地址++, 然后取str值</span></div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>运算符</th>
+<th>说明</th>
+<th>结合方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>后置 <code>++</code> <code>--</code></td>
+<td>自增++ 自减–</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>　　</td>
+<td><code>[]</code></td>
+<td>数组下标</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>()</code></td>
+<td>（表达式）/函数名(形参表)</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>.</code></td>
+<td>对象.成员名</td>
+<td></td>
+</tr>
+<tr>
+<td>　</td>
+<td><code>-&gt;</code></td>
+<td>对象指针-&gt;成员名</td>
+<td>　</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>-</code></td>
+<td>负号</td>
+<td>右到左</td>
+</tr>
+<tr>
+<td></td>
+<td><code>(类型)</code></td>
+<td>强制类型转换</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>++</code> <code>--</code> 前置</td>
+<td>++自增 –自减</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>*</code></td>
+<td>*指针表达式</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>&amp;</code></td>
+<td>&amp;左值表达式</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>!</code></td>
+<td>!表达式</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>~</code></td>
+<td>~表达式</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>sizeof</code></td>
+<td>sizeof 表达式/sizeof(类型)</td>
+<td></td>
+</tr>
+<tr>
+<td>　3</td>
+<td><code>*</code> <code>/</code> <code>%</code></td>
+<td>乘 除 取余</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>+</code> <code>-</code></td>
+<td>加 减</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td>
+<td>左移 右移</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>&gt;</code> <code>&gt;=</code> <code>&lt;</code> <code>&lt;=</code></td>
+<td>大于(等于) 小于(等于)</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>==</code> <code>!=</code></td>
+<td>等于 不等于</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>&amp;</code></td>
+<td>按位与</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>^</code></td>
+<td>按位异或</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>l</code> (竖杠)</td>
+<td>按位或</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>&amp;&amp;</code></td>
+<td>逻辑与</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>ll</code> (竖杠)</td>
+<td>逻辑或</td>
+<td>左到右</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>?:</code></td>
+<td>表达式1? 表达式2: 表达式3</td>
+<td>右到左</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>=</code> <code>/=</code> <code>*=</code> <code>%=</code> <code>+=</code> <code>-=</code></td>
+<td>赋值运算符</td>
+<td>右到左</td>
+</tr>
+<tr>
+<td></td>
+<td><code>&lt;&lt;=</code> <code>&gt;&gt;=</code> <code>&amp;=</code> <code>^=</code> <code>l=</code> (竖杠)</td>
+<td>位赋值运算符</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>,</code></td>
+<td>表达式,表达式,…</td>
+<td>左到右</td>
+</tr>
+</tbody>
+</table>
+<h1 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 以 const 为例, volitale是一样的.</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">int</span>;          <span class="comment">// int是const</span></div><div class="line"><span class="keyword">int</span> <span class="keyword">const</span>;          <span class="comment">// int是const</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">char</span>*;        <span class="comment">// char是const</span></div><div class="line"><span class="keyword">char</span> <span class="keyword">const</span>*;        <span class="comment">// char是const</span></div><div class="line"><span class="keyword">char</span>* <span class="keyword">const</span>;        <span class="comment">// *(指针)是const</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span>;  <span class="comment">// char和*都是const</span></div><div class="line"><span class="keyword">char</span> <span class="keyword">const</span>* <span class="keyword">const</span>;  <span class="comment">//char和*都是const</span></div></pre></td></tr></table></figure>
+<ul>
+<li><code>register</code>, 建议编译器把该变量直接放到寄存器中, 而不是内存中. 以提高运算速度!<ul>
+<li>注意, 只是<strong>建议</strong>, 因此编译器可以忽略这个关键字</li>
+<li>变量必须是能被CPU寄存器接收的数据类型, 如 <code>int</code></li>
+<li>现代编译器的优化效率很高, 因此 <code>register</code> 很少使用.</li>
+<li><strong>还有一点</strong>. 譬如 <code>register int val;</code> 这时 <code>&amp;val</code> 会报错! 因为取的是内存地址, 而val是在寄存器内, 所以不存在内存地址!</li>
+</ul>
+</li>
+<li><code>auto</code>, 老版本C用于声明这是一个局部变量(与<code>static</code>相反). 新版本用于声明一个自动类型的变量.<ul>
+<li>这个关键字是真没人去用. 因为函数内默认就是局部变量.</li>
+<li>习惯写C的人, 基本习惯了先选好一个数据类型.</li>
+</ul>
+</li>
+</ul>
+<h1 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// #, Stringfication! 将宏变量直接转变为字符串(加上双引号)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> debug(v)        printf(#v <span class="meta-string">"=%x\n"</span>, v)</span></div><div class="line"></div><div class="line">debug(value);           <span class="comment">// 宏展开为 printf("value" "=%x\n", value)</span></div><div class="line">                        <span class="comment">// 若value值为0xFF, 执行结果就是打印出: value=0xFF</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ##, Concatenator! 宏变量连接符, 多用于自动生成变量名</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> CAT(x,y)        x##y</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> LINK(a,b,c)     a##_##b##_##c</span></div><div class="line"></div><div class="line">CAT(var, <span class="number">12</span>);           <span class="comment">// 宏展开为 var12</span></div><div class="line">LINK(name,age,sex);     <span class="comment">// 宏展开为 name_age_sex</span></div><div class="line"></div><div class="line"><span class="comment">// __VA_ARGS__, 宏定义可变参数</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_DEBUG 1</span></div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> DRV_DEBUG</span></div><div class="line">    <span class="meta">#<span class="meta-keyword">define</span> DRV_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">else</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">define</span> DRV_PRINT(fmt, ...)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"></div><div class="line"><span class="comment">// 编译器内置的宏定义:</span></div><div class="line">__LINE__                <span class="comment">// 在源代码中插入当前源代码行号；</span></div><div class="line">__FILE__                <span class="comment">// 在源文件中插入当前源文件名；</span></div><div class="line">__DATE__                <span class="comment">// 在源文件中插入当前的编译日期</span></div><div class="line">__TIME__                <span class="comment">// 在源文件中插入当前编译时间；</span></div><div class="line">__STDC__                <span class="comment">// 当要求程序严格遵循ANSI C标准时该标识被赋值为1；</span></div><div class="line">__cplusplus             <span class="comment">// 当编写C++程序时该标识符被定义。</span></div></pre></td></tr></table></figure>
+<h1 id="typedef-的用法"><a href="#typedef-的用法" class="headerlink" title="typedef 的用法"></a>typedef 的用法</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 我习惯将所有typedef定义为形如 uint8_t, 即已 "_t" 结尾</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span>&#123;</div><div class="line">    <span class="keyword">int</span> x;</div><div class="line">    <span class="keyword">int</span> y;</div><div class="line">&#125; <span class="keyword">point_t</span>;                          <span class="comment">// 数据结构</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*<span class="keyword">pfun_t</span>)</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span></span>;    <span class="comment">// 函数</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> <span class="keyword">array80_t</span>[<span class="number">80</span>];         <span class="comment">// 数组</span></div></pre></td></tr></table></figure>
+<h1 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> *name[] = &#123; <span class="string">"None"</span>, <span class="string">"Jan"</span>, <span class="string">"Feb"</span>, <span class="string">"Mar"</span> &#125;;     <span class="comment">// 指针数组 name</span></div><div class="line"><span class="keyword">int</span> *daytab[<span class="number">13</span>];    <span class="comment">// 指针数组 daytab</span></div><div class="line"><span class="keyword">int</span> (*daytab)[<span class="number">13</span>];  <span class="comment">// 数组指针 daytab, 譬如 int a[3][13], 则可以 p=a; p++后就指向了 &amp;a[1][0]</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> *<span class="title">f</span><span class="params">()</span></span>;           <span class="comment">// f 函数的返回值为指针类型</span></div><div class="line"><span class="keyword">int</span> (*pf)();        <span class="comment">// 函数指针 pf</span></div></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这两个是极端复杂的例子, 实际代码建议先用 typedef 定义好一层, 然后再嵌套使用, 会容易理解的多!</span></div><div class="line"><span class="keyword">char</span> (*(*x[<span class="number">3</span>])())[<span class="number">5</span>];   <span class="comment">// x: array[3] of pointer to function returning pointer to array[5] of char</span></div><div class="line">                        <span class="comment">// x,一个指针数组, 这些指针指向函数, 函数的返回值是数组指针...</span></div><div class="line"><span class="keyword">char</span> (*(*x())[])();     <span class="comment">// x: function returning pointer to array[] of pointer to function returning char</span></div><div class="line">                        <span class="comment">// x,一个函数, 返回值为一个指针. 这个指针指向一个函数指针列表. 函数指针列表指向的函数是返回 char 类型的.</span></div><div class="line"></div><div class="line"><span class="comment">// 举个例子 -----&gt;</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">foo</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'a'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bar</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'b'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">blurga</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'c'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bletch</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'d'</span>; &#125;</div><div class="line"></div><div class="line"><span class="keyword">char</span> (*gfunclist[])() = &#123;foo, bar, blurga, bletch&#125;;</div><div class="line"></div><div class="line"><span class="keyword">char</span> (*(*x())[])()</div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="title">char</span> <span class="params">(*funclist[<span class="number">4</span>])</span><span class="params">()</span> </span>= &#123;foo, bar, blurga, bletch&#125;;</div><div class="line">    <span class="keyword">return</span> &amp;funclist;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,gfunclist[<span class="number">0</span>]());</div><div class="line"></div><div class="line">    <span class="keyword">char</span> (*(*fs)[<span class="number">4</span>])();</div><div class="line">    fs = x();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,(*fs)[<span class="number">1</span>]());</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 更容易读懂的版本 -----&gt;</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">char</span> <span class="params">(*<span class="keyword">pfun_t</span>)</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">foo</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'a'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bar</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'b'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">blurga</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'c'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bletch</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'d'</span>; &#125;</div><div class="line"></div><div class="line"><span class="keyword">pfun_t</span> gfunclist[] = &#123;foo, bar, blurga, bletch&#125;;</div><div class="line"></div><div class="line"><span class="keyword">pfun_t</span>* x()</div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">pfun_t</span> funclist[<span class="number">4</span>] = &#123;foo, bar, blurga, bletch&#125;;</div><div class="line">    <span class="keyword">return</span> funclist;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,gfunclist[<span class="number">0</span>]());</div><div class="line"></div><div class="line">    <span class="keyword">pfun_t</span> *fs;</div><div class="line">    fs = x();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,fs[<span class="number">1</span>]());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="结构体和位域"><a href="#结构体和位域" class="headerlink" title="结构体和位域"></a>结构体和位域</h1><ul>
+<li><code>Bit-fields</code> 位域, 一般不建议使用. 编译器相关且机器相关, 因此可移植性很差.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">union</span> &#123;</div><div class="line">    <span class="keyword">int</span> is;</div><div class="line">    <span class="keyword">struct</span> &#123;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> keyword : <span class="number">1</span>;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="keyword">extern</span> : <span class="number">1</span>;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="keyword">static</span> : <span class="number">1</span>;</div><div class="line">    &#125; flags;</div><div class="line">&#125; bit_union;</div></pre></td></tr></table></figure>
+<h1 id="printf-及-scanf"><a href="#printf-及-scanf" class="headerlink" title="printf 及 scanf"></a>printf 及 scanf</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 打印任意字符串的安全方法</span></div><div class="line"><span class="built_in">printf</span>(s);                      <span class="comment">// FAILS if s contains %</span></div><div class="line"><span class="built_in">printf</span>(<span class="string">"%s"</span>, s);                <span class="comment">// SAFE</span></div><div class="line"></div><div class="line"><span class="comment">// 调用可变参数的方法</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">minprintf</span><span class="params">(<span class="keyword">char</span> *fmt, ...)</span></span></div><div class="line">&#123;</div><div class="line">    va_list ap; <span class="comment">/* points to each unnamed arg in turn */</span></div><div class="line">    va_start(ap, fmt); <span class="comment">/* make ap point to 1st unnamed arg */</span></div><div class="line"></div><div class="line">    <span class="comment">// do something ...</span></div><div class="line">    ival = va_arg(ap, <span class="keyword">int</span>);</div><div class="line">    <span class="comment">// do something ...</span></div><div class="line"></div><div class="line">    va_end(ap);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 宏定义 printf</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// scanf 避免溢出的方法</span></div><div class="line"><span class="built_in">scanf</span>(<span class="string">"%s"</span>, buf);               <span class="comment">// 可能溢出!</span></div><div class="line"><span class="built_in">scanf</span>(<span class="string">"%20s"</span>, buf);             <span class="comment">// 最多读取20个字符串</span></div><div class="line"></div><div class="line"><span class="comment">// 自己写个scanner.</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">scanner</span><span class="params">(<span class="keyword">char</span> *buffer, <span class="keyword">size_t</span> buflen)</span> </span>&#123;</div><div class="line">    <span class="keyword">char</span> format[<span class="number">32</span>];</div><div class="line">    <span class="keyword">if</span> (buflen == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    <span class="built_in">snprintf</span>(format, <span class="keyword">sizeof</span>(format), <span class="string">"%%%ds"</span>, (<span class="keyword">int</span>)(buflen<span class="number">-1</span>));</div><div class="line">    <span class="keyword">return</span> <span class="built_in">scanf</span>(format, buffer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://net.pku.edu.cn/~course/cs101/2008/resource/The_C_Programming_Language.pdf" target="_blank" rel="external">The C programming Language</a></li>
+<li>[Cheat Sheets of the C standard library][<a href="http://ws3.ntcu.edu.tw/ACS099133/cheatsheet/c-libraries-cheatsheet.pdf" target="_blank" rel="external">http://ws3.ntcu.edu.tw/ACS099133/cheatsheet/c-libraries-cheatsheet.pdf</a>]</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[逻辑|这样表达，事半功倍]]></title>
       <url>https://draapho.github.io/2017/05/04/1714-expression/</url>
       <content type="html"><![CDATA[<p><strong><em>转载自 <a href="http://www.jianshu.com/p/a2bcce138f48" target="_blank" rel="external">逻辑|这样表达，事半功倍（附训练方法）</a></em></strong></p>
@@ -6387,31 +6600,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[stm32选型及资料搜索指南]]></title>
-      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
-      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Vim常用快捷键]]></title>
       <url>https://draapho.github.io/2016/10/01/1604-CheatSheet-vim/</url>
       <content type="html"><![CDATA[<h1 id="Vim常用快捷键"><a href="#Vim常用快捷键" class="headerlink" title="Vim常用快捷键"></a>Vim常用快捷键</h1><h2 id="进入输入模式"><a href="#进入输入模式" class="headerlink" title="进入输入模式"></a>进入输入模式</h2><table>
@@ -6781,6 +6969,31 @@
 <li><a href="https://www.gosquared.com/blog/vi-linux-terminal-help-sheet" target="_blank" rel="external">VI (Linux Terminal) Help Sheet</a><br><img src="https://downloads.gosquared.com/help_sheets/10/VI-Help-Sheet-large.jpg" alt="VI Help Sheet"></li>
 <li><a href="http://blog.vgod.tw/2009/12/08/vim-cheat-sheet-for-programmers/" target="_blank" rel="external">給程式設計師的Vim入門圖解說明</a><br><img src="http://blog.vgod.tw.s3.amazonaws.com/wp-content/uploads/2009/12/vim-cheat-sheet-diagram.png" alt="Vim入門圖解說明"></li>
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="external">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[stm32选型及资料搜索指南]]></title>
+      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
+      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
