@@ -260,6 +260,198 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/16/1617-python-terminal/" itemprop="url">
+                  python的第一个小程序, 蓝牙及串口终端
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-16T00:00:00+11:00" content="2016-11-16">
+              2016-11-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
+<li>windows 开发环境</li>
+<li>python 2.7</li>
+<li>pywin32, windows support</li>
+<li>pyserial, serial port, com</li>
+<li>pygatt, ble</li>
+<li>pyinstaller, generate exe file</li>
+<li>qt 4.8 (pyqt 4.11), GUI</li>
+<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a></li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
+<li>略过 python 的安装++</li>
+<li>实际做项目的话, 建议使用2.7版本, 32位(这样生成的exe文件是32位的, 能兼容所有机器)</li>
+<li>安装 pywin32: <code>pip install pypiwin32</code></li>
+<li>安装 pyserial: <code>pip install pyserial</code></li>
+<li>安装 pygatt: <code>pip install pygatt</code>, 事实上, pygatt依赖于pyserial. 因此直接装pygatt也可以</li>
+<li>安装 pyinstaller: <code>pip install pyinstaller</code></li>
+<li>下载并安装 <a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="external">PyQt4-4.11.4-gpl-Py2.7-Qt4.8.7.exe</a><ul>
+<li>注意匹配python版本和32位/64位window</li>
+<li>pyqt5 仅支持 python3 以上版本. 我用 python2.7 是因为需要使用其它的库, 如 <a href="https://labjack.com/" target="_blank" rel="external">LabJack</a></li>
+<li><code>Qt Designer</code> 用于设计UI, 文件格式为<code>.ui</code>. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\designer.exe</code>. 最终取决于Python安装路径</li>
+<li><code>pyuic4.bat</code> 用于将 <code>.ui</code> 文件转换为 <code>.py</code> 文件. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\</code></li>
+<li>把 <code>pyuic4.bat</code> 的路径放入系统环境变量, 这样后续就能方便使用这个指令了</li>
+</ul>
+</li>
+<li>windows平台需要借助 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="external">BLED112 Bluetooth Smart Dongle</a> 这么一个设备才能实现BLE通讯</li>
+</ul>
+<h1 id="UI设计"><a href="#UI设计" class="headerlink" title="UI设计"></a>UI设计</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+</ul>
+<h2 id="PyQt-入门"><a href="#PyQt-入门" class="headerlink" title="PyQt 入门"></a>PyQt 入门</h2><ul>
+<li>为什么选择PyQt? (注意, 如果商用, PyQt是需要授权使用的)</li>
+<li><a href="http://ojs.pythonpapers.org/index.php/tpp/article/view/61/57" target="_blank" rel="external">PyGTK, PyQT, Tkinter and wxPython comparison</a></li>
+<li>PyQt使用入门:</li>
+<li><a href="https://www.tutorialspoint.com/pyqt/index.htm" target="_blank" rel="external">PyQt Tutorial</a>, 新手上路, 建议看到 <code>Using Qt Designer</code> 即可</li>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a>, 整体理解Qt设计思路</li>
+<li><a href="http://www.qaulau.com/books/PyQt4_Tutorial/" target="_blank" rel="external">PyQt4教程</a>, 中文版, 分类很细, 便于查阅范例</li>
+</ul>
+<h2 id="使用-Qt-Designer-设计GUI并生成-gui-py"><a href="#使用-Qt-Designer-设计GUI并生成-gui-py" class="headerlink" title="使用 Qt Designer 设计GUI并生成 gui.py"></a>使用 Qt Designer 设计GUI并生成 gui.py</h2><ul>
+<li>使用 <code>Qt Designer</code> 设计 GUI 框架, 并保存<code>gui.ui</code>到项目路径, 如 <code>D:\ble terminal</code></li>
+<li>打开cmd终端, 并切换到 <code>D:\ble terminal</code></li>
+<li><code>pyuic4.bat -x -o gui.py gui.ui</code> 生成<code>gui.py</code>文件,<ul>
+<li><code>-x</code> 表示可执行, 即包含<code>if __name__ == &quot;__main__&quot;</code>这部分代码</li>
+<li><code>-o</code> 表示目标文件名</li>
+<li>也可以使用命令行 <code>pyuic4.bat demo.ui &gt; demo.py</code>, 效果等同于 <code>pyuic4.bat -o gui.py gui.ui</code></li>
+</ul>
+</li>
+<li>创建 <code>gui_action.py</code> 文件, 用于书写交互操作部分的代码, 基本格式如下<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># coding=utf-8</span></div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> gui</div><div class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QMainWindow</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        super(self.__class__, self).__init__()</div><div class="line">        self.ui.setupUi(self)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    app = QApplication(sys.argv)</div><div class="line">    gui_action = GuiAction()</div><div class="line">    gui_action.show()</div><div class="line">    sys.exit(app.exec_())</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="UI线程通讯"><a href="#UI线程通讯" class="headerlink" title="UI线程通讯"></a>UI线程通讯</h1><ul>
+<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
+<li>PyQt的信号和槽, 是一种通讯机制, 可以用于QObject之间的信息交互. 可以参考:<ul>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="external">Introduction to GUI development using Qt</a></li>
+<li><a href="https://www.linuxzen.com/pyqt4-xin-hao-he-cao-xiang-jie.html" target="_blank" rel="external">PyQt4 信号和槽详解</a></li>
+</ul>
+</li>
+<li>参考 <a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="external">PyQt: Threading Basics Tutorial</a></li>
+<li>关于 QThread 高阶应用和注意事项, 可参考 <a href="http://blog.csdn.net/u011012932/article/details/52186626" target="_blank" rel="external">Qt之QThread（深入理解）</a></li>
+<li>本程序使用的线程通讯框架如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        ...</div><div class="line">        <span class="comment"># queue_ble 用于传递数据给ble线程 (这样用不好, 可能有风险)</span></div><div class="line">        self.queue_ble = Queue.Queue()</div><div class="line">        <span class="comment"># thread_ble 为 ble 处理线程</span></div><div class="line">        self.thread_ble = ThreadBleServer(self.queue_ble)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cmd_send</span><span class="params">(self)</span>:</span></div><div class="line">        cmd = self.lineEdit.text()</div><div class="line">        <span class="comment"># 通过 queue_ble 传递数据给ble线程</span></div><div class="line">        self.queue_ble.put(cmd)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 简单理解, 就是将 self.ble_handle 设置为 thread_ble 信号触发后的处理函数</span></div><div class="line">        <span class="comment"># 使用 PyQt_PyObject 作为参数类型具有更好的通用性, 可以传递任何数据.</span></div><div class="line">        self.connect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line">        <span class="comment"># 启动 ble 处理线程</span></div><div class="line">        self.thread_ble.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_stop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># 用于终止 thread_ble 线程</span></div><div class="line">        self.thread_ble.stop_ble()</div><div class="line">        self.disconnect(self.thread_ble, SIGNAL(</div><div class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadBleServer</span><span class="params">(QThread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">        QThread.__init__(self)</div><div class="line">        self.stop = <span class="keyword">False</span></div><div class="line">        self.queue = queue</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop_ble</span><span class="params">(self)</span>:</span></div><div class="line">        self.stop = <span class="keyword">True</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.stop:</div><div class="line">            <span class="comment"># 这是一个循环任务, 每100ms执行一次</span></div><div class="line">            time.sleep(<span class="number">0.1</span>)</div><div class="line">            ...</div><div class="line">            <span class="comment"># 非阻塞查询queue队列</span></div><div class="line">            command = str(self.queue.get(<span class="keyword">False</span>))</div><div class="line">            do something after get command ...</div><div class="line">            ...</div><div class="line">            <span class="comment"># 发送信号给主线程</span></div><div class="line">            self.emit(SIGNAL(<span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), <span class="string">"ble_rx_timeout"</span>, <span class="string">""</span>)</div><div class="line">            ...</div></pre></td></tr></table></figure>
+<ul>
+<li>上述代码有一个未知风险, 在 QThread 中用了属于 python threading 的 Queque. 更稳妥的方法应该使用 PyQt 的信号和槽解决这个问题, 即<br><code>self.connect(self.cmd_send, SIGNAL(&quot;send_cmd(PyQt_PyObject)&quot;), self.thread_ble)</code></li>
+<li>关于 QThread 和 Threading, 简单而言, 如果需要和PyQt打交道, 那就用 QThread, 否则就用 python 自带的 Threading</li>
+<li><a href="https://github.com/draapho/ble-terminal" target="_blank" rel="external">全部源码</a> 在 github, 注意, 作为一个练习用程序, 上述错误我没有修改! 目前为止, 没看到不良影响.</li>
+</ul>
+<h1 id="生成exe文件"><a href="#生成exe文件" class="headerlink" title="生成exe文件"></a>生成exe文件</h1><ul>
+<li>可以创建一个 <code>ble-terminal.bat</code> 文件, 点击即可运行. 但终究是显的不够专业, 没法给老板和客户交代. 内容如下:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@echo off</div><div class="line"></div><div class="line">start pythonw gui_action.py</div><div class="line">exit</div></pre></td></tr></table></figure>
+<ul>
+<li>windows下, 使用起来最简单的就是 <code>PyInstaller</code> 了. 基本一条指令, 然后需要的关联库全自动解决</li>
+<li>其它方案有 <code>Py2Exe</code>, 需要自己配置dll之类的. <code>Py2App</code> 给Mac电脑用的. <code>cx_Freeze</code> 优点是跨平台, 看了下需要先做配置文件.</li>
+<li>用一条指令即可生成 <code>.exe</code> 文件<br><code>pyinstaller.exe --windowed gui_action.py</code></li>
+<li>另外还可以指定图标, 设置版本信息(需要写好<code>version.txt</code>), 将所有内容绑到单文件. 指令为:<br><code>pyinstaller.exe --onefile --windowed --icon=app.ico --version-file=version.txt gui_action.py</code></li>
+<li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="external">Creating an Executable from a Python Script</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/15/1616-python-ble/" itemprop="url">
                   使用python实现BLE通讯
                 </a>
@@ -347,7 +539,7 @@
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pygatt</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BleDevice</span><span class="params">(pygatt.BGAPIBackend)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.device = <span class="keyword">None</span></div><div class="line">        self.adapter = pygatt.BGAPIBackend()</div><div class="line">        self.adapter.start()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop</span><span class="params">(self)</span>:</span></div><div class="line">        self.adapter.stop()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">scan</span><span class="params">(self, timeout=<span class="number">5</span>)</span>:</span></div><div class="line">        self.devices = self.adapter.scan(timeout)</div><div class="line">        <span class="keyword">return</span> self.devices</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect_name</span><span class="params">(self, name, devices=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> devices <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            devices = self.devices</div><div class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> self.devices:</div><div class="line">            <span class="keyword">if</span> name == dev[<span class="string">'name'</span>]:</div><div class="line">                <span class="keyword">return</span> self.connect(dev[<span class="string">'address'</span>])</div><div class="line">        <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">(self, address)</span>:</span></div><div class="line">        self.device = self.adapter.connect(address)</div><div class="line">        <span class="keyword">return</span> self.device</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">discover_characteristics</span><span class="params">(self, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        characteristics = []</div><div class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                device.char_read(uuid)</div><div class="line">                characteristics.append(</div><div class="line">                    &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">True</span>&#125;)</div><div class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">                <span class="keyword">if</span> <span class="string">"unable to read"</span> <span class="keyword">in</span> str(e).lower():</div><div class="line">                    characteristics.append(</div><div class="line">                        &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">False</span>&#125;)</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    <span class="keyword">raise</span> e</div><div class="line">        <span class="keyword">return</span> characteristics</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_indication</span><span class="params">(self, uuid, device=None, callback=None, indication=True)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        device.subscribe(uuid, callback, indication)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics</span><span class="params">(self, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read(uuid)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics_handle</span><span class="params">(self, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        <span class="keyword">return</span> device.char_read_handle(handle)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics</span><span class="params">(self, str, uuid, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write(uuid, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics_handle</span><span class="params">(self, str, handle, device=None)</span>:</span></div><div class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            device = self.device</div><div class="line">        data = map(ord, str)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</div><div class="line">            device.char_write_handle(handle, data[i:i + <span class="number">20</span>])</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment"># logging.basicConfig()</span></div><div class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></div><div class="line">    ble = BleDevice()</div><div class="line">    <span class="keyword">print</span> ble.scan()</div><div class="line">    device = ble.connect_name(<span class="string">"Bluegiga CR Demo"</span>)</div><div class="line">    <span class="keyword">print</span> device._address</div><div class="line">    chars = ble.discover_characteristics(device)</div><div class="line">    <span class="keyword">print</span> chars</div><div class="line">    <span class="comment"># print chars[0]['uuid']</span></div><div class="line">    <span class="keyword">print</span> ble.read_characteristics(chars[<span class="number">1</span>][<span class="string">'uuid'</span>])</div><div class="line">    ble.write_characteristics(<span class="string">"hello world"</span>, chars[<span class="number">0</span>][<span class="string">'uuid'</span>])</div></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
           
         
@@ -671,7 +863,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
           
         
@@ -1062,7 +1254,7 @@
 </ul>
 <h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"># 查看信息</div><div class="line">git st                          # git status            # 显示工作区变更的文件</div><div class="line">git lg                          # git log 增强版        # 显示所有提交</div><div class="line">git ll                          # git lg -10            # 显示过去10次提交</div><div class="line">git shortlog -sn                                        # 显示所有提交过的用户</div><div class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</div><div class="line"></div><div class="line"># stash                                                 # 少量且短时间的使用!</div><div class="line">git stash                                               # workspace-&gt;stash(藏匿处)</div><div class="line">git stash pop                                           # stash(不保存)-&gt;workspace</div><div class="line"></div><div class="line"># 提交文件</div><div class="line">git aa                          # git add .             # workspace-&gt;index</div><div class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</div><div class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</div><div class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</div><div class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</div><div class="line"> </div><div class="line"># 分支操作</div><div class="line">git b name                      # git branch name       # 创建分支</div><div class="line">git b name commit                                       # 基于指定 commit 创建分支</div><div class="line">git b -d name                   # branch delete         # 删除分支</div><div class="line">git b -dr origin/name           # delete remote         # 删除远程分支</div><div class="line">git b -m new_name               # git branch --move     # 重命名分支</div><div class="line">git bb                          # git branch -a         # 查看所有分支</div><div class="line">git remote -v                                           # 查看远程分支</div><div class="line">git co name                     # git checkout name     # 切换分支</div><div class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</div><div class="line"></div><div class="line"># 版本合并和回退</div><div class="line">git merge branch                # 合并branch到当前分支</div><div class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</div><div class="line">git cherry-pick commit          # 合并commit到当前分支</div><div class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!  </div><div class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!        </div><div class="line">git push                                                # 推送到默认的远程主机</div><div class="line">git push -f                     # --force               # 忽略冲突, 强制推送</div><div class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</div><div class="line"></div><div class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</div><div class="line">git tag                         # 查看版本</div><div class="line">git tag v100                    # 创建版本</div><div class="line">git tag -d v100                 # 删除版本</div><div class="line">git push --tags                 # 推送tag</div><div class="line"></div><div class="line"># 查看差异 </div><div class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</div><div class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</div><div class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</div><div class="line">git diff --name-status p1 p2    # 获得变更的文件列表</div><div class="line">git diff --stat p1 p2           # 统计变更的数据</div><div class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</div><div class="line"></div><div class="line"># 撤销</div><div class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</div><div class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</div><div class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</div><div class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</div><div class="line"></div><div class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</div><div class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</div><div class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</div><div class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</div><div class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</div></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
           
         
@@ -1187,7 +1379,7 @@
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># CLI: Command Line Interface</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runCLI</span><span class="params">()</span>:</span></div><div class="line">    <span class="comment"># __cmd_link = self.cur_dir + "\\stlink_cli\\ST-LINK_CLI.exe -c SWD SWJCLK=5 UR"</span></div><div class="line">    __cmd_link = <span class="string">"dir"</span></div><div class="line"></div><div class="line">    <span class="comment"># 多用 shell=True. shell=False只能运行bat文件或直接在终端中执行. 此例中显示的内容也会有区别</span></div><div class="line">    _pp = Popen(__cmd_link, shell=<span class="keyword">True</span>, stdout=PIPE, stderr=PIPE)</div><div class="line">    out, err = _pp.communicate()</div><div class="line"></div><div class="line">    logging.debug(<span class="string">"cmd &gt; "</span> + __cmd_link)</div><div class="line">    logging.debug(<span class="string">"out &gt; "</span> + out.rstrip())</div><div class="line">    logging.debug(<span class="string">"err &gt; "</span> + err.rstrip())</div><div class="line">    <span class="keyword">return</span> _pp.returncode</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    logging.basicConfig(level=logging.DEBUG)</div><div class="line">    logging.debug(runCLI())</div></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
           
         
@@ -1365,215 +1557,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/16/1611-WinSoft-other/" itemprop="url">
-                  Windows 软件系列-开发软件
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-16T00:00:00+11:00" content="2016-10-16">
-              2016-10-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="eclipse"><a href="#eclipse" class="headerlink" title="eclipse"></a><a href="https://eclipse.org/downloads/" target="_blank" rel="external">eclipse</a></h1><ul>
-<li><a href="https://eclipse.org/downloads/" target="_blank" rel="external">eclipse</a> 就不做介绍了.</li>
-<li>设置主题<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>General</code>-&gt;<code>Appearance</code>-&gt;<code>Color Theme</code>-&gt;<code>Sublime Text 2</code></li>
-</ul>
-</li>
-<li>设置编辑界面<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt; <code>General</code>-&gt;<code>Editors</code>-&gt;<code>Text Editors</code>-&gt;<ul>
-<li><code>Insert spaces for tabs</code></li>
-<li><code>Show print margin</code></li>
-<li><code>Show whitespace characters</code>-&gt;<code>configure visibility</code>-&gt;<del><code>Carriage Return</code></del> <del><code>Line Feed</code></del></li>
-</ul>
-</li>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt; <code>General</code>-&gt;<code>Editors</code>-&gt;<code>Text Editors</code>-&gt;<code>Quick Diff</code><ul>
-<li><code>Enable Quick Diff</code></li>
-<li><code>Use this reference source:</code>-&gt;<code>A Git Revision</code></li>
-<li>需要装好git</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>设置路径<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>Team</code>-&gt;<code>Git</code>-&gt;<code>Default repository folder:</code>-&gt;<code>${project_loc}</code></li>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>Terminal</code>-&gt;<code>Local Terminal</code>-&gt;<code>Initial Working Directory</code>-&gt;<code>${project_loc}</code></li>
-<li>注意, 上述两项需要有git项目并编译后, 才可以成功设置</li>
-</ul>
-</li>
-<li>设置快捷键<ul>
-<li><code>Window</code>-&gt;<code>Preferences</code>-&gt;<code>General</code>-&gt;<code>Keys</code> 可设置快捷键</li>
-<li>快捷键设置要求见 <a href="https://draapho.github.io/2016/10/08/1607-Shortcut-win/">Windows快捷键</a></li>
-<li>配置文件名为 <code>org.eclipse.ui.workbench.prefs</code>, 路径如下, $workspace$ 表示 eclipse 的工作路径.</li>
-<li><code>$workspace$\.metadata\.plugins\org.eclipse.core.runtime\.settings</code>下</li>
-<li>TrueSTUIDO版的快捷键见TureSTUDIO</li>
-</ul>
-</li>
-</ul>
-<h1 id="TrueSTUIDO"><a href="#TrueSTUIDO" class="headerlink" title="TrueSTUIDO"></a><a href="http://atollic.com/truestudio/" target="_blank" rel="external">TrueSTUIDO</a></h1><ul>
-<li><a href="http://atollic.com/truestudio/" target="_blank" rel="external">TrueSTUIDO</a>是一款免费的ARM IDE, 基于eclipse. 免费版有5s广告.</li>
-<li>快捷键配置文件<ul>
-<li>我的配置文件 <a href="https://github.com/draapho/Blog/tree/master/_blog_stuff/TrueSTUIDIO/org.eclipse.ui.workbench.prefs" target="_blank" rel="external">org.eclipse.ui.workbench.prefs</a></li>
-<li>下载后直接覆盖放入 <code>$workspace$/.metadata/.plugins/org.eclipse.core.runtime/.settings/</code></li>
-</ul>
-</li>
-<li><a href="https://www.youtube.com/watch?v=R2hfq4S_-B0" target="_blank" rel="external">TrueSTUIDO Download and Reset (no debug)</a><ul>
-<li><code>Run</code>-&gt;<code>Debug Configurations...</code>-&gt;<code>Embedded C/C++...</code>下的文件-&gt;<code>Startup Scripts</code></li>
-<li>delete all context after <code>load</code> and input <code>quit</code></li>
-<li><code>Window</code>-&gt;<code>Perspective</code>-&gt;<code>Customize Pespective...</code>-&gt;<code>Launch</code>-&gt;选择 <code>Debug</code> 和 <code>Run</code></li>
-</ul>
-</li>
-<li>生成指定格式<ul>
-<li>项目右键 <code>Properties</code>-&gt;<code>C/C++ Build</code>-&gt;<code>Settings</code>-&gt;<code>Tool Settings</code>-&gt;<code>Other</code>-&gt;<code>Output format</code>-&gt;<code>Convert build output</code>-&gt;<code>Intel Hex</code> or <code>Binary</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="RealView-MDK"><a href="#RealView-MDK" class="headerlink" title="RealView MDK"></a>RealView MDK</h1><ul>
-<li>RVMDK 设置成utf8格式. <code>Edit</code>-&gt;<code>Configuration</code>-&gt;<code>Editor</code>-&gt;<code>Encoding</code>-&gt;<code>UTF8</code></li>
-</ul>
-<h1 id="Source-Insight"><a href="#Source-Insight" class="headerlink" title="Source Insight"></a>Source Insight</h1><ul>
-<li>添加完文件后, 需要同步. <code>Project</code>-&gt;<code>Synchronize Files...</code></li>
-<li>添加文件类型. <code>Options</code>-&gt;<code>Document Options</code>-&gt;<code>Document Type</code>, 在file filter内增加文件类型即可</li>
-</ul>
-<h1 id="使用mingw编译C语言"><a href="#使用mingw编译C语言" class="headerlink" title="使用mingw编译C语言"></a>使用mingw编译C语言</h1><ul>
-<li>主要用于写一些小程序用来验证或测试. 与linux开发习惯一致, 而且免费轻巧快捷.</li>
-<li><p>下载 <a href="http://www.mingw.org/" target="_blank" rel="external">MinGW</a>, 安装并设置好环境变量.</p>
-<ul>
-<li>安装好后, 只是 MinGW Installation Manager, 实际上是个绿色软件. 打开后继续安装组件</li>
-<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code> 和 <code>mingw32-gcc-g++</code>-&gt;左上 <code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
-<li>这里只需要编译c和c++文件, 无需安装其它组件了.</li>
-<li>设置 <code>...\MinGW\bin</code> 文件夹到系统环境变量中</li>
-<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 make 指令了</li>
-<li>测试. 终端中输入 <code>make -v</code> 和 <code>gcc -v</code>, 看是否可以识别到指令</li>
-</ul>
-</li>
-<li><p>建立一个工作目录, 建立2个文件即可. 一个 <code>.c</code>, 另一个 <code>makefile</code> 即可</p>
-<ul>
-<li><p>创建并命名为 <code>main.c</code></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdio.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"\r\nhello: %s\r\n"</span>, <span class="string">"DRA&amp;PHO"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>创建并命名为 <code>makefile</code></p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">test:main.o</div><div class="line">    gcc -o hello main.o</div><div class="line"></div><div class="line">main.o:main.c</div><div class="line">    gcc -c main.c</div></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>打开终端, 切换到这个工作目录</p>
-<ul>
-<li>输入 <code>make</code> 即可编译, 会生成 <code>main.o</code> <code>hello.exe</code> 两个文件</li>
-<li>输入 <code>./hello.exe</code> 执行, 终端就会输出 <code>hello: DRA&amp;PHO</code></li>
-</ul>
-</li>
-<li>资料和参考<ul>
-<li><a href="http://blog.csdn.net/zhanghan3/article/details/1334308" target="_blank" rel="external">windows下使用makefile编译C语言</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
           
         
@@ -1647,7 +1631,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">53</span>
+              <span class="site-state-item-count">54</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1664,7 +1648,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">61</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

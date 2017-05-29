@@ -104,7 +104,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 
 
 探索嵌入式linux环">
-<meta property="og:updated_time" content="2017-02-20T11:20:46.670Z">
+<meta property="og:updated_time" content="2017-05-29T11:37:41.346Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建1-Ubuntu14.04">
 <meta name="twitter:description" content="环境及结论
@@ -381,7 +381,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 <h2 id="遇到问题并解决-结果是坑"><a href="#遇到问题并解决-结果是坑" class="headerlink" title="遇到问题并解决, 结果是坑"></a><del>遇到问题并解决, 结果是坑</del></h2><p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
       
     </div>
@@ -493,7 +493,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">53</span>
+              <span class="site-state-item-count">54</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -510,7 +510,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">61</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

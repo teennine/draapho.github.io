@@ -104,7 +104,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 
 
 目的是尝试不同linu">
-<meta property="og:updated_time" content="2017-02-20T02:57:20.944Z">
+<meta property="og:updated_time" content="2017-05-29T11:37:41.362Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建2-CentOS7">
 <meta name="twitter:description" content="环境及结论
@@ -368,7 +368,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 <h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>在centos下, 内核 make clean 会报错: Makefile‘混和的隐含和普通规则’<br>我想还是因为 2440 内核文件使用的makefile太老了. 和centos兼容性不好.<br>按下述方法改了一点后, 最后make还是失败了. 因而放弃 centos 系统.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 修改根目录下的 Makefile</span></div><div class="line">/ %/: prepare scripts FORCE</div><div class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</div><div class="line">    $(build)=$(build-dir)</div><div class="line"><span class="comment"># 改成： -----&gt;</span></div><div class="line">/: prepare scripts FORCE</div><div class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</div><div class="line">    $(build)=$(build-dir)</div><div class="line">%/: prepare scripts FORCE</div><div class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</div><div class="line">    $(build)=$(build-dir)</div><div class="line"></div><div class="line"><span class="comment"># 把：</span></div><div class="line">config %config: scripts_basic outputmakefile FORCE</div><div class="line">    $(Q)mkdir -p include/linux include/config</div><div class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></div><div class="line"><span class="comment"># 改成： -----&gt;</span></div><div class="line">config: scripts_basic outputmakefile FORCE</div><div class="line">    $(Q)mkdir -p include/linux include/config</div><div class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></div><div class="line">%config: scripts_basic outputmakefile FORCE</div><div class="line">    $(Q)mkdir -p include/linux include/config</div><div class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></div></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
       
     </div>
@@ -480,7 +480,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">53</span>
+              <span class="site-state-item-count">54</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -497,7 +497,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">61</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
