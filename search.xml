@@ -4,6 +4,110 @@
   
     
     <entry>
+      <title><![CDATA[uboot之makefile分析]]></title>
+      <url>https://draapho.github.io/2017/07/07/1719-jz2440-uboot1/</url>
+      <content type="html"><![CDATA[<p>本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: <a href="http://www.denx.de/wiki/U-Boot/WebHome" target="_blank" rel="external">u-boot官网</a>  <a href="ftp://ftp.denx.de/pub/u-boot/" target="_blank" rel="external">u-boot下载</a></p>
+<h1 id="u-boot-编译过程"><a href="#u-boot-编译过程" class="headerlink" title="u-boot 编译过程"></a>u-boot 编译过程</h1><ol>
+<li>解压缩 u-boot-1.1.6</li>
+<li>打补丁 针对特定开发板发布的补丁. 打补丁方法<br><code>uboot目录下$ patch -p1 &lt; ../补丁文件</code>  p1表示忽略补丁目标目录的第一层</li>
+<li>配置 <code>make 100ask24x0_config</code></li>
+<li>编译: <code>make</code>, 获取 <code>u-boot.bin</code> 文件</li>
+<li>烧录, 多种方式, 可以用jlink烧录到 NOR Flash 中</li>
+</ol>
+<h1 id="u-boot功能"><a href="#u-boot功能" class="headerlink" title="u-boot功能:"></a>u-boot功能:</h1><ul>
+<li>本质是单片机程序</li>
+<li>硬件相关初始化<ul>
+<li>关看门狗</li>
+<li>初始化时钟</li>
+<li>初始化SDRAM</li>
+<li>从Flash读取内核</li>
+</ul>
+</li>
+<li>最终目的: 启动内核</li>
+<li>为开发方便, 还支持:<ul>
+<li>烧写flash</li>
+<li>网卡</li>
+<li>USB</li>
+<li>串口</li>
+</ul>
+</li>
+</ul>
+<h1 id="u-boot的README"><a href="#u-boot的README" class="headerlink" title="u-boot的README"></a>u-boot的README</h1><p>要了解 u-boot 的架构和设计思路, 建议先看自带的 <code>README</code> 文件. 重要信息如下:</p>
+<blockquote>
+<p><code>include/configs/&lt;board_name&gt;.h</code>  板级配置头文件<br><code>make NAME_config</code>                加载配置, 准备编译<br><code>make</code> or <code>make all</code>              编译生成bin文件<br><code>Monitor Commands - Overview:</code>    u-boot 指令概览<br><code>Environment Variables:</code>          u-boot 环境变量<br><code>Linux HOWTO:</code>                    编译linux uImage<br><code>Boot Linux:</code>                     u-boot 启动Linux相关设置</p>
+</blockquote>
+<p>自己设置板级配置的步骤: (位于 README line 2375)</p>
+<ol>
+<li>Add a new configuration option for your board to the toplevel<br>“Makefile” and to the “MAKEALL” script, using the existing<br>entries as examples. Note that here and at many other places<br>boards and other names are listed in alphabetical sort order. Please<br>keep this order.</li>
+<li>Create a new directory to hold your board specific code. Add any<br>files you need. In your board directory, you will need at least<br>the “Makefile”, a “<board>.c”, “flash.c” and “u-boot.lds”.</board></li>
+<li>Create a new configuration file “include/configs/<board>.h” for<br>your board</board></li>
+<li>If you’re porting U-Boot to a new CPU, then also create a new<br>directory to hold your CPU specific code. Add any files you need.</li>
+<li>Run “make <board>_config” with your new name.</board></li>
+<li>Type “make”, and you should get a working “u-boot.srec” file<br>to be installed on your target system.</li>
+<li>Debug and solve any problems that might arise.</li>
+</ol>
+<h1 id="u-boot的Makefile"><a href="#u-boot的Makefile" class="headerlink" title="u-boot的Makefile"></a>u-boot的Makefile</h1><p>分析 <code>100ask24x0</code> 即jz2440板子的Makefile实现. Linux下可以使用grep搜索.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = u-boot-1.1.6 文件夹下</span></div><div class="line">grep -n 100ask24x0 ./Makefile       <span class="comment"># 在Makefile文件下查找 100ask24x0, 并显示行号</span></div><div class="line">grep -nr 100ask24x0 *               <span class="comment"># 当前目录递归查找 100ask24x0</span></div><div class="line">grep -nd skip 100ask24x0 *          <span class="comment"># 仅在当前目录查找, 不显示子目录信息</span></div></pre></td></tr></table></figure></p>
+<h2 id="make-100ask24x0-config-指令分析"><a href="#make-100ask24x0-config-指令分析" class="headerlink" title="make 100ask24x0_config 指令分析"></a><code>make 100ask24x0_config</code> 指令分析</h2><p><code>make 100ask24x0_config</code> 其指令结构和 <code>make clean</code> 是一样的.<br>因此在 Makefile 里找到 <code>100ask24x0_config</code> 为目标的行即可:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">1886    100ask24x0_config	:	unconfig    </div><div class="line">1887	    @$(MKCONFIG) $(@:_config=) arm arm920t 100ask24x0 NULL s3c24x0</div><div class="line"></div><div class="line"><span class="comment"># 目标为 100ask24x0_config, 没有依赖</span></div><div class="line"><span class="comment"># 执行 make 100ask24x0_config 后, 实际运行的就是第二行的指令</span></div><div class="line"><span class="comment"># 找到并替换里面的变量:</span></div><div class="line"><span class="comment">#   MKCONFIG	:= $(SRCTREE)/mkconfig</span></div><div class="line"><span class="comment">#   SRCTREE		:= $(CURDIR)</span></div><div class="line"><span class="comment">#   $(@:_config=) 其中 $(@) 表示目标, 即 `100ask24x0_config:_config=空`, 最终得到 `100ask24x0`</span></div><div class="line"><span class="comment"># 整句替换下来的指令就变成了:</span></div><div class="line">    ./mkconfig 100ask24x0 arm arm920t 100ask24x0 NULL s3c24x0</div></pre></td></tr></table></figure></p>
+<p>因此, 我们需要去当前文件夹下查找 <code>mkconfig</code> 这个脚本文件.<br>下面直接删减成最终执行的样子, 前面加上原来的行号便于学习比较<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 输入为: ./mkconfig 100ask24x0 arm arm920t 100ask24x0 NULL s3c24x0</span></div><div class="line"><span class="comment"># 对应的变量:  $0        $1      $2   $3       $4        $5    $6</span></div><div class="line"></div><div class="line"><span class="comment"># 打印信息</span></div><div class="line">23  BOARD_NAME=<span class="string">"<span class="variable">$1</span>"</span>                             <span class="comment"># BOARD_NAME=100ask24x0</span></div><div class="line">28  <span class="string">"Configuring for <span class="variable">$&#123;BOARD_NAME&#125;</span> board..."</span>    <span class="comment"># Configuring for 100ask24x0 board...</span></div><div class="line"></div><div class="line"><span class="comment"># 重新创建一系列的软链接:</span></div><div class="line">46  <span class="built_in">cd</span> ./include</div><div class="line">47  rm <span class="_">-f</span> asm</div><div class="line">48  ln <span class="_">-s</span> asm-<span class="variable">$2</span> asm                            <span class="comment"># asm-&gt;asm-arm, 建立一个软连接, 使用asm-arm</span></div><div class="line">51  rm <span class="_">-f</span> asm-<span class="variable">$2</span>/arch                           <span class="comment"># asm-arm/arch</span></div><div class="line">56  ln <span class="_">-s</span> <span class="variable">$&#123;LNPREFIX&#125;</span>arch-<span class="variable">$6</span> asm-<span class="variable">$2</span>/arch        <span class="comment"># LNPREFIX. 因此 asm-arm/arch-&gt;arch-s3c24x0</span></div><div class="line">60  rm <span class="_">-f</span> asm-<span class="variable">$2</span>/proc</div><div class="line">61	ln <span class="_">-s</span> <span class="variable">$&#123;LNPREFIX&#125;</span>proc-armv asm-<span class="variable">$2</span>/proc      <span class="comment"># asm-arm/proc-&gt;proc-armv, </span></div><div class="line"></div><div class="line"><span class="comment"># 创建 config.mk 文件</span></div><div class="line">67  <span class="built_in">echo</span> <span class="string">"ARCH   = <span class="variable">$2</span>"</span> &gt;  config.mk             <span class="comment"># &gt;  新建, "ARCH   = arm"</span></div><div class="line">68  <span class="built_in">echo</span> <span class="string">"CPU    = <span class="variable">$3</span>"</span> &gt;&gt; config.mk             <span class="comment"># &gt;&gt; 追加, "CPU    = arm920t"</span></div><div class="line">69  <span class="built_in">echo</span> <span class="string">"BOARD  = <span class="variable">$4</span>"</span> &gt;&gt; config.mk             <span class="comment"># &gt;&gt; 追加, "BOARD  = 100ask24x0"</span></div><div class="line">71  [ <span class="string">"<span class="variable">$5</span>"</span> ] &amp;&amp; [ <span class="string">"<span class="variable">$5</span>"</span> != <span class="string">"NULL"</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"VENDOR = <span class="variable">$5</span>"</span> &gt;&gt; config.mk   <span class="comment"># $5 = NULL, 不写VENDOR字段</span></div><div class="line">73  [ <span class="string">"<span class="variable">$6</span>"</span> ] &amp;&amp; [ <span class="string">"<span class="variable">$6</span>"</span> != <span class="string">"NULL"</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"SOC    = <span class="variable">$6</span>"</span> &gt;&gt; config.mk   <span class="comment"># "SOC = s3c24x0"</span></div><div class="line"><span class="comment"># 可以使用 `cat ./include/config.mk` 查看该文件的内容.</span></div><div class="line"></div><div class="line"><span class="comment"># 创建 config.h 文件. 为了 `#include &lt;configs/100ask24x0.h&gt;`</span></div><div class="line">82  &gt; config.h                                                      <span class="comment"># &gt;  新建 config.h</span></div><div class="line">84  <span class="built_in">echo</span> <span class="string">"/* Automatically generated - do not edit */"</span> &gt;&gt;config.h   <span class="comment"># &gt;&gt; 追加写入</span></div><div class="line">85  <span class="built_in">echo</span> <span class="string">"#include &lt;configs/<span class="variable">$1</span>.h&gt;"</span> &gt;&gt;config.h                       <span class="comment"># &gt;&gt; 追加写入, $1=100ask24x0</span></div><div class="line"><span class="comment"># 可以使用 `cat ./include/config.h` 查看该文件的内容.</span></div></pre></td></tr></table></figure></p>
+<h2 id="make-指令分析"><a href="#make-指令分析" class="headerlink" title="make 指令分析"></a><code>make</code> 指令分析</h2><p><code>make</code> 实际上执行的是 <code>make all</code>, Makefile 中比较重要的几行为:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">116 # load ARCH, BOARD, and CPU configuration</div><div class="line">117 include $(OBJTREE)/include/config.mk</div><div class="line">118 export	ARCH CPU BOARD VENDOR SOC</div><div class="line"># ./include/config.mk 这个文件由 `make 100ask24x0_config` 指令生成, 可获得如下变量</div><div class="line"># ARCH   = arm</div><div class="line"># CPU    = arm920t</div><div class="line"># BOARD  = 100ask24x0</div><div class="line"># SOC    = s3c24x0</div><div class="line"></div><div class="line">164 include $(TOPDIR)/config.mk</div><div class="line"># u-boot-1.1.6 根目录下的配置文件, 里面有一些变量的定义</div><div class="line"></div><div class="line">169 OBJS  = cpu/$(CPU)/start.o</div><div class="line">193 LIBS  = lib_generic/libgeneric.a</div><div class="line">194 LIBS += board/$(BOARDDIR)/lib$(BOARD).a</div><div class="line">195 LIBS += cpu/$(CPU)/lib$(CPU).a</div><div class="line">197 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a</div><div class="line">199 LIBS += lib_$(ARCH)/lib$(ARCH).a</div><div class="line"># 加载几个板级参数相关的变量值. 特别注意 start.o 这个文件, 是整个u-boot最先运行的文件</div><div class="line"></div><div class="line">239 ALL = $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND)</div><div class="line">241 all:		$(ALL)</div><div class="line"># `make` 指令的入口就在这里. 可以根据 ALL 目标后面的依赖开始看这个 make 的过程</div><div class="line"></div><div class="line">262 $(obj)u-boot:		depend version $(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)</div><div class="line">263		    UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e &apos;s/.*\(__u_boot_cmd_.*\)/-u\1/p&apos;|sort|uniq`;\</div><div class="line">264		    cd $(LNDIR) &amp;&amp; $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \</div><div class="line">265             --start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \</div><div class="line">266             -Map u-boot.map -o u-boot</div><div class="line"># 比较重要的一个指令. 可以运行 `make`, 在最后会看到这条指令的展开式, 用这种倒推的方式比较方便. 其展开如下:</div><div class="line"></div><div class="line">make[1]: Leaving directory &apos;/home/draapho/jz2440/uboot/u-boot-1.1.6/common&apos;</div><div class="line"># 这句不重要, 但这句的位置很明显, 所以写在这里了.</div><div class="line"></div><div class="line">UNDEF_SYM=`arm-linux-objdump -x lib_generic/libgeneric.a board/100ask24x0/lib100ask24x0.a cpu/arm920t/libarm920t.a cpu/arm920t/s3c24x0/libs3c24x0.a lib_arm/libarm.a fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a net/libnet.a disk/libdisk.a rtc/librtc.a dtt/libdtt.a drivers/libdrivers.a drivers/nand/libnand.a drivers/nand_legacy/libnand_legacy.a drivers/usb/libusb.a drivers/sk98lin/libsk98lin.a common/libcommon.a |sed  -n -e &apos;s/.*\(__u_boot_cmd_.*\)/-u\1/p&apos;|sort|uniq`;\</div><div class="line"># 整个语句有点复杂, 用了一系列管道指令, 将最终结果赋值给 UNDEF_SYM 这么一个变量</div><div class="line"># 对 &quot;UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e &apos;s/.*\(__u_boot_cmd_.*\)/-u\1/p&apos;|sort|uniq`;\&quot; 的展开</div><div class="line"># 其中 &quot;board/100ask24x0/lib100ask24x0.a cpu/arm920t/libarm920t.a cpu/arm920t/s3c24x0/libs3c24x0.a lib_arm/libarm.a&quot; 就是对 $(LIBS) 的展开</div><div class="line">  </div><div class="line">cd /home/draapho/jz2440/uboot/u-boot-1.1.6 &amp;&amp; </div><div class="line"># &quot;cd $(LNDIR) &amp;&amp;&quot; 的展开, 进入 u-boot-1.1.6 目录. </div><div class="line"></div><div class="line">arm-linux-ld -Bstatic -T /home/draapho/jz2440/uboot/u-boot-1.1.6/board/100ask24x0/u-boot.lds -Ttext 0x33F80000  $UNDEF_SYM cpu/arm920t/start.o \</div><div class="line"># &quot;$(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \&quot; 的展开</div><div class="line"># $(LD) 就是 arm-linux-ld 链接指令. 其中 &quot;LD	= $(CROSS_COMPILE)ld&quot;, 定义在 &quot;./config.mk&quot;, $(CROSS_COMPILE) 在 Makefile 下面. </div><div class="line"># $(LDFLAGS) 给出了链接指令的参数, 定义在 &quot;./config.mk&quot;, 形式为 &quot;LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)&quot;</div><div class="line"># 根据 &quot;cpu/arm920t/start.o&quot;, 可以知道 start.s 的文件位置, 便于以后查看. (由u-boot.lds可知, 这是u-boot第一个运行的代码段)</div><div class="line"># !!! 其中 $(LDSCRIPT) 和 $(TEXT_BASE) 很重要 !!!</div><div class="line">    # &quot;LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds&quot;, 定义在 &quot;./config.mk&quot;. 可以查看链接脚本</div><div class="line">    # &quot;TEXT_BASE = 0x33F80000&quot;, 定义在 &quot;./board/100ask24x0/config.mk&quot;. 这个参数明显是板级相关的. 也可以使用 0x33F80000 来搜索.</div><div class="line"></div><div class="line">                --start-group lib_generic/libgeneric.a board/100ask24x0/lib100ask24x0.a cpu/arm920t/libarm920t.a cpu/arm920t/s3c24x0/libs3c24x0.a lib_arm/libarm.a fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a net/libnet.a disk/libdisk.a rtc/librtc.a dtt/libdtt.a drivers/libdrivers.a drivers/nand/libnand.a drivers/nand_legacy/libnand_legacy.a drivers/usb/libusb.a drivers/sk98lin/libsk98lin.a common/libcommon.a --end-group -L /usr/local/gcc-3.4.5-glibc-2.3.6/bin/../lib/gcc/arm-linux/3.4.5 -lgcc \</div><div class="line">                -Map u-boot.map -o u-boot</div><div class="line"># 依旧属于 arm-linux-ld 的指令, 这里就是对 &quot;$(__LIBS)&quot; 和 &quot;$(PLATFORM_LIBS)&quot; 的展开, 忽略这一段, 对理解没有影响.</div></pre></td></tr></table></figure></p>
+<p>根据对 Makefile 的分析, 可以知道代码的偏移地址被设置成了 <code>-Ttext 0x33F80000</code> 这么一个值.<br>其含义为, jz2440使用的SDRAM大小为 64M, 即 0x400_0000, 预留512K (0x8_0000)给u-boot代码, 得到地址 0x3F8_0000.<br>因为 s3c24x0 给SDRAM分配的地址是从 0x3000_0000 开始的, 所以有了 0x33F8_0000 这么一个值.<br>其含义就是, 给u-boot的代码段分配的空间位于SDRAM最顶部的512K.</p>
+<p>另外, 链接脚本 u-boot.lds 也很重要. 从中可以知道u-boot整个代码段的分配情况. 下面来分析一下:</p>
+<ul>
+<li>第一个文件 ./cpu/arm920t/start.s</li>
+<li>链接脚本  u-boot.lds</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Ubuntu下配置支持Windows访问的samba共享]]></title>
+      <url>https://draapho.github.io/2017/07/06/1718-linux-samba/</url>
+      <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>家用电脑, 环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></p>
+<p>单位电脑, 没有使用nfs共享文件.<br>用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享<br>尝试编译uboot时, 弹出一个错误提示</p>
+<blockquote>
+<p>ln: creating symbolic link XXXXXX : Operation not supported</p>
+</blockquote>
+<p>问题根源和解决方法:<br>出现这类问题，主要是由于在编译的时候，要用ln去建立一些软链接，而这些文件是从Windows中，通过VMWare虚拟机共享进Linux的，Windows不支持软链接，所以，编译会报错。<br>解决办法就是，在VMWare下的Linux中，建立Samba服务， 然后新创建新samba用户和文件夹，然后在windows中就可以访问到该文件夹了。</p>
+<p>相比于nfs共享文件, 唯一的缺点是: 文件存放在虚拟机中, 需要始终打开虚拟机才能在windows下访问文件. 因此文件的备份和修复也稍微麻烦一点. 优点是, 不需要付费软件.</p>
+<hr>
+<p>下文转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
+<hr>
+<h1 id="一、安装Ubuntu-samba服务器"><a href="#一、安装Ubuntu-samba服务器" class="headerlink" title="一、安装Ubuntu samba服务器"></a>一、安装Ubuntu samba服务器</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install samba</div><div class="line">$ sudo apt-get install smbclient <span class="comment"># Linux客户端测试用</span></div></pre></td></tr></table></figure>
+<h1 id="二、创建samba配置文件"><a href="#二、创建samba配置文件" class="headerlink" title="二、创建samba配置文件"></a>二、创建samba配置文件</h1><ol>
+<li><p>备份原配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak</div></pre></td></tr></table></figure>
+</li>
+<li><p>创建共享目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /home/share</div><div class="line"><span class="comment"># 一般来说，该目录的权限为755，将其改为777之后，Owner之外的其他用户才有权限写入。</span></div><div class="line">$ sudo chmod 777 /home/share</div></pre></td></tr></table></figure>
+</li>
+<li><p>修改配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/samba/smb.conf</div><div class="line"></div><div class="line"><span class="comment"># ===== 文件内容, 在smb.conf最后添加： =====</span></div><div class="line">[share]</div><div class="line">    path = /home/share</div><div class="line">    browseable = yes</div><div class="line">    writable = yes</div><div class="line">    comment = smb share <span class="built_in">test</span></div><div class="line"><span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>另外，总结一下常见的samba配置及说明：</p>
+<blockquote>
+<p>[share]                           # 该共享的共享名<br>    comment = smb share test  # 该共享的备注<br>    path = /home/share        # 共享路径<br>    allow hosts = host(subnet) # 设置该Samba服务器允许的工作组或者域<br>    deny hosts = host(subnet) # 设置该Samba服务器拒绝的工作组或者域<br>    available = yes|no        # 设置该共享目录是否可用<br>    browseable = yes|no       # 设置该共享目录是否可显示<br>    writable = yes|no         # 指定了这个目录缺省是否可写，也可以用readonly = no来设置可写<br>    public = yes|no           # 指明该共享资源是否能给游客帐号访问，guest ok = yes其实和public = yes是一样的<br>    user = user, @group       # user设置所有可能使用该共享资源的用户，也可以用@group代表group这个组的所有成员，不同的项目之间用空格或者逗号隔开<br>    valid users = user, @group # 指定能够使用该共享资源的用户和组<br>    invalid users = user, @group # 指定不能够使用该共享资源的用户和组<br>    read list = user, @group  # 指定只能读取该共享资源的用户和组<br>    write list = user, @group # 指定能读取和写该共享资源的用户和组<br>    admin list = user, @group # 指定能管理该共享资源（包括读写和权限赋予等）的用户和组<br>    hide dot files = yes|no   # 指明是否像UNIX那样隐藏以“.”号开头的文件<br>    create mode = 0755        # 指明新建立的文件的属性，一般是0755<br>    directory mode = 0755     # 指明新建立的目录的属性，一般是0755<br>    sync always = yes|no      # 指明对该共享资源进行写操作后是否进行同步操作<br>    short preserve case = yes|no # 指明是否区分文件名大小写<br>    preserve case = yes|no    # 指明是否保持大小写<br>    case sensitive = yes|no   # 指明是否对大小写敏感，一般选no，不然可能引起错误<br>    mangle case = yes|no      # 指明混合大小写<br>    default case = upper|lower # 指明缺省的文件名是全部大写还是小写<br>    force user = testuser     # 强制把建立文件的属主是谁。如果我有一个目录，让guest可以写，那么guest就可以删除，如果我用force user= testuser强制建立文件的属主是testuser，同时限制create mask = 0755，这样guest就不能删除了<br>    wide links = yes|no       # 指明是否允许共享外符号连接，比如共享资源里面有个连接指向非共享资源里面的文件或者目录，如果设置wide links = no将使该连接不可用<br>    max connections = 100     # 设定最大同时连接数<br>    delete readonly = yes|no  # 指明能否删除共享资源里面已经被定义为只读的文件</p>
+</blockquote>
+<h1 id="三、创建samba用户"><a href="#三、创建samba用户" class="headerlink" title="三、创建samba用户"></a>三、创建samba用户</h1><p>注意，创建samba用户之前，必须先确保有一个同名的linux用户，否则samba用户会创建失败。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo smbpasswd <span class="_">-a</span> smbuser</div></pre></td></tr></table></figure></p>
+<h1 id="四、重启samba服务"><a href="#四、重启samba服务" class="headerlink" title="四、重启samba服务"></a>四、重启samba服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo service smbd restart</div></pre></td></tr></table></figure>
+<h1 id="五-客户端访问测试"><a href="#五-客户端访问测试" class="headerlink" title="五. 客户端访问测试"></a>五. 客户端访问测试</h1><ol>
+<li><p>Linux客户端访问测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ smbclient -L //localhost/share</div></pre></td></tr></table></figure>
+</li>
+<li><p>Windows客户端访问测试</p>
+</li>
+</ol>
+<p>可以访问如下地址 <code>\\Linux的IP或者主机名\share</code></p>
+<p>我一般会把虚拟机端Linux的IP搞成静态地址, 这样远程登录也更方便<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ ifconfig                          <span class="comment"># 查看IP信息</span></div><div class="line">$ sudo vim /etc/network/interfaces</div><div class="line"></div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static          <span class="comment"># 使用静态地址</span></div><div class="line">    address  192.168.0.100          <span class="comment"># 设置静态地址</span></div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  192.168.0.1            <span class="comment"># 网关</span></div><div class="line">    dns-nameservers   8.8.8.8  192.168.0.1 </div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure></p>
+<p>如果public = no，此时需要输入samba用户密码；<br>如果public = yes，则作为nobody用户直接访问。<br>另外，在Windows客户端使用 <code>net use * /del /y</code> 这条命令可以清理访问缓存。</p>
+<hr>
+<p>转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[敏捷开发 Scrum 学习]]></title>
       <url>https://draapho.github.io/2017/05/31/1717-scrum/</url>
       <content type="html"><![CDATA[<h1 id="学习资源推荐"><a href="#学习资源推荐" class="headerlink" title="学习资源推荐"></a>学习资源推荐</h1><ul>
@@ -1150,7 +1254,7 @@
     </entry>
     
     <entry>
-      <title><![CDATA[嵌入式linux-jz2440环境搭建]]></title>
+      <title><![CDATA[嵌入式linux环境搭建-jz2440开发板]]></title>
       <url>https://draapho.github.io/2017/02/21/1707-jz2440-env/</url>
       <content type="html"><![CDATA[<h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
 <li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a><ul>
@@ -1430,7 +1534,11 @@
 </ul>
 </li>
 <li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统. 其参数设置可参考:<ul>
-<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux-jz2440环境搭建</a></li>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+</ul>
+</li>
+<li>另一种思路:<ul>
+<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
 </ul>
 </li>
 </ol>
@@ -2275,9 +2383,52 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Embedded Linux 入门有感]]></title>
-      <url>https://draapho.github.io/2017/01/18/1702-linux-hard/</url>
-      <content type="html"><![CDATA[<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><p><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记</a><br><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></p>
+      <title><![CDATA[Embedded Linux 学习概览及入门有感]]></title>
+      <url>https://draapho.github.io/2017/01/18/1702-linux-study-overview/</url>
+      <content type="html"><![CDATA[<h1 id="学习目录"><a href="#学习目录" class="headerlink" title="学习目录"></a>学习目录</h1><h2 id="linux-基础知识学习"><a href="#linux-基础知识学习" class="headerlink" title="linux 基础知识学习"></a>linux 基础知识学习</h2><ul>
+<li><a href="https://draapho.github.io/2016/12/15/1625-linux-cmd-disk/">linux系统及磁盘指令</a> </li>
+<li><a href="https://draapho.github.io/2016/12/16/1626-linux-cmd-file/">linux文件及目录指令</a> </li>
+<li><a href="https://draapho.github.io/2016/12/17/1627-linux-cmd-bash/">Bash Shell及环境变量</a> </li>
+<li><a href="https://draapho.github.io/2017/01/19/1703-linux-command/">Unix/Linux 命令参考</a> </li>
+</ul>
+<h2 id="Linux-0-11-源码阅读笔记"><a href="#Linux-0-11-源码阅读笔记" class="headerlink" title="Linux 0.11 源码阅读笔记"></a>Linux 0.11 源码阅读笔记</h2><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h2 id="嵌入式linux的环境搭建"><a href="#嵌入式linux的环境搭建" class="headerlink" title="嵌入式linux的环境搭建"></a>嵌入式linux的环境搭建</h2><ol>
+<li>嵌入式linux开发环境搭建综述<ul>
+<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></li>
+</ul>
+</li>
+<li>PC windows 所有资料存在windows目录下, 所有操作在windows环境下. NFS设置可参考:<ul>
+<li><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
+</ul>
+</li>
+<li>PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:<ul>
+<li>第一次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/">嵌入式linux环境搭建1-Ubuntu14</a></del></li>
+<li>第二次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/19/1706-linux-centos7/">嵌入式linux环境搭建2-CentOS7</a></del></li>
+<li>第三次尝试, 成功! <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
+</ul>
+</li>
+<li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统. 其参数设置可参考:<ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+</ul>
+</li>
+<li>另一种思路: (可解决文件不兼容问题)<ul>
+<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
+</ul>
+</li>
+</ol>
+<h2 id="单机及uboot学习"><a href="#单机及uboot学习" class="headerlink" title="单机及uboot学习"></a>单机及uboot学习</h2><ul>
+<li><a href="https://draapho.github.io/2017/04/05/1710-jz2440-led/">jz2440 裸板程序的开发</a></li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-jz2440-uboot1/">uboot之makefile分析</a></li>
+</ul>
+<h2 id="嵌入式linux源码学习"><a href="#嵌入式linux源码学习" class="headerlink" title="嵌入式linux源码学习"></a>嵌入式linux源码学习</h2><hr>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
 <p>自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,<br>但在没有具体项目要求的情况下, 学习Embedded Linux的过程充满了痛苦和不解, 始终没有坚持下来.</p>
 <p>如今, 打算再次开始系统的学习Embedded Linux, 因而在此记录一下之前的学习感受, 分析一下困难之所在, 并制定好学习规则和方式.</p>
@@ -6807,31 +6958,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[stm32选型及资料搜索指南]]></title>
-      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
-      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Vim常用快捷键]]></title>
       <url>https://draapho.github.io/2016/10/01/1604-CheatSheet-vim/</url>
       <content type="html"><![CDATA[<h1 id="Vim常用快捷键"><a href="#Vim常用快捷键" class="headerlink" title="Vim常用快捷键"></a>Vim常用快捷键</h1><h2 id="进入输入模式"><a href="#进入输入模式" class="headerlink" title="进入输入模式"></a>进入输入模式</h2><table>
@@ -7201,6 +7327,31 @@
 <li><a href="https://www.gosquared.com/blog/vi-linux-terminal-help-sheet" target="_blank" rel="external">VI (Linux Terminal) Help Sheet</a><br><img src="https://downloads.gosquared.com/help_sheets/10/VI-Help-Sheet-large.jpg" alt="VI Help Sheet"></li>
 <li><a href="http://blog.vgod.tw/2009/12/08/vim-cheat-sheet-for-programmers/" target="_blank" rel="external">給程式設計師的Vim入門圖解說明</a><br><img src="http://blog.vgod.tw.s3.amazonaws.com/wp-content/uploads/2009/12/vim-cheat-sheet-diagram.png" alt="Vim入門圖解說明"></li>
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="external">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[stm32选型及资料搜索指南]]></title>
+      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
+      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>

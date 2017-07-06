@@ -66,7 +66,7 @@
 <link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="embedded linux," />
+  <meta name="keywords" content="embedded linux,uboot,error," />
 
 
 
@@ -82,22 +82,31 @@
 
 
 
-<meta name="description" content="目录Linux 0.11 源码阅读笔记嵌入式linux环境搭建
-前言Embedded Linux 是自我学习过程中, 走的最不顺的一条路.而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.应该说, Embedded Linux的入门确实比较困难一点.
-自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,但在没有具体项目要求的情况下, 学习Embedded">
+<meta name="description" content="背景家用电脑, 环境的搭建思路可参考嵌入式linux环境搭建
+单位电脑, 没有使用nfs共享文件.用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享尝试编译uboot时, 弹出一个错误提示
+
+ln: creating symbolic link XXXXXX : Operation not supported
+
+问题根源和解决方法:出现这类问题">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Embedded Linux 入门有感">
-<meta property="og:url" content="https://draapho.github.io/2017/01/18/1702-linux-hard/index.html">
+<meta property="og:title" content="Ubuntu下配置支持Windows访问的samba共享">
+<meta property="og:url" content="https://draapho.github.io/2017/07/06/1718-linux-samba/index.html">
 <meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="目录Linux 0.11 源码阅读笔记嵌入式linux环境搭建
-前言Embedded Linux 是自我学习过程中, 走的最不顺的一条路.而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.应该说, Embedded Linux的入门确实比较困难一点.
-自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,但在没有具体项目要求的情况下, 学习Embedded">
-<meta property="og:updated_time" content="2017-05-29T11:36:12.335Z">
+<meta property="og:description" content="背景家用电脑, 环境的搭建思路可参考嵌入式linux环境搭建
+单位电脑, 没有使用nfs共享文件.用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享尝试编译uboot时, 弹出一个错误提示
+
+ln: creating symbolic link XXXXXX : Operation not supported
+
+问题根源和解决方法:出现这类问题">
+<meta property="og:updated_time" content="2017-07-06T10:36:14.846Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Embedded Linux 入门有感">
-<meta name="twitter:description" content="目录Linux 0.11 源码阅读笔记嵌入式linux环境搭建
-前言Embedded Linux 是自我学习过程中, 走的最不顺的一条路.而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.应该说, Embedded Linux的入门确实比较困难一点.
-自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,但在没有具体项目要求的情况下, 学习Embedded">
+<meta name="twitter:title" content="Ubuntu下配置支持Windows访问的samba共享">
+<meta name="twitter:description" content="背景家用电脑, 环境的搭建思路可参考嵌入式linux环境搭建
+单位电脑, 没有使用nfs共享文件.用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享尝试编译uboot时, 弹出一个错误提示
+
+ln: creating symbolic link XXXXXX : Operation not supported
+
+问题根源和解决方法:出现这类问题">
 
 
 
@@ -118,10 +127,10 @@
 
 
 
-  <link rel="canonical" href="https://draapho.github.io/2017/01/18/1702-linux-hard/"/>
+  <link rel="canonical" href="https://draapho.github.io/2017/07/06/1718-linux-samba/"/>
 
 
-  <title> Embedded Linux 入门有感 | DRA&PHO </title>
+  <title> Ubuntu下配置支持Windows访问的samba共享 | DRA&PHO </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="en">
@@ -264,7 +273,7 @@
             
             
               
-                Embedded Linux 入门有感
+                Ubuntu下配置支持Windows访问的samba共享
               
             
           </h1>
@@ -276,8 +285,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-18T00:00:00+11:00" content="2017-01-18">
-              2017-01-18
+            <time itemprop="dateCreated" datetime="2017-07-06T00:00:00+10:00" content="2017-07-06">
+              2017-07-06
             </time>
           </span>
 
@@ -323,46 +332,46 @@
       
 
       
-        <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><p><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记</a><br><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
-<p>自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,<br>但在没有具体项目要求的情况下, 学习Embedded Linux的过程充满了痛苦和不解, 始终没有坚持下来.</p>
-<p>如今, 打算再次开始系统的学习Embedded Linux, 因而在此记录一下之前的学习感受, 分析一下困难之所在, 并制定好学习规则和方式.</p>
-<h1 id="为何困难"><a href="#为何困难" class="headerlink" title="为何困难"></a>为何困难</h1><h2 id="linux上手困难"><a href="#linux上手困难" class="headerlink" title="linux上手困难"></a>linux上手困难</h2><p>对新手而言, linux的学习曲线很陡峭. 相信刚上手的话, 如何安装软件, 如何使用编辑器都是问题!</p>
-<p>一个, 二个问题或者一层二层问题, 还能较为容易的解决. 但面对蜂拥而至的疑问和困惑, 能坚持下去就很不容易了, 何况途中还充满了陷阱和争论.</p>
-<p>随便举几个例子:</p>
-<ol>
-<li><p>用哪个版本的linux好? Ubuntu? Feroda? Redhat? CentOS? 服务器版? 桌面版? 然后图形界面居然还分 KDE/Gnome…<br>为了弄清上面这个问题, 看看文章, 翻翻论坛, 结果就是更迷糊了… 甚至忘了初衷是要奔着 <code>Embedded Linux</code> 去的啊!</p>
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>家用电脑, 环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></p>
+<p>单位电脑, 没有使用nfs共享文件.<br>用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享<br>尝试编译uboot时, 弹出一个错误提示</p>
+<blockquote>
+<p>ln: creating symbolic link XXXXXX : Operation not supported</p>
+</blockquote>
+<p>问题根源和解决方法:<br>出现这类问题，主要是由于在编译的时候，要用ln去建立一些软链接，而这些文件是从Windows中，通过VMWare虚拟机共享进Linux的，Windows不支持软链接，所以，编译会报错。<br>解决办法就是，在VMWare下的Linux中，建立Samba服务， 然后新创建新samba用户和文件夹，然后在windows中就可以访问到该文件夹了。</p>
+<p>相比于nfs共享文件, 唯一的缺点是: 文件存放在虚拟机中, 需要始终打开虚拟机才能在windows下访问文件. 因此文件的备份和修复也稍微麻烦一点. 优点是, 不需要付费软件.</p>
+<hr>
+<p>下文转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
+<hr>
+<h1 id="一、安装Ubuntu-samba服务器"><a href="#一、安装Ubuntu-samba服务器" class="headerlink" title="一、安装Ubuntu samba服务器"></a>一、安装Ubuntu samba服务器</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install samba</div><div class="line">$ sudo apt-get install smbclient <span class="comment"># Linux客户端测试用</span></div></pre></td></tr></table></figure>
+<h1 id="二、创建samba配置文件"><a href="#二、创建samba配置文件" class="headerlink" title="二、创建samba配置文件"></a>二、创建samba配置文件</h1><ol>
+<li><p>备份原配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak</div></pre></td></tr></table></figure>
 </li>
-<li><p>我的硬盘分区呢? 去哪里找文件呢? 文件权限的概念等等. (linux下一切皆文件!)</p>
+<li><p>创建共享目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /home/share</div><div class="line"><span class="comment"># 一般来说，该目录的权限为755，将其改为777之后，Owner之外的其他用户才有权限写入。</span></div><div class="line">$ sudo chmod 777 /home/share</div></pre></td></tr></table></figure>
 </li>
-<li><p>用哪个文本编辑器好? 大家都会说Vim, 然后和vim斗就能斗你一个月, 结果还是自己败下阵来, 回归熟悉的文本编辑器!</p>
-</li>
-<li><p><code>bash shell</code> 是精华啊, 不能不学! 得, 捧着鸟哥的私房菜, 随便翻翻也得几星期才知道个大概吧…<br>(学习指令时, 需要有<code>工作路径</code>这么一个概念. 知道这个指令现在在哪里工作, 是非常重要的一个概念!)</p>
-</li>
-<li><p>唉呀妈呀, 好不容易装好了虚拟机, 装好了精挑细选的linux版本. 尝试装软件了! 一阵搜索, 还算顺利. 突然出了个依赖关系错误…<br>耐着性子google, 百度, 似乎略微看懂了一二, 就是在装这个软件之前, 需要另外一个软件的特定版本么.<br>尝试用安装指令装另外一个软件, 居然这个软件不存在了!!! 继续? 还是放弃?<br>我继续过, 翻墙, 找到软件源码. 还要自己编译? 编译还要装编译软件… 彻底放弃…</p>
+<li><p>修改配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/samba/smb.conf</div><div class="line"></div><div class="line"><span class="comment"># ===== 文件内容, 在smb.conf最后添加： =====</span></div><div class="line">[share]</div><div class="line">    path = /home/share</div><div class="line">    browseable = yes</div><div class="line">    writable = yes</div><div class="line">    comment = smb share <span class="built_in">test</span></div><div class="line"><span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
 </li>
 </ol>
-<h2 id="缺乏合适的入门书籍"><a href="#缺乏合适的入门书籍" class="headerlink" title="缺乏合适的入门书籍"></a>缺乏合适的入门书籍</h2><p>市面上大多数的Embedded Linux入门教程只讲应该如何做, 不说基础知识, 不讲前因后果.<br>读起来枯燥无味, 索然无趣. 学起来一头雾水, 不知其所以然.</p>
-<p>譬如很多教程会详细的写出, 第一步, 第二步, 第三步… 但经常的, 只要系统环境稍微变化一点点(如linux版本不同, 软件版本不同), 上述的步骤就会失效.<br>喜欢刨根问底的我就开始纠结这些第一步, 第二步, 第三步到底再干吗? 为什么按照自己的理解在新的环境下就不工作了?<br>而遇到这些具体的困难时, 如何解决困难真的是一头雾水. 教程书籍类基本不会讲你可能遇到的问题! 基本只能到网络上去找解决办法…然后就是进一步的困惑…</p>
-<p>而更专业的书籍根本不适合入门者去阅读, 那都是对特定领域进行深入分析学习的! 过早的接触自己完全不懂的东西, 只会打击学习的积极性.<br>譬如推崇度很高的鸟哥的私房菜, 实际是一本很好的运维方面的书籍, 用它来初学<code>bash shell</code>就太重了.<br>可以看一下鸟哥自己的经历, 就能明白了 <a href="http://linux.vbird.org/new_linux.php" target="_blank" rel="external">Linux 的學習曲線，一個老人家的建議！</a><br>体验最深的就是这句了: <strong>只要一出现问题, 自己完全无法解决时, 只好重新安装, 选择设定与书本教的内容完全一模一样, 不过即使如此, 很多时候仍然会遇到问题</strong></p>
-<p>因此, 建议自己通过网络和书籍总结归纳一下最基本的指令和用法, 加之自己的理解, 做成笔记. 一来帮助记忆, 二来便于日后查阅.<br>但不用刻意的去背这些东西, 要用的时候知道去哪里查阅就可以了, 用多了既然就记住了.<br>在真正深入学习后, 觉得有需要自然会更有针对性的选择专业书籍来看!</p>
-<p>这样, 才能避免淹死在知识的海洋里!</p>
-<h2 id="缺乏硬性目标"><a href="#缺乏硬性目标" class="headerlink" title="缺乏硬性目标:"></a>缺乏硬性目标:</h2><p>之前都是跟着教程的自学, 属于漫无目的的囫囵吞枣, 学到哪忘到哪.<br>然后, <strong>缺乏硬性目标最大的问题就是: 容易放弃!</strong><br>因为遇到的困难太多了, 在没有硬性目标的情况下, 不断的打击最终导致的就是放弃!</p>
-<p>如果能定一个最终目标, 譬如基于开发板做一款视频识别系统, 那在学习过程中就会有侧重点.<br>这样对问题的处理就能起到抓大放小, 不纠结于所有的细节. 在解决实际问题的过程中, 逐步深入学习linux.</p>
-<h1 id="解决之道"><a href="#解决之道" class="headerlink" title="解决之道"></a>解决之道</h1><p>个人认为, 学习linux, embedded linux的终极解决之道就是定下一个<strong>硬性目标</strong>, 有这么一个压力在的话, 在学习过程中不断试错, 一知半解都不是问题!</p>
-<p>正所谓有压力才有动力! 回到鸟哥的个人经历, 见<a href="http://linux.vbird.org/new_linux.php" target="_blank" rel="external">Linux 的學習曲線，一個老人家的建議！</a>.<br>正是有项目压力的情况下, 才能忍受无数次的重装系统, 才能忍无可忍痛下决心系统的学习linux(此时已经不是初学者了, 知道了很多基础, 也知道自己想解决什么问题!)<br>在此压力下, 搭建环境的过程就不会过于纠结我到底在干吗? 为什么要这么做?的困惑; 使用编辑器时, 也会直接挑个最顺手的用着再说; shell的使用也会因为时间压力只学最基本的.</p>
-<p>初期, 在一定要完成这个硬性目标, 在不求甚解, 能用就好的心态下, 至少能帮助自己摸一遍linux, 知道一个大概的流程和遇到的问题.<br>这样也能很大程度上避免自己陷入到底用哪个linux版本好, 用哪个桌面系统好, 用哪种编辑好的争论中! 在不知道具体需求的情况下, 这些都是无意义之事!<br>这个时期, 坚持学下来, 用下来, 就是胜利! 工具的选择上, 顺手的, 上手快的就是好的!</p>
-<p>然后, 在完成一二个项目后, 虽然心中的疑惑越积越多, 但潜移默化中, 已经对linux有了相当程度的理解, 常用指令也都会用了!<br>此时, 再根据自己的具体疑惑去查阅更专业的书籍, 更系统的学习, 其效果会远好于上来就拿着本专业书籍看!</p>
-<h1 id="自我要求"><a href="#自我要求" class="headerlink" title="自我要求"></a>自我要求</h1><p>我目前的情况也不能算linux初学者, 但也确实没有在embedded linux下开发的经验.<br>自己的感觉是, 虽然对某些方面还一知半解, 但背景知识的储备已经够了, 是时候定个小目标, 完成系统的学习了!<br>毕业已10年, 我学习linux的初学期和倦怠期也着实太长了一点… 好在, 任何时候开始都不晚么.</p>
-<p>陆续了解过的背景知识有: linux基础概念, ubuntu的基础使用, bash shell, 硬件原理图, 嵌入式C开发, 操作系统原理, 阅读linux0.11源码.<br>总的来说, 感觉自己就差临门一脚… 能坚持做一二个项目后, 自己就有能力做嵌入式linux开发了.</p>
-<ul>
-<li>定个小目标: 跟着教程, 在2440开发板上, 完成音视频对讲功能. 细分为实现摄像头功能, 搭建服务器, 实现可视对讲功能.</li>
-<li>开发环境搭建: 最困难的就是环境搭建, 走了很多弯路, 不过目前已经走通了.</li>
-<li>不求甚解: 学习过程中, 注意连续性, 有些专业知识先不求甚解, 有个基础概念, 简单做下笔记即可. 如makefile的书写, 编译器原理等等.</li>
-<li>勤做笔记: 好记性不如烂笔头. 我相信即便linux高度使用者, 能记住的也就几条常用指令. 自己做好笔记就便于日后查阅, 做笔记的同时也加深了印象!</li>
-</ul>
+<p>另外，总结一下常见的samba配置及说明：</p>
+<blockquote>
+<p>[share]                           # 该共享的共享名<br>    comment = smb share test  # 该共享的备注<br>    path = /home/share        # 共享路径<br>    allow hosts = host(subnet) # 设置该Samba服务器允许的工作组或者域<br>    deny hosts = host(subnet) # 设置该Samba服务器拒绝的工作组或者域<br>    available = yes|no        # 设置该共享目录是否可用<br>    browseable = yes|no       # 设置该共享目录是否可显示<br>    writable = yes|no         # 指定了这个目录缺省是否可写，也可以用readonly = no来设置可写<br>    public = yes|no           # 指明该共享资源是否能给游客帐号访问，guest ok = yes其实和public = yes是一样的<br>    user = user, @group       # user设置所有可能使用该共享资源的用户，也可以用@group代表group这个组的所有成员，不同的项目之间用空格或者逗号隔开<br>    valid users = user, @group # 指定能够使用该共享资源的用户和组<br>    invalid users = user, @group # 指定不能够使用该共享资源的用户和组<br>    read list = user, @group  # 指定只能读取该共享资源的用户和组<br>    write list = user, @group # 指定能读取和写该共享资源的用户和组<br>    admin list = user, @group # 指定能管理该共享资源（包括读写和权限赋予等）的用户和组<br>    hide dot files = yes|no   # 指明是否像UNIX那样隐藏以“.”号开头的文件<br>    create mode = 0755        # 指明新建立的文件的属性，一般是0755<br>    directory mode = 0755     # 指明新建立的目录的属性，一般是0755<br>    sync always = yes|no      # 指明对该共享资源进行写操作后是否进行同步操作<br>    short preserve case = yes|no # 指明是否区分文件名大小写<br>    preserve case = yes|no    # 指明是否保持大小写<br>    case sensitive = yes|no   # 指明是否对大小写敏感，一般选no，不然可能引起错误<br>    mangle case = yes|no      # 指明混合大小写<br>    default case = upper|lower # 指明缺省的文件名是全部大写还是小写<br>    force user = testuser     # 强制把建立文件的属主是谁。如果我有一个目录，让guest可以写，那么guest就可以删除，如果我用force user= testuser强制建立文件的属主是testuser，同时限制create mask = 0755，这样guest就不能删除了<br>    wide links = yes|no       # 指明是否允许共享外符号连接，比如共享资源里面有个连接指向非共享资源里面的文件或者目录，如果设置wide links = no将使该连接不可用<br>    max connections = 100     # 设定最大同时连接数<br>    delete readonly = yes|no  # 指明能否删除共享资源里面已经被定义为只读的文件</p>
+</blockquote>
+<h1 id="三、创建samba用户"><a href="#三、创建samba用户" class="headerlink" title="三、创建samba用户"></a>三、创建samba用户</h1><p>注意，创建samba用户之前，必须先确保有一个同名的linux用户，否则samba用户会创建失败。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo smbpasswd <span class="_">-a</span> smbuser</div></pre></td></tr></table></figure></p>
+<h1 id="四、重启samba服务"><a href="#四、重启samba服务" class="headerlink" title="四、重启samba服务"></a>四、重启samba服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo service smbd restart</div></pre></td></tr></table></figure>
+<h1 id="五-客户端访问测试"><a href="#五-客户端访问测试" class="headerlink" title="五. 客户端访问测试"></a>五. 客户端访问测试</h1><ol>
+<li><p>Linux客户端访问测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ smbclient -L //localhost/share</div></pre></td></tr></table></figure>
+</li>
+<li><p>Windows客户端访问测试</p>
+</li>
+</ol>
+<p>可以访问如下地址 <code>\\Linux的IP或者主机名\share</code></p>
+<p>我一般会把虚拟机端Linux的IP搞成静态地址, 这样远程登录也更方便<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ ifconfig                          <span class="comment"># 查看IP信息</span></div><div class="line">$ sudo vim /etc/network/interfaces</div><div class="line"></div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static          <span class="comment"># 使用静态地址</span></div><div class="line">    address  192.168.0.100          <span class="comment"># 设置静态地址</span></div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  192.168.0.1            <span class="comment"># 网关</span></div><div class="line">    dns-nameservers   8.8.8.8  192.168.0.1 </div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure></p>
+<p>如果public = no，此时需要输入samba用户密码；<br>如果public = yes，则作为nobody用户直接访问。<br>另外，在Windows客户端使用 <code>net use * /del /y</code> 这条命令可以清理访问缓存。</p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p>转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
 
       
     </div>
@@ -387,6 +396,10 @@
           
             <a href="/tags/embedded-linux/" rel="tag">#embedded linux</a>
           
+            <a href="/tags/uboot/" rel="tag">#uboot</a>
+          
+            <a href="/tags/error/" rel="tag">#error</a>
+          
         </div>
       
 
@@ -394,16 +407,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/03/1701-python-list-dict/" rel="next" title="Python 列表和字典的常见操作">
-                <i class="fa fa-chevron-left"></i> Python 列表和字典的常见操作
+              <a href="/2017/05/31/1717-scrum/" rel="next" title="敏捷开发 Scrum 学习">
+                <i class="fa fa-chevron-left"></i> 敏捷开发 Scrum 学习
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/01/19/1703-linux-command/" rel="prev" title="Unix/Linux 命令参考">
-                Unix/Linux 命令参考 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/07/07/1719-jz2440-uboot1/" rel="prev" title="uboot之makefile分析">
+                uboot之makefile分析 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -472,7 +485,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -480,7 +493,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -489,7 +502,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-count">64</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -529,7 +542,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目录"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">2.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为何困难"><span class="nav-number">3.</span> <span class="nav-text">为何困难</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#linux上手困难"><span class="nav-number">3.1.</span> <span class="nav-text">linux上手困难</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺乏合适的入门书籍"><span class="nav-number">3.2.</span> <span class="nav-text">缺乏合适的入门书籍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺乏硬性目标"><span class="nav-number">3.3.</span> <span class="nav-text">缺乏硬性目标:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决之道"><span class="nav-number">4.</span> <span class="nav-text">解决之道</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自我要求"><span class="nav-number">5.</span> <span class="nav-text">自我要求</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、安装Ubuntu-samba服务器"><span class="nav-number">2.</span> <span class="nav-text">一、安装Ubuntu samba服务器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、创建samba配置文件"><span class="nav-number">3.</span> <span class="nav-text">二、创建samba配置文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、创建samba用户"><span class="nav-number">4.</span> <span class="nav-text">三、创建samba用户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、重启samba服务"><span class="nav-number">5.</span> <span class="nav-text">四、重启samba服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五-客户端访问测试"><span class="nav-number">6.</span> <span class="nav-text">五. 客户端访问测试</span></a></li></ol></div>
             
           </div>
         </section>
