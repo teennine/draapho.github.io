@@ -87,20 +87,19 @@
 </li>
 </ol>
 <p>另外，总结一下常见的samba配置及说明：</p>
-<blockquote>
-<p>[share]                           # 该共享的共享名<br>    comment = smb share test  # 该共享的备注<br>    path = /home/share        # 共享路径<br>    allow hosts = host(subnet) # 设置该Samba服务器允许的工作组或者域<br>    deny hosts = host(subnet) # 设置该Samba服务器拒绝的工作组或者域<br>    available = yes|no        # 设置该共享目录是否可用<br>    browseable = yes|no       # 设置该共享目录是否可显示<br>    writable = yes|no         # 指定了这个目录缺省是否可写，也可以用readonly = no来设置可写<br>    public = yes|no           # 指明该共享资源是否能给游客帐号访问，guest ok = yes其实和public = yes是一样的<br>    user = user, @group       # user设置所有可能使用该共享资源的用户，也可以用@group代表group这个组的所有成员，不同的项目之间用空格或者逗号隔开<br>    valid users = user, @group # 指定能够使用该共享资源的用户和组<br>    invalid users = user, @group # 指定不能够使用该共享资源的用户和组<br>    read list = user, @group  # 指定只能读取该共享资源的用户和组<br>    write list = user, @group # 指定能读取和写该共享资源的用户和组<br>    admin list = user, @group # 指定能管理该共享资源（包括读写和权限赋予等）的用户和组<br>    hide dot files = yes|no   # 指明是否像UNIX那样隐藏以“.”号开头的文件<br>    create mode = 0755        # 指明新建立的文件的属性，一般是0755<br>    directory mode = 0755     # 指明新建立的目录的属性，一般是0755<br>    sync always = yes|no      # 指明对该共享资源进行写操作后是否进行同步操作<br>    short preserve case = yes|no # 指明是否区分文件名大小写<br>    preserve case = yes|no    # 指明是否保持大小写<br>    case sensitive = yes|no   # 指明是否对大小写敏感，一般选no，不然可能引起错误<br>    mangle case = yes|no      # 指明混合大小写<br>    default case = upper|lower # 指明缺省的文件名是全部大写还是小写<br>    force user = testuser     # 强制把建立文件的属主是谁。如果我有一个目录，让guest可以写，那么guest就可以删除，如果我用force user= testuser强制建立文件的属主是testuser，同时限制create mask = 0755，这样guest就不能删除了<br>    wide links = yes|no       # 指明是否允许共享外符号连接，比如共享资源里面有个连接指向非共享资源里面的文件或者目录，如果设置wide links = no将使该连接不可用<br>    max connections = 100     # 设定最大同时连接数<br>    delete readonly = yes|no  # 指明能否删除共享资源里面已经被定义为只读的文件</p>
-</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">[share]                           # 该共享的共享名</div><div class="line">    comment = smb share test  # 该共享的备注</div><div class="line">    path = /home/share        # 共享路径</div><div class="line">    allow hosts = host(subnet) # 设置该Samba服务器允许的工作组或者域</div><div class="line">    deny hosts = host(subnet) # 设置该Samba服务器拒绝的工作组或者域</div><div class="line">    available = yes|no        # 设置该共享目录是否可用</div><div class="line">    browseable = yes|no       # 设置该共享目录是否可显示</div><div class="line">    writable = yes|no         # 指定了这个目录缺省是否可写，也可以用readonly = no来设置可写</div><div class="line">    public = yes|no           # 指明该共享资源是否能给游客帐号访问，guest ok = yes其实和public = yes是一样的</div><div class="line">    user = user, @group       # user设置所有可能使用该共享资源的用户，也可以用@group代表group这个组的所有成员，不同的项目之间用空格或者逗号隔开</div><div class="line">    valid users = user, @group # 指定能够使用该共享资源的用户和组</div><div class="line">    invalid users = user, @group # 指定不能够使用该共享资源的用户和组</div><div class="line">    read list = user, @group  # 指定只能读取该共享资源的用户和组</div><div class="line">    write list = user, @group # 指定能读取和写该共享资源的用户和组</div><div class="line">    admin list = user, @group # 指定能管理该共享资源（包括读写和权限赋予等）的用户和组</div><div class="line">    hide dot files = yes|no   # 指明是否像UNIX那样隐藏以“.”号开头的文件</div><div class="line">    create mode = 0755        # 指明新建立的文件的属性，一般是0755</div><div class="line">    directory mode = 0755     # 指明新建立的目录的属性，一般是0755</div><div class="line">    sync always = yes|no      # 指明对该共享资源进行写操作后是否进行同步操作</div><div class="line">    short preserve case = yes|no # 指明是否区分文件名大小写</div><div class="line">    preserve case = yes|no    # 指明是否保持大小写</div><div class="line">    case sensitive = yes|no   # 指明是否对大小写敏感，一般选no，不然可能引起错误</div><div class="line">    mangle case = yes|no      # 指明混合大小写</div><div class="line">    default case = upper|lower # 指明缺省的文件名是全部大写还是小写</div><div class="line">    force user = testuser     # 强制把建立文件的属主是谁。如果我有一个目录，让guest可以写，那么guest就可以删除，如果我用force user= testuser强制建立文件的属主是testuser，同时限制create mask = 0755，这样guest就不能删除了</div><div class="line">    wide links = yes|no       # 指明是否允许共享外符号连接，比如共享资源里面有个连接指向非共享资源里面的文件或者目录，如果设置wide links = no将使该连接不可用</div><div class="line">    max connections = 100     # 设定最大同时连接数</div><div class="line">    delete readonly = yes|no  # 指明能否删除共享资源里面已经被定义为只读的文件</div></pre></td></tr></table></figure>
 <h1 id="三、创建samba用户"><a href="#三、创建samba用户" class="headerlink" title="三、创建samba用户"></a>三、创建samba用户</h1><p>注意，创建samba用户之前，必须先确保有一个同名的linux用户，否则samba用户会创建失败。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo smbpasswd <span class="_">-a</span> smbuser</div></pre></td></tr></table></figure></p>
 <h1 id="四、重启samba服务"><a href="#四、重启samba服务" class="headerlink" title="四、重启samba服务"></a>四、重启samba服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo service smbd restart</div></pre></td></tr></table></figure>
 <h1 id="五-客户端访问测试"><a href="#五-客户端访问测试" class="headerlink" title="五. 客户端访问测试"></a>五. 客户端访问测试</h1><ol>
 <li><p>Linux客户端访问测试</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ smbclient -L //localhost/share</div></pre></td></tr></table></figure>
 </li>
-<li><p>Windows客户端访问测试</p>
+<li><p>Windows客户端访问测试<br> 可以访问如下地址 <code>\\Linux的IP或者主机名\share</code></p>
+</li>
+<li><p>我一般会把虚拟机端Linux的IP搞成静态地址, 这样远程登录也更方便</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ ifconfig                          <span class="comment"># 查看IP信息</span></div><div class="line">$ sudo vim /etc/network/interfaces</div><div class="line"></div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static          <span class="comment"># 使用静态地址</span></div><div class="line">    address  192.168.0.100          <span class="comment"># 设置静态地址</span></div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  192.168.0.1            <span class="comment"># 网关</span></div><div class="line">    dns-nameservers   8.8.8.8  192.168.0.1 </div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>可以访问如下地址 <code>\\Linux的IP或者主机名\share</code></p>
-<p>我一般会把虚拟机端Linux的IP搞成静态地址, 这样远程登录也更方便<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ ifconfig                          <span class="comment"># 查看IP信息</span></div><div class="line">$ sudo vim /etc/network/interfaces</div><div class="line"></div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static          <span class="comment"># 使用静态地址</span></div><div class="line">    address  192.168.0.100          <span class="comment"># 设置静态地址</span></div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  192.168.0.1            <span class="comment"># 网关</span></div><div class="line">    dns-nameservers   8.8.8.8  192.168.0.1 </div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure></p>
 <p>如果public = no，此时需要输入samba用户密码；<br>如果public = yes，则作为nobody用户直接访问。<br>另外，在Windows客户端使用 <code>net use * /del /y</code> 这条命令可以清理访问缓存。</p>
 <hr>
 <p>转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
@@ -858,6 +857,94 @@
     </entry>
     
     <entry>
+      <title><![CDATA[使用网络爬虫抓取商品价格并分析]]></title>
+      <url>https://draapho.github.io/2017/04/10/1711-web-spider/</url>
+      <content type="html"><![CDATA[<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>基于 <a href="http://www.chemistwarehouse.com.au/" target="_blank" rel="external">Chemist Warehouse</a> 的商品, 抓取其每天的价格变化. 并根据历史信息, 判断其价格变化规律, 以便在打折时购买.</p>
+<p>因此, 用户需求有如下几点:</p>
+<ul>
+<li>抓取网站价格, 需要知道其商品全名, 原价, 打折价, 打折日期, 持续时间</li>
+<li>存储这些数据, 供日后分析使用</li>
+<li>数据挖掘和分析, 已直观的方式多维度显示出来(譬如单品的打折规律, 打折力度, 打折持续时间. 全年的打折规律)</li>
+</ul>
+<p>进一步, 技术分析如下:</p>
+<ul>
+<li>全程使用python即可满足全部需求.</li>
+<li>网络爬虫难度不高, 仅需针对特定商品, 每天抓一次, 无需多线程/进程, 无需登录, 无验证码, 无需考虑反爬虫, 无需额外加载JS程序.</li>
+<li>数据存储, 使用MySQL, 数据需要去重, 仅记录关键信息. 以便减少数据存储量, 简化数据挖掘和分析的工作</li>
+<li>搜索指定产品, 展示历史数据, 使用 pyqt + matplotlib.</li>
+</ul>
+<h1 id="网络爬虫"><a href="#网络爬虫" class="headerlink" title="网络爬虫"></a>网络爬虫</h1><p>花了二天时间, 简单过了一遍网络爬虫的关键技术. 参考资料如下:</p>
+<ul>
+<li><a href="http://cuiqingcai.com/1052.html" target="_blank" rel="external">Python爬虫学习系列教程-静觅</a></li>
+<li><a href="https://github.com/lining0806/PythonSpiderNotes" target="_blank" rel="external">Python入门网络爬虫之精华版</a></li>
+<li><a href="http://www.w3school.com.cn/xpath/xpath_syntax.asp" target="_blank" rel="external">XPath 语法</a></li>
+</ul>
+<p>本着项目导向, 做出结果为先的思路, 没有一步步的实验. 上来先看了几个爬虫框架.</p>
+<ul>
+<li><code>pyspider</code> 基于web UI, 感觉很直观, 适合于随便玩玩. 个人不喜欢, 二次开发不方便.</li>
+<li>python 下另外一个很有名的框架就是 <code>scrapy</code>, 可惜我连配置安装都没有成功的做完. 适合二次开发.<br>应该是公司网络安全机制比较高, 遇到的问题基本都是SSL相关的, 解决了2-3个, 剩下的实在没有思路去解决了…<br>另外scrapy依赖的库也比较多, 因此初装也就比较麻烦. 安装推荐参考<a href="https://docs.scrapy.org/en/latest/intro/install.html#" target="_blank" rel="external">官网的 Installation guide</a></li>
+<li>使用 <code>requests</code> <code>urllib</code> <code>lxml</code> 库. 简单项目直接用这个就够了.</li>
+<li>最终抓数据只用了 <code>lxml</code> 一个库就完成了数据抓取, 去重的工作. 关键源码如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="comment"># pip --trusted-host pypi.python.org install lxml</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> string</div><div class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</div><div class="line"></div><div class="line"><span class="comment"># 获取url的原始数据</span></div><div class="line">doc = html.parse(<span class="string">'http://www.chemistwarehouse.com.au/search?searchtext=blackmores%20bone&amp;searchmode=allwords'</span>)</div><div class="line"><span class="comment"># 获取指定的数据值</span></div><div class="line">names = doc.xpath(<span class="string">'//a[@class="product-container search-result"]/@title'</span>)</div><div class="line"><span class="comment"># 处理数据, 准备存入数据库即可.</span></div><div class="line">name = map(string.strip, names)</div><div class="line"><span class="keyword">print</span> name</div></pre></td></tr></table></figure>
+<p>另:<br>遇到过了错误 <code>There was a problem confirming the ssl certificate: [SSL: CERTIFICATE_VERIFY_FAILED]</code><br>使用 <code>pip --trusted-host pypi.python.org install lxml</code> 即可避免. 也是安全性问题导致的.</p>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><p>同样地, 该项目对数据存储的要求也很低. 直接选择使用MySQL.</p>
+<p>参考资料如下:</p>
+<ul>
+<li><a href="http://www.runoob.com/python/python-mysql.html" target="_blank" rel="external">python操作mysql数据库</a></li>
+<li><a href="http://www.crazyant.net/686.html" target="_blank" rel="external">Python操作Mysql实例代码教程（查询手册）</a></li>
+<li><a href="http://www.cnblogs.com/mr-wid/archive/2013/05/09/3068229.html" target="_blank" rel="external">21分钟 MySQL 入门教程</a></li>
+<li><a href="http://blog.csdn.net/heizistudio/article/details/8234185" target="_blank" rel="external">Windows下更改MySQL数据库的存储位置</a></li>
+</ul>
+<p>Windows 下配置使用MySQL:</p>
+<ul>
+<li>下载运行 <a href="https://dev.mysql.com/downloads/windows/" target="_blank" rel="external">MySQL Installer</a></li>
+<li>必须安装 <code>MySQL Server</code>. 建议安装 <code>MySQL Workbench</code>, 为可视化图像, 便于管理查看.</li>
+<li>可视化工具也可以使用别的软件. 如 <a href="https://www.heidisql.com/" target="_blank" rel="external">heidisql</a></li>
+<li>将<code>mysql.exe</code>的路径添加<code>PATH</code>环境变量.</li>
+<li><p>创建新的数据库(Workbecn下, 英文为<code>schema</code>), 命名为 <code>chemistwarehouse</code>. 或者输入指令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql -u root -p      <span class="comment"># 登录本机的MySQL数据库服务</span></div><div class="line"><span class="comment"># mysql&gt;              # 成功后, 提示符变为 mysql&gt;</span></div><div class="line">create database chemistwarehouse; <span class="comment"># 创建一个数据库</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>安装 <a href="https://sourceforge.net/projects/mysql-python/" target="_blank" rel="external">MySQL for Python</a><br>然后, 在python下面测试一下是否可以成功连接到刚建立的 <code>chemistwarehouse</code> 数据库.<br>成功的话, 会打印版本信息.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initDatabase</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="comment"># 连接mysql的方法：connect('ip','user','password','dbname')</span></div><div class="line">        connect_db = db.connect(</div><div class="line">            <span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'root'</span>, <span class="string">'chemistwarehouse'</span>)</div><div class="line">        <span class="comment"># 所有的查询，都在连接con的一个模块cursor上面运行的</span></div><div class="line">        cur = connect_db.cursor()</div><div class="line">        <span class="comment"># 执行一个查询</span></div><div class="line">        cur.execute(<span class="string">"SELECT VERSION()"</span>)</div><div class="line">        <span class="comment"># 取得上个查询的结果，是单个结果</span></div><div class="line">        data = cur.fetchone()</div><div class="line">        <span class="keyword">print</span> <span class="string">"Database version : %s "</span> % data</div><div class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">        logging.error(e)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        <span class="keyword">if</span> connect_db:</div><div class="line">            <span class="comment"># 无论如何，连接记得关闭</span></div><div class="line">            connect_db.close()</div><div class="line"></div><div class="line">initDatabase()</div></pre></td></tr></table></figure>
+</li>
+<li><p>至此, 就可以在python下正常使用MySQL数据库了.<br>将提取出来的数据去重后, 按一定的格式保存进数据库即可.</p>
+</li>
+<li><p>默认安装在C盘, 而且数据存储也是在C盘. 这个没法接受! 需要把数据存储位置修改到空间更大的E盘.</p>
+<ul>
+<li>停止MySQL服务, 命令行 <code>net stop MySQL57</code> 或者使用 <code>MySQL Workbench</code> 停止服务</li>
+<li>打开 <code>C:\ProgramData\MySQL\MySQL Server 5.7\my.ini</code></li>
+<li>修改为 <code>datadir=E:/MySQLdata</code>, 即设置数据库的新目录</li>
+<li>复制 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code> 下所有文件到 <code>E:/MySQLdata</code></li>
+<li>开启MySQL服务 命令行 <code>net start MySQL57</code> 或者使用 <code>MySQL Workbench</code> 开启服务</li>
+<li>检查 MySQL 服务器状态, 确定数据库目录已更新</li>
+<li>删除 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="数据显示"><a href="#数据显示" class="headerlink" title="数据显示"></a>数据显示</h1><p>参考资料如下:</p>
+<ul>
+<li><a href="http://blog.topspeedsnail.com/archives/814" target="_blank" rel="external">Python 中用 matplotlib 绘制直方图</a> 这个博客有对 matplotlib 制图有一个系列的文章</li>
+<li><a href="http://ningning.today/2015/04/17/python/%E7%94%A8matplotlib%E7%BB%98%E5%88%B6%E6%9F%B1%E7%8A%B6%E5%9B%BE%E5%92%8C%E9%A5%BC%E5%9B%BE/" target="_blank" rel="external">用python的matplotlib库绘制柱状图和饼图</a></li>
+<li><a href="http://www.jdon.com/idea/matplotlib.html" target="_blank" rel="external">使用Python matplotlib绘制股票走势图</a></li>
+<li><a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-1/" target="_blank" rel="external">Building a Matplotlib GUI with Qt Designer: Part 1</a>, 由三部分组成, 还有<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-2/" target="_blank" rel="external">Part2</a>和<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-3/" target="_blank" rel="external">Part3</a></li>
+<li><a href="http://eli.thegreenplace.net/2009/01/20/matplotlib-with-pyqt-guis" target="_blank" rel="external">matplotlib with PyQt GUIs</a>, 有 <a href="https://github.com/eliben/code-for-blog/blob/master/2009/qt_mpl_bars.py" target="_blank" rel="external">github 范例</a></li>
+<li>pyqt的使用可参考我的博客 <a href="https://draapho.github.io/2016/11/16/1617-python-terminal/">python的第一个小程序, 蓝牙及串口终端</a></li>
+</ul>
+<p>设计思路和注意事项</p>
+<ul>
+<li>使用pip安装 matplotlib: <code>pip --trusted-host pypi.python.org install matplotlib</code></li>
+<li>数据显示和数据抓取是完全独立的, 因此数据抓取单独生成了一个exe文件, 数据显示也单独生成一个文件.</li>
+<li>数据显示exe可以打开多个, 以便分析比较. 数据抓取仅可打开一个.</li>
+</ul>
+<h1 id="源码及性能"><a href="#源码及性能" class="headerlink" title="源码及性能"></a>源码及性能</h1><p>最终源码见 <a href="https://github.com/draapho/chemistwarehouse-spider" target="_blank" rel="external">github</a></p>
+<p>爬虫最终性能:<br>抓取效率一般, 每1000条数据大概要2分钟. 要提高效率可以考虑使用多进程!<br>但一天抓取一次即可, 因此这个速度可以接受. 暂时保持单进程不变.</p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[ezos简要用户手册]]></title>
       <url>https://draapho.github.io/2017/04/10/1712-ezos/</url>
       <content type="html"><![CDATA[<h1 id="ezos开发历史"><a href="#ezos开发历史" class="headerlink" title="ezos开发历史"></a>ezos开发历史</h1><p>ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.<br>并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.<br>由于使用起来非常方便, 代码为纯C语言, 简单易懂, 因此命名为 ezos, 即easy OS.</p>
@@ -999,94 +1086,6 @@
 </ul>
 </li>
 </ol>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[使用网络爬虫抓取商品价格并分析]]></title>
-      <url>https://draapho.github.io/2017/04/10/1711-web-spider/</url>
-      <content type="html"><![CDATA[<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>基于 <a href="http://www.chemistwarehouse.com.au/" target="_blank" rel="external">Chemist Warehouse</a> 的商品, 抓取其每天的价格变化. 并根据历史信息, 判断其价格变化规律, 以便在打折时购买.</p>
-<p>因此, 用户需求有如下几点:</p>
-<ul>
-<li>抓取网站价格, 需要知道其商品全名, 原价, 打折价, 打折日期, 持续时间</li>
-<li>存储这些数据, 供日后分析使用</li>
-<li>数据挖掘和分析, 已直观的方式多维度显示出来(譬如单品的打折规律, 打折力度, 打折持续时间. 全年的打折规律)</li>
-</ul>
-<p>进一步, 技术分析如下:</p>
-<ul>
-<li>全程使用python即可满足全部需求.</li>
-<li>网络爬虫难度不高, 仅需针对特定商品, 每天抓一次, 无需多线程/进程, 无需登录, 无验证码, 无需考虑反爬虫, 无需额外加载JS程序.</li>
-<li>数据存储, 使用MySQL, 数据需要去重, 仅记录关键信息. 以便减少数据存储量, 简化数据挖掘和分析的工作</li>
-<li>搜索指定产品, 展示历史数据, 使用 pyqt + matplotlib.</li>
-</ul>
-<h1 id="网络爬虫"><a href="#网络爬虫" class="headerlink" title="网络爬虫"></a>网络爬虫</h1><p>花了二天时间, 简单过了一遍网络爬虫的关键技术. 参考资料如下:</p>
-<ul>
-<li><a href="http://cuiqingcai.com/1052.html" target="_blank" rel="external">Python爬虫学习系列教程-静觅</a></li>
-<li><a href="https://github.com/lining0806/PythonSpiderNotes" target="_blank" rel="external">Python入门网络爬虫之精华版</a></li>
-<li><a href="http://www.w3school.com.cn/xpath/xpath_syntax.asp" target="_blank" rel="external">XPath 语法</a></li>
-</ul>
-<p>本着项目导向, 做出结果为先的思路, 没有一步步的实验. 上来先看了几个爬虫框架.</p>
-<ul>
-<li><code>pyspider</code> 基于web UI, 感觉很直观, 适合于随便玩玩. 个人不喜欢, 二次开发不方便.</li>
-<li>python 下另外一个很有名的框架就是 <code>scrapy</code>, 可惜我连配置安装都没有成功的做完. 适合二次开发.<br>应该是公司网络安全机制比较高, 遇到的问题基本都是SSL相关的, 解决了2-3个, 剩下的实在没有思路去解决了…<br>另外scrapy依赖的库也比较多, 因此初装也就比较麻烦. 安装推荐参考<a href="https://docs.scrapy.org/en/latest/intro/install.html#" target="_blank" rel="external">官网的 Installation guide</a></li>
-<li>使用 <code>requests</code> <code>urllib</code> <code>lxml</code> 库. 简单项目直接用这个就够了.</li>
-<li>最终抓数据只用了 <code>lxml</code> 一个库就完成了数据抓取, 去重的工作. 关键源码如下:</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="comment"># pip --trusted-host pypi.python.org install lxml</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> string</div><div class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</div><div class="line"></div><div class="line"><span class="comment"># 获取url的原始数据</span></div><div class="line">doc = html.parse(<span class="string">'http://www.chemistwarehouse.com.au/search?searchtext=blackmores%20bone&amp;searchmode=allwords'</span>)</div><div class="line"><span class="comment"># 获取指定的数据值</span></div><div class="line">names = doc.xpath(<span class="string">'//a[@class="product-container search-result"]/@title'</span>)</div><div class="line"><span class="comment"># 处理数据, 准备存入数据库即可.</span></div><div class="line">name = map(string.strip, names)</div><div class="line"><span class="keyword">print</span> name</div></pre></td></tr></table></figure>
-<p>另:<br>遇到过了错误 <code>There was a problem confirming the ssl certificate: [SSL: CERTIFICATE_VERIFY_FAILED]</code><br>使用 <code>pip --trusted-host pypi.python.org install lxml</code> 即可避免. 也是安全性问题导致的.</p>
-<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><p>同样地, 该项目对数据存储的要求也很低. 直接选择使用MySQL.</p>
-<p>参考资料如下:</p>
-<ul>
-<li><a href="http://www.runoob.com/python/python-mysql.html" target="_blank" rel="external">python操作mysql数据库</a></li>
-<li><a href="http://www.crazyant.net/686.html" target="_blank" rel="external">Python操作Mysql实例代码教程（查询手册）</a></li>
-<li><a href="http://www.cnblogs.com/mr-wid/archive/2013/05/09/3068229.html" target="_blank" rel="external">21分钟 MySQL 入门教程</a></li>
-<li><a href="http://blog.csdn.net/heizistudio/article/details/8234185" target="_blank" rel="external">Windows下更改MySQL数据库的存储位置</a></li>
-</ul>
-<p>Windows 下配置使用MySQL:</p>
-<ul>
-<li>下载运行 <a href="https://dev.mysql.com/downloads/windows/" target="_blank" rel="external">MySQL Installer</a></li>
-<li>必须安装 <code>MySQL Server</code>. 建议安装 <code>MySQL Workbench</code>, 为可视化图像, 便于管理查看.</li>
-<li>可视化工具也可以使用别的软件. 如 <a href="https://www.heidisql.com/" target="_blank" rel="external">heidisql</a></li>
-<li>将<code>mysql.exe</code>的路径添加<code>PATH</code>环境变量.</li>
-<li><p>创建新的数据库(Workbecn下, 英文为<code>schema</code>), 命名为 <code>chemistwarehouse</code>. 或者输入指令:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql -u root -p      <span class="comment"># 登录本机的MySQL数据库服务</span></div><div class="line"><span class="comment"># mysql&gt;              # 成功后, 提示符变为 mysql&gt;</span></div><div class="line">create database chemistwarehouse; <span class="comment"># 创建一个数据库</span></div></pre></td></tr></table></figure>
-</li>
-<li><p>安装 <a href="https://sourceforge.net/projects/mysql-python/" target="_blank" rel="external">MySQL for Python</a><br>然后, 在python下面测试一下是否可以成功连接到刚建立的 <code>chemistwarehouse</code> 数据库.<br>成功的话, 会打印版本信息.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initDatabase</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="comment"># 连接mysql的方法：connect('ip','user','password','dbname')</span></div><div class="line">        connect_db = db.connect(</div><div class="line">            <span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'root'</span>, <span class="string">'chemistwarehouse'</span>)</div><div class="line">        <span class="comment"># 所有的查询，都在连接con的一个模块cursor上面运行的</span></div><div class="line">        cur = connect_db.cursor()</div><div class="line">        <span class="comment"># 执行一个查询</span></div><div class="line">        cur.execute(<span class="string">"SELECT VERSION()"</span>)</div><div class="line">        <span class="comment"># 取得上个查询的结果，是单个结果</span></div><div class="line">        data = cur.fetchone()</div><div class="line">        <span class="keyword">print</span> <span class="string">"Database version : %s "</span> % data</div><div class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">        logging.error(e)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        <span class="keyword">if</span> connect_db:</div><div class="line">            <span class="comment"># 无论如何，连接记得关闭</span></div><div class="line">            connect_db.close()</div><div class="line"></div><div class="line">initDatabase()</div></pre></td></tr></table></figure>
-</li>
-<li><p>至此, 就可以在python下正常使用MySQL数据库了.<br>将提取出来的数据去重后, 按一定的格式保存进数据库即可.</p>
-</li>
-<li><p>默认安装在C盘, 而且数据存储也是在C盘. 这个没法接受! 需要把数据存储位置修改到空间更大的E盘.</p>
-<ul>
-<li>停止MySQL服务, 命令行 <code>net stop MySQL57</code> 或者使用 <code>MySQL Workbench</code> 停止服务</li>
-<li>打开 <code>C:\ProgramData\MySQL\MySQL Server 5.7\my.ini</code></li>
-<li>修改为 <code>datadir=E:/MySQLdata</code>, 即设置数据库的新目录</li>
-<li>复制 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code> 下所有文件到 <code>E:/MySQLdata</code></li>
-<li>开启MySQL服务 命令行 <code>net start MySQL57</code> 或者使用 <code>MySQL Workbench</code> 开启服务</li>
-<li>检查 MySQL 服务器状态, 确定数据库目录已更新</li>
-<li>删除 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="数据显示"><a href="#数据显示" class="headerlink" title="数据显示"></a>数据显示</h1><p>参考资料如下:</p>
-<ul>
-<li><a href="http://blog.topspeedsnail.com/archives/814" target="_blank" rel="external">Python 中用 matplotlib 绘制直方图</a> 这个博客有对 matplotlib 制图有一个系列的文章</li>
-<li><a href="http://ningning.today/2015/04/17/python/%E7%94%A8matplotlib%E7%BB%98%E5%88%B6%E6%9F%B1%E7%8A%B6%E5%9B%BE%E5%92%8C%E9%A5%BC%E5%9B%BE/" target="_blank" rel="external">用python的matplotlib库绘制柱状图和饼图</a></li>
-<li><a href="http://www.jdon.com/idea/matplotlib.html" target="_blank" rel="external">使用Python matplotlib绘制股票走势图</a></li>
-<li><a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-1/" target="_blank" rel="external">Building a Matplotlib GUI with Qt Designer: Part 1</a>, 由三部分组成, 还有<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-2/" target="_blank" rel="external">Part2</a>和<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-3/" target="_blank" rel="external">Part3</a></li>
-<li><a href="http://eli.thegreenplace.net/2009/01/20/matplotlib-with-pyqt-guis" target="_blank" rel="external">matplotlib with PyQt GUIs</a>, 有 <a href="https://github.com/eliben/code-for-blog/blob/master/2009/qt_mpl_bars.py" target="_blank" rel="external">github 范例</a></li>
-<li>pyqt的使用可参考我的博客 <a href="https://draapho.github.io/2016/11/16/1617-python-terminal/">python的第一个小程序, 蓝牙及串口终端</a></li>
-</ul>
-<p>设计思路和注意事项</p>
-<ul>
-<li>使用pip安装 matplotlib: <code>pip --trusted-host pypi.python.org install matplotlib</code></li>
-<li>数据显示和数据抓取是完全独立的, 因此数据抓取单独生成了一个exe文件, 数据显示也单独生成一个文件.</li>
-<li>数据显示exe可以打开多个, 以便分析比较. 数据抓取仅可打开一个.</li>
-</ul>
-<h1 id="源码及性能"><a href="#源码及性能" class="headerlink" title="源码及性能"></a>源码及性能</h1><p>最终源码见 <a href="https://github.com/draapho/chemistwarehouse-spider" target="_blank" rel="external">github</a></p>
-<p>爬虫最终性能:<br>抓取效率一般, 每1000条数据大概要2分钟. 要提高效率可以考虑使用多进程!<br>但一天抓取一次即可, 因此这个速度可以接受. 暂时保持单进程不变.</p>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 ]]></content>
@@ -2383,53 +2382,9 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Embedded Linux 学习概览及入门有感]]></title>
-      <url>https://draapho.github.io/2017/01/18/1702-linux-study-overview/</url>
-      <content type="html"><![CDATA[<h1 id="学习目录"><a href="#学习目录" class="headerlink" title="学习目录"></a>学习目录</h1><h2 id="linux-基础知识学习"><a href="#linux-基础知识学习" class="headerlink" title="linux 基础知识学习"></a>linux 基础知识学习</h2><ul>
-<li><a href="https://draapho.github.io/2016/12/15/1625-linux-cmd-disk/">linux系统及磁盘指令</a> </li>
-<li><a href="https://draapho.github.io/2016/12/16/1626-linux-cmd-file/">linux文件及目录指令</a> </li>
-<li><a href="https://draapho.github.io/2016/12/17/1627-linux-cmd-bash/">Bash Shell及环境变量</a> </li>
-<li><a href="https://draapho.github.io/2017/01/19/1703-linux-command/">Unix/Linux 命令参考</a> </li>
-</ul>
-<h2 id="Linux-0-11-源码阅读笔记"><a href="#Linux-0-11-源码阅读笔记" class="headerlink" title="Linux 0.11 源码阅读笔记"></a>Linux 0.11 源码阅读笔记</h2><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h2 id="嵌入式linux的环境搭建"><a href="#嵌入式linux的环境搭建" class="headerlink" title="嵌入式linux的环境搭建"></a>嵌入式linux的环境搭建</h2><ol>
-<li>嵌入式linux开发环境搭建综述<ul>
-<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></li>
-</ul>
-</li>
-<li>PC windows 所有资料存在windows目录下, 所有操作在windows环境下. NFS设置可参考:<ul>
-<li><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
-</ul>
-</li>
-<li>PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:<ul>
-<li>第一次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/">嵌入式linux环境搭建1-Ubuntu14</a></del></li>
-<li>第二次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/19/1706-linux-centos7/">嵌入式linux环境搭建2-CentOS7</a></del></li>
-<li>第三次尝试, 成功! <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
-</ul>
-</li>
-<li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统. 其参数设置可参考:<ul>
-<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
-</ul>
-</li>
-<li>另一种思路: (可解决文件不兼容问题)<ul>
-<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
-</ul>
-</li>
-</ol>
-<h2 id="单机及uboot学习"><a href="#单机及uboot学习" class="headerlink" title="单机及uboot学习"></a>单机及uboot学习</h2><ul>
-<li><a href="https://draapho.github.io/2017/04/05/1710-jz2440-led/">jz2440 裸板程序的开发</a></li>
-<li><a href="https://draapho.github.io/2017/07/07/1719-jz2440-uboot1/">uboot之makefile分析</a></li>
-</ul>
-<h2 id="嵌入式linux源码学习"><a href="#嵌入式linux源码学习" class="headerlink" title="嵌入式linux源码学习"></a>嵌入式linux源码学习</h2><hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
+      <title><![CDATA[Embedded Linux 入门有感]]></title>
+      <url>https://draapho.github.io/2017/01/18/1702-linux-hard/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Embedded Linux 是自我学习过程中, 走的最不顺的一条路.<br>而学习android和python时, 基本自学一个月左右, 就能开始独立做项目了.<br>应该说, Embedded Linux的入门确实比较困难一点.</p>
 <p>自己是从底层往上走的, 系统的学过硬件, 嵌入式, 操作系统,<br>但在没有具体项目要求的情况下, 学习Embedded Linux的过程充满了痛苦和不解, 始终没有坚持下来.</p>
 <p>如今, 打算再次开始系统的学习Embedded Linux, 因而在此记录一下之前的学习感受, 分析一下困难之所在, 并制定好学习规则和方式.</p>
 <h1 id="为何困难"><a href="#为何困难" class="headerlink" title="为何困难"></a>为何困难</h1><h2 id="linux上手困难"><a href="#linux上手困难" class="headerlink" title="linux上手困难"></a>linux上手困难</h2><p>对新手而言, linux的学习曲线很陡峭. 相信刚上手的话, 如何安装软件, 如何使用编辑器都是问题!</p>
@@ -6958,6 +6913,31 @@
     </entry>
     
     <entry>
+      <title><![CDATA[stm32选型及资料搜索指南]]></title>
+      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
+      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Vim常用快捷键]]></title>
       <url>https://draapho.github.io/2016/10/01/1604-CheatSheet-vim/</url>
       <content type="html"><![CDATA[<h1 id="Vim常用快捷键"><a href="#Vim常用快捷键" class="headerlink" title="Vim常用快捷键"></a>Vim常用快捷键</h1><h2 id="进入输入模式"><a href="#进入输入模式" class="headerlink" title="进入输入模式"></a>进入输入模式</h2><table>
@@ -7327,31 +7307,6 @@
 <li><a href="https://www.gosquared.com/blog/vi-linux-terminal-help-sheet" target="_blank" rel="external">VI (Linux Terminal) Help Sheet</a><br><img src="https://downloads.gosquared.com/help_sheets/10/VI-Help-Sheet-large.jpg" alt="VI Help Sheet"></li>
 <li><a href="http://blog.vgod.tw/2009/12/08/vim-cheat-sheet-for-programmers/" target="_blank" rel="external">給程式設計師的Vim入門圖解說明</a><br><img src="http://blog.vgod.tw.s3.amazonaws.com/wp-content/uploads/2009/12/vim-cheat-sheet-diagram.png" alt="Vim入門圖解說明"></li>
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="external">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[stm32选型及资料搜索指南]]></title>
-      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
-      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
