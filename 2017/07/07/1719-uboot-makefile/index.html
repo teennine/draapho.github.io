@@ -82,31 +82,43 @@
 
 
 
-<meta name="description" content="本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
+<meta name="description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+
+本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
 u-boot 编译过程
 解压缩 u-boot-1.1.6
-打补丁 针对特定开发板发布的补丁. 打补丁方法uboot目录下$ patch -p1 &amp;lt; ../补丁文件  p1表示忽略补丁目标目录的第一层
-配置 make 100ask24x0_config
-编译">
+打补丁 针对特定开发板发布的补丁.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="uboot之makefile分析">
 <meta property="og:url" content="https://draapho.github.io/2017/07/07/1719-uboot-makefile/index.html">
 <meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
+<meta property="og:description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+
+本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
 u-boot 编译过程
 解压缩 u-boot-1.1.6
-打补丁 针对特定开发板发布的补丁. 打补丁方法uboot目录下$ patch -p1 &amp;lt; ../补丁文件  p1表示忽略补丁目标目录的第一层
-配置 make 100ask24x0_config
-编译">
-<meta property="og:updated_time" content="2017-07-06T12:44:22.495Z">
+打补丁 针对特定开发板发布的补丁.">
+<meta property="og:updated_time" content="2017-08-30T07:59:01.702Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="uboot之makefile分析">
-<meta name="twitter:description" content="本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
+<meta name="twitter:description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+
+本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
 u-boot 编译过程
 解压缩 u-boot-1.1.6
-打补丁 针对特定开发板发布的补丁. 打补丁方法uboot目录下$ patch -p1 &amp;lt; ../补丁文件  p1表示忽略补丁目标目录的第一层
-配置 make 100ask24x0_config
-编译">
+打补丁 针对特定开发板发布的补丁.">
 
 
 
@@ -332,7 +344,13 @@ u-boot 编译过程
       
 
       
-        <p>本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: <a href="http://www.denx.de/wiki/U-Boot/WebHome" target="_blank" rel="external">u-boot官网</a>  <a href="ftp://ftp.denx.de/pub/u-boot/" target="_blank" rel="external">u-boot下载</a></p>
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 回顾一下s3c2440的地址分配</li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+</ul>
+<p>本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: <a href="http://www.denx.de/wiki/U-Boot/WebHome" target="_blank" rel="external">u-boot官网</a>  <a href="ftp://ftp.denx.de/pub/u-boot/" target="_blank" rel="external">u-boot下载</a></p>
 <h1 id="u-boot-编译过程"><a href="#u-boot-编译过程" class="headerlink" title="u-boot 编译过程"></a>u-boot 编译过程</h1><ol>
 <li>解压缩 u-boot-1.1.6</li>
 <li>打补丁 针对特定开发板发布的补丁. 打补丁方法<br><code>uboot目录下$ patch -p1 &lt; ../补丁文件</code>  p1表示忽略补丁目标目录的第一层</li>
@@ -429,6 +447,10 @@ u-boot 编译过程
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2017/08/25/1720-uboot-source/" rel="prev" title="uboot之源码分析">
+                uboot之源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -495,7 +517,7 @@ u-boot 编译过程
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -552,7 +574,7 @@ u-boot 编译过程
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot-编译过程"><span class="nav-number">1.</span> <span class="nav-text">u-boot 编译过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot功能"><span class="nav-number">2.</span> <span class="nav-text">u-boot功能:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot的README"><span class="nav-number">3.</span> <span class="nav-text">u-boot的README</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot的Makefile"><span class="nav-number">4.</span> <span class="nav-text">u-boot的Makefile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#‘make-100ask24x0-config’-指令分析"><span class="nav-number">4.1.</span> <span class="nav-text">‘make 100ask24x0_config’ 指令分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#‘make’-指令分析"><span class="nav-number">4.2.</span> <span class="nav-text">‘make’ 指令分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#‘u-boot-lds’-链接脚本分析"><span class="nav-number">4.3.</span> <span class="nav-text">‘u-boot.lds’ 链接脚本分析</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot-编译过程"><span class="nav-number">2.</span> <span class="nav-text">u-boot 编译过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot功能"><span class="nav-number">3.</span> <span class="nav-text">u-boot功能:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot的README"><span class="nav-number">4.</span> <span class="nav-text">u-boot的README</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#u-boot的Makefile"><span class="nav-number">5.</span> <span class="nav-text">u-boot的Makefile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#‘make-100ask24x0-config’-指令分析"><span class="nav-number">5.1.</span> <span class="nav-text">‘make 100ask24x0_config’ 指令分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#‘make’-指令分析"><span class="nav-number">5.2.</span> <span class="nav-text">‘make’ 指令分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#‘u-boot-lds’-链接脚本分析"><span class="nav-number">5.3.</span> <span class="nav-text">‘u-boot.lds’ 链接脚本分析</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

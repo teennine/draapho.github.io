@@ -260,6 +260,560 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/14/1615-software-thread/" itemprop="url">
+                  协程/进程/线程资料收集
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-14T00:00:00+11:00" content="2016-11-14">
+              2016-11-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>协程(Coroutine), 多线程(Thread), 多进程(Multiprocessing)资料繁多, 学无止境, 就集中在这一篇收集贴中. 便于查阅学习</p>
+<h1 id="自己的理解"><a href="#自己的理解" class="headerlink" title="自己的理解"></a>自己的理解</h1><ul>
+<li>协程, 任务之间不是竞争关系, 而是协作关系, 需要每个任务都需要有一颗舍己为公的心!<ul>
+<li>大家排队喝水, 喝到差不多就自己让给下一个人, 自己再去排队! 可按照优先级来插队的.</li>
+<li>遇到不讲道理的人, 那这个机制就失效了. 因为没有抢占, 大家都只会默默等待…</li>
+<li>优点, 任务切换的代价非常小. 由于没有抢占, 也就没有复杂的临界区问题. 锁的问题也变得简单.</li>
+<li>缺点, 这个世界上总有不讲理的人, 所以, 大型任务和系统不敢这么用…</li>
+<li>单片机开发是非常适合使用协程的! (资源有限, 需要减小任务切换的开销. 任务可控, 意味着易于协作)</li>
+<li>python 下可用 gevent. </li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多线程, 任务之间是竞争关系, 高优先级优先执行, 同时又有时间片限制, 避免高优先级任务霸占CPU<ul>
+<li>谁强谁喝水, 不过旁边有个管理员, 哪个家伙喝水时间太久了, 就会把他给跩一边去, 大家重新来抢.</li>
+<li>线程是共享内存的, 理解为这些水来自于同一个自来水厂(这个水厂有毒的话, 谁了逃不了),</li>
+<li>多核就是多个水龙头, 同一时刻可以有多个人在喝水.</li>
+<li>优点, 任务的开销比进程小(因为共享内存), 通讯方式多样. 加个水龙头和造个水厂的区别!!!</li>
+<li>缺点, 一大帮自私又不讲理的人在一起总是很难管理的… 需要各种锁机制来维持和谐共处…</li>
+<li>python的多线程, 由于GIL机制的存在, 是无法利用多核的. (意味着不适用于CPU密集型任务)</li>
+<li>python有一个类进程版本的线程池 <code>multiprocessing.pool.ThreadPool</code>, 可以获取返回值<br>由于本质是线程, Windows下terminate方法是没有用的.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多进程, 任务之间是竞争关系, 任务之间的数据全部隔离, 没有共享.<ul>
+<li>进程是资源分配的基本单位. 进程包含线程, 线程共用进程的资源.</li>
+<li>进程比线程安全性更高, 因为拥有独立的内存块(独立水厂供水)</li>
+<li>进程的建立和调度比线程更费时间和资源</li>
+<li>进程间的数据共享和交换很麻烦. (python例子中, 进程内 print 不会打印, 参数传递需要可以pickle)</li>
+<li>python 下推荐使用 <code>multiprocessing.pool.Pool</code>. 可以获取返回值.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>进程和线程以及多核<ul>
+<li>操作系统必须有一个进程, 创建进程时, 会分配好供这个进程使用的内存和上下文环境.</li>
+<li>线程依赖于进程, 多线程运行于同一个进程下面, 会共享同一个进程的内存.</li>
+<li>事实上, 线程是最难写好的一种多任务方式(因为共享内存).</li>
+<li>以android为例,<ul>
+<li>android的每一个应用就是一个linux进程, 所以写的再烂的应用也不会导致整个android系统崩溃.</li>
+<li>应用内支持多线程, 也事实上都对应到linux的线程, 这些线程运行在分配好的linux进程中.</li>
+</ul>
+</li>
+<li>进程和线程的概念和单核还是多核一点关系都没有! 先理解好单核再说, 真正涉及到CPU密集型任务时, 再考虑多核优化…</li>
+</ul>
+</li>
+</ul>
+<h1 id="优缺点比较"><a href="#优缺点比较" class="headerlink" title="优缺点比较"></a>优缺点比较</h1><ul>
+<li>协程具有进程和线程各自的优点. 但其缺点是需要任务间自己来协作调度(很容易写成阻塞等待), 这一点直接导致了通用性很差.</li>
+<li><a href="http://blog.csdn.net/lishenglong666/article/details/8557215" target="_blank" rel="external">多线程还是多进程的选择及区别</a>, 比较全面的一篇文章!<ul>
+<li>本文也有一个转字, 应该是综合了多种搜素结果写出来的一篇博文. 有结论, 有实验代码和过程</li>
+<li>鱼还是熊掌：浅谈多进程多线程的选择</li>
+<li>1.进程与线程</li>
+<li>一、重复周丽论文实验步骤</li>
+<li>二、增加并发数量的实验</li>
+<li>三、增加每进程/线程的工作强度的实验</li>
+<li>四、多进程和多线程在创建和销毁上的效率比较</li>
+<li>五、双核系统重复周丽论文实验步骤</li>
+<li>六、并发服务的不可测性</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>多进程</th>
+<th>多线程</th>
+<th>总结</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据共享、同步</td>
+<td>数据共享复杂，需要用IPC；数据是分开的，<strong>同步简单</strong></td>
+<td>因为共享进程数据，<strong>数据共享简单</strong>，但也是因为这个原因导致同步复杂</td>
+<td>各有优势</td>
+</tr>
+<tr>
+<td>内存、CPU</td>
+<td>占用内存多，切换复杂，CPU利用率低</td>
+<td><strong>占用内存少，切换简单，CPU利用率高</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>创建销毁、切换</td>
+<td>创建销毁、切换复杂，速度慢</td>
+<td><strong>创建销毁、切换简单，速度很快</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>编程、调试</td>
+<td><strong>编程简单，调试简单</strong></td>
+<td>编程复杂，调试复杂</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>可靠性</td>
+<td><strong>进程间不会互相影响</strong></td>
+<td>一个线程挂掉将导致整个进程挂掉</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>分布式</td>
+<td><strong>适应于多核、多机分布式</strong>；如果一台机器不够，扩展到多台机器比较简单</td>
+<td>适应于多核分布式</td>
+<td>进程占优</td>
+</tr>
+</tbody>
+</table>
+<h1 id="资料集"><a href="#资料集" class="headerlink" title="资料集"></a>资料集</h1><ul>
+<li><p><a href="https://www.tutorialspoint.com/python/python_multithreading.htm" target="_blank" rel="external">Python Multithreaded Programming</a></p>
+<ul>
+<li>Python多线程入门教程, 有详细的说明, 源代码及运行结果.</li>
+<li>主要有3个示例, 多线程, 多线程同步, 使用Queue来通讯</li>
+</ul>
+</li>
+<li><p><a href="http://www.jianshu.com/p/0e4ff7c856d3" target="_blank" rel="external">Python 多线程</a></p>
+<ul>
+<li>介绍了Python多线程的状态, 类型</li>
+<li>线程的创建, 合并(join), 同步, 锁(Lock, 死锁, RLock), 其它IPC</li>
+<li>将子线程设置<strong>后台线程</strong>(setDaemon), 让子线程随主线程一起结束.</li>
+<li>提了一下Python的GIL, 参考资料中的一篇对此做了很好的说明: <a href="http://zhuoqiang.me/python-thread-gil-and-ctypes.html" target="_blank" rel="external">python 线程，GIL 和 ctypes</a></li>
+</ul>
+</li>
+<li><p><a href="https://draapho.github.io/2016/11/03/1615-python-ipc/">Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></p>
+<ul>
+<li>线程（Threading）</li>
+<li>锁（Lock）</li>
+<li>可重入锁（RLock）</li>
+<li>条件（Condition）</li>
+<li>信号量（Semaphore）</li>
+<li>事件（Event）</li>
+<li>队列（Queue）, 重点推荐</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/179265" target="_blank" rel="external">理解 Python 中的多线程</a></p>
+<ul>
+<li>示例1, 请求五个不同的url. 比较了单线程和多线程性能上的差别</li>
+<li>示例2, 全局变量的线程安全问题（race condition）. BUG版和修改版</li>
+<li>示例3, 多线程环境下的原子操作. BUG版和修改版</li>
+<li>示例4, Python多线程简易版：线程池 threadpool</li>
+<li>附上了很多参考和推荐阅读的资料!</li>
+</ul>
+</li>
+<li><p>线程池 threadpool (需安装)</p>
+<ul>
+<li><a href="http://www.zhidaow.com/post/python-threadpool" target="_blank" rel="external">Python多线程简易版 - 线程池threadpool</a>, 新手上路版</li>
+<li><a href="http://chriskiehl.com/article/parallelism-in-one-line/" target="_blank" rel="external">Parallelism in one line</a>, 比较了传统方案和线程池方案, 并给出了范例</li>
+<li>这是<code>Parallelism in one line</code>的中文翻译版本, 并有遇到小坑和补充说明. <a href="https://my.oschina.net/leejun2005/blog/194270" target="_blank" rel="external">Python 并行任务技巧</a></li>
+<li><strong>注意： threadpool 是非线程安全的</strong>。<ul>
+<li>关于线程安全, 可参考<a href="http://blog.csdn.net/xiao__gui/article/details/8934832" target="_blank" rel="external">Java线程安全和非线程安全</a></li>
+<li>个人理解, 对于python的非线程安全, 编程时需要特别注意 <code>可变对象</code> 和 <code>不可变对象</code>, 弄清楚Python到底是在<code>赋值</code>还是<code>引用</code>(相当于指针)</li>
+<li>可以参考此文 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="external">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></li>
+</ul>
+</li>
+<li>初步结论, 还是比较推崇线程池的: 比起经典的方式来说简单很多，效率高，易懂，而且没什么死锁的陷阱。</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/398826" target="_blank" rel="external">Python 多线程教程：并发与并行</a></p>
+<ul>
+<li>讲了多线程, 多进程, 以及分布式任务.</li>
+<li>原作者已下载网络图片来说明问题, 转发者为了便于测试和理解, 简化了代码.</li>
+<li>1, 单线程执行. 花了19.4秒去下载91张图片</li>
+<li>2, 多线程. 下载时间变成了4.1秒. 并说明了为何有GIL的情况下, 多线程仍然是有效的(因为是IO密集型的任务)</li>
+<li>3, 多进程. 优点, 避免了GIL, 适用于CPU密集型任务. 缺点, 耗内存!</li>
+<li>4, 分布式任务. 提了一下<code>RQ</code>和<code>Celery</code></li>
+<li>5, 总结: IO密集型，多线程或多进程. CPU密集型, 多进程. 网络应用, 分布式任务</li>
+<li>6, 并发、并行区别与联系. 并发, 一个人按优先级处理多件事情(任一时刻只能做一件事情). 并行, 有多个人各自做事(多核多任务).</li>
+</ul>
+</li>
+<li><p><strong>进程池 multiprocessing.Pool 以及 multiprocessing.pool.ThreadPool</strong></p>
+<ul>
+<li><a href="https://segmentfault.com/a/1190000003044986" target="_blank" rel="external">Python 多进程实践</a><ul>
+<li>Python多进程的实现入门级文章</li>
+<li>创建子进程的方法: fork, multiprocessing, Pool 进程池</li>
+<li>IPC(进程间通讯): Queue, Pipe</li>
+</ul>
+</li>
+<li><a href="http://blog.csdn.net/seetheworld518/article/details/49639651" target="_blank" rel="external">Python 多进程 multiprocessing.Pool类详解</a></li>
+<li><a href="http://lucasb.eyer.be/snips/python-thread-pool.html" target="_blank" rel="external">Python’s undocumented ThreadPool</a>, 提了一下 ThreadPool</li>
+<li><a href="https://draapho.github.io/2016/11/28/1622-python-time/">python 延时及超时</a>, “学习过程中的例子” 中有尝试使用进程池</li>
+<li><a href="http://www.eenot.com/thread-103459-1-1.html" target="_blank" rel="external">Python 中 Ctrl+C 不能终止 Multiprocessing Pool 的解决方</a>, ThreadPool有同样的问题. 可以搜索关键字: Keyboard Interrupts multiprocessing Pool.</li>
+<li><a href="http://bugs.python.org/issue17140" target="_blank" rel="external">使用 multiprocessing.pool.ThreadPool 可能的潜在风险</a>, 本质是线程, 而且没有文档说明</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/203148" target="_blank" rel="external">浅谈 python multiprocessing（多进程）下如何共享变量</a></p>
+<ul>
+<li>1, 抛出了一个多进程的问题.</li>
+<li>2, python 多进程共享变量的几种方式</li>
+<li>3, 多进程的问题远不止这么多：数据的同步. (需要Lock)</li>
+<li>4, 总结为: 多进程最好还是用IPC(message之类的). 如果一定要用共享变量, 那也是可以的…</li>
+</ul>
+</li>
+<li><p><a href="https://liangxiansen.github.io/2016/08/08/python%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/" target="_blank" rel="external">Python之路：(十五）进程、线程和协程</a></p>
+<ul>
+<li>Python线程, 线程锁(Lock, Rlock), 其它IPC, 线程池</li>
+<li>Python进程, 进程数据共享, 进程IPC. (Python Windows下是可以用进程的, 只是不支持fork)</li>
+<li>Python协程, greenlet(主动切换), gevent(遇到IO操作, 自动切换).</li>
+</ul>
+</li>
+<li><p><strong><a href="http://xlambda.com/gevent-tutorial/" target="_blank" rel="external">gevent程序员指南</a></strong></p>
+<ul>
+<li>核心部分, 较为详细的介绍了 gevent 的原理和使用方式.</li>
+<li>数据结构, 介绍了协程之间的通讯工具</li>
+<li>真实世界的应用, 几个实际应用的例子</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/03/1615-python-ipc/" itemprop="url">
+                  Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-03T00:00:00+11:00" content="2016-11-03">
+              2016-11-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="http://yoyzhou.github.io/blog/2013/02/28/python-threads-synchronization-locks/" target="_blank" rel="external">Zhou’s Blog, Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></em></strong><br><strong><em>翻译自 <a href="http://www.laurentluce.com/posts/python-threads-synchronization-locks-rlocks-semaphores-conditions-events-and-queues/" target="_blank" rel="external">Laurent Luce, Python threads synchronization: Locks, RLocks, Semaphores, Conditions, Events and Queues</a></em></strong></p>
+<hr>
+<p>本文详细地阐述了Python线程同步机制。你将学习到以下有关Python线程同步机制：Lock，RLock，Semaphore，Condition，Event和Queue，还有Python的内部是如何实现这些机制的。 本文给出的程序的源代码可以在github上找到。</p>
+<p>首先让我们来看一个没有使用线程同步的简单程序。</p>
+<h1 id="线程（Threading）"><a href="#线程（Threading）" class="headerlink" title="线程（Threading）"></a>线程（Threading）</h1><p>我们希望编程一个从一些URL中获得内容并且将内容写入文件的程序，完成这个程序可以不使用线程，为了加快获取的速度，我们使用2个线程，每个线程处理一半的URL。</p>
+<p>注：完成这个程序的最好方式是使用一个URL队列，但是以下面的例子开始我的讲解更加合适。<br>类FetchUrls是threading.Thread的子类，他拥有一个URL列表和一个写URL内容的文件对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FetchUrls</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">  下载URL内容的线程</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, urls, output)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param urls 需要下载的URL列表</div><div class="line">    @param output 写URL内容的输出文件</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.urls = urls</div><div class="line">    self.output = output</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现父类Thread的run方法，打开URL，并且一个一个的下载URL的内容</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> self.urls:</div><div class="line">      url = self.urls.pop()</div><div class="line">      req = urllib2.Request(url)</div><div class="line">      <span class="keyword">try</span>:</div><div class="line">        d = urllib2.urlopen(req)</div><div class="line">      <span class="keyword">except</span> urllib2.URLError, e:</div><div class="line">        <span class="keyword">print</span> <span class="string">'URL %s failed: %s'</span> % (url, e.reason)</div><div class="line">      self.output.write(d.read())</div><div class="line">      <span class="keyword">print</span> <span class="string">'write done by %s'</span> % self.name</div><div class="line">      <span class="keyword">print</span> <span class="string">'URL %s fetched by %s'</span> % (url, self.name)</div></pre></td></tr></table></figure>
+<p>main函数启动了两个线程，之后让他们下载URL内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">  <span class="comment"># URL列表1</span></div><div class="line">  urls1 = [<span class="string">'http://www.google.com'</span>, <span class="string">'http://www.facebook.com'</span>]</div><div class="line">  <span class="comment"># URL列表2</span></div><div class="line">  urls2 = [<span class="string">'http://www.yahoo.com'</span>, <span class="string">'http://www.youtube.com'</span>]</div><div class="line">  f = open(<span class="string">'output.txt'</span>, <span class="string">'w+'</span>)</div><div class="line">  t1 = FetchUrls(urls1, f)</div><div class="line">  t2 = FetchUrls(urls2, f)</div><div class="line">  t1.start()</div><div class="line">  t2.start()</div><div class="line">  t1.join()</div><div class="line">  t2.join()</div><div class="line">  f.close()</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">  main()</div></pre></td></tr></table></figure>
+<p>上面的程序将出现两个线程同时写一个文件的情况，导致文件一团乱码。我们需要找到一种在给定的时间里只有一个线程写文件的方法。实现的方法就是使用像锁（Locks）这样的线程同步机制。</p>
+<h1 id="锁（Lock）"><a href="#锁（Lock）" class="headerlink" title="锁（Lock）"></a>锁（Lock）</h1><p>锁有两种状态：被锁（locked）和没有被锁（unlocked）。拥有acquire()和release()两种方法，并且遵循一下的规则：</p>
+<ul>
+<li>如果一个锁的状态是unlocked，调用acquire()方法改变它的状态为locked；</li>
+<li>如果一个锁的状态是locked，acquire()方法将会阻塞，直到另一个线程调用release()方法释放了锁；</li>
+<li>如果一个锁的状态是unlocked调用release()会抛出RuntimeError异常；</li>
+<li>如果一个锁的状态是locked，调用release()方法改变它的状态为unlocked。</li>
+</ul>
+<p>解决上面两个线程同时写一个文件的问题的方法就是：我们给类FetchUrls的构造器中传入一个锁（lock），使用这个锁来保护文件操作，实现在给定的时间只有一个线程写文件。下面的代码只显示了关于lock部分的修改。完整的源码可以在threads/lock.py中找到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FetchUrls</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  ...</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, urls, output, lock)</span>:</span></div><div class="line">    ...</div><div class="line">    self.lock = lock    <span class="comment">#传入的lock对象</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="keyword">while</span> self.urls:</div><div class="line">      ...</div><div class="line">      self.lock.acquire()   <span class="comment">#获得lock对象，lock状态变为locked，并且阻塞其他线程获取lock对象（写文件的权利）</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'lock acquired by %s'</span> % self.name</div><div class="line">      self.output.write(d.read())</div><div class="line">      <span class="keyword">print</span> <span class="string">'write done by %s'</span> % self.name</div><div class="line">      <span class="keyword">print</span> <span class="string">'lock released by %s'</span> % self.name</div><div class="line">      self.lock.release()   <span class="comment">#释放lock对象，lock状态变为unlocked，其他的线程可以重新获取lock对象</span></div><div class="line">      ...</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">  ...</div><div class="line">  lock = threading.Lock()</div><div class="line">  ...</div><div class="line">  t1 = FetchUrls(urls1, f, lock)</div><div class="line">  t2 = FetchUrls(urls2, f, lock)</div><div class="line">  ...</div></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/lock.png" alt="lock"></p>
+<p>以下是程序的输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ python locks.py</div><div class="line">lock acquired by Thread-2</div><div class="line">write done by Thread-2</div><div class="line">lock released by Thread-2</div><div class="line">URL http://www.youtube.com fetched by Thread-2</div><div class="line">lock acquired by Thread-1</div><div class="line">write done by Thread-1</div><div class="line">lock released by Thread-1</div><div class="line">URL http://www.facebook.com fetched by Thread-1</div><div class="line">lock acquired by Thread-2</div><div class="line">write done by Thread-2</div><div class="line">lock released by Thread-2</div><div class="line">URL http://www.yahoo.com fetched by Thread-2</div><div class="line">lock acquired by Thread-1</div><div class="line">write done by Thread-1</div><div class="line">lock released by Thread-1</div><div class="line">URL http://www.google.com fetched by Thread-1</div></pre></td></tr></table></figure>
+<p>从上面的输出我们可以看出，写文件的操作被锁保护，没有出现两个线程同时写一个文件的现象。</p>
+<p>下面我们看一下Python内部是如何实现锁（Lock）的。我正在使用的Python版本是Linux操作系统上的Python 2.6.6。</p>
+<p>threading模块的Lock()方法就是thread.allocate_lock，代码可以在Lib/threading.py中找到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Lock = _allocate_lock</div><div class="line">_allocate_lock = thread.allocate_lock</div></pre></td></tr></table></figure>
+<p>C的实现在Python/thread_pthread.h中。程序假定你的系统支持POSIX信号量（semaphores）。sem_init()初始化锁（Lock）所在地址的信号量。初始的信号量值是1，意味着锁没有被锁（unlocked）。信号量将在处理器的不同线程之间共享。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function">PyThread_type_lock</span></div><div class="line"><span class="title">PyThread_allocate_lock</span><span class="params">(<span class="keyword">void</span>)</span></div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    lock = (<span class="keyword">sem_t</span> *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">sem_t</span>));</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (lock) &#123;</div><div class="line">        status = sem_init(lock,<span class="number">0</span>,<span class="number">1</span>);</div><div class="line">        CHECK_STATUS(<span class="string">"sem_init"</span>);</div><div class="line">        ....</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当acquire()方法被调用时，下面的C代码将被执行。默认的waitflag值是1，表示调用将被被阻塞直到锁被释放。sem_wait()方法减少信号量的值或者被阻塞直到信号量大于零。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span></span></div><div class="line"><span class="title">PyThread_acquire_lock</span><span class="params">(PyThread_type_lock lock, <span class="keyword">int</span> waitflag)</span></div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    <span class="keyword">do</span> &#123;</div><div class="line">        <span class="keyword">if</span> (waitflag)</div><div class="line">            status = fix_status(sem_wait(thelock));</div><div class="line">        <span class="keyword">else</span></div><div class="line">            status = fix_status(sem_trywait(thelock));</div><div class="line">    &#125; <span class="keyword">while</span> (status == EINTR); <span class="comment">/* Retry if interrupted by a signal */</span></div><div class="line">    ....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当release()方法被调用时，下面的C代码将被执行。sem_post()方法增加信号量。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span></span></div><div class="line"><span class="title">PyThread_release_lock</span><span class="params">(PyThread_type_lock lock)</span></div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    status = sem_post(thelock);</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以将锁（Lock）与“with”语句一起使用，锁可以作为上下文管理器（context manager）。使用“with”语句的好处是：当程序执行到“with”语句时，acquire()方法将被调用，当程序执行完“with”语句时，release()方法会被调用（译注：这样我们就不用显示地调用acquire()和release()方法，而是由“with”语句根据上下文来管理锁的获取和释放。）下面我们用“with”语句重写FetchUrls类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FetchUrls</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  ...</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="keyword">while</span> self.urls:</div><div class="line">      ...</div><div class="line">      <span class="keyword">with</span> self.lock:   <span class="comment">#使用“with”语句管理锁的获取和释放</span></div><div class="line">        <span class="keyword">print</span> <span class="string">'lock acquired by %s'</span> % self.name</div><div class="line">        self.output.write(d.read())</div><div class="line">        <span class="keyword">print</span> <span class="string">'write done by %s'</span> % self.name</div><div class="line">        <span class="keyword">print</span> <span class="string">'lock released by %s'</span> % self.name</div><div class="line">      ...</div></pre></td></tr></table></figure>
+<h1 id="可重入锁（RLock）"><a href="#可重入锁（RLock）" class="headerlink" title="可重入锁（RLock）"></a>可重入锁（RLock）</h1><p>RLock是可重入锁（reentrant lock），acquire()能够不被阻塞的被同一个线程调用多次。要注意的是release()需要调用与acquire()相同的次数才能释放锁。</p>
+<p>使用Lock，下面的代码第二次调用acquire()时将被阻塞：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">lock = threading.Lock()</div><div class="line">lock.acquire()</div><div class="line">lock.acquire()</div></pre></td></tr></table></figure>
+<p>如果你使用的是RLock，下面的代码第二次调用acquire()不会被阻塞:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">rlock = threading.RLock()</div><div class="line">rlock.acquire()</div><div class="line">rlock.acquire()</div></pre></td></tr></table></figure>
+<p>RLock使用的同样是thread.allocate_lock()，不同的是他跟踪宿主线程（the owner thread）来实现可重入的特性。下面是RLock的acquire()实现。如果调用acquire()的线程是资源的所有者，记录调用acquire()次数的计数器就会加1。如果不是，就将试图去获取锁。线程第一次获得锁时，锁的拥有者将会被保存，同时计数器初始化为1。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquire</span><span class="params">(self, blocking=<span class="number">1</span>)</span>:</span></div><div class="line">    me = _get_ident()</div><div class="line">    <span class="keyword">if</span> self.__owner == me:</div><div class="line">        self.__count = self.__count + <span class="number">1</span></div><div class="line">        ...</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span></div><div class="line">    rc = self.__block.acquire(blocking)</div><div class="line">    <span class="keyword">if</span> rc:</div><div class="line">        self.__owner = me</div><div class="line">        self.__count = <span class="number">1</span></div><div class="line">        ...</div><div class="line">    ...</div><div class="line">    <span class="keyword">return</span> rc</div></pre></td></tr></table></figure>
+<p>下面我们看一下可重入锁（RLock）的release()方法。首先它会去确认调用者是否是锁的拥有者。如果是的话，计数器减1；如果计数器为0，那么锁将会被释放，这时其他线程就可以去获取锁了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="keyword">if</span> self.__owner != _get_ident():</div><div class="line">        <span class="keyword">raise</span> RuntimeError(<span class="string">"cannot release un-acquired lock"</span>)</div><div class="line">    self.__count = count = self.__count - <span class="number">1</span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> count:</div><div class="line">        self.__owner = <span class="keyword">None</span></div><div class="line">        self.__block.release()</div><div class="line">        ...</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<h1 id="条件（Condition）"><a href="#条件（Condition）" class="headerlink" title="条件（Condition）"></a>条件（Condition）</h1><p>条件同步机制是指：一个线程等待特定条件，而另一个线程发出特定条件满足的信号。 解释条件同步机制的一个很好的例子就是生产者/消费者（producer/consumer）模型。生产者随机的往列表中“生产”一个随机整数，而消费者从列表中“消费”整数。完整的源码可以在threads/condition.py中找到</p>
+<p>在producer类中，producer获得锁，生产一个随机整数，通知消费者有了可用的“商品”，并且释放锁。producer无限地向列表中添加整数，同时在两个添加操作中间随机的停顿一会儿。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">  向列表中生产随机整数</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, condition)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param integers 整数列表</div><div class="line">    @param condition 条件同步对象</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.integers = integers</div><div class="line">    self.condition = condition</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现Thread的run方法。在随机时间向列表中添加一个随机整数</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</div><div class="line">      self.condition.acquire()  <span class="comment">#获取条件锁</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</div><div class="line">      self.integers.append(integer)</div><div class="line">      <span class="keyword">print</span> <span class="string">'%d appended to list by %s'</span> % (integer, self.name)</div><div class="line">      <span class="keyword">print</span> <span class="string">'condition notified by %s'</span> % self.name</div><div class="line">      self.condition.notify()   <span class="comment">#唤醒消费者线程</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</div><div class="line">      self.condition.release()  <span class="comment">#释放条件锁</span></div><div class="line">      time.sleep(<span class="number">1</span>)     <span class="comment">#暂停1秒钟</span></div></pre></td></tr></table></figure>
+<p>下面是消费者（consumer）类。它获取锁，检查列表中是否有整数，如果没有，等待生产者的通知。当消费者获取整数之后，释放锁。<br>注意在wait()方法中会释放锁，这样生产者就能获得资源并且生产“商品”。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">  从列表中消费整数</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, condition)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param integers 整数列表</div><div class="line">    @param condition 条件同步对象</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.integers = integers</div><div class="line">    self.condition = condition</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现Thread的run()方法，从列表中消费整数</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      self.condition.acquire()  <span class="comment">#获取条件锁</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</div><div class="line">      <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        <span class="keyword">if</span> self.integers:   <span class="comment">#判断是否有整数</span></div><div class="line">          integer = self.integers.pop()</div><div class="line">          <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</div><div class="line">          <span class="keyword">break</span></div><div class="line">        <span class="keyword">print</span> <span class="string">'condition wait by %s'</span> % self.name</div><div class="line">        self.condition.wait()   <span class="comment">#等待商品，并且释放资源</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</div><div class="line">      self.condition.release()  <span class="comment">#最后释放条件锁</span></div></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/condition.png" alt="condition"></p>
+<p>下面我们编写main方法，创建两个线程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">  integers = []</div><div class="line">  condition = threading.Condition()</div><div class="line">  t1 = Producer(integers, condition)</div><div class="line">  t2 = Consumer(integers, condition)</div><div class="line">  t1.start()</div><div class="line">  t2.start()</div><div class="line">  t1.join()</div><div class="line">  t2.join()</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">  main()</div></pre></td></tr></table></figure>
+<p>下面是程序的输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">$ python condition.py</div><div class="line">condition acquired by Thread-1</div><div class="line">159 appended to list by Thread-1</div><div class="line">condition notified by Thread-1</div><div class="line">condition released by Thread-1</div><div class="line">condition acquired by Thread-2</div><div class="line">159 popped from list by Thread-2</div><div class="line">condition released by Thread-2</div><div class="line">condition acquired by Thread-2</div><div class="line">condition wait by Thread-2</div><div class="line">condition acquired by Thread-1</div><div class="line">116 appended to list by Thread-1</div><div class="line">condition notified by Thread-1</div><div class="line">condition released by Thread-1</div><div class="line">116 popped from list by Thread-2</div><div class="line">condition released by Thread-2</div><div class="line">condition acquired by Thread-2</div><div class="line">condition wait by Thread-2</div></pre></td></tr></table></figure>
+<p>Thread-1添加159到列表中，通知消费者同时释放锁，Thread-2获得锁，取回159，并且释放锁。此时因为执行time.sleep(1)，生产者正在睡眠，当消费者再次试图获取整数时，列表中并没有整数，这时消费者进入等待状态，等待生产者的通知。当wait()被调用时，它会释放资源，从而生产者能够利用资源生产整数。</p>
+<p>下面我们看一下Python内部是如何实现条件同步机制的。如果用户没有传入锁（lock）对象，condition类的构造器创建一个可重入锁（RLock），这个锁将会在调用acquire()和release()时使用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">_Condition</span><span class="params">(_Verbose)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, lock=None, verbose=None)</span>:</span></div><div class="line">        _Verbose.__init__(self, verbose)</div><div class="line">        <span class="keyword">if</span> lock <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            lock = RLock()</div><div class="line">        self.__lock = lock</div></pre></td></tr></table></figure>
+<p>接下来是wait()方法。为了简化说明，我们假定在调用wait()方法时不使用timeout参数。wait()方法创建了一个名为waiter的锁，并且设置锁的状态为locked。这个waiter锁用于线程间的通讯，这样生产者（在生产完整数之后）就可以通知消费者释放waiter()锁。锁对象将会被添加到等待者列表，并且在调用waiter.acquire()时被阻塞。一开始condition锁的状态被保存，并且在wait()结束时被恢复。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">wait</span><span class="params">(self, timeout=None)</span>:</span></div><div class="line">    ...</div><div class="line">    waiter = _allocate_lock()</div><div class="line">    waiter.acquire()</div><div class="line">    self.__waiters.append(waiter)</div><div class="line">    saved_state = self._release_save()</div><div class="line">    <span class="keyword">try</span>:    <span class="comment"># 无论如何恢复状态 (例如, KeyboardInterrupt)</span></div><div class="line">        <span class="keyword">if</span> timeout <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            waiter.acquire()</div><div class="line">            ...</div><div class="line">        ...</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self._acquire_restore(saved_state)</div></pre></td></tr></table></figure>
+<p>当生产者调用notify()方法时，notify()释放waiter锁，唤醒被阻塞的消费者。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">notify</span><span class="params">(self, n=<span class="number">1</span>)</span>:</span></div><div class="line">    ...</div><div class="line">    __waiters = self.__waiters</div><div class="line">    waiters = __waiters[:n]</div><div class="line">    ...</div><div class="line">    <span class="keyword">for</span> waiter <span class="keyword">in</span> waiters:</div><div class="line">        waiter.release()</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            __waiters.remove(waiter)</div><div class="line">        <span class="keyword">except</span> ValueError:</div><div class="line">            <span class="keyword">pass</span></div></pre></td></tr></table></figure>
+<p>同样Condition对象也可以和“with”语句一起使用，这样“with”语句上下文会帮我们调用acquire()和release()方法。下面的代码使用“with”语句改写了生产者和消费者类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  ...</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</div><div class="line">      <span class="keyword">with</span> self.condition:</div><div class="line">        <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</div><div class="line">        self.integers.append(integer)</div><div class="line">        <span class="keyword">print</span> <span class="string">'%d appended to list by %s'</span> % (integer, self.name)</div><div class="line">        <span class="keyword">print</span> <span class="string">'condition notified by %s'</span> % self.name</div><div class="line">        self.condition.notify()</div><div class="line">        <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</div><div class="line">      time.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  ...</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      <span class="keyword">with</span> self.condition:</div><div class="line">        <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">          <span class="keyword">if</span> self.integers:</div><div class="line">            integer = self.integers.pop()</div><div class="line">            <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</div><div class="line">            <span class="keyword">break</span></div><div class="line">          <span class="keyword">print</span> <span class="string">'condition wait by %s'</span> % self.name</div><div class="line">          self.condition.wait()</div><div class="line">        <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</div></pre></td></tr></table></figure>
+<h1 id="信号量（Semaphore）"><a href="#信号量（Semaphore）" class="headerlink" title="信号量（Semaphore）"></a>信号量（Semaphore）</h1><p>信号量同步基于内部计数器，每调用一次acquire()，计数器减1；每调用一次release()，计数器加1.当计数器为0时，acquire()调用被阻塞。这是迪科斯彻（Dijkstra）信号量概念P()和V()的Python实现。信号量同步机制适用于访问像服务器这样的有限资源。</p>
+<p>信号量同步的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">semaphore = threading.Semaphore()</div><div class="line">semaphore.acquire()</div><div class="line"> <span class="comment"># 使用共享资源</span></div><div class="line">...</div><div class="line">semaphore.release()</div></pre></td></tr></table></figure>
+<p>让我们看一下信号量同步在Python内部是如何实现的。构造器使用参数value来表示计数器的初始值，默认值为1。一个条件锁实例用于保护计数器，同时当信号量被释放时通知其他线程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">_Semaphore</span><span class="params">(_Verbose)</span>:</span></div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, value=<span class="number">1</span>, verbose=None)</span>:</span></div><div class="line">        _Verbose.__init__(self, verbose)</div><div class="line">        self.__cond = Condition(Lock())</div><div class="line">        self.__value = value</div><div class="line">        ...</div></pre></td></tr></table></figure>
+<p>acquire()方法。如果信号量为0，线程被条件锁的wait()方法阻塞，直到被其他线程唤醒；如果计数器大于0，调用acquire()使计数器减1。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquire</span><span class="params">(self, blocking=<span class="number">1</span>)</span>:</span></div><div class="line">    rc = <span class="keyword">False</span></div><div class="line">    self.__cond.acquire()</div><div class="line">    <span class="keyword">while</span> self.__value == <span class="number">0</span>:</div><div class="line">        ...</div><div class="line">        self.__cond.wait()</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        self.__value = self.__value - <span class="number">1</span></div><div class="line">        rc = <span class="keyword">True</span></div><div class="line">    self.__cond.release()</div><div class="line">    <span class="keyword">return</span> rc</div></pre></td></tr></table></figure>
+<p>信号量类的release()方法增加计数器的值并且唤醒其他线程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(self)</span>:</span></div><div class="line">    self.__cond.acquire()</div><div class="line">    self.__value = self.__value + <span class="number">1</span></div><div class="line">    self.__cond.notify()</div><div class="line">    self.__cond.release()</div></pre></td></tr></table></figure>
+<p>还有一个“有限”(bounded)信号量类，可以确保release()方法的调用次数不能超过给定的初始信号量数值(value参数)，下面是“有限”信号量类的Python代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">_BoundedSemaphore</span><span class="params">(_Semaphore)</span>:</span></div><div class="line">    <span class="string">"""检查release()的调用次数是否小于等于acquire()次数"""</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, value=<span class="number">1</span>, verbose=None)</span>:</span></div><div class="line">        _Semaphore.__init__(self, value, verbose)</div><div class="line">        self._initial_value = value</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">if</span> self._Semaphore__value &gt;= self._initial_value:</div><div class="line">            <span class="keyword">raise</span> ValueError, <span class="string">"Semaphore released too many times"</span></div><div class="line">        <span class="keyword">return</span> _Semaphore.release(self)</div></pre></td></tr></table></figure>
+<p>样信号量(Semaphore)对象可以和“with”一起使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">semaphore = threading.Semaphore()</div><div class="line"><span class="keyword">with</span> semaphore:</div><div class="line">  <span class="comment"># 使用共享资源</span></div><div class="line">  ...</div></pre></td></tr></table></figure>
+<h1 id="事件（Event）"><a href="#事件（Event）" class="headerlink" title="事件（Event）"></a>事件（Event）</h1><p>基于事件的同步是指：一个线程发送/传递事件，另外的线程等待事件的触发。 让我们再来看看前面的生产者和消费者的例子，现在我们把它转换成使用事件同步而不是条件同步。完整的源码可以在threads/event.py里面找到。</p>
+<p>首先是生产者类，我们传入一个Event实例给构造器而不是Condition实例。一旦整数被添加进列表，事件(event)被设置和发送去唤醒消费者。注意事件(event)实例默认是被发送的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">  向列表中生产随机整数</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, event)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param integers 整数列表</div><div class="line">    @param event 事件同步对象</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.integers = integers</div><div class="line">    self.event = event</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现Thread的run方法。在随机时间向列表中添加一个随机整数</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</div><div class="line">      self.integers.append(integer)</div><div class="line">      <span class="keyword">print</span> <span class="string">'%d appended to list by %s'</span> % (integer, self.name)</div><div class="line">      <span class="keyword">print</span> <span class="string">'event set by %s'</span> % self.name</div><div class="line">      self.event.set()      <span class="comment">#设置事件</span></div><div class="line">      self.event.clear()    <span class="comment">#发送事件</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'event cleared by %s'</span> % self.name</div><div class="line">      time.sleep(<span class="number">1</span>)</div></pre></td></tr></table></figure>
+<p>同样我们传入一个Event实例给消费者的构造器，消费者阻塞在wait()方法，等待事件被触发，即有可供消费的整数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">   从列表中消费整数</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, event)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param integers 整数列表</div><div class="line">    @param event 事件同步对象</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.integers = integers</div><div class="line">    self.event = event</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现Thread的run()方法，从列表中消费整数</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      self.event.wait() <span class="comment">#等待事件被触发</span></div><div class="line">      <span class="keyword">try</span>:</div><div class="line">        integer = self.integers.pop()</div><div class="line">        <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</div><div class="line">      <span class="keyword">except</span> IndexError:</div><div class="line">        <span class="comment"># catch pop on empty list</span></div><div class="line">        time.sleep(<span class="number">1</span>)</div></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/event.png" alt="event"></p>
+<p>下面是程序的输出，Thread-1添加124到整数列表中，然后设置事件并且唤醒消费者。消费者从wait()方法中唤醒，在列表中获取到整数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ python event.py</div><div class="line">124 appended to list by Thread-1</div><div class="line">event set by Thread-1</div><div class="line">event cleared by Thread-1</div><div class="line">124 popped from list by Thread-2</div><div class="line">223 appended to list by Thread-1</div><div class="line">event set by Thread-1</div><div class="line">event cleared by Thread-1</div><div class="line">223 popped from list by Thread-2</div></pre></td></tr></table></figure>
+<p>事件锁的Python内部实现，首先是Event锁的构造器。构造器中创建了一个条件（Condition）锁，来保护事件标志（event flag）,同事唤醒其他线程当事件被设置时。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">_Event</span><span class="params">(_Verbose)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, verbose=None)</span>:</span></div><div class="line">        _Verbose.__init__(self, verbose)</div><div class="line">        self.__cond = Condition(Lock())</div><div class="line">        self.__flag = <span class="keyword">False</span></div></pre></td></tr></table></figure>
+<p>接下来是set()方法，它设置事件标志为True，并且唤醒其他线程。条件锁对象保护程序修改事件标志状态的关键部分。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">set</span><span class="params">(self)</span>:</span></div><div class="line">    self.__cond.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        self.__flag = <span class="keyword">True</span></div><div class="line">        self.__cond.notify_all()</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.__cond.release()</div></pre></td></tr></table></figure>
+<p>而clear()方法正好相反，它设置时间标志为False。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">clear</span><span class="params">(self)</span>:</span></div><div class="line">    self.__cond.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        self.__flag = <span class="keyword">False</span></div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.__cond.release()</div></pre></td></tr></table></figure>
+<p>最后，wait()方法将阻塞直到调用了set()方法，当事件标志为True时，wait()方法就什么也不做。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">wait</span><span class="params">(self, timeout=None)</span>:</span></div><div class="line">    self.__cond.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.__flag: <span class="comment">#如果flag不为真</span></div><div class="line">            self.__cond.wait(timeout)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.__cond.release()</div></pre></td></tr></table></figure>
+<h1 id="队列（Queue）"><a href="#队列（Queue）" class="headerlink" title="队列（Queue）"></a>队列（Queue）</h1><p>队列是一个非常好的线程同步机制，使用队列我们不用关心锁，队列会为我们处理锁的问题。 队列(Queue)有以下4个用户感兴趣的方法：</p>
+<ul>
+<li>put: 向队列中添加一个项；</li>
+<li>get: 从队列中删除并返回一个项；</li>
+<li>task_done: 当某一项任务完成时调用；</li>
+<li>join: 阻塞直到所有的项目都被处理完。</li>
+</ul>
+<p>下面我们将上面的生产者/消费者的例子转换成使用队列。源代码可以在threads/queue.py中找到。</p>
+<p>首先是生产者类，我们不需要传入一个整数列表，因为我们使用队列就可以存储生成的整数。生产者线程在一个无限循环中生成整数并将生成的整数添加到队列中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">  向队列中生产随机整数</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param integers 整数列表    #译注：不需要这个参数</div><div class="line">    @param queue 队列同步对象</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.queue = queue</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现Thread的run方法。在随机时间向队列中添加一个随机整数</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</div><div class="line">      self.queue.put(integer)   <span class="comment">#将生成的整数添加到队列</span></div><div class="line">      <span class="keyword">print</span> <span class="string">'%d put to queue by %s'</span> % (integer, self.name)</div><div class="line">      time.sleep(<span class="number">1</span>)</div></pre></td></tr></table></figure>
+<p>下面是消费者类。线程从队列中获取整数，并且在任务完成时调用task_done()方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">  <span class="string">"""</span></div><div class="line">  从队列中消费整数</div><div class="line">  """</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    构造器</div><div class="line"></div><div class="line">    @param integers 整数列表    #译注：不需要这个参数</div><div class="line">    @param queue 队列同步对象</div><div class="line">    """</div><div class="line">    threading.Thread.__init__(self)</div><div class="line">    self.queue = queue</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    实现Thread的run()方法，从队列中消费整数</div><div class="line">    """</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">      integer = self.queue.get()</div><div class="line">      <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</div><div class="line">      self.queue.task_done()</div></pre></td></tr></table></figure>
+<p>以下是程序的输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ python queue.py</div><div class="line">61 put to queue by Thread-1</div><div class="line">61 popped from list by Thread-2</div><div class="line">6 put to queue by Thread-1</div><div class="line">6 popped from list by Thread-2</div></pre></td></tr></table></figure>
+<p>队列同步的最大好处就是队列帮我们处理了锁。现在让我们去看看在Python内部是如何实现队列同步机制的。</p>
+<p>队列（Queue）构造器创建一个锁，保护队列元素的添加和删除操作。同时创建了一些条件锁对象处理队列事件，比如队列不空事件（削除get()的阻塞），队列不满事件（削除put()的阻塞）和所有项目都被处理完事件（削除join()的阻塞）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Queue</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, maxsize=<span class="number">0</span>)</span>:</span></div><div class="line">        ...</div><div class="line">        self.mutex = threading.Lock()</div><div class="line">        self.not_empty = threading.Condition(self.mutex)</div><div class="line">        self.not_full = threading.Condition(self.mutex)</div><div class="line">        self.all_tasks_done = threading.Condition(self.mutex)</div><div class="line">        self.unfinished_tasks = <span class="number">0</span></div></pre></td></tr></table></figure>
+<p>put()方法向队列中添加一个项，或者阻塞如果队列已满。这时队列非空，它唤醒阻塞在get()方法中的线程。更多关于Condition锁的内容请查看上面的讲解。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">put</span><span class="params">(self, item, block=True, timeout=None)</span>:</span></div><div class="line">    ...</div><div class="line">    self.not_full.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">if</span> self.maxsize &gt; <span class="number">0</span>:</div><div class="line">            ...</div><div class="line">            <span class="keyword">elif</span> timeout <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">                <span class="keyword">while</span> self._qsize() == self.maxsize:</div><div class="line">                    self.not_full.wait()</div><div class="line">        self._put(item)</div><div class="line">        self.unfinished_tasks += <span class="number">1</span></div><div class="line">        self.not_empty.notify()</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.not_full.release()</div></pre></td></tr></table></figure>
+<p>get()方法从队列中获得并删除一个项，或者阻塞当队列为空时。这时队列不满，他唤醒阻塞在put()方法中的线程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, block=True, timeout=None)</span>:</span></div><div class="line">    ...</div><div class="line">    self.not_empty.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        ...</div><div class="line">        <span class="keyword">elif</span> timeout <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            <span class="keyword">while</span> <span class="keyword">not</span> self._qsize():</div><div class="line">                self.not_empty.wait()</div><div class="line">        item = self._get()</div><div class="line">        self.not_full.notify()</div><div class="line">        <span class="keyword">return</span> item</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.not_empty.release()</div></pre></td></tr></table></figure>
+<p>当调用task_done()方法时，未完成任务的数量减1。如果未完成任务的数量为0，线程等待队列完成join()方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">task_done</span><span class="params">(self)</span>:</span></div><div class="line">    self.all_tasks_done.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        unfinished = self.unfinished_tasks - <span class="number">1</span></div><div class="line">        <span class="keyword">if</span> unfinished &lt;= <span class="number">0</span>:</div><div class="line">            <span class="keyword">if</span> unfinished &lt; <span class="number">0</span>:</div><div class="line">                <span class="keyword">raise</span> ValueError(<span class="string">'task_done() called too many times'</span>)</div><div class="line">            self.all_tasks_done.notify_all()</div><div class="line">        self.unfinished_tasks = unfinished</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.all_tasks_done.release()</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">join</span><span class="params">(self)</span>:</span></div><div class="line">    self.all_tasks_done.acquire()</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">while</span> self.unfinished_tasks:</div><div class="line">            self.all_tasks_done.wait()</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        self.all_tasks_done.release()</div></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/queue.png" alt="queue"></p>
+<p>本文到此结束，希望您喜欢这篇文章。欢迎您的留言和反馈。</p>
+<hr>
+<p><strong><em>转载自 <a href="http://yoyzhou.github.io/blog/2013/02/28/python-threads-synchronization-locks/" target="_blank" rel="external">Zhou’s Blog, Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></em></strong><br><strong><em>翻译自 <a href="http://www.laurentluce.com/posts/python-threads-synchronization-locks-rlocks-semaphores-conditions-events-and-queues/" target="_blank" rel="external">Laurent Luce, Python threads synchronization: Locks, RLocks, Semaphores, Conditions, Events and Queues</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/24/1614-CheatSheet-git/" itemprop="url">
                   Git 初始设置及常用命令
                 </a>
@@ -1225,427 +1779,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/10/1609-WinSoft-terminal/" itemprop="url">
-                  Windows 软件系列-终端
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-10T00:00:00+11:00" content="2016-10-10">
-              2016-10-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="ConEmu-简介"><a href="#ConEmu-简介" class="headerlink" title="ConEmu 简介"></a><a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu</a> 简介</h1><ul>
-<li><a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu</a> 即 Console Emulate, 一款终端模拟器, 完全免费, 可以通过他加载多种终端如 cmd, shell, bash, putty 而且便于管理!</li>
-<li>简而言之, 凡是喜欢用命令行方式的, windows就请使用这款软件, 分分钟变身geek或者hacker的感觉…</li>
-<li>右键文件夹打开ConEmu就自动进入此文件夹, <code>ConEmu Inside</code> 甚至能嵌入到文件夹中.</li>
-<li>顺便说一句, cmder就是他的马甲, 核心还是ConEmu.</li>
-</ul>
-<h2 id="我的ConEmu"><a href="#我的ConEmu" class="headerlink" title="我的ConEmu"></a>我的ConEmu</h2><ul>
-<li>我希望的ConEmu, 就是想输命令行, 打开ConEmu就行!</li>
-<li>本文的配置可以在ConEmu中执行:<ul>
-<li><code>cmd</code> <code>shell</code> windows自带终端</li>
-<li><code>git</code> windows下安装好git即可, 包含了<code>git-bash</code></li>
-<li><code>mingw</code> windows下用gnu工具链编译c, c++</li>
-<li><code>putty</code> ssh链接远程linux, 串口链接嵌入式linux</li>
-<li><code>cygwin</code> windows下模拟linux运行环境 (目前尚未使用, 在用传统的虚拟机)</li>
-<li>其它指令如: <code>hexo</code> 博客使用, <code>choco</code> 安装软件使用, <code>apm</code> atom下载插件使用.</li>
-</ul>
-</li>
-<li>快速在指定文件夹下打开ConEmu, 可在 <code>Listary</code> 关联快捷键 <code>ctrl-~</code></li>
-<li>快速在Notepad++下打开ConEmu, 关联快捷键 <code>ctrl-~</code></li>
-</ul>
-<h2 id="自制ConEmu绿色版"><a href="#自制ConEmu绿色版" class="headerlink" title="自制ConEmu绿色版"></a>自制ConEmu绿色版</h2><ul>
-<li>下载 <a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu便携版</a><ul>
-<li>解压后放在理想的文件夹中. 下面以 <code>D:\Green\ConEmu</code> 路径为例.</li>
-</ul>
-</li>
-<li>下载 <a href="https://mridgers.github.io/clink/" target="_blank" rel="external">clink便携版</a>, 用于增强终端操作, 如复制拷贝快捷键等<ul>
-<li>解压后, 所有文件放入 <code>D:\Green\ConEmu\ConEmu\clink</code>, 这里面原来就有个 <code>Readme.txt</code>, 说的非常清楚了</li>
-</ul>
-</li>
-<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="external">git便携版</a>, 版本管理软件<ul>
-<li>解压后命名为 <code>Git</code> 放到 <code>D:\Green\ConEmu\plugins</code>,</li>
-</ul>
-</li>
-<li>下载并使用默认设置安装 <a href="http://www.mingw.org/" target="_blank" rel="external">mingw</a>, 用于在win下使用gnu工具编译<ul>
-<li>只是装了 <code>MinGW Installation Manager</code> (实际上是个绿色软件). 打开后继续安装组件</li>
-<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code>和<code>mingw32-gcc-g++</code>-&gt;左上<code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
-<li>我只需要编译c和c++文件, <code>msys</code>也已经由git软件实现了, 因此无需安装其它组件了.</li>
-<li>然后把整个 <code>MinGW</code> 文件夹放到 <code>D:\Green\ConEmu\plugins</code></li>
-<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 <code>make</code> 指令了</li>
-</ul>
-</li>
-<li>下载 <a href="http://www.putty.org/" target="_blank" rel="external">putty.zip</a>, ssh远程连接软件及串口软件<ul>
-<li>解压后命名为 <code>putty</code> 放到 <code>D:\Green\ConEmu\plugins</code></li>
-</ul>
-</li>
-<li><p>然后需要将上述软件加入环境变量, 这个可以在ConEmu设置中完成!!!</p>
-<ul>
-<li><p>打开ConEmu, <code>Setting</code>-&gt;<code>Startup</code>-&gt;<code>Environment</code>-&gt;<code>set PATH=%ConEmuBaseDir%\Scripts;%PATH%</code> 下面加上如下语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># git PATH</div><div class="line">set PATH=%ConEmuDir%\plugins\Git;%PATH%</div><div class="line">set PATH=%ConEmuDir%\plugins\Git\cmd;%PATH%</div><div class="line"># mingw PATH</div><div class="line">set PATH=%ConEmuDir%\plugins\MinGW\bin;%PATH%</div><div class="line"># putty PATH%</div><div class="line">set PATH=%ConEmuDir%\plugins\putty;%PATH%</div></pre></td></tr></table></figure>
-</li>
-<li><p>这样, ConEmu在启动时, 会自动加入上述软件到PATH中</p>
-</li>
-<li>如果使用 <strong>更通用的做法</strong>, 把上述环境变量删除或注释掉.</li>
-</ul>
-</li>
-<li>自制ConEmu绿色版就初步完成, 下面只需要配置了.</li>
-</ul>
-<h2 id="更通用的做法"><a href="#更通用的做法" class="headerlink" title="更通用的做法"></a>更通用的做法</h2><ul>
-<li>用上述方法有三个缺点<ul>
-<li>git便携版不支持ssh或GPG免密远程同步, 每次都要求输入用户名和密码, 非常麻烦.</li>
-<li>如果不用ConEmu, 那么其它终端, 如atom下的终端就无法使用上述软件.</li>
-<li>发现putty会新打开一个窗口, 而不是嵌入到ConEmu中.</li>
-</ul>
-</li>
-<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="external">git安装版</a>, 使用默认配置安装即可.<ul>
-<li>为了便于使用, 建议把git的根目录也加入环境变量, 这样就能直接调用 <code>git-cmd.exe</code></li>
-</ul>
-</li>
-<li>设置 <code>D:\Green\ConEmu\plugins\MinGW\bin</code> 文件夹到系统环境变量中</li>
-<li>设置 <code>D:\Green\ConEmu\plugins\putty</code> 文件夹到系统环境变量中</li>
-<li>还可以考虑下载安装 <a href="https://www.cygwin.com/" target="_blank" rel="external">cygwin</a> 并加入ConEmu中, 这是一款Windows下的Linux模拟器. 注意安装和卸载都比较麻烦.<h2 id="ConEmu的设置"><a href="#ConEmu的设置" class="headerlink" title="ConEmu的设置"></a>ConEmu的设置</h2></li>
-<li>所有设置都会存放在 <code>conEmu.xml</code> 里, 所以设置的备份很简单</li>
-<li>首次打开会有设置向导 <code>fast configuration</code>, 用于生成 <code>conEmu.xml</code></li>
-<li>可以在设置好环境变量, 安装好git后, 删除<code>conEmu.xml</code>重新运行, 这样ConEmu会自动检测加入<code>Git bash</code> 和 <code>putty</code>, 省心不少. clink放在指定路径后, 其功能也会自动启用.</li>
-<li>配置过程如下, 需要图文版可参考 <a href="https://higoge.github.io/2015/07/22/tools02/" target="_blank" rel="external">工具02：cmd的替代品ConEmu+Clink</a>, 配置上略有区别, 进入 <code>Settings</code> 后<ul>
-<li><code>Main</code>-&gt;<code>Appearance</code>-&gt;<code>Generic</code>-&gt;<code>Single instance mode (...)</code></li>
-<li><code>Main</code>-&gt;<code>Confirm</code>-&gt;<code>CLose confirmations</code>-&gt;<del><code>When running process was detected</code></del></li>
-<li><code>Startup</code>-&gt;<code>Specified named task</code>-&gt;<code>Bash:: Git bash</code> 更改打开时默认使用的终端类型</li>
-<li><code>Startup</code>-&gt;<code>Environment</code> 启动时, 会加载这里的环境变量. 配置好系统环境变量的话, 可以全部删除</li>
-<li>注册鼠标右键 <code>ConEmu Here</code> 和 <code>ConEmu Inside</code>, 并设置为使用 <code>Git bash</code> 启动<ul>
-<li><code>Integration</code>-&gt;<code>ConEmu Here</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
-<li><code>Integration</code>-&gt;<code>ConEmu Inside</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
-</ul>
-</li>
-<li><code>Integration</code>-&gt;<code>Default term</code>-&gt;<code>Force ConEmu as default terminal for console applications</code></li>
-<li>添加 <code>tasks</code>. 选择 <code>Startup</code>-&gt;<code>Tasks</code>, 根据现有例子依样画葫芦即可.<ul>
-<li><code>Bash::Git bash</code>: <code>git-cmd.lnk --no-cd --command=usr/bin/bash.exe -l -i</code> 也可以点击<code>File path...</code>使用绝对路径替代快捷方式.</li>
-<li><code>Bash::Git bash(Admin)</code>: <code>*git-cmd.exe --no-cd --command=usr/bin/bash.exe -l -i</code> 最前面加个<code>*</code>就是管理员权限了.</li>
-<li><code>Putty::default</code>: <code>putty.exe</code> 同样, 可能需要使用绝对路径, 点击<code>File path...</code>选择即可</li>
-<li><code>Putty::Ubuntu</code>: <code>putty.exe -new_console -load &quot;ubuntu&quot;</code> 需要putty设置好名为<code>ubuntu</code>的session</li>
-<li><code>Cygwin</code>: <code>set HOME=d:\cygwin\home\XXX &amp; &quot;d:\cygwin\bin\mintty.exe&quot; -i /Cygwin.ico -</code> 这条指令没有测试过.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="Putty"><a href="#Putty" class="headerlink" title="Putty"></a><a href="http://www.putty.org/" target="_blank" rel="external">Putty</a></h1><ul>
-<li><a href="http://www.putty.org/" target="_blank" rel="external">Putty</a> 可用于ssh连接远程主机, 也支持串口. 使用简单, 完全免费</li>
-<li>putty的配置, 一个配置就是一个<code>Session</code>. 可以参考<a href="http://blog.csdn.net/tianlesoftware/article/details/5831605" target="_blank" rel="external">Putty 工具 保存配置的 小技巧</a></li>
-<li>putty免密登录, 没有尝试, 可以参考如下两篇文章.<ul>
-<li><a href="https://segmentfault.com/a/1190000000639516" target="_blank" rel="external">PuTTY的自动登录设置</a></li>
-<li><a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="external">windows 上用程序putty使用 ssh自动登录linux</a></li>
-</ul>
-</li>
-</ul>
-<h2 id="设置Default"><a href="#设置Default" class="headerlink" title="设置Default"></a>设置Default</h2><ul>
-<li><code>Window</code>-&gt;<code>Lines of scrollback</code>-<code>20000</code>  回看更多历史屏幕信息</li>
-<li><code>Window</code>-&gt;<code>Apperance</code>-&gt;<code>Vertical line</code>, <code>Cursor blinks</code> 游标闪烁</li>
-<li><code>Window</code>-&gt;<code>Colours</code>-&gt;<code>Default Backgroud</code>-&gt;<code>R0 G43 B54</code> 使用ConEmu背景色</li>
-<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code>-&gt;<code>None</code> 默认串口不用流控制</li>
-<li><code>Session</code>-&gt;<code>Saved Sessions</code>-&gt;输入 <code>Default Settings</code>-&gt;<code>Save</code> 默认值设置完成</li>
-</ul>
-<h2 id="设置ssh"><a href="#设置ssh" class="headerlink" title="设置ssh"></a>设置ssh</h2><ul>
-<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>SSH</code>-&gt;<code>Host Name (or IP address)</code>-&gt;<code>10.0.0.99</code> 或者  <code>username@10.0.0.99</code> 来指定登录名</li>
-<li><code>Session</code>-&gt;<code>Saved Session</code> <code>Ubuntu</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
-<li>如果需要免密登录, 明文的很简单, 调用 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code> 即可</li>
-<li>如果需要密码加密, 稍微麻烦点. 参考 <a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="external">windows 上用程序putty使用 ssh自动登录linux</a>. 我不需要这个功能, 略过不表.</li>
-</ul>
-<h2 id="设置serial"><a href="#设置serial" class="headerlink" title="设置serial"></a>设置serial</h2><ul>
-<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>Serial</code>-&gt;<code>Serial line</code> <code>COM4</code>-&gt;<code>Speed</code> <code>9600</code> 即串口4, 波特率9600</li>
-<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code> <code>None</code> 这里可以设置其它串口参数, 不支持自动回显.</li>
-<li><code>Session</code>-&gt;<code>Saved Session</code> <code>COM4-9600</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
-</ul>
-<h2 id="配置的导入和导出"><a href="#配置的导入和导出" class="headerlink" title="配置的导入和导出"></a>配置的导入和导出</h2><ul>
-<li>putty直接把配置存放在注册表中. 所以思路就是导入导出注册表</li>
-<li>cmd下-&gt;<code>regedit</code>-&gt;打开注册表</li>
-<li>找到 <code>HKEY_CURRENT_USER\Software\SimonTatham</code></li>
-<li>在 <code>SimonTatham</code> 这个节点上点击右键, 选择导出, 保存为<code>config.reg</code>. 这里不单单是putty的配置</li>
-<li>恢复时, 管理员权限执行 <code>config.reg</code> 即可</li>
-</ul>
-<h2 id="putty的调用"><a href="#putty的调用" class="headerlink" title="putty的调用"></a>putty的调用</h2><ul>
-<li>基本用法 <code>putty.exe -load &quot;session_name&quot;</code></li>
-<li>自动登录 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code></li>
-<li>更多调用方式可查看 <code>PUTTY.CHM 3.8.x</code> 包含于下载的<code>putty.zip</code>中</li>
-</ul>
-<h2 id="对比TeraTerm"><a href="#对比TeraTerm" class="headerlink" title="对比TeraTerm"></a>对比<a href="https://ttssh2.osdn.jp/index.html.en" target="_blank" rel="external">TeraTerm</a></h2><ul>
-<li>TeraTerm相比于putty设置显得更复杂, 至少串口的功能比putty的要多一点</li>
-<li>TeraTerm有自己的脚本语句, 可以实现比较复杂的自动化功能</li>
-<li>TeraTerm在ConEmu字体显示有问题.</li>
-<li>putty完全满足需求, 配置简单, 完美兼容ConEmu, 因此没有考虑TeraTerm</li>
-</ul>
-<h1 id="Cygwin"><a href="#Cygwin" class="headerlink" title="Cygwin"></a><a href="https://www.cygwin.com/" target="_blank" rel="external">Cygwin</a></h1><ul>
-<li>是windows下的unix仿真环境, 可以用来做交叉编译, 因此可替代虚拟机安装linux.</li>
-<li>安装, 可以参考 <a href="http://velep.com/archives/747.html" target="_blank" rel="external">cygwin介绍、安装及其使用</a></li>
-<li>交叉编译, 可以参考<ul>
-<li><a href="http://mazhijing.blog.51cto.com/215535/39539/" target="_blank" rel="external">Cygwin 安装  基本使用 交叉编译vivi kernel</a></li>
-<li><a href="http://www.360doc.com/content/12/0929/14/5013584_238783155.shtml" target="_blank" rel="external">在cygwin中安装gcc编译器</a></li>
-</ul>
-</li>
-<li>卸载, 因为权限问题, Cygwin卸载很麻烦. 可以参考两篇文章, 已经是最简单的方法了<ul>
-<li><a href="http://blog.csdn.net/yelangjueqi/article/details/45199209" target="_blank" rel="external">window 下完全卸载Cygwin最简单方法</a>, 就是在运行一次 <code>setup.exe</code> 来卸载</li>
-<li><a href="http://blog.163.com/zhuandi_h/blog/static/180270288201282204521376/" target="_blank" rel="external">Win7 完全删除cygwin（本人已删除成功）</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/09/1608-WinSoft-path/" itemprop="url">
-                  Windows 软件系列-自定义环境变量
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-09T00:00:00+11:00" content="2016-10-09">
-              2016-10-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="自定义环境变量"><a href="#自定义环境变量" class="headerlink" title="自定义环境变量"></a>自定义环境变量</h1><ul>
-<li>测试过几个例子, 简单的调用没问题, 但带参调用就会有各种无法预料的问题.</li>
-<li><code>ConEmu.lnk</code> 后面不支持带参数, <code>git-cmd.lnk</code> 支持带参, 但有奇怪现象.</li>
-<li><code>Typora.lnk</code> <code>zeal.lnk</code> 没有问题.</li>
-<li>使用此方法可以配合 <code>win-r</code> 快速打开文件夹, 软件等功能! 我没有使用, 因为有更好的替代方案.</li>
-<li>!!!注意!!!, 带参调用 <code>.lnk</code> 不完全等同于 <code>.exe</code>, 还是没有linux的链接来的便捷</li>
-</ul>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>做软件开发是绕不过环境变量 <code>PATH</code> 的设置的, 经常到后来 <code>PATH</code> 就变得非常长, 难以管理维护.</li>
-<li>借助linux链接的概念, 实验了一下windows的快捷方式是否也可以用命令行执行, 发现是可行的!</li>
-<li>譬如创建 <code>ConEmu.exe</code> 的快捷方式 <code>ConEmu.lnk</code> (.lnk不会显示). 此时, 在cmd内执行 <code>ConEmu.lnk</code> 等同于执行 <code>ConEmu.exe</code></li>
-<li>这样, 就有办法简化自定义 <code>PATH</code> 的数量了, 只需添加一个用户路径到 <code>PATH</code> 中, 如<code>D:\Green\userpath\bin</code>, 然后把用户软件的 <code>.exe</code> 和 <code>.lnk</code> 放到这个目录下面就可以了.</li>
-</ul>
-<h2 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h2><ul>
-<li>譬如, 配置 <code>D:\Green\cli\bin</code> 到环境变量中.</li>
-<li><code>我的电脑</code>-&gt;右键<code>属性</code> 或者 <code>控制面板</code>-&gt;<code>系统和安全</code>-&gt;<code>系统</code>-&gt;<code>高级系统设置</code></li>
-<li>弹出 <code>系统属性</code> 页面-&gt;<code>高级</code> 标签-&gt;最下面 <code>环境变量...</code>-&gt;<code>系统变量</code>-&gt;<code>Path</code>-&gt;加入自定义路径如 <code>D:\Green\cli\bin</code>, windows7的话需要分隔符<code>;</code></li>
-<li><code>D:\Green\cli\bin</code> 只是个例子, 可以自己规定任意一个文件夹, 便于记忆即可.</li>
-</ul>
-<h2 id="添加软件"><a href="#添加软件" class="headerlink" title="添加软件"></a>添加软件</h2><ul>
-<li>MinGW, windows下提供 gnu 工具链, 像linux下一样使用 make 编译即可<br>把 <code>.\MinGW\bin</code> 下的所有文件复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>Pandoc, 格式转换软件. 众多markdown编辑器需要此软件来转换格式<br>把 <code>pandoc.exe</code> 和 <code>pandoc-citeproc.exe</code> 复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>putty, ssh和串口终端软件, 多用于远程连接<br><del>putty所有文件复制一份到 <code>D:\Green\cli\bin</code></del>, 放个 <code>putty.exe</code> 即可</li>
-<li>uncrustify, 编程语言格式化软件. 可格式化 c, c++, d, java 等众多语言<br>把 <code>uncrustify.exe</code> 复制到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>下述软件创建快捷方式, 然后放到 <code>D:\Green\cli\bin</code> 即可</li>
-<li><del><code>ConEmu.lnk</code></del> 模拟终端软件, 可整合多种终端如cmd, shell, bash, putty</li>
-<li><del><code>Cygwin.lnk</code></del> 模拟linux环境, 可以部分充当windows下的linux虚拟机使用</li>
-<li><del><code>git-cmd.lnk</code></del> 启动git, 供ConEmu调用</li>
-<li><code>Typora.lnk</code> 一款markdown编辑器</li>
-<li><code>zeal.lnk</code> 软件API离线查询工具, windows下的dash</li>
-</ul>
-<h2 id="便捷性"><a href="#便捷性" class="headerlink" title="便捷性"></a>便捷性</h2><ul>
-<li>上述软件主要是辅助作用, 我会在常用软件中调用上述软件. 如notepad++, atom, ConEmu中</li>
-<li>以 notepad++ 调用 <code>zeal.lnk</code> 为例.</li>
-<li><code>notepad++</code>-&gt;<code>Run</code>-&gt;<code>Run...</code>-&gt;输入 <code>zeal.lnk $(CURRENT_WORD)</code>-&gt;<code>Save...</code>-&gt;<code>Name:``help</code>, 快捷键<code>F1</code>-&gt;<code>OK</code></li>
-<li>配置好以后, 写代码遇到需要查询的地方, 只要选中关键词, 按 <code>F1</code> 就会自动调用 zeal 了</li>
-<li>以后环境变了, 只需要重新创建一下 <code>zeal.lnk</code> 然后放到 <code>D:\Green\userpath\bin</code> 即可.</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1691,7 +1824,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

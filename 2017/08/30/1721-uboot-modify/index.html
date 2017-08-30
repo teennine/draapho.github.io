@@ -1,0 +1,803 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="embedded linux,uboot," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+
+本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
+hello world
+新建文件 ./common/cmd_hello.c, 按照其他 cmd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="uboot之定制指令">
+<meta property="og:url" content="https://draapho.github.io/2017/08/30/1721-uboot-modify/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+
+本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
+hello world
+新建文件 ./common/cmd_hello.c, 按照其他 cmd">
+<meta property="og:updated_time" content="2017-08-30T07:59:01.702Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="uboot之定制指令">
+<meta name="twitter:description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+
+本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: u-boot官网  u-boot下载
+hello world
+新建文件 ./common/cmd_hello.c, 按照其他 cmd">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/08/30/1721-uboot-modify/"/>
+
+
+  <title> uboot之定制指令 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                uboot之定制指令
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-08-30T00:00:00+10:00" content="2017-08-30">
+              2017-08-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linlux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 回顾一下s3c2440的地址分配</li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+</ul>
+<p>本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: <a href="http://www.denx.de/wiki/U-Boot/WebHome" target="_blank" rel="external">u-boot官网</a>  <a href="ftp://ftp.denx.de/pub/u-boot/" target="_blank" rel="external">u-boot下载</a></p>
+<h1 id="hello-world"><a href="#hello-world" class="headerlink" title="hello world"></a>hello world</h1><ol>
+<li>新建文件 <code>./common/cmd_hello.c</code>, 按照其他 cmd_XXX 文件内容, 依样画葫芦即可.</li>
+<li>打开文件 <code>./common/Makefile</code>, 在 <code>COBJS = ...</code> 一行, 加入 <code>cmd_hello.o</code> 即可.</li>
+<li>Linux主机下, <code>make</code> 指令重新编译 u-boot, 并生成 <code>u-boot.bin</code> 文件</li>
+<li>烧录并执行, 测试新指令即可, 譬如在uboot命令行下, 输入 <code>hello DRA&amp;PHO</code>.</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;common.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;command.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">do_hello</span> <span class="params">(<span class="keyword">cmd_tbl_t</span> *cmdtp, <span class="keyword">int</span> flag, <span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> i;</div><div class="line"></div><div class="line">    <span class="built_in">printf</span> (<span class="string">"hello world!, %d\n"</span>, argc);</div><div class="line">    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;argc; i++) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"argv[%d]: %s\n"</span>, i, argv[i]);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">U_BOOT_CMD(</div><div class="line">    hello,  CFG_MAXARGS,    <span class="number">1</span>,  do_hello,</div><div class="line">    <span class="string">"hello   - print hello world and arguments\n"</span>,</div><div class="line">    <span class="string">"[arg [arg ...]]\n    - print hello and arguments\n"</span></div><div class="line">    <span class="string">"\ttest purpose, learn to write uboot command\n"</span></div><div class="line">);</div></pre></td></tr></table></figure>
+<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><p>我们用倒推法, 从关键的 <code>U_BOOT_CMD</code> 宏定义开始分析.<br>找到其宏定义所在的文件 <code>./include/command.h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="number">39</span>  <span class="keyword">struct</span> cmd_tbl_s &#123;</div><div class="line"><span class="number">40</span>      <span class="keyword">char</span>        *name;      <span class="comment">/* Command Name         */</span>          <span class="comment">// 指令名称</span></div><div class="line"><span class="number">41</span>      <span class="keyword">int</span>     maxargs;    <span class="comment">/* maximum number of arguments  */</span>      <span class="comment">// 参数最大数量</span></div><div class="line"><span class="number">42</span>      <span class="keyword">int</span>     repeatable; <span class="comment">/* autorepeat allowed?      */</span>          <span class="comment">// 空格键是否可自动重复指令</span></div><div class="line"><span class="number">44</span>      <span class="keyword">int</span>     (*cmd)(<span class="keyword">struct</span> cmd_tbl_s *, <span class="keyword">int</span>, <span class="keyword">int</span>, <span class="keyword">char</span> *[]);     <span class="comment">// 指令函数</span></div><div class="line"><span class="number">45</span>      <span class="keyword">char</span>        *usage;     <span class="comment">/* Usage message    (short) */</span>      <span class="comment">// 短帮助说明</span></div><div class="line"><span class="number">47</span>      <span class="keyword">char</span>        *help;      <span class="comment">/* Help  message    (long)  */</span>      <span class="comment">// 长帮助说明</span></div><div class="line"><span class="number">53</span>  &#125;;</div><div class="line"><span class="number">55</span>  <span class="keyword">typedef</span> <span class="keyword">struct</span> cmd_tbl_s    <span class="keyword">cmd_tbl_t</span>;</div><div class="line"></div><div class="line"><span class="number">57</span>  <span class="keyword">extern</span> <span class="keyword">cmd_tbl_t</span>  __u_boot_cmd_start;</div><div class="line"><span class="number">58</span>  <span class="keyword">extern</span> <span class="keyword">cmd_tbl_t</span>  __u_boot_cmd_end;</div><div class="line">    <span class="comment">// 这两个变量不存在与任何的C或者汇编文件中, 其来源于 "./board/100ask24x0/u-boot.lds" 链接脚本里面</span></div><div class="line"></div><div class="line"><span class="number">93</span>  <span class="meta">#<span class="meta-keyword">define</span> Struct_Section  __attribute__ ((unused,section (<span class="meta-string">".u_boot_cmd"</span>)))</span></div><div class="line">    <span class="comment">// 指定变量存放的段位置, 由链接脚本决定.</span></div><div class="line"></div><div class="line"><span class="number">97</span>  <span class="meta">#<span class="meta-keyword">define</span> U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \</span></div><div class="line">98  cmd_tbl_t __u_boot_cmd_##name Struct_Section = &#123;#name, maxargs, rep, cmd, usage, help&#125;</div><div class="line"></div><div class="line">    <span class="comment">// 已 U_BOOT_CMD(hello,  CFG_MAXARGS, 1, do_hello, ...); 为例, 展开后为</span></div><div class="line">    <span class="keyword">cmd_tbl_t</span> __u_boot_cmd_hello __attribute__ ((unused,section (<span class="string">".u_boot_cmd"</span>))) = &#123;</div><div class="line">    <span class="comment">// 这个变量结构被指定存放在 ".u_boot_cmd" 段内</span></div><div class="line">        hello,                                                      <span class="comment">// 指令名称 hello</span></div><div class="line">        CFG_MAXARGS,                                                <span class="comment">// 参数最大数量</span></div><div class="line">        <span class="number">1</span>,                                                          <span class="comment">// 可重复指令</span></div><div class="line">        do_hello,                                                   <span class="comment">// 指令函数</span></div><div class="line">        <span class="string">"hello   - print hello world and arguments\n"</span>,              <span class="comment">// 短帮助说明</span></div><div class="line">        <span class="string">"..."</span>                                                       <span class="comment">// 长帮助说明</span></div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>清楚了指令的结构体存放方式后, 需要考虑uboot是如何识别输入的指令, 并执行其指定的函数 <code>do_XXX</code><br>这个文件位于 <code>./common/command.c</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="number">346</span> <span class="keyword">cmd_tbl_t</span> *find_cmd (<span class="keyword">const</span> <span class="keyword">char</span> *cmd) &#123;</div><div class="line"><span class="number">360</span>     <span class="keyword">for</span> (cmdtp = &amp;__u_boot_cmd_start;                           <span class="comment">// 在".u_boot_cmd"段内查找指令</span></div><div class="line"><span class="number">361</span>          cmdtp != &amp;__u_boot_cmd_end;</div><div class="line"><span class="number">362</span>          cmdtp++) &#123;</div><div class="line"><span class="number">363</span>          <span class="keyword">if</span> (<span class="built_in">strncmp</span> (cmd, cmdtp-&gt;name, len) == <span class="number">0</span>) &#123;</div><div class="line"><span class="number">364</span>             <span class="keyword">if</span> (len == <span class="built_in">strlen</span> (cmdtp-&gt;name))</div><div class="line"><span class="number">365</span>                 <span class="keyword">return</span> cmdtp;   <span class="comment">/* full match */</span></div><div class="line"><span class="number">367</span>             cmdtp_temp = cmdtp; <span class="comment">/* abbreviated command ? */</span></div><div class="line"><span class="number">368</span>             n_found++;</div><div class="line"><span class="number">369</span>         &#125;</div><div class="line"><span class="number">370</span>     &#125;</div><div class="line"><span class="number">371</span>     <span class="keyword">if</span> (n_found == <span class="number">1</span>) &#123;         <span class="comment">/* exactly one match */</span></div><div class="line"><span class="number">372</span>         <span class="keyword">return</span> cmdtp_temp;</div><div class="line"><span class="number">373</span>     &#125;</div><div class="line"><span class="number">376</span> &#125;</div></pre></td></tr></table></figure>
+<p>此时, 通过查找 find_cmd 函数, 发现被多次调用, 其中一条路径是指令自动完成, 此处忽略.<br>可以发现它也被 <code>./common/main.c</code> 的 <code>run_command</code> 调用了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">301</span>  <span class="function"><span class="keyword">void</span> <span class="title">main_loop</span> <span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line">        <span class="comment">// 源码分析中, 已经分析到此函数. 用于自动启动kernel, 或者等待终端输入指令并执行</span></div><div class="line"><span class="number">488</span>     <span class="keyword">for</span> (;;) &#123;                                  <span class="comment">// 死循环, 等待终端输入</span></div><div class="line"><span class="number">497</span>         len = readline (CFG_PROMPT);            <span class="comment">// 读取整行, 会存放到 console_buffer 中</span></div><div class="line"><span class="number">501</span>         <span class="built_in">strcpy</span> (lastcommand, console_buffer);   <span class="comment">// 赋值给 lastcommand, 譬如 hello 指令</span></div><div class="line"><span class="number">521</span>         rc = run_command (lastcommand, flag);   <span class="comment">// 执行 lastcommand</span></div><div class="line"><span class="number">527</span>     &#125;</div><div class="line"><span class="number">529</span>  &#125;</div><div class="line"></div><div class="line"><span class="number">1280</span> <span class="function"><span class="keyword">int</span> <span class="title">run_command</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *cmd, <span class="keyword">int</span> flag)</span> </span>&#123;</div><div class="line"><span class="number">1361</span>    <span class="keyword">if</span> ((cmdtp = find_cmd(argv[<span class="number">0</span>])) == <span class="literal">NULL</span>) &#123;...&#125;          <span class="comment">// 查找指令</span></div><div class="line"><span class="number">1391</span>    <span class="keyword">if</span> ((cmdtp-&gt;cmd) (cmdtp, flag, argc, argv) != <span class="number">0</span>) &#123;...&#125;  <span class="comment">// 执行指令函数, 譬如调用 do_hello</span></div><div class="line"><span class="number">1403</span> &#125;</div></pre></td></tr></table></figure>
+<p>至此, 指令部分的实现分析完成. 再倒过来总结一下:</p>
+<ul>
+<li>main_loop 中, 终端等待用户输入指令, 譬如 “hello”</li>
+<li>run_command 先查找指令是否存在, 调用find_cmd</li>
+<li>find_cmd 会在 “.u_boot_cmd” 段内查找指令是否存在</li>
+<li>因此, 增减指令很简单, 只有两个关键点:<ul>
+<li>使用 <code>U_BOOT_CMD</code> 宏定义, 定义好指令结构, 编译器会自动存放进”.u_boot_cmd” 段</li>
+<li>实现指令函数. 习惯上将其命名为 “do_XXX”, 如 “do_hello”.</li>
+</ul>
+</li>
+<li>指令存在的话, 执行指令函数, 即通过 (cmdtp-&gt;cmd) (cmdtp, flag, argc, argv) 的形式调用 do_hello</li>
+<li>执行完成后, 继续死循环等待下一条输入</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/embedded-linux/" rel="tag">#embedded linux</a>
+          
+            <a href="/tags/uboot/" rel="tag">#uboot</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/25/1720-uboot-source/" rel="next" title="uboot之源码分析">
+                <i class="fa fa-chevron-left"></i> uboot之源码分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hello-world"><span class="nav-number">2.</span> <span class="nav-text">hello world</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
