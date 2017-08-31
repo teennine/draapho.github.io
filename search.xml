@@ -1253,7 +1253,7 @@
     <entry>
       <title><![CDATA[快速读懂 makefile]]></title>
       <url>https://draapho.github.io/2017/04/04/1709-linux-makefile/</url>
-      <content type="html"><![CDATA[<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong></p>
+      <content type="html"><![CDATA[<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong><br><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">跟我一起写Makefile</a></em></strong></p>
 <hr>
 <h1 id="Makefile最基本的组成"><a href="#Makefile最基本的组成" class="headerlink" title="Makefile最基本的组成"></a>Makefile最基本的组成</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">target: dependencies</div><div class="line">[TAB] command</div><div class="line"></div><div class="line">目标: 依赖1 依赖2</div><div class="line">[TAB] 命令</div></pre></td></tr></table></figure>
 <ul>
@@ -1285,8 +1285,27 @@
 <li>条件语句的基本结构一般由 <code>ifeq</code> <code>else</code> <code>endif</code> 三个关键字组成</li>
 </ul>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">include another.mk                          <span class="comment"># 调用 another.mk</span></div><div class="line">include foo *.mk $(bar)                     <span class="comment"># 更复杂的调用</span></div><div class="line"></div><div class="line"></div><div class="line">libs_for_gcc = -lgnu                        # 变量赋值</div><div class="line">normal_libs =</div><div class="line"></div><div class="line">ifeq ($(CC),gcc)                            <span class="comment"># 条件判断 $(CC) 是否为gcc</span></div><div class="line">    libs=$(libs_for_gcc)                    <span class="comment"># 变量赋值</span></div><div class="line">else</div><div class="line">    libs=$(normal_libs)</div><div class="line">endif</div><div class="line"></div><div class="line">foo: $(objects)                             <span class="comment"># 目标: 依赖</span></div><div class="line">ifeq ($(CC),gcc)</div><div class="line">    $(CC) -o foo $(objects) $(libs_for_gcc) <span class="comment"># 执行的命令</span></div><div class="line">else</div><div class="line">    $(CC) -o foo $(objects) $(normal_libs)</div><div class="line">endif</div></pre></td></tr></table></figure>
+<h1 id="使用函数"><a href="#使用函数" class="headerlink" title="使用函数"></a>使用函数</h1><p>函数调用，很像变量的使用，也是以“$”来标识的，有两种语法, 如下：<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$(&lt;function&gt; &lt;arguments&gt;)</div><div class="line">$&#123;&lt;function&gt; &lt;arguments&gt;&#125;</div></pre></td></tr></table></figure></p>
+<p>还是来看一个示例：<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">comma := ,</div><div class="line">empty :=</div><div class="line">space := <span class="variable">$(empty)</span> <span class="variable">$(empty)</span></div><div class="line">foo:= a b c</div><div class="line">bar:= <span class="variable">$(subst $(space)</span>,<span class="variable">$(comma)</span>,<span class="variable">$(foo)</span>)</div></pre></td></tr></table></figure></p>
+<ul>
+<li><code>$(bar)</code>调用了函数一个函数.<ul>
+<li>函数    : <code>$(subst &lt;from&gt;,&lt;to&gt;,&lt;text&gt;)</code>, 相当于c语言的 <code>subst(from, to, text)</code></li>
+<li>参数from: <code>$(comma)</code> 的值是一个逗号</li>
+<li>参数to  : <code>$(space)</code> 使用了 <code>$(empty)</code> 定义了一个空格</li>
+<li>参数text: <code>$(foo)</code>   的值是 “a b c”</li>
+</ul>
+</li>
+<li>这个函数是把$(foo)中的空格替换成逗号，所以$(bar)的值是“a,b,c”。<ul>
+<li>这是一个替换函数</li>
+<li>第一个参数是被替换字串</li>
+<li>第二个参数是替换字串</li>
+<li>第三个参数是替换操作作用的字串</li>
+</ul>
+</li>
+</ul>
+<p>Makefile 支持的函数有限, 详情可参考 <a href="http://wiki.ubuntu.org.cn/%E8%B7%9F%E6%88%91%E4%B8%80%E8%B5%B7%E5%86%99Makefile:%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0" target="_blank" rel="external">跟我一起写Makefile:使用函数</a></p>
 <hr>
-<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong></p>
+<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong><br><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">跟我一起写Makefile</a></em></strong></p>
 ]]></content>
     </entry>
     
