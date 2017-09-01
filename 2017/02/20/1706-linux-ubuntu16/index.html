@@ -104,7 +104,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 
 
 使用环境: Ubunt">
-<meta property="og:updated_time" content="2017-05-29T11:37:41.346Z">
+<meta property="og:updated_time" content="2017-09-01T05:56:42.305Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建3-Ubuntu16.04">
 <meta name="twitter:description" content="环境及结论
@@ -374,6 +374,10 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 <h1 id="安装-u-boot-tools-工具"><a href="#安装-u-boot-tools-工具" class="headerlink" title="安装 u-boot-tools 工具"></a>安装 u-boot-tools 工具</h1><p>安装 u-boot-tools, 内核编译后生成uImage使用.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装 mkimage</span></div><div class="line">sudo apt-get install u-boot-tools</div><div class="line"><span class="comment"># 验证</span></div><div class="line">mkimage -V              <span class="comment"># mkimage version 2016.01+dfsg1-2ubuntu1</span></div></pre></td></tr></table></figure></p>
 <h1 id="安装-mkyaffs2image-工具"><a href="#安装-mkyaffs2image-工具" class="headerlink" title="安装 mkyaffs2image 工具"></a>安装 mkyaffs2image 工具</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></div><div class="line">sudo chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></div><div class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></div></pre></td></tr></table></figure>
+<h1 id="安装-dnw-工具"><a href="#安装-dnw-工具" class="headerlink" title="安装 dnw 工具"></a>安装 dnw 工具</h1><p>该工具用于配合uboot进行烧录, 无需驱动, 无需额外烧录器, 简单方便</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo cp dnw /bin/                                   <span class="comment"># 拷贝到bin</span></div><div class="line">sudo chmod +x /bin/dnw                              <span class="comment"># 增加可执行权限</span></div><div class="line">dnw                                                 <span class="comment"># 测试是否可用</span></div></pre></td></tr></table></figure>
+<h1 id="安装-ncurses-基本库"><a href="#安装-ncurses-基本库" class="headerlink" title="安装 ncurses 基本库"></a>安装 ncurses 基本库</h1><p>ncurses是字符终端下屏幕控制的基本库, <code>make menuconfig</code> 需要使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装ncurses</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install libncurses5-dev libncursesw5-dev</div><div class="line"></div><div class="line"><span class="comment"># 查看是否成功</span></div><div class="line">make menuconfig</div></pre></td></tr></table></figure>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
@@ -487,7 +491,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -504,7 +508,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -544,7 +548,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境及结论"><span class="nav-number">1.</span> <span class="nav-text">环境及结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#apt-get使用摘要"><span class="nav-number">2.</span> <span class="nav-text">apt-get使用摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装必要的软件"><span class="nav-number">3.</span> <span class="nav-text">安装必要的软件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装32bit兼容库"><span class="nav-number">4.</span> <span class="nav-text">安装32bit兼容库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置静态IP"><span class="nav-number">5.</span> <span class="nav-text">设置静态IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装ssh服务-用putty远程登录"><span class="nav-number">6.</span> <span class="nav-text">安装ssh服务, 用putty远程登录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nfs-客户端的安装"><span class="nav-number">7.</span> <span class="nav-text">nfs 客户端的安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装交叉编译工具gcc"><span class="nav-number">8.</span> <span class="nav-text">安装交叉编译工具gcc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-u-boot-tools-工具"><span class="nav-number">9.</span> <span class="nav-text">安装 u-boot-tools 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-mkyaffs2image-工具"><span class="nav-number">10.</span> <span class="nav-text">安装 mkyaffs2image 工具</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境及结论"><span class="nav-number">1.</span> <span class="nav-text">环境及结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#apt-get使用摘要"><span class="nav-number">2.</span> <span class="nav-text">apt-get使用摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装必要的软件"><span class="nav-number">3.</span> <span class="nav-text">安装必要的软件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装32bit兼容库"><span class="nav-number">4.</span> <span class="nav-text">安装32bit兼容库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置静态IP"><span class="nav-number">5.</span> <span class="nav-text">设置静态IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装ssh服务-用putty远程登录"><span class="nav-number">6.</span> <span class="nav-text">安装ssh服务, 用putty远程登录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nfs-客户端的安装"><span class="nav-number">7.</span> <span class="nav-text">nfs 客户端的安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装交叉编译工具gcc"><span class="nav-number">8.</span> <span class="nav-text">安装交叉编译工具gcc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-u-boot-tools-工具"><span class="nav-number">9.</span> <span class="nav-text">安装 u-boot-tools 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-mkyaffs2image-工具"><span class="nav-number">10.</span> <span class="nav-text">安装 mkyaffs2image 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-dnw-工具"><span class="nav-number">11.</span> <span class="nav-text">安装 dnw 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-ncurses-基本库"><span class="nav-number">12.</span> <span class="nav-text">安装 ncurses 基本库</span></a></li></ol></div>
             
           </div>
         </section>
