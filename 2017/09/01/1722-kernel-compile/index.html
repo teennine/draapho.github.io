@@ -82,16 +82,46 @@
 
 
 
-<meta name="description" content="解压缩和打补丁12345678# ubuntu shelltar xjvf linux-2.6.22.6.tar.bz2             # 解压kernel源码cd linux-2.6.22.6                           # 进入kernel源码目录patch -p1 &amp;lt; ../linux-2.6.22.6_jz2440.patch  # 打补丁文件, p">
+<meta name="description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+解压缩和打补丁12345678# ubuntu shelltar xj">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kernel之编译体验">
 <meta property="og:url" content="https://draapho.github.io/2017/09/01/1722-kernel-compile/index.html">
 <meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="解压缩和打补丁12345678# ubuntu shelltar xjvf linux-2.6.22.6.tar.bz2             # 解压kernel源码cd linux-2.6.22.6                           # 进入kernel源码目录patch -p1 &amp;lt; ../linux-2.6.22.6_jz2440.patch  # 打补丁文件, p">
-<meta property="og:updated_time" content="2017-09-01T11:42:37.459Z">
+<meta property="og:description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+解压缩和打补丁12345678# ubuntu shelltar xj">
+<meta property="og:updated_time" content="2017-09-15T08:24:05.771Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kernel之编译体验">
-<meta name="twitter:description" content="解压缩和打补丁12345678# ubuntu shelltar xjvf linux-2.6.22.6.tar.bz2             # 解压kernel源码cd linux-2.6.22.6                           # 进入kernel源码目录patch -p1 &amp;lt; ../linux-2.6.22.6_jz2440.patch  # 打补丁文件, p">
+<meta name="twitter:description" content="总览
+嵌入式linux环境搭建-jz2440开发板, 回顾一下s3c2440的地址分配
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+解压缩和打补丁12345678# ubuntu shelltar xj">
 
 
 
@@ -317,7 +347,17 @@
       
 
       
-        <h1 id="解压缩和打补丁"><a href="#解压缩和打补丁" class="headerlink" title="解压缩和打补丁"></a>解压缩和打补丁</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu shell</span></div><div class="line"></div><div class="line">tar xjvf linux-2.6.22.6.tar.bz2             <span class="comment"># 解压kernel源码</span></div><div class="line"><span class="built_in">cd</span> linux-2.6.22.6                           <span class="comment"># 进入kernel源码目录</span></div><div class="line">patch -p1 &lt; ../linux-2.6.22.6_jz2440.patch  <span class="comment"># 打补丁文件, p1表忽略patch文件内的1层目录</span></div><div class="line"></div><div class="line"><span class="comment"># pwd = linux-2.6.22.6</span></div><div class="line">mv ../4.3寸LCD_mach-smdk2440.c arch/arm/mach<span class="_">-s</span>3c2440/mach-smdk2440.c    <span class="comment"># 替换为4.3寸屏源码</span></div></pre></td></tr></table></figure>
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 回顾一下s3c2440的地址分配</li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile.md/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch.md/">kernel之内核启动分析</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="解压缩和打补丁"><a href="#解压缩和打补丁" class="headerlink" title="解压缩和打补丁"></a>解压缩和打补丁</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu shell</span></div><div class="line"></div><div class="line">tar xjvf linux-2.6.22.6.tar.bz2             <span class="comment"># 解压kernel源码</span></div><div class="line"><span class="built_in">cd</span> linux-2.6.22.6                           <span class="comment"># 进入kernel源码目录</span></div><div class="line">patch -p1 &lt; ../linux-2.6.22.6_jz2440.patch  <span class="comment"># 打补丁文件, p1表忽略patch文件内的1层目录</span></div><div class="line"></div><div class="line"><span class="comment"># pwd = linux-2.6.22.6</span></div><div class="line">mv ../4.3寸LCD_mach-smdk2440.c arch/arm/mach<span class="_">-s</span>3c2440/mach-smdk2440.c    <span class="comment"># 替换为4.3寸屏源码</span></div></pre></td></tr></table></figure>
 <h1 id="生成配置文件-“-config”"><a href="#生成配置文件-“-config”" class="headerlink" title="生成配置文件 “.config”"></a>生成配置文件 “.config”</h1><p>整个嵌入式linux系统的配置, 其根源就是这么一个 “.config” 文件.<br>然后编译时, 会通过makefile变量和C语言的宏定义来实现模块的使能, 禁止或生成为<code>.ko</code>模块.</p>
 <h2 id="生成”-config”"><a href="#生成”-config”" class="headerlink" title="生成”.config”"></a>生成”.config”</h2><p>生成<code>.config</code>配置文件有三种方法:</p>
 <ul>
@@ -508,7 +548,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -565,7 +605,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#解压缩和打补丁"><span class="nav-number">1.</span> <span class="nav-text">解压缩和打补丁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成配置文件-“-config”"><span class="nav-number">2.</span> <span class="nav-text">生成配置文件 “.config”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#生成”-config”"><span class="nav-number">2.1.</span> <span class="nav-text">生成”.config”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改”-config”"><span class="nav-number">2.2.</span> <span class="nav-text">修改”.config”</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析配置过程"><span class="nav-number">3.</span> <span class="nav-text">分析配置过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#“-config”-文件"><span class="nav-number">3.1.</span> <span class="nav-text">“.config” 文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译和烧录内核"><span class="nav-number">4.</span> <span class="nav-text">编译和烧录内核</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#编译内核"><span class="nav-number">4.1.</span> <span class="nav-text">编译内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-nfs-烧录"><span class="nav-number">4.2.</span> <span class="nav-text">使用 nfs 烧录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-dnw-烧录"><span class="nav-number">4.3.</span> <span class="nav-text">使用 dnw 烧录</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解压缩和打补丁"><span class="nav-number">2.</span> <span class="nav-text">解压缩和打补丁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成配置文件-“-config”"><span class="nav-number">3.</span> <span class="nav-text">生成配置文件 “.config”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#生成”-config”"><span class="nav-number">3.1.</span> <span class="nav-text">生成”.config”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改”-config”"><span class="nav-number">3.2.</span> <span class="nav-text">修改”.config”</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析配置过程"><span class="nav-number">4.</span> <span class="nav-text">分析配置过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#“-config”-文件"><span class="nav-number">4.1.</span> <span class="nav-text">“.config” 文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译和烧录内核"><span class="nav-number">5.</span> <span class="nav-text">编译和烧录内核</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#编译内核"><span class="nav-number">5.1.</span> <span class="nav-text">编译内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-nfs-烧录"><span class="nav-number">5.2.</span> <span class="nav-text">使用 nfs 烧录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-dnw-烧录"><span class="nav-number">5.3.</span> <span class="nav-text">使用 dnw 烧录</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
