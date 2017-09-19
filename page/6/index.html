@@ -260,6 +260,1183 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/17/1627-linux-cmd-bash/" itemprop="url">
+                  Bash Shell及环境变量
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-17T00:00:00+11:00" content="2016-12-17">
+              2016-12-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="入门教程"><a href="#入门教程" class="headerlink" title="入门教程"></a>入门教程</h1><p>推荐 <a href="http://c.biancheng.net/cpp/shell/" target="_blank" rel="external">C语言中文网-Shell教程</a></p>
+<ul>
+<li><a href="http://c.biancheng.net/cpp/view/6998.html" target="_blank" rel="external">第一个shell脚本</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/6999.html" target="_blank" rel="external">shell变量</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="external">shell特殊变量</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2737.html" target="_blank" rel="external">shell替换</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2736.html" target="_blank" rel="external">shell运算符</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7000.html" target="_blank" rel="external">shell注释</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7001.html" target="_blank" rel="external">shell字符串</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7002.html" target="_blank" rel="external">shell数组</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7003.html" target="_blank" rel="external">shell echo命令</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/1499.html" target="_blank" rel="external">shell printf命令</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7005.html" target="_blank" rel="external">shell if else语句</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7006.html" target="_blank" rel="external">shell case esac语句</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7007.html" target="_blank" rel="external">shell for循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7008.html" target="_blank" rel="external">shell while循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7009.html" target="_blank" rel="external">shell until循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7010.html" target="_blank" rel="external">shell跳出循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7011.html" target="_blank" rel="external">shell函数</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2491.html" target="_blank" rel="external">shell函数参数</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2738.html" target="_blank" rel="external">shell输入输出重定向</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2740.html" target="_blank" rel="external">shell文件包含</a></li>
+</ul>
+<h1 id="Bash-Shell基础操作"><a href="#Bash-Shell基础操作" class="headerlink" title="Bash Shell基础操作"></a>Bash Shell基础操作</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[Tab]</code></td>
+<td>指令或文件名自动补齐</td>
+</tr>
+<tr>
+<td><code>[Tab][Tab]</code></td>
+<td>连按两下[Tab], 列出所有可补齐的指令或档案</td>
+</tr>
+<tr>
+<td><code>[ctrl]-c</code></td>
+<td>中断指令</td>
+</tr>
+<tr>
+<td><code>[ctrl]-d</code></td>
+<td>EOF,表示输入结束</td>
+</tr>
+<tr>
+<td><code>[↑]</code> <code>[↓]</code></td>
+<td>浏览历史指令</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>stty</code></td>
+<td>查看和设置终端按键参数</td>
+</tr>
+<tr>
+<td>…… <strong><code>stty -a</code></strong></td>
+<td>查看终端所有的按键参数</td>
+</tr>
+<tr>
+<td><code>history</code></td>
+<td>查询历史指令, 建议将其设置别名<code>alias h=’history’</code></td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>执行历史指令, 后接数字或字母</td>
+</tr>
+<tr>
+<td>…… <strong><code>!!</code></strong></td>
+<td>执行上一个指令</td>
+</tr>
+<tr>
+<td>…… <strong><code>!al</code></strong></td>
+<td>执行以al为开头的最后一个指令</td>
+</tr>
+<tr>
+<td>…… <strong><code>!12</code></strong></td>
+<td>执行第12条历史指令(先用history查看历史指令号)</td>
+</tr>
+<tr>
+<td><code>alias cmd=’command’</code></td>
+<td>设置指令别名, command为指令字符串</td>
+</tr>
+<tr>
+<td>…… <strong><code>alias h=history</code></strong></td>
+<td>设置指令history的别名为h.不用引号,单双引号皆可</td>
+</tr>
+<tr>
+<td><code>unalias cmd</code></td>
+<td>取消指令别名</td>
+</tr>
+<tr>
+<td><code>type -a command</code></td>
+<td>查询指令类型(file外部指令; alias别名指令;builtin内建指令)</td>
+</tr>
+<tr>
+<td><code>command --help</code></td>
+<td>获取command内置的帮助信息,较为简短</td>
+</tr>
+<tr>
+<td><code>man command</code></td>
+<td>获取command的帮助文件. <code>j</code> <code>k</code>上下移动, <code>q</code>退出</td>
+</tr>
+<tr>
+<td><code>sh file</code></td>
+<td>创建一个子shell, 执行file内的指令</td>
+</tr>
+<tr>
+<td><code>source file</code></td>
+<td>在当前shell内,执行file内的指令</td>
+</tr>
+<tr>
+<td><code>. file</code></td>
+<td>等同于source file</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>su -l user</code></td>
+<td>切换用户, -l表示环境变量一起变</td>
+</tr>
+<tr>
+<td>…… <strong><code>su</code></strong></td>
+<td>切换为管理员账户</td>
+</tr>
+<tr>
+<td><code>sudo command</code></td>
+<td>赋予用户临时的管理员权限 (<code>/etc/sudoers</code>决定是否支持)</td>
+</tr>
+<tr>
+<td><code>exit</code></td>
+<td>退出当前用户的终端环境</td>
+</tr>
+<tr>
+<td><code>shutdown -h now</code></td>
+<td>立刻关机</td>
+</tr>
+<tr>
+<td><code>sync; sync; shutdown -r now</code></td>
+<td>立刻重启, 重启前需要存储一下数据</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>时间</td>
+</tr>
+<tr>
+<td><code>cal</code></td>
+<td>日期</td>
+</tr>
+<tr>
+<td><code>bc</code></td>
+<td>计算器, 输入quit退出</td>
+</tr>
+<tr>
+<td><code>apt-get</code></td>
+<td>ubuntu deb包软件管理</td>
+</tr>
+<tr>
+<td>…… <strong><code>sudo apt-get install packagename</code></strong></td>
+<td>安装指定软件包</td>
+</tr>
+<tr>
+<td>…… <strong><code>sudo apt-get autoremovepackagename</code></strong></td>
+<td>删除指定软件包 (包括配置文件)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="变量与环境变量"><a href="#变量与环境变量" class="headerlink" title="变量与环境变量"></a>变量与环境变量</h1><ul>
+<li>系统变量一般大写, 如MAIL</li>
+<li>用户变量一般小写, 如myhome</li>
+<li>普通变量(也称shell变量)作用范围: 当前的shell</li>
+<li>环境变量(也称用户变量)作用范围: 当前的shell及其子shell</li>
+<li>环境变量开机设置文档<ul>
+<li><code>~/.bashrc</code>, <code>~/.profile</code>, <code>/etc/profile</code>, <code>/etc/bash.bashrc</code>,等等</li>
+<li>首先读取 <code>/etc/profile</code>, 最后读取 <code>~/.bashrc</code></li>
+<li>个人设定建议放在<code>~/.bashrc</code>内,并做如下修改:</li>
+<li>修改<code>HISTSIZE=50</code>  (减少记录的历史指令,安全)</li>
+<li>加入<code>alias h=&#39;history&#39;</code></li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>myhome=/home/my/</code></td>
+<td>无空格字符串,注意等号左右不要有空格</td>
+</tr>
+<tr>
+<td><code>myhome=’/home/my/’</code></td>
+<td>单引号内可包含任意字符串, 无特殊含义</td>
+</tr>
+<tr>
+<td><code>myname=”my name is”</code></td>
+<td>双引号内某些字符有特殊作用, 如 $</td>
+</tr>
+<tr>
+<td><code>read variable</code></td>
+<td>键盘输入变量, 回车表示结束输入</td>
+</tr>
+<tr>
+<td>…… <strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
+<td>提示输入变量给myname, 30秒输入时间</td>
+</tr>
+<tr>
+<td><code>echo $myhome</code></td>
+<td>变量名前加上$, 即可读取该变量的值</td>
+</tr>
+<tr>
+<td><code>echo “$myhome”</code></td>
+<td>“$变量名”,无歧义. 注意不能单引号</td>
+</tr>
+<tr>
+<td><code>echo ${myhome}</code></td>
+<td>${变量名},无歧义</td>
+</tr>
+<tr>
+<td><code>unset myhome</code></td>
+<td>删除变量</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>let val=10*10</code></td>
+<td>加上let后, val值为100,而非10*10. 用的比declare多!</td>
+</tr>
+<tr>
+<td><code>readonly VAL=’read only’</code></td>
+<td>将VAL为只读变量,不可更改和unset (等同 declare -r)</td>
+</tr>
+<tr>
+<td><code>declare -ai array</code></td>
+<td>将array声明为整数数组 (不加参数a,效果一样)</td>
+</tr>
+<tr>
+<td><code>array[1]=10*10</code></td>
+<td>数组的赋值, array定义为整数,因此array[1]值为100</td>
+</tr>
+<tr>
+<td><code>echo ${array[1]}</code></td>
+<td>使用”$array[1]”没用.若无{}, 会认为是”$array”[1]</td>
+</tr>
+<tr>
+<td><code>unset array</code></td>
+<td>将array数组变量删除</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PATH=/home:$PATH</code></td>
+<td>新增”/home:”在PATH变量最前面</td>
+</tr>
+<tr>
+<td><code>PATH=”$PATH””:/home”</code></td>
+<td>前后都加”双引号”,无歧义. 建议这样书写</td>
+</tr>
+<tr>
+<td><code>PATH=${PATH}’:/home’</code></td>
+<td>变量名用{大括号}指明,无歧义. 新增变量也可用’单引号’</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>echo $?</code></td>
+<td>?为特殊变量,为上一指令传回的值. 0成功, !0失败</td>
+</tr>
+<tr>
+<td><code>echo $$</code></td>
+<td>获取并显示当前shell的 PID (process ID)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>#</code> <code>##</code> <code>%</code> <code>%%</code> <code>/</code> <code>//</code></td>
+<td>变量的截取和替换. 以<code>myhome=/home/test/test.sh</code>为例</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome#/*/}</code></strong></td>
+<td><code>test/test.sh</code>,从头比较, 单次删除,故<del><code>/home/</code></del></td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome##/*/}</code></strong></td>
+<td><code>test.sh</code>, 从头比较, 全部删除,获得文件名</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome%/*}</code></strong></td>
+<td><code>/home/test</code>,从尾比较, 单次删除,获得路径</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome%%/*}</code></strong></td>
+<td>从尾比较, 全部删除,故全部被删掉</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome/test/TEST}</code></strong></td>
+<td><code>/home/TEST/test.h</code>, 从头比较, 单次替换</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome//test/TEST}</code></strong></td>
+<td><code>/home/TEST/TEST.h</code>,从头比较, 全部替换</td>
+</tr>
+<tr>
+<td><code>-</code> <code>:-</code> <code>+</code> <code>:+</code> <code>=</code> <code>:=</code> <code>?</code> <code>:?</code></td>
+<td>变量的比较和判断. 常用于判断和确保变量有效</td>
+</tr>
+<tr>
+<td>…… <strong><code>var=${str-expr}</code></strong></td>
+<td>var为目标变量, str为已有变量, expr为变量值</td>
+</tr>
+<tr>
+<td>…… <strong><code>myname=${myname:-root}</code></strong></td>
+<td>若myname不存在或为空,则myname=root</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>enviroment, 显示当前环境变量,用的最多!</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>显示所有变量(环境变量,普通变量)</td>
+</tr>
+<tr>
+<td><code>export</code></td>
+<td>显示已成为当前环境变量的普通变量</td>
+</tr>
+<tr>
+<td>…… <strong><code>export variable</code></strong></td>
+<td>将variable设为环境变量, 等同 <code>declare -x variable</code></td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td>查看当前语言的环境变量</td>
+</tr>
+<tr>
+<td>…… <strong><code>locale -a</code></strong></td>
+<td>查看系统支持的语言</td>
+</tr>
+</tbody>
+</table>
+<h1 id="Bash-Shell特殊符号"><a href="#Bash-Shell特殊符号" class="headerlink" title="Bash Shell特殊符号"></a>Bash Shell特殊符号</h1><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>万用字符, 表示0或多个字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>万用字符, 表示一个字符</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>逻辑非, 通常在<code>[中括号]</code>内使用</td>
+</tr>
+<tr>
+<td><code>\</code></td>
+<td>转义字符, 需要转义的字符 <code>&quot;</code> <code>&#39;</code> <code>$</code> <code>\</code> <code>` \</code></td>
+</tr>
+<tr>
+<td>…… <strong><code>\n</code></strong></td>
+<td>换行</td>
+</tr>
+<tr>
+<td>…… <strong><code>\r</code></strong></td>
+<td>回车</td>
+</tr>
+<tr>
+<td>…… <strong><code>\t</code></strong></td>
+<td>水平制表符</td>
+</tr>
+<tr>
+<td>…… <strong><code>\v</code></strong></td>
+<td>垂直制表符</td>
+</tr>
+<tr>
+<td>…… <strong><code>\b</code></strong></td>
+<td>后退</td>
+</tr>
+<tr>
+<td>…… <strong><code>\a</code></strong></td>
+<td>蜂鸣</td>
+</tr>
+<tr>
+<td>…… <strong><code>\077</code></strong></td>
+<td>八进制字符</td>
+</tr>
+<tr>
+<td>…… <strong><code>\xff</code></strong></td>
+<td>十六进制</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>批注</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>$variable</code></td>
+<td>变量名</td>
+</tr>
+<tr>
+<td><code>${variable}</code></td>
+<td>大括号. 中间为命令区块组合,限定变量名范围</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${array[1]}</code></strong></td>
+<td>显示<code>array[1]</code> 变量值, array为数组,需用<code>{大括号}</code>包含变量名</td>
+</tr>
+<tr>
+<td><code>[a-f], [35], [!a-z]</code></td>
+<td>中括号. 中间为字符组合, <code>[仅代表一个字符]</code></td>
+</tr>
+<tr>
+<td>…… <strong><code>ls -d ~/*[0-9]*</code></strong></td>
+<td>列出用户home目录下所有包含数字的文件和目录</td>
+</tr>
+<tr>
+<td><code>$(command)</code></td>
+<td>小括号. 中间为子shell,此命令等同于`command`</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&#39;$string&#39;</code></td>
+<td>单引号, 特殊符号无效,变量不置换, 显示为$string</td>
+</tr>
+<tr>
+<td><code>&quot;$variable&quot;</code></td>
+<td>双引号, 特殊符号有用,变量置换</td>
+</tr>
+<tr>
+<td>`command`</td>
+<td>`(键盘1左边的字符),需要优先执行的指令</td>
+</tr>
+<tr>
+<td>…… <strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
+<td>进入当前linux的内核源码目录</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>cmd1 l cmd2 和 cm1 ll cmd2</td>
+<td>hexo解析问题, 无法再表格中正确显示<code>丨</code>, <strong>故放到表格的最后</strong></td>
+</tr>
+<tr>
+<td><code>cut</code> <code>grep</code> <code>split</code></td>
+<td>截取分割, 通常配合 <code>pipe</code>使用</td>
+</tr>
+<tr>
+<td><code>sort</code> <code>wc</code> <code>uniq</code></td>
+<td>排序命令, 通常配合 <code>pipe</code>使用</td>
+</tr>
+<tr>
+<td><code>tr</code> <code>col</code> <code>join</code> <code>paste</code> <code>expand</code></td>
+<td>字符转换, 通常配合 <code>pipe</code>使用</td>
+</tr>
+<tr>
+<td><code>cmd1;cmd2; cmd3</code></td>
+<td>可以一行写多个指令</td>
+</tr>
+<tr>
+<td><code>cmd1 &amp;&amp; cmd2</code></td>
+<td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&gt;</code> <code>2&gt;</code> <code>&gt;&gt;</code> <code>2&gt;&gt;</code></td>
+<td>输出到文件 (&gt;写入, &gt;&gt;累加, 2错误信息)</td>
+</tr>
+<tr>
+<td>…… <strong><code>ll &gt; list.txt</code></strong></td>
+<td>将当前目录下的文件详细信息存储到list.txt文件中</td>
+</tr>
+<tr>
+<td>…… <strong><code>ls / &gt;&gt; list.txt</code></strong></td>
+<td>将根目录下的文件信息追加到list.txt文件中</td>
+</tr>
+<tr>
+<td>…… <strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
+<td>将正确信息写到ok中,错误的写到error中</td>
+</tr>
+<tr>
+<td>…… <strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
+<td>将所有信息都写到list中 (&amp;1是数字一)</td>
+</tr>
+<tr>
+<td>…… <strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
+<td><code>/dev/null</code>相当于黑洞.只将错误写到err中</td>
+</tr>
+<tr>
+<td><code>&lt;</code> <code>&lt;&lt;</code></td>
+<td>输入信息(&lt;从文件获取, &lt;&lt;结束的输入字符)</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat &gt; catfile</code></strong></td>
+<td>从键盘获取文本并写到catfile中 (键盘按[ctrl]+d结束输入)</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
+<td>从键盘获取文本并写到catfile中(键盘输入end结束输入)</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat &gt; catfile &lt; input</code></strong></td>
+<td>导入input文件信息再写到catfile中</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>cmd1 | cmd2</code>  <code>pipe</code>管线命令,将cmd1的处理结果传给cmd2继续处理</li>
+<li>譬如 <code>ll | more</code>  将ll获得的数据传给more进一步处理</li>
+<li><code>cmd1 || cmd2</code>  cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</li>
+<li>譬如 <code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; || echo &quot;nofile&quot;</code> 如果<code>/tmp/test</code>存在显示<code>exist</code>,否则<code>nofile</code></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/16/1626-linux-cmd-file/" itemprop="url">
+                  linux文件与目录相关指令
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-16T00:00:00+11:00" content="2016-12-16">
+              2016-12-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="linux-文件基础"><a href="#linux-文件基础" class="headerlink" title="linux 文件基础"></a>linux 文件基础</h1><h2 id="特殊符号代表的目录"><a href="#特殊符号代表的目录" class="headerlink" title="特殊符号代表的目录:"></a>特殊符号代表的目录:</h2><table>
+<thead>
+<tr>
+<th>特殊符号</th>
+<th>目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.</code></td>
+<td>代表此层目录</td>
+</tr>
+<tr>
+<td><code>..</code></td>
+<td>代表上一层目录</td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>代表<strong>目前使用者</strong>所在的家目录</td>
+</tr>
+<tr>
+<td><code>~account</code></td>
+<td>代表<strong>account</strong>这个使用者的家目录</td>
+</tr>
+<tr>
+<td><code>~+</code></td>
+<td>当前的工作目录, 等同于<code>pwd</code></td>
+</tr>
+<tr>
+<td><code>~-</code></td>
+<td>上次的工作目录</td>
+</tr>
+</tbody>
+</table>
+<h2 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h2><table>
+<thead>
+<tr>
+<th>bit9</th>
+<th>8</th>
+<th>7</th>
+<th>6</th>
+<th>5</th>
+<th>4</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>r</td>
+<td>w</td>
+<td>x</td>
+<td>r</td>
+<td>-</td>
+<td>x</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>bit</th>
+<th>字母</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td></td>
+<td>文件类型</td>
+</tr>
+<tr>
+<td></td>
+<td><code>d</code></td>
+<td>目录(dir)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>-</code></td>
+<td>文件</td>
+</tr>
+<tr>
+<td></td>
+<td><code>l</code></td>
+<td>链接文件(link)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>b</code></td>
+<td>块设备文件(block)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>c</code></td>
+<td>字符设备文件(character)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>s</code></td>
+<td>网络接口文件(sockets)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>p</code></td>
+<td>管道文件(FIFO, pipe)</td>
+</tr>
+<tr>
+<td>876</td>
+<td><code>rwx</code></td>
+<td>拥有人的权限, r为可读, w为可写, x为可执行</td>
+</tr>
+<tr>
+<td>543</td>
+<td><code>r-x</code></td>
+<td>同群组的权限, r为可读, -为不可写, x为可执行</td>
+</tr>
+<tr>
+<td>210</td>
+<td><code>---</code></td>
+<td>其它群组权限, 不可读, 不可写, 不可执行</td>
+</tr>
+</tbody>
+</table>
+<h1 id="文件与目录常用指令"><a href="#文件与目录常用指令" class="headerlink" title="文件与目录常用指令"></a>文件与目录常用指令</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cd</code></td>
+<td><strong>Change Directory</strong>, 变换目录</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td><strong>Print Working Directory</strong>, 显示目前的目录</td>
+</tr>
+<tr>
+<td>…… <strong><code>pwd -P</code></strong></td>
+<td>显示真实路径, 而非link路径</td>
+</tr>
+<tr>
+<td><code>mkdir dir</code></td>
+<td>Make Directory, 建立一个新的目录</td>
+</tr>
+<tr>
+<td>…… <strong><code>mkdir -p dir1/dir2</code></strong></td>
+<td>递归建立所有目录</td>
+</tr>
+<tr>
+<td>…… <strong><code>mkdir -m 711 dir</code></strong></td>
+<td>建立目录时,设定权限</td>
+</tr>
+<tr>
+<td><code>rmdir dir</code></td>
+<td><strong>Remove Directory</strong>, 删除一个空的目录</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td><strong>List Files</strong>, 显示文件与目录</td>
+</tr>
+<tr>
+<td>…… <strong><code>ls -h</code></strong></td>
+<td>以KB,GB显示容量.</td>
+</tr>
+<tr>
+<td>…… <strong><code>ls -R</code></strong></td>
+<td>Recursive, 递归显示子目录信息</td>
+</tr>
+<tr>
+<td>…… <strong><code>ls -t</code></strong></td>
+<td>以时间排序</td>
+</tr>
+<tr>
+<td>…… <strong><code>ls -S</code></strong></td>
+<td>以容量大小排序</td>
+</tr>
+<tr>
+<td>…… <strong><code>ll</code></strong></td>
+<td><code>ls –al</code>, List All, 显示所有文件及信息</td>
+</tr>
+<tr>
+<td><code>cp src dst</code></td>
+<td>copy</td>
+</tr>
+<tr>
+<td>…… <strong><code>cp -a src dst</code></strong></td>
+<td>即<code>cp -pdr</code>, 递归复制目录.不会改变属性和权限</td>
+</tr>
+<tr>
+<td>…… <strong><code>cp -f src dst</code></strong></td>
+<td>Force, 强制复制,不询问使用者</td>
+</tr>
+<tr>
+<td>…… <strong><code>cp -u src dst</code></strong></td>
+<td>若 src比dst新,才进行复制工作,多用于备份</td>
+</tr>
+<tr>
+<td>…… <strong><code>cp src1 src2 src3 dir</code></strong></td>
+<td>将多个原文件拷贝到指定目录</td>
+</tr>
+<tr>
+<td><code>mv src dst</code></td>
+<td><strong>move</strong>, 移动目录和文件</td>
+</tr>
+<tr>
+<td><code>rm file_dir</code></td>
+<td><strong>remove</strong>, 移除文件</td>
+</tr>
+<tr>
+<td>…… <strong><code>rm -fr dir</code></strong></td>
+<td>强制递归删除dir下的所有文件和目录</td>
+</tr>
+<tr>
+<td><code>ln -s src dst</code></td>
+<td><strong>Symbolic Link</strong>, 创建一个符号链接</td>
+</tr>
+<tr>
+<td>…… <strong><code>ln file hardLink</code></strong></td>
+<td>实际链接, 仅支持同区块下的文件,不占用inode</td>
+</tr>
+<tr>
+<td>…… <strong><code>ln -s dir symbolicLink</code></strong></td>
+<td>符号链接, 同快捷方式,为一个文件,占用inode</td>
+</tr>
+<tr>
+<td><code>basename /dir/dir/file</code></td>
+<td>结果为<code>file</code>, 路径中取得文件名称</td>
+</tr>
+<tr>
+<td><code>dirname /dir/dir/file</code></td>
+<td>结果为<code>/dir/dir</code>, 路径中取得目录名称</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cat file</code></td>
+<td><strong>Concatenate</strong> (连续), 连续显示文件内容</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat -n file</code></strong></td>
+<td>在前面加上行号</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat -A</code></strong></td>
+<td>即 <code>cat -vET</code>, 可显示一些特殊符号</td>
+</tr>
+<tr>
+<td><code>more</code> <code>less</code> <code>head</code> <code>tail</code></td>
+<td>都用于显示文件内容, <code>less</code>功能最强大</td>
+</tr>
+<tr>
+<td><code>od -t x1 file</code></td>
+<td>按1byte 十六进制显示文件.若x2则为2byte.</td>
+</tr>
+<tr>
+<td><code>touch file</code></td>
+<td>建立一个空文件, 修改文件时间(mtime和atime)</td>
+</tr>
+<tr>
+<td><code>file file</code></td>
+<td>读取文件类型</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>umask</code></td>
+<td>读取和设置当前默认权限, 数字是被取消的默认权限</td>
+</tr>
+<tr>
+<td>…… <strong><code>umask 022</code></strong></td>
+<td>新建文档权限为 777-022 = 755权限</td>
+</tr>
+<tr>
+<td><code>chgrp -R group file_dir</code></td>
+<td>递归改变file_dir文件/目录的群组(group必须存在)</td>
+</tr>
+<tr>
+<td><code>chown owner file_dir</code></td>
+<td>改变文件或目录的所有者(owner必须存在)</td>
+</tr>
+<tr>
+<td>…… <strong><code>chown -R owner:group dir</code></strong></td>
+<td>递归改变dir的所有者和组群</td>
+</tr>
+<tr>
+<td>…… <strong><code>chmod -R 755 file_dir</code></strong></td>
+<td>递归改名文件或目录的权限 (7=0b111=rwx)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>which -a cmd</code></td>
+<td>搜索执行文件完整路径</td>
+</tr>
+<tr>
+<td><code>whereis file</code></td>
+<td>快速搜索文件(用数据库),实测下来没啥用</td>
+</tr>
+<tr>
+<td><code>find dir -name file</code></td>
+<td>搜索文件(整个硬盘),很强大的一个指令</td>
+</tr>
+<tr>
+<td>…… <strong><code>-name</code></strong></td>
+<td>表示按文件名搜索. 类似的参数有很多.有需要在查.</td>
+</tr>
+<tr>
+<td><code>grep pattern files</code></td>
+<td>在files中寻找 pattern项,支持正则表达式</td>
+</tr>
+<tr>
+<td>…… <strong><code>grep -r “hello” ./*</code></strong></td>
+<td>在当前文件夹下的所有文件下搜索 “hello”</td>
+</tr>
+<tr>
+<td>…… <strong><code>grep -n “Test” *</code></strong></td>
+<td>在当前文件夹下搜索 “hello”, 并显示行号</td>
+</tr>
+<tr>
+<td>…… <strong><code>grep -i “Bye” *</code></strong></td>
+<td>在当前文件夹下忽略大小写搜索 ”Bye”</td>
+</tr>
+<tr>
+<td>…… <strong><code>grep -w “Test” aa bb</code></strong></td>
+<td>在aa, bb文件内,只匹配整个单词搜索 “Test”</td>
+</tr>
+<tr>
+<td>…… <strong><code>grep -nd skip 100ask24x0 *</code></strong></td>
+<td>仅在当前目录查找, 不显示子目录信息</td>
+</tr>
+<tr>
+<td><code>find ./ -name &quot;*&quot; l(竖杠) xargs grep --color &quot;key&quot;</code></td>
+<td>在当前文件夹下查找包含 “key” 内容的文件</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tar -cvf file.tar /dir</code></td>
+<td>将/dir打包为file.tar,没有压缩</td>
+</tr>
+<tr>
+<td><code>tar -zcvf file.tar.gz /dir</code></td>
+<td>将/dir打包为file.tar.gz,用gzip压缩</td>
+</tr>
+<tr>
+<td><code>tar -jcvf file.tar.bz2 /dir</code></td>
+<td>将/dir打包为file.tar.gz2,用bzip2压缩</td>
+</tr>
+<tr>
+<td><code>tar -xvf file.tar</code></td>
+<td>还原file.tar到当前目录</td>
+</tr>
+<tr>
+<td><code>tar -zxvf file.tar.gz</code></td>
+<td>解压file.tar.gz到当前目录</td>
+</tr>
+<tr>
+<td><code>tar -jxvf file.tar.bz2</code></td>
+<td>解压file.tar.bz2到当前目录</td>
+</tr>
+<tr>
+<td><code>tar -N ‘2005/06/01’ -zcvffile.tar.gz /dir</code></td>
+<td>将/dir下比2005/06/01新的文件备份</td>
+</tr>
+<tr>
+<td><code>cpio</code></td>
+<td>文件/设备的输入输出, 多配合find进行备份</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>find ./ -name &quot;*&quot; | xargs grep --color &quot;key&quot;</code></strong> 在当前文件夹下查找包含 “key” 内容的文件</li>
+<li><strong><code>find / -print | cpio -covB &gt; /dev/st0</code></strong> , 将系统数据全部写入磁带机</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/15/1625-linux-cmd-disk/" itemprop="url">
                   linux 系统文件及磁盘指令
                 </a>
@@ -1436,521 +2613,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/23/1620-software-data-struct/" itemprop="url">
-                  数据结构资料收集
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-23T00:00:00+11:00" content="2016-11-23">
-              2016-11-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/software/" itemprop="url" rel="index">
-                    <span itemprop="name">software</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="python各数据结构性能列表-TimeComplexity"><a href="#python各数据结构性能列表-TimeComplexity" class="headerlink" title="python各数据结构性能列表, TimeComplexity"></a>python各数据结构性能列表, <a href="https://wiki.python.org/moin/TimeComplexity" target="_blank" rel="external">TimeComplexity</a></h1><ul>
-<li>list</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Average Case</th>
-<th>Amortized Worst Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Copy</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Append[1]</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>Insert</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Get Item</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>Set Item</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>Delete Item</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Iteration</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Get Slice</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>Del Slice</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Set Slice</td>
-<td>O(k+n)</td>
-<td>O(k+n)              </td>
-</tr>
-<tr>
-<td>Extend[1]</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>Sort</td>
-<td>O(n log n)</td>
-<td>O(n log n)          </td>
-</tr>
-<tr>
-<td>Multiply</td>
-<td>O(nk)</td>
-<td>O(nk)               </td>
-</tr>
-<tr>
-<td>x in s</td>
-<td>O(n)</td>
-<td>-                   </td>
-</tr>
-<tr>
-<td>min(s), max(s)</td>
-<td>O(n)</td>
-<td>-                   </td>
-</tr>
-<tr>
-<td>Get Length</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>collections.deque</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Average Case</th>
-<th>Amortized Worst Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Copy</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>append</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>appendleft</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>pop</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>popleft</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>extend</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>extendleft</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>rotate</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>remove</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>dict</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Average Case</th>
-<th>Amortized Worst Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Copy[2]</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Get Item</td>
-<td>O(1)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Set Item[1]</td>
-<td>O(1)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Delete Item</td>
-<td>O(1)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Iteration[2]</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-</tbody>
-</table>
-<h1 id="教科书风格的数据结构"><a href="#教科书风格的数据结构" class="headerlink" title="教科书风格的数据结构"></a><a href="http://sjjp.tjuci.edu.cn/sjjg/datastructure/ds/web/gailun/gailun1.1.1b.htm" target="_blank" rel="external">教科书风格的数据结构</a></h1><ul>
-<li>讲述了 <code>线性链表</code>, <code>字符串</code>, <code>栈和队列</code>, <code>多维数组</code>, <code>广义表</code>, <code>树</code>, <code>图</code>, <code>排序</code>, <code>查找</code>, <code>文件</code></li>
-<li><strong>有较为详细的性能分析</strong>, 偏重理论细节, 还有习题可以做!<ul>
-<li>平方阶(O(n^2))排序: 一般称为简单排序，例如直接插入、直接选择和冒泡排序</li>
-<li>线性对数阶(O(nlgn))排序: 如快速、堆和归并排序</li>
-<li>O(n^(1+￡))阶排序(0&lt;￡&lt;1): 如希尔排序</li>
-<li>线性阶(O(n))排序: 如桶、箱和基数排序</li>
-</ul>
-</li>
-<li>排序方法的选择<ul>
-<li>简单排序中直接插入最好，快速排序最快，当文件为正序时，直接插入和冒泡均最佳。</li>
-<li>若n较小(如n≤50)，可采用直接插入或直接选择排序。</li>
-<li>若文件初始状态基本有序(指正序)，则应选用直接插人、冒泡或随机的快速排序为宜；</li>
-<li>若n较大，则应采用时间复杂度为O(nlgn)的排序方法：快速排序、堆排序或归并排序。<ul>
-<li>快速排序是目前基于比较的内部排序中被认为是最好的方法，当待排序的关键字是随机分布时，快速排序的平均时间最短；</li>
-<li>堆排序所需的辅助空间少于快速排序，并且不会出现快速排序可能出现的最坏情况。这两种排序都是不稳定的。</li>
-<li>若要求排序稳定，则可选用归并排序。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="纸上谈兵-算法与数据结构"><a href="#纸上谈兵-算法与数据结构" class="headerlink" title="纸上谈兵: 算法与数据结构"></a><a href="http://www.cnblogs.com/vamei/archive/2013/03/22/2974052.html" target="_blank" rel="external">纸上谈兵: 算法与数据结构</a></h1><ul>
-<li>理论与实践相结合的讲述数据结构, <strong>配图很有意思, 并提供了C代码</strong>. 但没有对性能和特性做详细介绍.</li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/30/2989930.html" target="_blank" rel="external">纸上谈兵: 数学归纳法, 递归, 栈</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/12/2948847.html" target="_blank" rel="external">纸上谈兵: 排序算法简介及其C实现</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/14/2958940.html" target="_blank" rel="external">纸上谈兵: 表 (list)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/14/2960201.html" target="_blank" rel="external">纸上谈兵: 栈 (stack)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/15/2961729.html" target="_blank" rel="external">纸上谈兵: 队列 (queue)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/17/2962290.html" target="_blank" rel="external">纸上谈兵: 树, 二叉树, 二叉搜索树</a><ul>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/21/2964092.html" target="_blank" rel="external">纸上谈兵: AVL树</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/24/2976545.html" target="_blank" rel="external">纸上谈兵: 伸展树 (splay tree)</a></li>
-</ul>
-</li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/20/2966612.html" target="_blank" rel="external">纸上谈兵: 堆 (heap)</a><ul>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/04/19/2978555.html" target="_blank" rel="external">纸上谈兵: 左倾堆 (leftist heap)</a></li>
-</ul>
-</li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/24/2970339.html" target="_blank" rel="external">纸上谈兵: 哈希表 (hash table)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/p/3113912.html" target="_blank" rel="external">纸上谈兵: 图 (graph)</a><ul>
-<li><a href="http://www.cnblogs.com/vamei/p/3232432.html" target="_blank" rel="external">纸上谈兵: 拓扑排序</a></li>
-<li><a href="http://www.cnblogs.com/vamei/p/3604629.html" target="_blank" rel="external">纸上谈兵: 最短路径与贪婪</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/22/1619-python-tips/" itemprop="url">
-                  30 个有关 Python 的小技巧
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-22T00:00:00+11:00" content="2016-11-22">
-              2016-11-22
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自 <a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a></em></strong><br><strong><em>中文版 <a href="http://blog.jobbole.com/63320/" target="_blank" rel="external">30个有关Python的小技巧</a></em></strong></p>
-<hr>
-<h1 id="批量赋值"><a href="#批量赋值" class="headerlink" title="批量赋值"></a>批量赋值</h1><h2 id="Unpacking"><a href="#Unpacking" class="headerlink" title="Unpacking"></a>Unpacking</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c = <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c = (<span class="number">2</span> * i + <span class="number">1</span> <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b, c</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, (b, c), d = [<span class="number">1</span>, (<span class="number">2</span>, <span class="number">3</span>), <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>b</div><div class="line"><span class="number">2</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>c</div><div class="line"><span class="number">3</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>d</div><div class="line"><span class="number">4</span></div></pre></td></tr></table></figure>
-<h2 id="Unpacking-for-swapping-variables"><a href="#Unpacking-for-swapping-variables" class="headerlink" title="Unpacking for swapping variables"></a>Unpacking for swapping variables</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b = <span class="number">1</span>, <span class="number">2</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b = b, a</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, b</div><div class="line">(<span class="number">2</span>, <span class="number">1</span>)</div></pre></td></tr></table></figure>
-<h2 id="Extended-unpacking-Python-3-only"><a href="#Extended-unpacking-Python-3-only" class="headerlink" title="Extended unpacking (Python 3 only)"></a>Extended unpacking (Python 3 only)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a, *b, c = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>b</div><div class="line">[<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>c</div><div class="line"><span class="number">5</span></div></pre></td></tr></table></figure>
-<h1 id="list-amp-dictionary-列表和字典"><a href="#list-amp-dictionary-列表和字典" class="headerlink" title="list &amp; dictionary / 列表和字典"></a>list &amp; dictionary / 列表和字典</h1><h2 id="Negative-indexing"><a href="#Negative-indexing" class="headerlink" title="Negative indexing"></a>Negative indexing</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">-1</span>]</div><div class="line"><span class="number">10</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">-3</span>]</div><div class="line"><span class="number">8</span></div></pre></td></tr></table></figure>
-<h2 id="List-slices-a-start-end"><a href="#List-slices-a-start-end" class="headerlink" title="List slices (a[start:end])"></a>List slices (a[start:end])</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>:<span class="number">8</span>]</div><div class="line">[<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]</div></pre></td></tr></table></figure>
-<h2 id="List-slices-with-negative-indexing"><a href="#List-slices-with-negative-indexing" class="headerlink" title="List slices with negative indexing"></a>List slices with negative indexing</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">-4</span>:<span class="number">-2</span>]</div><div class="line">[<span class="number">7</span>, <span class="number">8</span>]</div></pre></td></tr></table></figure>
-<h2 id="List-slices-with-step-a-start-end-step"><a href="#List-slices-with-step-a-start-end-step" class="headerlink" title="List slices with step (a[start:end:step])"></a>List slices with step (a[start:end:step])</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[::<span class="number">2</span>]</div><div class="line">[<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[::<span class="number">3</span>]</div><div class="line">[<span class="number">0</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">9</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>:<span class="number">8</span>:<span class="number">2</span>]</div><div class="line">[<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]</div></pre></td></tr></table></figure>
-<h2 id="List-slices-with-negative-step"><a href="#List-slices-with-negative-step" class="headerlink" title="List slices with negative step"></a>List slices with negative step</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[::<span class="number">-1</span>]</div><div class="line">[<span class="number">10</span>, <span class="number">9</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[::<span class="number">-2</span>]</div><div class="line">[<span class="number">10</span>, <span class="number">8</span>, <span class="number">6</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">0</span>]</div></pre></td></tr></table></figure>
-<h2 id="List-slice-assignment-切割并赋值"><a href="#List-slice-assignment-切割并赋值" class="headerlink" title="List slice assignment / 切割并赋值"></a>List slice assignment / 切割并赋值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>:<span class="number">3</span>] = [<span class="number">0</span>, <span class="number">0</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">1</span>:<span class="number">1</span>] = [<span class="number">8</span>, <span class="number">9</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a</div><div class="line">[<span class="number">1</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">1</span>:<span class="number">-1</span>] = []</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a</div><div class="line">[<span class="number">1</span>, <span class="number">5</span>]</div></pre></td></tr></table></figure>
-<h2 id="for循环取list的索引和值-enumerate"><a href="#for循环取list的索引和值-enumerate" class="headerlink" title="for循环取list的索引和值 (enumerate)"></a>for循环取list的索引和值 (enumerate)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="string">'Hello'</span>, <span class="string">'world'</span>, <span class="string">'!'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i, x <span class="keyword">in</span> enumerate(a):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'&#123;&#125;: &#123;&#125;'</span>.format(i, x)</div><div class="line">...</div><div class="line"><span class="number">0</span>: Hello</div><div class="line"><span class="number">1</span>: world</div><div class="line"><span class="number">2</span>: !</div></pre></td></tr></table></figure>
-<h2 id="list加入索引值-enumerate"><a href="#list加入索引值-enumerate" class="headerlink" title="list加入索引值 (enumerate)"></a>list加入索引值 (enumerate)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>seasons = [<span class="string">'Spring'</span>, <span class="string">'Summer'</span>, <span class="string">'Fall'</span>, <span class="string">'Winter'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(enumerate(seasons))</div><div class="line">[(<span class="number">0</span>, <span class="string">'Spring'</span>), (<span class="number">1</span>, <span class="string">'Summer'</span>), (<span class="number">2</span>, <span class="string">'Fall'</span>), (<span class="number">3</span>, <span class="string">'Winter'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(enumerate(seasons, start=<span class="number">1</span>))</div><div class="line">[(<span class="number">1</span>, <span class="string">'Spring'</span>), (<span class="number">2</span>, <span class="string">'Summer'</span>), (<span class="number">3</span>, <span class="string">'Fall'</span>), (<span class="number">4</span>, <span class="string">'Winter'</span>)]</div></pre></td></tr></table></figure>
-<h2 id="Naming-slices-slice-start-end-step-给切割操作命名"><a href="#Naming-slices-slice-start-end-step-给切割操作命名" class="headerlink" title="Naming slices (slice(start, end, step)) / 给切割操作命名"></a>Naming slices (slice(start, end, step)) / 给切割操作命名</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>LASTTHREE = slice(<span class="number">-3</span>, <span class="keyword">None</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>LASTTHREE</div><div class="line">slice(<span class="number">-3</span>, <span class="keyword">None</span>, <span class="keyword">None</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a[LASTTHREE]</div><div class="line">[<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div></pre></td></tr></table></figure>
-<h2 id="Zipping-and-unzipping-lists-and-iterables-列表以及迭代器的压缩和解压缩"><a href="#Zipping-and-unzipping-lists-and-iterables-列表以及迭代器的压缩和解压缩" class="headerlink" title="Zipping and unzipping lists and iterables / 列表以及迭代器的压缩和解压缩"></a>Zipping and unzipping lists and iterables / 列表以及迭代器的压缩和解压缩</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>b = [<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>z = zip(a, b)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>z</div><div class="line">[(<span class="number">1</span>, <span class="string">'a'</span>), (<span class="number">2</span>, <span class="string">'b'</span>), (<span class="number">3</span>, <span class="string">'c'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(*z)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)]</div></pre></td></tr></table></figure>
-<h2 id="Grouping-adjacent-list-items-using-zip-列表相邻元素压缩器"><a href="#Grouping-adjacent-list-items-using-zip-列表相邻元素压缩器" class="headerlink" title="Grouping adjacent list items using zip / 列表相邻元素压缩器"></a>Grouping adjacent list items using zip / 列表相邻元素压缩器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Using iterators / 使用迭代器</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent = <span class="keyword">lambda</span> a, k: zip(*([iter(a)] * k))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">1</span>)</div><div class="line">[(<span class="number">1</span>,), (<span class="number">2</span>,), (<span class="number">3</span>,), (<span class="number">4</span>,), (<span class="number">5</span>,), (<span class="number">6</span>,)]</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Using slices / 使用切片</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent = <span class="keyword">lambda</span> a, k: zip(*(islice(a, i, <span class="keyword">None</span>, k) <span class="keyword">for</span> i <span class="keyword">in</span> range(k)))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">1</span>)</div><div class="line">[(<span class="number">1</span>,), (<span class="number">2</span>,), (<span class="number">3</span>,), (<span class="number">4</span>,), (<span class="number">5</span>,), (<span class="number">6</span>,)]</div></pre></td></tr></table></figure>
-<h2 id="Sliding-windows-n-grams-using-zip-and-iterators-列表元素压缩器-同上方法二"><a href="#Sliding-windows-n-grams-using-zip-and-iterators-列表元素压缩器-同上方法二" class="headerlink" title="Sliding windows (n-grams) using zip and iterators / 列表元素压缩器(同上方法二)"></a>Sliding windows (n-grams) using zip and iterators / 列表元素压缩器(同上方法二)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">n_grams</span><span class="params">(a, n)</span>:</span></div><div class="line"><span class="meta">... </span>    z = (islice(a, i, <span class="keyword">None</span>) <span class="keyword">for</span> i <span class="keyword">in</span> range(n))</div><div class="line"><span class="meta">... </span>    <span class="keyword">return</span> zip(*z)</div><div class="line">...</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>n_grams(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>), (<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>n_grams(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">2</span>, <span class="number">3</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">4</span>, <span class="number">5</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>n_grams(a, <span class="number">4</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>), (<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>), (<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div></pre></td></tr></table></figure>
-<h2 id="Flattening-lists-列表展开"><a href="#Flattening-lists-列表展开" class="headerlink" title="Flattening lists: / 列表展开"></a>Flattening lists: / 列表展开</h2><p>Note: according to Python’s documentation on sum, itertools.chain.from_iterable is the preferred method for this.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 推荐使用 itertools.chain.from_iterable</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>], [<span class="number">5</span>, <span class="number">6</span>]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(itertools.chain.from_iterable(a))</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="comment"># 不推荐使用 sum</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sum(a, [])</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>[x <span class="keyword">for</span> l <span class="keyword">in</span> a <span class="keyword">for</span> x <span class="keyword">in</span> l]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [[[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>]], [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>]]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>[x <span class="keyword">for</span> l1 <span class="keyword">in</span> a <span class="keyword">for</span> l2 <span class="keyword">in</span> l1 <span class="keyword">for</span> x <span class="keyword">in</span> l2]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>], [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>]]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>flatten = <span class="keyword">lambda</span> x: [y <span class="keyword">for</span> l <span class="keyword">in</span> x <span class="keyword">for</span> y <span class="keyword">in</span> flatten(l)] <span class="keyword">if</span> type(x) <span class="keyword">is</span> list <span class="keyword">else</span> [x]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>flatten(a)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]</div></pre></td></tr></table></figure></p>
-<h2 id="for循环取dict的关键字和值-iteritems"><a href="#for循环取dict的关键字和值-iteritems" class="headerlink" title="for循环取dict的关键字和值 (iteritems)"></a>for循环取dict的关键字和值 (iteritems)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> k, v <span class="keyword">in</span> m.iteritems():</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'&#123;&#125;: &#123;&#125;'</span>.format(k, v)</div><div class="line">...</div><div class="line">a: <span class="number">1</span></div><div class="line">c: <span class="number">3</span></div><div class="line">b: <span class="number">2</span></div><div class="line">d: <span class="number">4</span></div><div class="line">Note: use dict.items <span class="keyword">in</span> Python <span class="number">3.</span></div></pre></td></tr></table></figure>
-<h2 id="Inverting-a-dictionary-字典与表的转换-以及翻转"><a href="#Inverting-a-dictionary-字典与表的转换-以及翻转" class="headerlink" title="Inverting a dictionary / 字典与表的转换, 以及翻转"></a>Inverting a dictionary / 字典与表的转换, 以及翻转</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># using zip</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.items()</div><div class="line">[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(m.values(), m.keys())</div><div class="line">[(<span class="number">1</span>, <span class="string">'a'</span>), (<span class="number">3</span>, <span class="string">'c'</span>), (<span class="number">2</span>, <span class="string">'b'</span>), (<span class="number">4</span>, <span class="string">'d'</span>)]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>mi = dict(zip(m.values(), m.keys()))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>mi</div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>, <span class="number">4</span>: <span class="string">'d'</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># using a dictionary comprehension</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m</div><div class="line">&#123;<span class="string">'d'</span>: <span class="number">4</span>, <span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;v: k <span class="keyword">for</span> k, v <span class="keyword">in</span> m.items()&#125;</div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>, <span class="number">4</span>: <span class="string">'d'</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="Dictionary-comprehensions-快速生成规律性字典"><a href="#Dictionary-comprehensions-快速生成规律性字典" class="headerlink" title="Dictionary comprehensions / 快速生成规律性字典"></a>Dictionary comprehensions / 快速生成规律性字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;x: x ** <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>)&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m</div><div class="line">&#123;<span class="number">0</span>: <span class="number">0</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">2</span>: <span class="number">4</span>, <span class="number">3</span>: <span class="number">9</span>, <span class="number">4</span>: <span class="number">16</span>&#125;</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;x: <span class="string">'A'</span> + str(x) <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m</div><div class="line">&#123;<span class="number">0</span>: <span class="string">'A0'</span>, <span class="number">1</span>: <span class="string">'A1'</span>, <span class="number">2</span>: <span class="string">'A2'</span>, <span class="number">3</span>: <span class="string">'A3'</span>, <span class="number">4</span>: <span class="string">'A4'</span>, <span class="number">5</span>: <span class="string">'A5'</span>, <span class="number">6</span>: <span class="string">'A6'</span>, <span class="number">7</span>: <span class="string">'A7'</span>, <span class="number">8</span>: <span class="string">'A8'</span>, <span class="number">9</span>: <span class="string">'A9'</span>&#125;</div></pre></td></tr></table></figure>
-<h1 id="语法上的一些技巧"><a href="#语法上的一些技巧" class="headerlink" title="语法上的一些技巧"></a>语法上的一些技巧</h1><h2 id="双重for循环"><a href="#双重for循环" class="headerlink" title="双重for循环"></a>双重for循环</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = (<span class="string">'la'</span>,<span class="string">'luo'</span>,<span class="string">'lao'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>b =(<span class="string">'hua'</span>,<span class="string">'huo'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> [(x,y) <span class="keyword">for</span> x <span class="keyword">in</span> a <span class="keyword">for</span> y <span class="keyword">in</span> b]</div><div class="line">[(<span class="string">'la'</span>, <span class="string">'hua'</span>), (<span class="string">'la'</span>, <span class="string">'huo'</span>), (<span class="string">'luo'</span>, <span class="string">'hua'</span>), (<span class="string">'luo'</span>, <span class="string">'huo'</span>), (<span class="string">'lao'</span>, <span class="string">'hua'</span>), (<span class="string">'lao'</span>, <span class="string">'huo'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> zip(a,b)</div><div class="line">[(<span class="string">'la'</span>, <span class="string">'hua'</span>), (<span class="string">'luo'</span>, <span class="string">'huo'</span>)]</div></pre></td></tr></table></figure>
-<h2 id="python-中-switch-的替代方案"><a href="#python-中-switch-的替代方案" class="headerlink" title="python 中 switch 的替代方案"></a>python 中 switch 的替代方案</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字典映射</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">numbers_to_strings</span><span class="params">(argument)</span>:</span></div><div class="line">    switcher = &#123;                                <span class="comment"># switch(argument) &#123;</span></div><div class="line">        <span class="number">0</span>: <span class="string">"zero"</span>,                              <span class="comment"># case 0: return "zero";</span></div><div class="line">        <span class="number">1</span>: <span class="string">"one"</span>,                               <span class="comment"># case 1: return "one";</span></div><div class="line">        <span class="number">2</span>: <span class="string">"two"</span>,                               <span class="comment"># case 2: return "two";</span></div><div class="line">    &#125;                                           <span class="comment"># &#125;</span></div><div class="line">    <span class="keyword">return</span> switcher.get(argument, <span class="string">"nothing"</span>)    <span class="comment"># default: return "nothing";</span></div><div class="line"></div><div class="line"><span class="comment"># 函数的字典映射</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">zero</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">"zero"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">one</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">"one"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">numbers_to_functions_to_strings</span><span class="params">(argument)</span>:</span></div><div class="line">    switcher = &#123;</div><div class="line">        <span class="number">0</span>: zero,</div><div class="line">        <span class="number">1</span>: one,</div><div class="line">        <span class="number">2</span>: <span class="keyword">lambda</span>: <span class="string">"two"</span>,</div><div class="line">    &#125;</div><div class="line">    <span class="comment"># Get the function from switcher dictionary</span></div><div class="line">    func = switcher.get(argument, <span class="keyword">lambda</span>: <span class="string">"nothing"</span>)</div><div class="line">    <span class="comment"># Execute the function</span></div><div class="line">    <span class="keyword">return</span> func()</div><div class="line"></div><div class="line"><span class="comment"># 类的调度方法</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Switcher</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">numbers_to_methods_to_strings</span><span class="params">(self, argument)</span>:</span></div><div class="line">        <span class="string">"""Dispatch method"""</span></div><div class="line">        <span class="comment"># prefix the method_name with 'number_' because method names</span></div><div class="line">        <span class="comment"># cannot begin with an integer.</span></div><div class="line">        method_name = <span class="string">'number_'</span> + str(argument)</div><div class="line">        <span class="comment"># Get the method from 'self'. Default to a lambda.</span></div><div class="line">        method = getattr(self, method_name, <span class="keyword">lambda</span>: <span class="string">"nothing"</span>)</div><div class="line">        <span class="comment"># Call the method as we return it</span></div><div class="line">        <span class="keyword">return</span> method()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">number_0</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">"zero"</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">number_1</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">"one"</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">number_2</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">"two"</span></div></pre></td></tr></table></figure>
-<h2 id="python-仅允许单实例"><a href="#python-仅允许单实例" class="headerlink" title="python 仅允许单实例"></a>python 仅允许单实例</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__new__</span><span class="params">(cls)</span>:</span></div><div class="line">        <span class="comment"># 关键在于这，每一次实例化的时候，我们都只会返回这同一个instance对象</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> hasattr(cls, <span class="string">'instance'</span>):</div><div class="line">            cls.instance = super(Singleton, cls).__new__(cls)</div><div class="line">        <span class="keyword">return</span> cls.instance</div><div class="line"></div><div class="line"><span class="comment"># 测试</span></div><div class="line">obj1 = Singleton()</div><div class="line">obj2 = Singleton()</div><div class="line">obj1.attr1 = <span class="string">'value1'</span></div><div class="line"><span class="keyword">print</span> obj1.attr1, obj2.attr1</div><div class="line"><span class="keyword">print</span> obj1 <span class="keyword">is</span> obj2</div></pre></td></tr></table></figure>
-<h2 id="Generator-expressions-生成器表达式"><a href="#Generator-expressions-生成器表达式" class="headerlink" title="Generator expressions / 生成器表达式"></a>Generator expressions / 生成器表达式</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>g = (x ** <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> xrange(<span class="number">10</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</div><div class="line"><span class="number">4</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</div><div class="line"><span class="number">9</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sum(x ** <span class="number">3</span> <span class="keyword">for</span> x <span class="keyword">in</span> xrange(<span class="number">10</span>))</div><div class="line"><span class="number">2025</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sum(x ** <span class="number">3</span> <span class="keyword">for</span> x <span class="keyword">in</span> xrange(<span class="number">10</span>) <span class="keyword">if</span> x % <span class="number">3</span> == <span class="number">1</span>)</div><div class="line"><span class="number">408</span></div></pre></td></tr></table></figure>
-<h2 id="Learn-the-Zen-of-Python-打印Python之道"><a href="#Learn-the-Zen-of-Python-打印Python之道" class="headerlink" title="Learn the Zen of Python / 打印Python之道"></a>Learn the Zen of Python / 打印Python之道</h2><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import this</div><div class="line">The Zen of Python, by Tim Peters</div><div class="line"></div><div class="line">Beautiful is better than ugly.</div><div class="line">Explicit is better than implicit.</div><div class="line">Simple is better than complex.</div><div class="line">Complex is better than complicated.</div><div class="line">Flat is better than nested.</div><div class="line">Sparse is better than dense.</div><div class="line">Readability counts.</div><div class="line">Special cases aren't special enough to break the rules.</div><div class="line">Although practicality beats purity.</div><div class="line">Errors should never pass silently.</div><div class="line">Unless explicitly silenced.</div><div class="line">In the face of ambiguity, refuse the temptation to guess.</div><div class="line">There should be one-- and preferably only one --obvious way to do it.</div><div class="line">Although that way may not be obvious at first unless you're Dutch.</div><div class="line">Now is better than never.</div><div class="line">Although never is often better than *right* now.</div><div class="line">If the implementation is hard to explain, it's a bad idea.</div><div class="line">If the implementation is easy to explain, it may be a good idea.</div><div class="line">Namespaces are one honking great idea -- let's do more of those!</div></pre></td></tr></table></figure>
-<h2 id="使用C语言括号替代缩进"><a href="#使用C语言括号替代缩进" class="headerlink" title="使用C语言括号替代缩进"></a>使用C语言括号替代缩进</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> __future__ <span class="keyword">import</span> braces</div></pre></td></tr></table></figure>
-<h1 id="collections-的一些数据类型"><a href="#collections-的一些数据类型" class="headerlink" title="collections 的一些数据类型"></a>collections 的一些数据类型</h1><h2 id="Named-tuples-collections-namedtuple-类似于-C-的struct结构"><a href="#Named-tuples-collections-namedtuple-类似于-C-的struct结构" class="headerlink" title="Named tuples (collections.namedtuple) / 类似于 C 的struct结构"></a>Named tuples (collections.namedtuple) / 类似于 C 的struct结构</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Point = collections.namedtuple(<span class="string">'Point'</span>, [<span class="string">'x'</span>, <span class="string">'y'</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p = Point(x=<span class="number">1.0</span>, y=<span class="number">2.0</span>) <span class="comment"># 这样赋值复杂了, 可以直接 p = Point(1.0, 2.0)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p</div><div class="line">Point(x=<span class="number">1.0</span>, y=<span class="number">2.0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p.x</div><div class="line"><span class="number">1.0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p.y</div><div class="line"><span class="number">2.0</span></div><div class="line"></div><div class="line">coordinate = collections.namedtuple(<span class="string">'Coordinate'</span>, [<span class="string">'x'</span>, <span class="string">'y'</span>])</div><div class="line">co = coordinate(<span class="number">10</span>,<span class="number">20</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>co[<span class="number">0</span>], co[<span class="number">1</span>]</div><div class="line">(<span class="number">10</span>, <span class="number">20</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>co = coordinate._make([<span class="number">100</span>,<span class="number">200</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>co[<span class="number">0</span>], co[<span class="number">1</span>]</div><div class="line">(<span class="number">100</span>, <span class="number">200</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>co = co._replace(x = <span class="number">30</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>co[<span class="number">0</span>], co[<span class="number">1</span>]</div><div class="line">(<span class="number">30</span>, <span class="number">200</span>)</div></pre></td></tr></table></figure>
-<h2 id="Inheriting-from-named-tuples-自定义-namedtuple-的运算"><a href="#Inheriting-from-named-tuples-自定义-namedtuple-的运算" class="headerlink" title="Inheriting from named tuples: / 自定义 namedtuple 的运算"></a>Inheriting from named tuples: / 自定义 namedtuple 的运算</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">Point</span><span class="params">(collections.namedtuple<span class="params">(<span class="string">'PointBase'</span>, [<span class="string">'x'</span>, <span class="string">'y'</span>])</span>)</span>:</span></div><div class="line"><span class="meta">... </span>    __slots__ = ()</div><div class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__add__</span><span class="params">(self, other)</span>:</span></div><div class="line"><span class="meta">... </span>            <span class="keyword">return</span> Point(x=self.x + other.x, y=self.y + other.y)</div><div class="line">...</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p = Point(x=<span class="number">1.0</span>, y=<span class="number">2.0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q = Point(x=<span class="number">2.0</span>, y=<span class="number">3.0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p + q</div><div class="line">Point(x=<span class="number">3.0</span>, y=<span class="number">5.0</span>)   <span class="comment"># 重定义了 + 运算符.</span></div><div class="line"><span class="comment"># 默认结果应该是: Point(1.0, 2.0, 2.0, 3.0)</span></div></pre></td></tr></table></figure>
-<h2 id="Sets-and-set-operations-集合及其操作"><a href="#Sets-and-set-operations-集合及其操作" class="headerlink" title="Sets and set operations / 集合及其操作"></a>Sets and set operations / 集合及其操作</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A</div><div class="line">set([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B = &#123;<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B</div><div class="line">set([<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A | B</div><div class="line">set([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A &amp; B</div><div class="line">set([<span class="number">3</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A - B</div><div class="line">set([<span class="number">1</span>, <span class="number">2</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B - A</div><div class="line">set([<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A ^ B   <span class="comment"># 集合异或</span></div><div class="line">set([<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>(A ^ B) == ((A - B) | (B - A))</div><div class="line"><span class="keyword">True</span></div></pre></td></tr></table></figure>
-<h2 id="统计列表中元素出现的次数"><a href="#统计列表中元素出现的次数" class="headerlink" title="统计列表中元素出现的次数"></a>统计列表中元素出现的次数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>mylist = [<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>myset = set(mylist)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> item <span class="keyword">in</span> myset:</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> mylist.count(item), <span class="string">" of "</span>, item, <span class="string">" in list"</span></div><div class="line">...</div><div class="line"><span class="number">6</span>  of  <span class="number">2</span>  <span class="keyword">in</span> list</div><div class="line"><span class="number">4</span>  of  <span class="number">3</span>  <span class="keyword">in</span> list</div></pre></td></tr></table></figure>
-<h2 id="Multisets-and-multiset-operations-collections-Counter-多重集合-显示元素个数"><a href="#Multisets-and-multiset-operations-collections-Counter-多重集合-显示元素个数" class="headerlink" title="Multisets and multiset operations (collections.Counter) / 多重集合(显示元素个数)"></a>Multisets and multiset operations (collections.Counter) / 多重集合(显示元素个数)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = collections.Counter([<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B = collections.Counter([<span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">1</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A | B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A &amp; B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A + B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">4</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A - B</div><div class="line">Counter(&#123;<span class="number">1</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B - A</div><div class="line">Counter(&#123;<span class="number">3</span>: <span class="number">1</span>&#125;)</div></pre></td></tr></table></figure>
-<h2 id="Most-common-elements-in-an-iterable-collections-Counter-统计在可迭代器中最常出现的元素"><a href="#Most-common-elements-in-an-iterable-collections-Counter-统计在可迭代器中最常出现的元素" class="headerlink" title="Most common elements in an iterable (collections.Counter) / 统计在可迭代器中最常出现的元素"></a>Most common elements in an iterable (collections.Counter) / 统计在可迭代器中最常出现的元素</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = collections.Counter([<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A</div><div class="line">Counter(&#123;<span class="number">3</span>: <span class="number">4</span>, <span class="number">1</span>: <span class="number">2</span>, <span class="number">2</span>: <span class="number">2</span>, <span class="number">4</span>: <span class="number">1</span>, <span class="number">5</span>: <span class="number">1</span>, <span class="number">6</span>: <span class="number">1</span>, <span class="number">7</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A.most_common(<span class="number">1</span>)</div><div class="line">[(<span class="number">3</span>, <span class="number">4</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A.most_common(<span class="number">3</span>)</div><div class="line">[(<span class="number">3</span>, <span class="number">4</span>), (<span class="number">1</span>, <span class="number">2</span>), (<span class="number">2</span>, <span class="number">2</span>)]</div></pre></td></tr></table></figure>
-<h2 id="Double-ended-queue-collections-deque-双向队列-近似于双向链表"><a href="#Double-ended-queue-collections-deque-双向队列-近似于双向链表" class="headerlink" title="Double-ended queue (collections.deque) / 双向队列, 近似于双向链表"></a>Double-ended queue (collections.deque) / 双向队列, 近似于双向链表</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q = collections.deque()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.append(<span class="number">1</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.appendleft(<span class="number">2</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.extend([<span class="number">3</span>, <span class="number">4</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.extendleft([<span class="number">5</span>, <span class="number">6</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q</div><div class="line">deque([<span class="number">6</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.pop()</div><div class="line"><span class="number">4</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.popleft()</div><div class="line"><span class="number">6</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q</div><div class="line">deque([<span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.rotate(<span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q</div><div class="line">deque([<span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q.rotate(<span class="number">-3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Q</div><div class="line">deque([<span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>])</div></pre></td></tr></table></figure>
-<h2 id="Double-ended-queue-with-maximum-length-collections-deque-限长的双向队列"><a href="#Double-ended-queue-with-maximum-length-collections-deque-限长的双向队列" class="headerlink" title="Double-ended queue with maximum length (collections.deque) / 限长的双向队列"></a>Double-ended queue with maximum length (collections.deque) / 限长的双向队列</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>last_three = collections.deque(maxlen=<span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">10</span>):</div><div class="line"><span class="meta">... </span>    last_three.append(i)</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">', '</span>.join(str(x) <span class="keyword">for</span> x <span class="keyword">in</span> last_three)</div><div class="line">...</div><div class="line"><span class="number">0</span></div><div class="line"><span class="number">0</span>, <span class="number">1</span></div><div class="line"><span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span></div><div class="line"><span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span></div><div class="line"><span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span></div><div class="line"><span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span></div><div class="line"><span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span></div><div class="line"><span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span></div><div class="line"><span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span></div><div class="line"><span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span></div></pre></td></tr></table></figure>
-<h2 id="Ordered-dictionaries-collections-OrderedDict-可排序字典"><a href="#Ordered-dictionaries-collections-OrderedDict-可排序字典" class="headerlink" title="Ordered dictionaries (collections.OrderedDict) / 可排序字典"></a>Ordered dictionaries (collections.OrderedDict) / 可排序字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 普通字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = dict((str(x), x) <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="string">', '</span>.join(m.keys())</div><div class="line"><span class="number">1</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">9</span>, <span class="number">8</span></div><div class="line"></div><div class="line"><span class="comment"># 可排序字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.OrderedDict((str(x), x) <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="string">', '</span>.join(m.keys())</div><div class="line"><span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.OrderedDict((str(x), x) <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>, <span class="number">0</span>, <span class="number">-1</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="string">', '</span>.join(m.keys())</div><div class="line"><span class="number">10</span>, <span class="number">9</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span></div></pre></td></tr></table></figure>
-<h2 id="Default-dictionaries-collections-defaultdict-默认字典"><a href="#Default-dictionaries-collections-defaultdict-默认字典" class="headerlink" title="Default dictionaries (collections.defaultdict) / 默认字典"></a>Default dictionaries (collections.defaultdict) / 默认字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 普通字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = dict()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">KeyError: <span class="string">'a'</span></div><div class="line"></div><div class="line"><span class="comment"># 默认字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(int)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'b'</span>]</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(str)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="string">''</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'b'</span>] += <span class="string">'a'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'b'</span>]</div><div class="line"><span class="string">'a'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(<span class="keyword">lambda</span>: <span class="string">'[default value]'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="string">'[default value]'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'b'</span>]</div><div class="line"><span class="string">'[default value]'</span></div></pre></td></tr></table></figure>
-<h2 id="Using-default-dictionaries-to-represent-simple-trees-默认字典实现树-快速生成xml文件"><a href="#Using-default-dictionaries-to-represent-simple-trees-默认字典实现树-快速生成xml文件" class="headerlink" title="Using default dictionaries to represent simple trees / 默认字典实现树, 快速生成xml文件"></a>Using default dictionaries to represent simple trees / 默认字典实现树, 快速生成xml文件</h2><p>See <a href="https://gist.github.com/hrldcpr/2012250" target="_blank" rel="external">One-line Tree in Python</a> for more on this.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> json</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>tree = <span class="keyword">lambda</span>: collections.defaultdict(tree)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root = tree()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'id'</span>] = <span class="string">'file'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'value'</span>] = <span class="string">'File'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'menuitems'</span>][<span class="string">'new'</span>][<span class="string">'value'</span>] = <span class="string">'New'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'menuitems'</span>][<span class="string">'new'</span>][<span class="string">'onclick'</span>] = <span class="string">'new();'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'menuitems'</span>][<span class="string">'open'</span>][<span class="string">'value'</span>] = <span class="string">'Open'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'menuitems'</span>][<span class="string">'open'</span>][<span class="string">'onclick'</span>] = <span class="string">'open();'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'menuitems'</span>][<span class="string">'close'</span>][<span class="string">'value'</span>] = <span class="string">'Close'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>root[<span class="string">'menu'</span>][<span class="string">'menuitems'</span>][<span class="string">'close'</span>][<span class="string">'onclick'</span>] = <span class="string">'close();'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> json.dumps(root, sort_keys=<span class="keyword">True</span>, indent=<span class="number">4</span>, separators=(<span class="string">','</span>, <span class="string">': '</span>))</div><div class="line">&#123;</div><div class="line">    <span class="string">"menu"</span>: &#123;</div><div class="line">        <span class="string">"id"</span>: <span class="string">"file"</span>,</div><div class="line">        <span class="string">"menuitems"</span>: &#123;</div><div class="line">            <span class="string">"close"</span>: &#123;</div><div class="line">                <span class="string">"onclick"</span>: <span class="string">"close();"</span>,</div><div class="line">                <span class="string">"value"</span>: <span class="string">"Close"</span></div><div class="line">            &#125;,</div><div class="line">            <span class="string">"new"</span>: &#123;</div><div class="line">                <span class="string">"onclick"</span>: <span class="string">"new();"</span>,</div><div class="line">                <span class="string">"value"</span>: <span class="string">"New"</span></div><div class="line">            &#125;,</div><div class="line">            <span class="string">"open"</span>: &#123;</div><div class="line">                <span class="string">"onclick"</span>: <span class="string">"open();"</span>,</div><div class="line">                <span class="string">"value"</span>: <span class="string">"Open"</span></div><div class="line">            &#125;</div><div class="line">        &#125;,</div><div class="line">        <span class="string">"value"</span>: <span class="string">"File"</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="Mapping-objects-to-unique-counting-numbers-collections-defaultdict-生成对象的唯一索引值"><a href="#Mapping-objects-to-unique-counting-numbers-collections-defaultdict-生成对象的唯一索引值" class="headerlink" title="Mapping objects to unique counting numbers (collections.defaultdict) / 生成对象的唯一索引值"></a>Mapping objects to unique counting numbers (collections.defaultdict) / 生成对象的唯一索引值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> itertools, collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>value_to_numeric_map = collections.defaultdict(itertools.count().next)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>value_to_numeric_map[<span class="string">'a'</span>]</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>value_to_numeric_map[<span class="string">'b'</span>]</div><div class="line"><span class="number">1</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>value_to_numeric_map[<span class="string">'c'</span>]</div><div class="line"><span class="number">2</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>value_to_numeric_map[<span class="string">'a'</span>]</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>value_to_numeric_map[<span class="string">'b'</span>]</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
-<h2 id="Largest-and-smallest-elements-heapq-nlargest-and-heapq-nsmallest-最大和最小的几个列表元素"><a href="#Largest-and-smallest-elements-heapq-nlargest-and-heapq-nsmallest-最大和最小的几个列表元素" class="headerlink" title="Largest and smallest elements (heapq.nlargest and heapq.nsmallest) / 最大和最小的几个列表元素"></a>Largest and smallest elements (heapq.nlargest and heapq.nsmallest) / 最大和最小的几个列表元素</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [random.randint(<span class="number">0</span>, <span class="number">100</span>) <span class="keyword">for</span> __ <span class="keyword">in</span> xrange(<span class="number">100</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>heapq.nsmallest(<span class="number">5</span>, a)</div><div class="line">[<span class="number">3</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">8</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>heapq.nlargest(<span class="number">5</span>, a)</div><div class="line">[<span class="number">100</span>, <span class="number">100</span>, <span class="number">99</span>, <span class="number">98</span>, <span class="number">98</span>]</div></pre></td></tr></table></figure>
-<h1 id="itertools-迭代器的一些应用"><a href="#itertools-迭代器的一些应用" class="headerlink" title="itertools 迭代器的一些应用"></a>itertools 迭代器的一些应用</h1><h2 id="Cartesian-products-itertools-product-两个列表的笛卡尔积"><a href="#Cartesian-products-itertools-product-两个列表的笛卡尔积" class="headerlink" title="Cartesian products (itertools.product) / 两个列表的笛卡尔积"></a>Cartesian products (itertools.product) / 两个列表的笛卡尔积</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> p <span class="keyword">in</span> itertools.product([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>]):</div><div class="line">(<span class="number">1</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">5</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">5</span>)</div><div class="line">(<span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">3</span>, <span class="number">5</span>)</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> p <span class="keyword">in</span> itertools.product([<span class="number">0</span>, <span class="number">1</span>], repeat=<span class="number">4</span>):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">''</span>.join(str(x) <span class="keyword">for</span> x <span class="keyword">in</span> p)</div><div class="line">...</div><div class="line"><span class="number">0000</span></div><div class="line"><span class="number">0001</span></div><div class="line"><span class="number">0010</span></div><div class="line"><span class="number">0011</span></div><div class="line"><span class="number">0100</span></div><div class="line"><span class="number">0101</span></div><div class="line"><span class="number">0110</span></div><div class="line"><span class="number">0111</span></div><div class="line"><span class="number">1000</span></div><div class="line"><span class="number">1001</span></div><div class="line"><span class="number">1010</span></div><div class="line"><span class="number">1011</span></div><div class="line"><span class="number">1100</span></div><div class="line"><span class="number">1101</span></div><div class="line"><span class="number">1110</span></div><div class="line"><span class="number">1111</span></div></pre></td></tr></table></figure>
-<h2 id="Combinations-and-combinations-with-replacement-itertools-combinations-and-itertools-combinations-with-replacement-列表组合和列表元素替代组合"><a href="#Combinations-and-combinations-with-replacement-itertools-combinations-and-itertools-combinations-with-replacement-列表组合和列表元素替代组合" class="headerlink" title="Combinations and combinations with replacement (itertools.combinations and itertools.combinations_with_replacement) / 列表组合和列表元素替代组合"></a>Combinations and combinations with replacement (itertools.combinations and itertools.combinations_with_replacement) / 列表组合和列表元素替代组合</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> c <span class="keyword">in</span> itertools.combinations([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>], <span class="number">3</span>):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">''</span>.join(str(x) <span class="keyword">for</span> x <span class="keyword">in</span> c)</div><div class="line">...</div><div class="line"><span class="number">123</span></div><div class="line"><span class="number">124</span></div><div class="line"><span class="number">125</span></div><div class="line"><span class="number">134</span></div><div class="line"><span class="number">135</span></div><div class="line"><span class="number">145</span></div><div class="line"><span class="number">234</span></div><div class="line"><span class="number">235</span></div><div class="line"><span class="number">245</span></div><div class="line"><span class="number">345</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> c <span class="keyword">in</span> itertools.combinations_with_replacement([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="number">2</span>):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">''</span>.join(str(x) <span class="keyword">for</span> x <span class="keyword">in</span> c)</div><div class="line">...</div><div class="line"><span class="number">11</span></div><div class="line"><span class="number">12</span></div><div class="line"><span class="number">13</span></div><div class="line"><span class="number">22</span></div><div class="line"><span class="number">23</span></div><div class="line"><span class="number">33</span></div></pre></td></tr></table></figure>
-<h2 id="Permutations-itertools-permutations-列表元素排列组合"><a href="#Permutations-itertools-permutations-列表元素排列组合" class="headerlink" title="Permutations (itertools.permutations) / 列表元素排列组合"></a>Permutations (itertools.permutations) / 列表元素排列组合</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> p <span class="keyword">in</span> itertools.permutations([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">''</span>.join(str(x) <span class="keyword">for</span> x <span class="keyword">in</span> p)</div><div class="line">...</div><div class="line"><span class="number">1234</span></div><div class="line"><span class="number">1243</span></div><div class="line"><span class="number">1324</span></div><div class="line"><span class="number">1342</span></div><div class="line"><span class="number">1423</span></div><div class="line"><span class="number">1432</span></div><div class="line"><span class="number">2134</span></div><div class="line"><span class="number">2143</span></div><div class="line"><span class="number">2314</span></div><div class="line"><span class="number">2341</span></div><div class="line"><span class="number">2413</span></div><div class="line"><span class="number">2431</span></div><div class="line"><span class="number">3124</span></div><div class="line"><span class="number">3142</span></div><div class="line"><span class="number">3214</span></div><div class="line"><span class="number">3241</span></div><div class="line"><span class="number">3412</span></div><div class="line"><span class="number">3421</span></div><div class="line"><span class="number">4123</span></div><div class="line"><span class="number">4132</span></div><div class="line"><span class="number">4213</span></div><div class="line"><span class="number">4231</span></div><div class="line"><span class="number">4312</span></div><div class="line"><span class="number">4321</span></div></pre></td></tr></table></figure>
-<h2 id="Chaining-iterables-itertools-chain-可链接迭代器"><a href="#Chaining-iterables-itertools-chain-可链接迭代器" class="headerlink" title="Chaining iterables (itertools.chain) / 可链接迭代器"></a>Chaining iterables (itertools.chain) / 可链接迭代器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> p <span class="keyword">in</span> itertools.chain(itertools.combinations(a, <span class="number">2</span>), itertools.combinations(a, <span class="number">3</span>)):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> p</div><div class="line">...</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> subset <span class="keyword">in</span> itertools.chain.from_iterable(itertools.combinations(a, n) <span class="keyword">for</span> n <span class="keyword">in</span> range(len(a) + <span class="number">1</span>))</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> subset</div><div class="line">...</div><div class="line">()</div><div class="line">(<span class="number">1</span>,)</div><div class="line">(<span class="number">2</span>,)</div><div class="line">(<span class="number">3</span>,)</div><div class="line">(<span class="number">4</span>,)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</div></pre></td></tr></table></figure>
-<h2 id="Grouping-rows-by-a-given-key-itertools-groupby-根据文件指定列类聚"><a href="#Grouping-rows-by-a-given-key-itertools-groupby-根据文件指定列类聚" class="headerlink" title="Grouping rows by a given key (itertools.groupby) / 根据文件指定列类聚"></a>Grouping rows by a given key (itertools.groupby) / 根据文件指定列类聚</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> operator <span class="keyword">import</span> itemgetter</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> itertools</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">with</span> open(<span class="string">'contactlenses.csv'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> infile:</div><div class="line"><span class="meta">... </span>    data = [line.strip().split(<span class="string">','</span>) <span class="keyword">for</span> line <span class="keyword">in</span> infile]</div><div class="line">...</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>data = data[<span class="number">1</span>:]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">print_data</span><span class="params">(rows)</span>:</span></div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'\n'</span>.join(<span class="string">'\t'</span>.join(<span class="string">'&#123;: &lt;16&#125;'</span>.format(s) <span class="keyword">for</span> s <span class="keyword">in</span> row) <span class="keyword">for</span> row <span class="keyword">in</span> rows)</div><div class="line">...</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>print_data(data)</div><div class="line">young               myope                   no                      reduced                 none</div><div class="line">young               myope                   no                      normal                  soft</div><div class="line">young               myope                   yes                     reduced                 none</div><div class="line">young               myope                   yes                     normal                  hard</div><div class="line">young               hypermetrope            no                      reduced                 none</div><div class="line">young               hypermetrope            no                      normal                  soft</div><div class="line">young               hypermetrope            yes                     reduced                 none</div><div class="line">young               hypermetrope            yes                     normal                  hard</div><div class="line">pre-presbyopic      myope                   no                      reduced                 none</div><div class="line">pre-presbyopic      myope                   no                      normal                  soft</div><div class="line">pre-presbyopic      myope                   yes                     reduced                 none</div><div class="line">pre-presbyopic      myope                   yes                     normal                  hard</div><div class="line">pre-presbyopic      hypermetrope            no                      reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            no                      normal                  soft</div><div class="line">pre-presbyopic      hypermetrope            yes                     reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            yes                     normal                  none</div><div class="line">presbyopic          myope                   no                      reduced                 none</div><div class="line">presbyopic          myope                   no                      normal                  none</div><div class="line">presbyopic          myope                   yes                     reduced                 none</div><div class="line">presbyopic          myope                   yes                     normal                  hard</div><div class="line">presbyopic          hypermetrope            no                      reduced                 none</div><div class="line">presbyopic          hypermetrope            no                      normal                  soft</div><div class="line">presbyopic          hypermetrope            yes                     reduced                 none</div><div class="line">presbyopic          hypermetrope            yes                     normal                  none</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>data.sort(key=itemgetter(<span class="number">-1</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> value, group <span class="keyword">in</span> itertools.groupby(data, <span class="keyword">lambda</span> r: r[<span class="number">-1</span>]):</div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'-----------'</span></div><div class="line"><span class="meta">... </span>    <span class="keyword">print</span> <span class="string">'Group: '</span> + value</div><div class="line"><span class="meta">... </span>    print_data(group)</div><div class="line">...</div><div class="line">-----------</div><div class="line">Group: hard</div><div class="line">young               myope                   yes                     normal                  hard</div><div class="line">young               hypermetrope            yes                     normal                  hard</div><div class="line">pre-presbyopic      myope                   yes                     normal                  hard</div><div class="line">presbyopic          myope                   yes                     normal                  hard</div><div class="line">-----------</div><div class="line">Group: none</div><div class="line">young               myope                   no                      reduced                 none</div><div class="line">young               myope                   yes                     reduced                 none</div><div class="line">young               hypermetrope            no                      reduced                 none</div><div class="line">young               hypermetrope            yes                     reduced                 none</div><div class="line">pre-presbyopic      myope                   no                      reduced                 none</div><div class="line">pre-presbyopic      myope                   yes                     reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            no                      reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            yes                     reduced                 none</div><div class="line">pre-presbyopic      hypermetrope            yes                     normal                  none</div><div class="line">presbyopic          myope                   no                      reduced                 none</div><div class="line">presbyopic          myope                   no                      normal                  none</div><div class="line">presbyopic          myope                   yes                     reduced                 none</div><div class="line">presbyopic          hypermetrope            no                      reduced                 none</div><div class="line">presbyopic          hypermetrope            yes                     reduced                 none</div><div class="line">presbyopic          hypermetrope            yes                     normal                  none</div><div class="line">-----------</div><div class="line">Group: soft</div><div class="line">young               myope                   no                      normal                  soft</div><div class="line">young               hypermetrope            no                      normal                  soft</div><div class="line">pre-presbyopic      myope                   no                      normal                  soft</div><div class="line">pre-presbyopic      hypermetrope            no                      normal                  soft</div><div class="line">presbyopic          hypermetrope            no                      normal                  soft</div></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>转载自 <a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a></em></strong><br><strong><em>中文版 <a href="http://blog.jobbole.com/63320/" target="_blank" rel="external">30个有关Python的小技巧</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1991,7 +2658,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">64</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
