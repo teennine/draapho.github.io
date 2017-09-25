@@ -92,8 +92,7 @@ kernel之Makefile分析
 kernel之内核启动分析
 
 本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
-
-原创于 DRA&amp;amp;PHO">
+内核引导阶段 head.S由 uboot之源码分析 可知, uboot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kernel之内核启动分析">
 <meta property="og:url" content="https://draapho.github.io/2017/09/15/1725-kernel-launch/index.html">
@@ -108,9 +107,10 @@ kernel之Makefile分析
 kernel之内核启动分析
 
 本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
-
-原创于 DRA&amp;amp;PHO">
-<meta property="og:updated_time" content="2017-09-19T12:04:56.888Z">
+内核引导阶段 head.S由 uboot之源码分析 可知, uboot">
+<meta property="og:image" content="https://draapho.github.io/images/1725/stage1.JPG">
+<meta property="og:image" content="https://draapho.github.io/images/1725/stage2.JPG">
+<meta property="og:updated_time" content="2017-09-25T07:05:34.991Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kernel之内核启动分析">
 <meta name="twitter:description" content="总览
@@ -123,8 +123,8 @@ kernel之Makefile分析
 kernel之内核启动分析
 
 本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
-
-原创于 DRA&amp;amp;PHO">
+内核引导阶段 head.S由 uboot之源码分析 可知, uboot">
+<meta name="twitter:image" content="https://draapho.github.io/images/1725/stage1.JPG">
 
 
 
@@ -317,8 +317,8 @@ kernel之内核启动分析
               <span class="post-meta-item-text">In</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linlux</span>
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
                   </a>
                 </span>
 
@@ -360,6 +360,146 @@ kernel之内核启动分析
 <li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
 </ul>
 <p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="内核引导阶段-head-S"><a href="#内核引导阶段-head-S" class="headerlink" title="内核引导阶段 head.S"></a>内核引导阶段 <code>head.S</code></h1><p>由 <a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a> 可知, uboot最后调用的函数是</p>
+<ul>
+<li><code>theKernel (0, bd-&gt;bi_arch_number, bd-&gt;bi_boot_params)</code>, 会把一些板级参数传递给linux内核使用.</li>
+</ul>
+<p>由 <a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a> 可知, 两个重要的文件如下:</p>
+<ul>
+<li>第1个文件: <code>arch/arm/kernel/head.S</code></li>
+<li>链接脚本: <code>arch/arm/kernel/vmlinux.lds</code></li>
+</ul>
+<p><code>head.S</code> 主要完成了如下工作.</p>
+<p><img src="https://draapho.github.io/images/1725/stage1.JPG" alt="内核引导阶段"></p>
+<ul>
+<li><code>__lookup_machine_type</code> 会将 theKernel 传入的单板类型与内核支持的单板类型逐一比较.</li>
+<li><code>.arch.info.init</code> 这一个段存放的就是内核支持的单板类型.<ul>
+<li>定义在 <code>./arch/arm/kernel/vmlinux.lds</code></li>
+<li><code>__lookup_machine_type</code> 会对该段进行轮询</li>
+<li>该段的数据结构为 <code>machine_desc</code>, 定义在 <code>./include/asm-arm/mach/arch.h</code></li>
+<li><code>arch.h</code> 文件还宏定义了 <code>MACHINE_START</code> <code>MACHINE_END</code>,<br>  调用该宏定义, 就会将相关数据放在 <code>.arch.info.init</code> 段内</li>
+</ul>
+</li>
+<li><code>./arch/arm/mach-s3c2440/mach-smdk2440.c:</code> 内调用了 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code><ul>
+<li>kernel下 <code>grep -nr MACH_TYPE_S3C2440</code> 可知 MACH_TYPE_S3C2440 的值为 362</li>
+<li>uboot下 <code>grep -nr bi_arch_number</code> 可知其值为 MACH_TYPE_S3C2440, 即 362</li>
+<li>这样, kernel就能确定是支持当前的开发板的. (当前的开发板信息由uboot提供给kernel)</li>
+</ul>
+</li>
+</ul>
+<h1 id="内核启动第二阶段-init-main-c"><a href="#内核启动第二阶段-init-main-c" class="headerlink" title="内核启动第二阶段 init/main.c"></a>内核启动第二阶段 <code>init/main.c</code></h1><p><code>head-common.S</code> 调用 <code>start_kernel</code> 后, 代码会转到 <code>init/main.c</code>, 使用的是C语言.</p>
+<p><img src="https://draapho.github.io/images/1725/stage2.JPG" alt="内核启动第二阶段"></p>
+<p>从 <code>start_kernel</code> 开始, 函数的基本调用关系如下:</p>
+<ul>
+<li><code>setup_arch(&amp;command_line);</code> 读取uboot传过来的TAG参数<ul>
+<li>位于 <code>./arch/arm/kernel/setup.c</code> 770 行</li>
+<li>uboot 的 <code>setup_memory_tags</code> 存放内存大小</li>
+<li>uboot 的 <code>setup_commandline_tag</code> 告知linux挂载文件系统的命令行</li>
+<li>uboot 的 <code>/board/100ask24x0/100ask24x0.c</code> 中, <code>gd-&gt;bd-&gt;bi_boot_params = 0x30000100</code></li>
+<li>使用了 <code>machine_desc</code> 结构体, <code>.boot_params = S3C2410_SDRAM_PA + 0x100</code>, 其值就是 <code>0x30000100</code></li>
+<li>至此, uboot存放在内存中的TAG参数, 就能被内核读取出来了.</li>
+<li>此函数还会把挂载文件系统的命令赋值给 <code>boot_command_line</code>, 后续会去处理.</li>
+<li><code>parse_cmdline</code> 会去处理放在 <code>early_param.init</code> 段的指令.</li>
+</ul>
+</li>
+<li><code>parse_early_param</code>, 此函数会把 <code>boot_command_line</code>传递给<code>do_early_param</code>让其执行挂载文件系统的指令.<ul>
+<li><code>do_early_param</code><ul>
+<li>搜索 <code>.init.setup</code> 段, 调用有early标记的函数 (大多只是设置一下参数)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>unknown_bootoption</code> (使用 parse_args 先检查参数后再执行该函数)<ul>
+<li><code>obsolete_checksetup</code><ul>
+<li>搜索 <code>.init.setup</code> 段, 调用非early标记的函数 (大多只是设置一下参数)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>rest_init</code>, 去做剩余的初始化工作<ul>
+<li><code>kernel_thread(kernel_init, NULL, CLONE_FS | CLONE_SIGHAND);</code> 首先就是创建一个线程来做初始化工作<ul>
+<li><code>kernel_init</code> 会调用 <code>prepare_namespace</code><ul>
+<li>在 <code>do_mounts.c</code> 文件下 <code>prepare_namespace</code> 调用 <code>mount_root</code></li>
+<li>目的就是挂载文件系统.</li>
+</ul>
+</li>
+<li>挂载完文件系统后, 调用 <code>init_post</code>, 执行一些列的应用程序<ul>
+<li><code>sys_open((const char __user *) &quot;/dev/console&quot;, O_RDWR, 0)</code></li>
+<li><code>run_init_process(&quot;/sbin/init&quot;);</code></li>
+<li><code>run_init_process(&quot;/etc/init&quot;);</code></li>
+<li><code>run_init_process(&quot;/bin/init&quot;);</code></li>
+<li><code>run_init_process(&quot;/bin/sh&quot;);</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>以默认的启动指令为例 <code>&quot;root=/dev/hda1 ro init=/bin/bash console=ttySAC0&quot;</code><pre><code>- `__setup(&quot;root=&quot;, root_dev_setup);` 位于 `./init/do_mounts.c`
+- `__setup(&quot;init=&quot;, init_setup);` 位于 `./init/main.c`
+- `__setup(&quot;console=&quot;, console_setup);` 位于 `./kernel/printk.c`
+- 以上命令对应的函数都会由 `obsolete_checksetup` 函数来调用. 主要是设置好相关参数.
+</code></pre></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ./init/main.c</span></div><div class="line"></div><div class="line"><span class="number">497</span> asmlinkage <span class="keyword">void</span> __<span class="function">init <span class="title">start_kernel</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line"><span class="number">520</span>     tick_init();</div><div class="line"><span class="number">521</span>     boot_cpu_init();</div><div class="line"><span class="number">522</span>     page_address_init();</div><div class="line"><span class="number">524</span>     printk(linux_banner);                           <span class="comment">// 打印linux版本信息</span></div><div class="line"><span class="number">525</span>     setup_arch(&amp;command_line);                      <span class="comment">// 读取uboot传过来的TAG参数</span></div><div class="line">                                                        <span class="comment">// 搜索 "early_param.init" 段, 并调用相关函数</span></div><div class="line"><span class="number">526</span>     setup_command_line(command_line);               <span class="comment">// 复制一下 command_line.</span></div><div class="line"></div><div class="line"><span class="number">544</span>     printk(KERN_NOTICE <span class="string">"Kernel command line: %s\n"</span>, boot_command_line); <span class="comment">// 打印文件系统挂载命令</span></div><div class="line"><span class="number">545</span>     parse_early_param();                            <span class="comment">// 最终会搜索 ".init.setup" 段, 调用有early标记的函数</span></div><div class="line"><span class="number">546</span>     parse_args(<span class="string">"Booting kernel"</span>, static_command_line, __start___param,</div><div class="line"><span class="number">547</span>        __stop___param - __start___param,            <span class="comment">// 搜索 "__param" 段</span></div><div class="line"><span class="number">548</span>        &amp;unknown_bootoption);                        <span class="comment">// 最终会搜索 ".init.setup" 段, 调用非early标记的函数</span></div><div class="line"></div><div class="line"><span class="number">575</span>     console_init();                                 <span class="comment">// 控制终端初始化</span></div><div class="line"></div><div class="line"><span class="number">636</span>     rest_init();                                    <span class="comment">// 剩余部分的初始化</span></div><div class="line"><span class="number">637</span> &#125;</div><div class="line"></div><div class="line"><span class="number">466</span> <span class="keyword">void</span> __<span class="function">init <span class="title">parse_early_param</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line"><span class="number">475</span>     strlcpy(tmp_cmdline, boot_command_line, COMMAND_LINE_SIZE);</div><div class="line">        <span class="comment">// parse_args 会先检查参数, 最后调用函数, 此处是do_early_param,</span></div><div class="line">        <span class="comment">// 参数为 boot_command_line 启动命令, 由uboot传递进来. 实际不会在此处执行.</span></div><div class="line"><span class="number">476</span>     parse_args(<span class="string">"early options"</span>, tmp_cmdline, <span class="literal">NULL</span>, <span class="number">0</span>, do_early_param);</div><div class="line"><span class="number">478</span> &#125;</div><div class="line"></div><div class="line"><span class="number">450</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">do_early_param</span><span class="params">(<span class="keyword">char</span> *param, <span class="keyword">char</span> *val)</span> </span>&#123;</div><div class="line"><span class="number">454</span>     <span class="keyword">for</span> (p = __setup_start; p &lt; __setup_end; p++)   <span class="comment">// 遍历 ".init.setup" 段</span></div><div class="line"><span class="number">455</span>         <span class="keyword">if</span> (p-&gt;early &amp;&amp; <span class="built_in">strcmp</span>(param, p-&gt;str) == <span class="number">0</span>) <span class="comment">// 在段内找了匹配boot_command_line的命令, 则执行</span></div><div class="line"><span class="number">456</span>             <span class="keyword">if</span> (p-&gt;setup_func(val) != <span class="number">0</span>)</div><div class="line"><span class="number">463</span> &#125;</div><div class="line"></div><div class="line"><span class="number">258</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">unknown_bootoption</span><span class="params">(<span class="keyword">char</span> *param, <span class="keyword">char</span> *val)</span> </span>&#123;</div><div class="line"><span class="number">274</span>     <span class="keyword">if</span> (obsolete_checksetup(param))                 <span class="comment">// 调用 obsolete_checksetup</span></div><div class="line"><span class="number">313</span> &#125;</div><div class="line"></div><div class="line"><span class="number">190</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">obsolete_checksetup</span><span class="params">(<span class="keyword">char</span> *line)</span> </span>&#123;</div><div class="line"><span class="number">195</span>     p = __setup_start;                              <span class="comment">// 遍历 ".init.setup" 段</span></div><div class="line"><span class="number">196</span>     <span class="keyword">do</span> &#123;</div><div class="line"><span class="number">199</span>         <span class="keyword">if</span> (p-&gt;early) &#123;                             <span class="comment">// 有early标记, 跳过.</span></div><div class="line"><span class="number">210</span>         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (p-&gt;setup_func(line + n))         <span class="comment">// 执行指令对应的函数</span></div><div class="line"><span class="number">214</span>     &#125; <span class="keyword">while</span> (p &lt; __setup_end);<span class="number">24</span></div><div class="line"><span class="number">217</span> &#125;</div><div class="line"></div><div class="line"><span class="number">426</span> <span class="keyword">static</span> <span class="keyword">void</span> noinline __<span class="function">init_refok <span class="title">rest_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line">        kernel_thread(kernel_init, <span class="literal">NULL</span>, CLONE_FS | CLONE_SIGHAND); <span class="comment">// 创建一个初始化用的线程</span></div><div class="line">        schedule();                                     <span class="comment">// 调度</span></div><div class="line"><span class="number">447</span> &#125;</div><div class="line"></div><div class="line"><span class="number">787</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">kernel_init</span><span class="params">(<span class="keyword">void</span> * unused)</span> </span>&#123;</div><div class="line"><span class="number">828</span>         prepare_namespace();                        <span class="comment">// 调用 mount_root, 加载文件系统</span></div><div class="line"><span class="number">836</span>     init_post();                                    <span class="comment">// 执行应用程序</span></div><div class="line"><span class="number">838</span> &#125;</div><div class="line"></div><div class="line"><span class="number">748</span> <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> noinline <span class="title">init_post</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;               <span class="comment">// 执行应用程序</span></div><div class="line"><span class="number">756</span>     <span class="keyword">if</span> (sys_open((<span class="keyword">const</span> <span class="keyword">char</span> __user *) <span class="string">"/dev/console"</span>, O_RDWR, <span class="number">0</span>) &lt; <span class="number">0</span>)</div><div class="line"><span class="number">757</span>         printk(KERN_WARNING <span class="string">"Warning: unable to open an initial console.\n"</span>);</div><div class="line"></div><div class="line"><span class="number">779</span>     run_init_process(<span class="string">"/sbin/init"</span>);</div><div class="line"><span class="number">780</span>     run_init_process(<span class="string">"/etc/init"</span>);</div><div class="line"><span class="number">781</span>     run_init_process(<span class="string">"/bin/init"</span>);</div><div class="line"><span class="number">782</span>     run_init_process(<span class="string">"/bin/sh"</span>);</div><div class="line">        <span class="comment">// 调用了 kernel_execve 去执行可执行文件.</span></div><div class="line"><span class="number">785</span> &#125;</div></pre></td></tr></table></figure>
+<h1 id="初始化中用到的段-vmlinux-lds"><a href="#初始化中用到的段-vmlinux-lds" class="headerlink" title="初始化中用到的段 vmlinux.lds"></a>初始化中用到的段 <code>vmlinux.lds</code></h1><h2 id="init-setup-段分析"><a href="#init-setup-段分析" class="headerlink" title=".init.setup 段分析"></a><code>.init.setup</code> 段分析</h2><p>在 <code>./arch/arm/kernel/vmlinux.lds</code> 中有这么一个段<br><code>*(.init.setup)</code>, 其头尾为 <code>__setup_start</code> <code>__setup_end</code></p>
+<p>这一个段存放着需要通过读取命令行来执行的初始化工作, 内核称之为 <code>unknow_xxx</code><br>定义在此段的变量通过两个宏定义实现 <code>__setup</code> 以及 <code>early_param</code><br>简单理解的话, <code>early_param</code> 是需要先执行的命令行, <code>__setup</code> 则稍后执行.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># ./include/linux/init.h</div><div class="line"></div><div class="line"><span class="number">148</span> <span class="keyword">struct</span> obs_kernel_param &#123;</div><div class="line"><span class="number">149</span>     <span class="keyword">const</span> <span class="keyword">char</span> *str;</div><div class="line"><span class="number">150</span>     <span class="keyword">int</span> (*setup_func)(<span class="keyword">char</span> *);</div><div class="line"><span class="number">151</span>     <span class="keyword">int</span> early;</div><div class="line"><span class="number">152</span> &#125;;</div><div class="line"></div><div class="line"><span class="number">160</span> <span class="meta">#<span class="meta-keyword">define</span> __setup_param(str, unique_id, fn, early)            \</span></div><div class="line">161     static char __setup_str_##unique_id[] __initdata = str; \</div><div class="line">162     static struct obs_kernel_param __setup_##unique_id  \</div><div class="line">163         __attribute_used__              \</div><div class="line">164         __attribute__((__section__(<span class="meta-string">".init.setup"</span>))) \</div><div class="line">165         __attribute__((aligned((sizeof(long)))))    \</div><div class="line">166         = &#123; __setup_str_##unique_id, fn, early &#125;</div><div class="line"></div><div class="line"><span class="number">171</span> <span class="meta">#<span class="meta-keyword">define</span> __setup(str, fn)                    \</span></div><div class="line">172     __setup_param(str, fn, fn, 0)</div><div class="line"></div><div class="line"><span class="number">179</span> <span class="meta">#<span class="meta-keyword">define</span> early_param(str, fn)                    \</span></div><div class="line">180     __setup_param(str, fn, fn, 1)</div></pre></td></tr></table></figure>
+<p>先来分析 <code>__setup(str, fn)</code> 这么一个宏定义, 它设置的就是命令行队列, 将字符串关联到函数.</p>
+<ul>
+<li><code>unique_id</code> 就是fn的函数地址</li>
+<li>存放在 <code>.init.setup</code> 段内.</li>
+<li>与数据结构 <code>obs_kernel_param</code> 相关. 保存的就是 str, fn, 以及early三个变量.</li>
+<li>通过这样一种结构, 可以很方便的使用字符串来调用指定的函数.</li>
+<li><code>grep -nwr __setup ./arch/arm</code> 可找到 <code>__setup(&quot;tft=&quot;, qt2410_tft_setup);</code>, 很明显就是用来初始化屏幕的.</li>
+<li>在 <code>./init/do_mounts.c</code>里, 还能找到 <code>__setup(&quot;root=&quot;, root_dev_setup)</code>, 是用来挂载文件系统的.</li>
+</ul>
+<p>然后看 <code>early_param(str, fn)</code> 宏定义.</p>
+<ul>
+<li><code>__setup</code> 是一样的.</li>
+<li>只是将标记 <code>early</code> 赋值为1. 表示需要较早执行的初始化工作, 一般为更底层的驱动</li>
+<li>arm 架构几乎没有用到 <code>early_param</code> 的地方, 搜索的话, 可以看到 pci 的初始化就用到了 <code>early_param</code></li>
+</ul>
+<h2 id="early-param-init-段"><a href="#early-param-init-段" class="headerlink" title="early_param.init 段"></a><code>early_param.init</code> 段</h2><p>和 <code>.init.setup</code> 段类似, 其定义在<br><code>./include/asm-arm/setup.h</code>, 220行.<br>关联的宏定义为 <code>__early_param</code>, 初始化如 <code>initrd=</code> <code>mem=</code> 之类的命令<br><code>grep -nwr __early_param</code> 进行查询, 结果不多的.<br>搜索 <code>grep -nwr __early_begin</code>, 可知, 其处理函数为 <code>parse_cmdline</code></p>
+<h2 id="param-段"><a href="#param-段" class="headerlink" title="__param 段"></a><code>__param</code> 段</h2><p>该段主要用于给驱动模块的初始化. 设置参数使用.<br>定义在 <code>./include/linux/moduleparam.h</code>, 72 行<br>其调用位于 <code>./init/main.c</code> 的 <code>parse_args</code> (<code>grep -nwr __start___param</code>)<br>关联的宏定义为 <code>module_param_call</code> <code>module_param_named</code> <code>module_param</code> 以及 <code>module_param_string</code><br>查阅后, 可以发现全部是和驱动模块有关的.</p>
+<h1 id="linux下的分区"><a href="#linux下的分区" class="headerlink" title="linux下的分区"></a>linux下的分区</h1><p>jz2440的启动参数为 <code>root= /dev/mtdblock3</code>,<br>linux下没有分区表的概念, 这里分区是在内核源码里写死的.<br>可见 <code>./arch/arm/plat-s3c24xx/common-smdk.c</code> 的118行, <code>smdk_default_nand_part</code><br>它分配了4个的分区:</p>
+<table>
+<thead>
+<tr>
+<th>分区</th>
+<th>对应mtdblock</th>
+<th>size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bootloader</code></td>
+<td>mtdblock0</td>
+<td>0x00040000</td>
+</tr>
+<tr>
+<td><code>params</code></td>
+<td>mtdblock1</td>
+<td>0x00020000</td>
+</tr>
+<tr>
+<td><code>kernel</code></td>
+<td>mtdblock2</td>
+<td>0x00200000</td>
+</tr>
+<tr>
+<td><code>root</code></td>
+<td>mtdblock3</td>
+<td>MTDPART_SIZ_FULL</td>
+</tr>
+</tbody>
+</table>
+<h1 id="更多参考"><a href="#更多参考" class="headerlink" title="更多参考"></a>更多参考</h1><ul>
+<li><a href="http://blog.csdn.net/skyflying2012/article/details/41142801" target="_blank" rel="external"> linux kernel的cmdline参数解析原理分析</a></li>
+<li><a href="https://danielmaker.github.io/blog/linux/inside_start_kernel.html" target="_blank" rel="external">深入淺出 start_kernel</a></li>
+<li><a href="http://blog.sina.com.cn/s/blog_5d9051c00100ij93.html" target="_blank" rel="external">嵌入式Linux中基于MTD的文件系统的结构框架图</a></li>
+<li><a href="http://blog.csdn.net/yusiguyuan/article/details/9471577" target="_blank" rel="external">u-boot中分区和内核MTD分区关系</a></li>
+</ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
@@ -530,7 +670,7 @@ kernel之内核启动分析
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内核引导阶段-head-S"><span class="nav-number">2.</span> <span class="nav-text">内核引导阶段 head.S</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内核启动第二阶段-init-main-c"><span class="nav-number">3.</span> <span class="nav-text">内核启动第二阶段 init/main.c</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初始化中用到的段-vmlinux-lds"><span class="nav-number">4.</span> <span class="nav-text">初始化中用到的段 vmlinux.lds</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#init-setup-段分析"><span class="nav-number">4.1.</span> <span class="nav-text">.init.setup 段分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#early-param-init-段"><span class="nav-number">4.2.</span> <span class="nav-text">early_param.init 段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#param-段"><span class="nav-number">4.3.</span> <span class="nav-text">__param 段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#linux下的分区"><span class="nav-number">5.</span> <span class="nav-text">linux下的分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更多参考"><span class="nav-number">6.</span> <span class="nav-text">更多参考</span></a></li></ol></div>
             
           </div>
         </section>
