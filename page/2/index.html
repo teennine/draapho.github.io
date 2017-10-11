@@ -260,6 +260,178 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/25/1720-uboot-source/" itemprop="url">
+                  uboot之源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-08-25T00:00:00+10:00" content="2017-08-25">
+              2017-08-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linlux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 回顾一下s3c2440的地址分配</li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+</ul>
+<p>本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: <a href="http://www.denx.de/wiki/U-Boot/WebHome" target="_blank" rel="external">u-boot官网</a>  <a href="ftp://ftp.denx.de/pub/u-boot/" target="_blank" rel="external">u-boot下载</a></p>
+<h1 id="u-boot功能"><a href="#u-boot功能" class="headerlink" title="u-boot功能:"></a>u-boot功能:</h1><ul>
+<li>本质是单片机程序</li>
+<li>硬件相关初始化<ul>
+<li>关看门狗</li>
+<li>初始化时钟</li>
+<li>初始化SDRAM</li>
+<li>从Flash读取内核</li>
+</ul>
+</li>
+<li>最终目的: 启动内核</li>
+<li>为开发方便, 还支持:<ul>
+<li>烧写flash</li>
+<li>网卡</li>
+<li>USB</li>
+<li>串口</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://draapho.github.io/images/1720/uboot-start.png" alt="uboot-start"></p>
+<h1 id="查看内存地址分配"><a href="#查看内存地址分配" class="headerlink" title="查看内存地址分配"></a>查看内存地址分配</h1><p>可以使用指令 <code>readelf -s u-boot | grep _start</code> 查看uboot的内存地址分配<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ readelf -s u-boot|grep _start</div><div class="line">    63: 33f80118     0 NOTYPE  LOCAL  DEFAULT    1 _start_armboot</div><div class="line">   218: 33fb0798     4 OBJECT  LOCAL  DEFAULT   10 mem_malloc_start</div><div class="line">   906: 33fb5a0c     4 OBJECT  LOCAL  DEFAULT   10 bin_start_address</div><div class="line">  1303: 33f9f274    88 FUNC    LOCAL  DEFAULT    1 setup_start_tag</div><div class="line">  1507: 33f80000     0 NOTYPE  GLOBAL DEFAULT    1 _start   // 等同于 config.mk 中的 TEXT_BASE值</div><div class="line">  1657: 33f80044     0 NOTYPE  GLOBAL DEFAULT    1 _armboot_start</div><div class="line">  1776: 33f80048     0 NOTYPE  GLOBAL DEFAULT    1 _bss_start</div><div class="line">  1869: 33fb06ac     0 NOTYPE  GLOBAL DEFAULT  ABS __bss_start</div><div class="line">  2038: 33fb016c     0 NOTYPE  GLOBAL DEFAULT  ABS __u_boot_cmd_start</div></pre></td></tr></table></figure></p>
+<p><img src="https://draapho.github.io/images/1720/uboot-ram.gif" alt="uboot-ram"></p>
+<h1 id="一-汇编初始化-start-s"><a href="#一-汇编初始化-start-s" class="headerlink" title="一 汇编初始化, start.s"></a>一 汇编初始化, start.s</h1><p>由链接脚本 <code>./board/100ask24x0/u-boot.lds</code> 可知,<br>uboot启动后, 首先执行的就是 <code>cpu/arm920t/start.s</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">41 .globl _start                        // 程序入口</div><div class="line">42 _start:	b       reset               // 跳转到reset执行</div><div class="line"></div><div class="line">75 _TEXT_BASE:                          // _TEXT_BASE值, 可知等同于 _start</div><div class="line">76	    .word	TEXT_BASE               // 赋值</div><div class="line">79 _armboot_start:                      // _armboot_start 值等同于 TEXT_BASE</div><div class="line">80	    .word _start                    // 赋值 _start 给 _armboot_start</div><div class="line"></div><div class="line">122 reset:                      </div><div class="line">124 /* set the cpu to SVC32 mode */     // 1. 将CPU设置为SVC32管理模式</div><div class="line">131 /* turn off the watchdog */         // 2. 关闭看门狗</div><div class="line">150 /* mask all IRQs ... - default */   // 3. 关中断</div><div class="line"></div><div class="line">                                        // 4. 初始化SDRAM</div><div class="line">174 #ifndef CONFIG_SKIP_LOWLEVEL_INIT     // 一个宏定义开关</div><div class="line">175 	adr	r0, _start                    // 读取当前地址, 如果是从nand flash启动, 这段代码被自动拷贝到片内4K RAM, 初始地址为0</div><div class="line">                                          // 反之, 如果代码是直接复制到SDRAM中并运行(如调试器), 则_start和_TEXT_BASE值相等</div><div class="line">176 	ldr	r1, _TEXT_BASE                // TEXT_BASE 由 &quot;./board/100ask24x0/config.mk&quot; 赋值为 0x33F80000</div><div class="line">                                          // 可在linux用指令 &quot;grep -nr TEXT_BASE *&quot; 搜索</div><div class="line">177 	cmp     r0, r1                    // 比较两个值. 不等的话, 说明片外SDRAM还没有被初始化过</div><div class="line">178 	blne	cpu_init_crit             // 初始化片外SDRAM的控制 (关MMU, 初始化存储控制器)</div><div class="line">179 #endif</div><div class="line"></div><div class="line">182 stack_setup:                        // 5. 设置栈指针, 栈指针向下递减, 推指针向上递增.</div><div class="line">183 	ldr	r0, _TEXT_BASE		          // 从 _TEXT_BASE 开始分配空间. _TEXT_BASE	上面是uboot代码段</div><div class="line">184 	sub	r0, r0, #CFG_MALLOC_LEN	      // uboot 自己用的 malloc 堆空间</div><div class="line">185 	sub	r0, r0, #CFG_GBL_DATA_SIZE    // 全局变量, 保存uboot系统参数的预留空间</div><div class="line">187 #ifdef CONFIG_USE_IRQ</div><div class="line">188 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)    // IRQ 以及 FIQ, 中断模式的栈</div><div class="line">189 #endif</div><div class="line">190 	sub	sp, r0, #12		            // 再减去12字节后, 就是sp栈指针的起始位置</div><div class="line"></div><div class="line">193 bl clock_init                       // 6. 初始化系统时钟, 设置为400MHz</div><div class="line"></div><div class="line">197 relocate:                           // 7. 拷贝代码. 把uboot代码从nand/nor flash拷贝到片外 SDRAM 中</div><div class="line"></div><div class="line">219 clear_bss:                          // 8. 清bss. 将未初始化过的全局变量设为0. Block Started by Symbol     </div><div class="line"></div><div class="line">261 _start_armboot:	.word start_armboot // 9. 调用 start_armboot, c语言函数.</div></pre></td></tr></table></figure>
+<h1 id="二-板级初始化-board-c"><a href="#二-板级初始化-board-c" class="headerlink" title="二 板级初始化, board.c"></a>二 板级初始化, board.c</h1><p><code>grep -nwr start_armboot *</code>, 找出 <code>start_armboot</code> 源码文件和行号.<br>可知, 其位于 <code>./lib_arm/board.c</code> 的236行.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="number">216</span> <span class="keyword">init_fnc_t</span> *init_sequence[] = &#123;...&#125;;    <span class="comment">// 初始化函数组</span></div><div class="line"></div><div class="line"><span class="number">236</span> <span class="function"><span class="keyword">void</span> <span class="title">start_armboot</span> <span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line"><span class="number">248</span>     gd = (<span class="keyword">gd_t</span>*)(_armboot_start - CFG_MALLOC_LEN - <span class="keyword">sizeof</span>(<span class="keyword">gd_t</span>));</div><div class="line">        <span class="comment">// 实际指向的就是 CFG_GBL_DATA_SIZE 段, 下面是清零, 对应的结构体是 gd_t</span></div><div class="line"></div><div class="line"><span class="number">258</span>     <span class="keyword">for</span> (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) &#123;&#125;</div><div class="line">        <span class="comment">// 依次调用初始化函数, 如果返回值为0, 则初始化失败, 系统出错!</span></div><div class="line">        <span class="comment">// 在init的过程中, 相关的函数对 gd_t 内容赋值.</span></div><div class="line"></div><div class="line"><span class="number">266</span>     size = flash_init ();               <span class="comment">// 初始化nor flash</span></div><div class="line"><span class="number">267</span>     display_flash_config (size);</div><div class="line"></div><div class="line"><span class="number">297</span>     mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);  <span class="comment">// 堆地址的初始化</span></div><div class="line"></div><div class="line"><span class="number">301</span>     nand_init();	                    <span class="comment">// 初始化 nand flash</span></div><div class="line"></div><div class="line"><span class="number">310</span>     env_relocate ();                    <span class="comment">// 加载uboot的环境变量</span></div><div class="line"></div><div class="line">...     <span class="comment">// 网卡, devices_init, 显示终端, 控制台, 其它驱动等等 初始化, 略过不表</span></div><div class="line"></div><div class="line"><span class="number">403</span>     main_loop ();                       <span class="comment">// 初始化结束, 跳转到 main.c 文件的 void main_loop(void)</span></div><div class="line"><span class="number">407</span> &#125;</div></pre></td></tr></table></figure>
+<h1 id="三-识别终端指令-main-c"><a href="#三-识别终端指令-main-c" class="headerlink" title="三 识别终端指令, main.c"></a>三 识别终端指令, main.c</h1><p><code>grep -nr &quot;main_loop (void)&quot; *</code>, 可找到 <code>./common/main.c</code> 的301行 main_loop<br>整个文件的最核心指令就是 run_command(), 即识别和运行指令函数.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="number">301</span> <span class="function"><span class="keyword">void</span> <span class="title">main_loop</span> <span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line"></div><div class="line"><span class="number">404</span>     s = getenv (<span class="string">"bootdelay"</span>);           <span class="comment">// 获取 bootdelay 环境变量</span></div><div class="line"><span class="number">405</span>     bootdelay = s ? (<span class="keyword">int</span>)simple_strtol(s, <span class="literal">NULL</span>, <span class="number">10</span>) : CONFIG_BOOTDELAY;</div><div class="line"></div><div class="line"><span class="number">432</span>     s = getenv (<span class="string">"bootcmd"</span>);             <span class="comment">// 加载 bootcmd 环境变量, 此变量为linux加载和启动指令</span></div><div class="line"><span class="number">436</span>     <span class="keyword">if</span> (bootdelay &gt;= <span class="number">0</span> &amp;&amp; s &amp;&amp; !abortboot (bootdelay)) &#123;    <span class="comment">// 倒计时结束, 自动加载linux</span></div><div class="line"><span class="number">443</span>         <span class="built_in">printf</span>(<span class="string">"Booting Linux ...\n"</span>);  <span class="comment">// 终端打印信息</span></div><div class="line"><span class="number">444</span>         run_command (s, <span class="number">0</span>);             <span class="comment">// 运行 bootcmd 的指令.</span></div><div class="line"><span class="number">454</span>     &#125;</div><div class="line"></div><div class="line">        <span class="comment">// abortboot 函数内会判断倒计时, 并获取按键操作, 只有 ' ' 空格才能跳出启动</span></div><div class="line">        <span class="comment">// 457-467行不会运行, 因为没有宏定义 CONFIG_MENUKEY</span></div><div class="line"><span class="number">478</span>     run_command(<span class="string">"menu"</span>, <span class="number">0</span>);             <span class="comment">// 执行 "menu" 指令, 打印jz2440定制的菜单信息</span></div><div class="line"></div><div class="line"><span class="number">488</span>     <span class="keyword">for</span> (;;) &#123;                          <span class="comment">// 死循环, 等待终端输入指令</span></div><div class="line"><span class="number">497</span>         len = readline (CFG_PROMPT);    <span class="comment">// 读取终端输入, 提示符为 "OpenJTAG&gt; "</span></div><div class="line"><span class="number">521</span>         rc = run_command (lastcommand, flag);   <span class="comment">// 执行输入的指令</span></div><div class="line"><span class="number">527</span>     &#125;</div><div class="line"><span class="number">529</span> &#125; </div><div class="line"></div><div class="line">        <span class="comment">// 指令数据结构被放在 __u_boot_cmd 段内, 对应的指令函数可以在 ./common/cmd_***.c 内找到</span></div><div class="line"><span class="number">1280</span>    <span class="function"><span class="keyword">int</span> <span class="title">run_command</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *cmd, <span class="keyword">int</span> flag)</span> </span>&#123;</div><div class="line"><span class="number">1361</span>        <span class="keyword">if</span> ((cmdtp = find_cmd(argv[<span class="number">0</span>])) == <span class="literal">NULL</span>) &#123;...&#125;      <span class="comment">// 查找指令是否存在</span></div><div class="line"><span class="number">1391</span>        <span class="keyword">if</span> ((cmdtp-&gt;cmd) (cmdtp, flag, argc, argv) != <span class="number">0</span>) &#123;&#125; <span class="comment">// 调用指令函数</span></div><div class="line"><span class="number">1403</span>    &#125;</div></pre></td></tr></table></figure>
+<h1 id="四-加载和启动linux"><a href="#四-加载和启动linux" class="headerlink" title="四 加载和启动linux"></a>四 加载和启动linux</h1><h2 id="bootcmd-指令分析"><a href="#bootcmd-指令分析" class="headerlink" title="bootcmd 指令分析"></a>bootcmd 指令分析</h2><p>在uboot命令行下, 输入 <code>printenv</code> 可以查看uboot的环境变量<br>可以找到如下信息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">bootcmd=nand read.jffs2 0x30007FC0 kernel; bootm 0x30007FC0</div><div class="line">    // 启动指令分为了两条:</div><div class="line">    // 1. nand read.jffs2 0x30007FC0 kernel</div><div class="line">        // 从 nand flash 的 kernel 分区读取数据, 放到地址 0x30007FC0 处(SDRAM)</div><div class="line">    // 2. bootm 0x30007FC0</div><div class="line">        // 从 0x30007FC0 启动linux</div><div class="line"></div><div class="line">bootdelay=2</div><div class="line">    // 启动延时参数为2S</div><div class="line">    // 因此uboot的环境变量可以是参数设置, 也可以是命令行, 命令行的本质是字符串</div></pre></td></tr></table></figure></p>
+<h2 id="flash-分区信息"><a href="#flash-分区信息" class="headerlink" title="flash 分区信息"></a>flash 分区信息</h2><p>可以通过 “./include/configs/100ask24x0.h” 中的 MTDPARTS_DEFAULT 来分析获得flash分区情况<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MTDPARTS_DEFAULT <span class="meta-string">"mtdparts=nandflash0:256k@0(bootloader),"</span> \</span></div><div class="line">                            <span class="meta-string">"128k(params),"</span> \</div><div class="line">                            <span class="meta-string">"2m(kernel),"</span> \</div><div class="line">                            <span class="meta-string">"-(root)"</span></div><div class="line"><span class="comment">// nandflash0: 分区位于 nandflash 上</span></div><div class="line"><span class="comment">// 256k@0(bootloader), 第一个分区从0地址开始, 占用256k, 分区名称 bootloader</span></div><div class="line"><span class="comment">// 128k(params), 第二个分区紧邻第一个分区, 占用128K, 分区名称 params</span></div><div class="line"><span class="comment">// 2m(kernel), 第三个分区紧邻第二个分区, 占用2m字节, 分区名称 kernel</span></div><div class="line"><span class="comment">// -(root), 剩余的空间全部分配给第四个分区, 名称为 root</span></div></pre></td></tr></table></figure></p>
+<p>也可以在uboot下, 使用 “mtdparts” 可以查看 flash 的分区情况<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">OpenJTAG&gt; mtdparts</div><div class="line"> <span class="comment">#: name                size            offset          mask_flags</span></div><div class="line"> 0: bootloader          0x00040000      0x00000000      0</div><div class="line"> 1: params              0x00020000      0x00040000      0</div><div class="line"> 2: kernel              0x00200000      0x00060000      0</div><div class="line"> 3: root                0x0fda0000      0x00260000      0</div></pre></td></tr></table></figure></p>
+<h2 id="加载linux内核"><a href="#加载linux内核" class="headerlink" title="加载linux内核"></a>加载linux内核</h2><p>执行 <code>nand read.jffs2 0x30007FC0 kernel</code> 指令, 源码在 <code>./common/cmd_nand.c</code> 的 do_nand 函数</p>
+<ul>
+<li>jffs2 是读取的格式, 但此处并非是指 kernel 是jffs2格式. jffs2方式无需块对齐和页对齐, 提高通用性.</li>
+<li>可知 kernel 分区大小为 0x200000 (2M), 起始地址为 0x60000</li>
+<li>所以整条指令等价于: nand read.jffs2 0x30007FC0(目标地址) 0x60000(源地址) 0x200000(字节大小)</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">    <span class="comment">// nand     read.jffs2  0x30007FC0  kernel </span></div><div class="line">    <span class="comment">// argv[0]  argv[1]     argv[2]     argv[3]</span></div><div class="line"></div><div class="line"><span class="number">166</span> <span class="function"><span class="keyword">int</span> <span class="title">do_nand</span><span class="params">(<span class="keyword">cmd_tbl_t</span> * cmdtp, <span class="keyword">int</span> flag, <span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</div><div class="line"><span class="number">316</span>     <span class="keyword">if</span> (<span class="built_in">strncmp</span>(cmd, <span class="string">"read"</span>, <span class="number">4</span>) == <span class="number">0</span> || <span class="built_in">strncmp</span>(cmd, <span class="string">"write"</span>, <span class="number">5</span>) == <span class="number">0</span>) &#123;</div><div class="line"><span class="number">322</span>         addr = (ulong)simple_strtoul(argv[<span class="number">2</span>], <span class="literal">NULL</span>, <span class="number">16</span>);                    <span class="comment">// 目标地址 addr = 0x30007FC0</span></div><div class="line"><span class="number">326</span>         <span class="keyword">if</span> (arg_off_size(argc - <span class="number">3</span>, argv + <span class="number">3</span>, nand, &amp;off, &amp;size) != <span class="number">0</span>) &#123;...&#125; <span class="comment">// 获取源地址以及长度</span></div><div class="line">            <span class="comment">// arg_off_size 中, 如果发现导入的参数是分区名字, 就会调用 find_dev_and_part() 来获取改分区的地址和长度</span></div><div class="line">            <span class="comment">// 最终会将源地址以及长度放入 &amp;off, &amp;size 中</span></div><div class="line"><span class="number">336</span>         opts.buffer = (u_char*) addr;                                       <span class="comment">// sdram, 直接就是一片buffer</span></div><div class="line"><span class="number">337</span>         opts.length = size;</div><div class="line"><span class="number">338</span>         opts.offset = off;</div><div class="line"><span class="number">340</span>         ret = nand_read_opts(nand, &amp;opts);                                  <span class="comment">// 读取nand到buffer中</span></div><div class="line"><span class="number">416</span>     <span class="built_in">printf</span>(<span class="string">" %d bytes %s: %s\n"</span>, size, read ? <span class="string">"read"</span> : <span class="string">"written"</span>, ret ? <span class="string">"ERROR"</span> : <span class="string">"OK"</span>); <span class="comment">// 打印进度</span></div><div class="line"><span class="number">419</span>     <span class="keyword">return</span> ret == <span class="number">0</span> ? <span class="number">0</span> : <span class="number">1</span>;                        返回读取结果</div><div class="line"><span class="number">511</span> &#125;</div></pre></td></tr></table></figure>
+<h2 id="启动linux内核"><a href="#启动linux内核" class="headerlink" title="启动linux内核"></a>启动linux内核</h2><p>执行 <code>bootm 0x30007FC0</code> 指令, 源码在 <code>./common/cmd_bootm.c</code> 的 do_bootm 函数</p>
+<ul>
+<li>设置 0x30007FC0 这个奇怪的值, 是有原因的. 简而言之, 是为了避免拷贝内核两次, 加快启动速度</li>
+<li>kernel 最后编译时的指令是 <code>make uImage</code>, 因此其格式是 uImage</li>
+<li>相比于纯压缩文件 zImage 的内核文件, uImage 在 zImage之前加上了长度为 0x40 的头部信息 (image_header_t)</li>
+<li>0x30007FC0 + 0x40 = 0x30008000, 正好就是 uImage 头部信息要求的加载地址.</li>
+<li>而 0x30008000 这个地址, 是有linux源码在 <code>Makefile</code> 里写死的. 可搜索关键字 <code>zreladdr-y</code> 和 <code>ZRELADDR</code><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="number">149</span> <span class="keyword">image_header_t</span> header;              <span class="comment">// uImage的头部信息, 占用0x40字节</span></div><div class="line">        <span class="comment">// ih_load, Data Load Address,   加载地址, 如果发现加载地址不对, do_bootm会重新移动内核文件到此地址</span></div><div class="line">        <span class="comment">// ih_ep,   Entry Point Address, 入口地址, 跳转到此地址开始执行linux内核</span></div><div class="line"></div><div class="line">    <span class="comment">// bootm    0x30007FC0</span></div><div class="line">    <span class="comment">// argv[0]  argv[1]</span></div><div class="line"><span class="number">153</span> <span class="function"><span class="keyword">int</span> <span class="title">do_bootm</span> <span class="params">(<span class="keyword">cmd_tbl_t</span> *cmdtp, <span class="keyword">int</span> flag, <span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</div><div class="line"><span class="number">163</span>     <span class="keyword">image_header_t</span> *hdr = &amp;header;                              <span class="comment">// 指针 hdr 指向头部信息</span></div><div class="line"><span class="number">171</span>     addr = simple_strtoul(argv[<span class="number">1</span>], <span class="literal">NULL</span>, <span class="number">16</span>);                   <span class="comment">// 获取地址, 0x30007FC0</span></div><div class="line"><span class="number">183</span>     memmove (&amp;header, (<span class="keyword">char</span> *)addr, <span class="keyword">sizeof</span>(<span class="keyword">image_header_t</span>));    <span class="comment">// 读取头部信息</span></div><div class="line"><span class="number">229</span>     data = addr + <span class="keyword">sizeof</span>(<span class="keyword">image_header_t</span>);                       <span class="comment">// data为linux内核起始地址</span></div><div class="line"><span class="number">321</span>     <span class="keyword">if</span>(ntohl(hdr-&gt;ih_load) == data) &#123;</div><div class="line"><span class="number">322</span>         <span class="built_in">printf</span> (<span class="string">"   XIP %s ... "</span>, name);                        <span class="comment">// 一致, 不用移动了</span></div><div class="line"><span class="number">323</span>     &#125; <span class="keyword">else</span> &#123;</div><div class="line"><span class="number">340</span>         memmove ((<span class="keyword">void</span> *) ntohl(hdr-&gt;ih_load), (uchar *)data, len);     <span class="comment">// 否则, 把内核移动到加载地址</span></div><div class="line"><span class="number">342</span>     &#125;</div><div class="line"><span class="number">418</span>     do_bootm_linux  (cmdtp, flag, argc, argv, addr, len_ptr, verify);   <span class="comment">// 启动linux</span></div><div class="line"><span class="number">477</span> &#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><code>do_bootm_linux</code> 函数位于 <code>./lib_arm/armlinux.c</code>,<br><strong>注意</strong>, cmd_bootm.c文件内的那个do_bootm_linux不会被调用, 因为没有宏定义 CONFIG_PPC</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="number">79</span>  <span class="function"><span class="keyword">void</span> <span class="title">do_bootm_linux</span> <span class="params">(...)</span> </span>&#123;</div><div class="line">    <span class="comment">// 此函数主要做两件事情:</span></div><div class="line">    <span class="comment">// 1. uboot 需要告诉内核一些系统参数 (内存大小, 终端波特率等等)</span></div><div class="line">    <span class="comment">// 2. 跳转到入口地址, 启动内核</span></div><div class="line"><span class="number">85</span>    	<span class="keyword">void</span> (*theKernel)(<span class="keyword">int</span> zero, <span class="keyword">int</span> arch, uint params);         <span class="comment">// linux启动函数</span></div><div class="line"><span class="number">86</span>      <span class="keyword">image_header_t</span> *hdr = &amp;header;                              <span class="comment">// uImage 头部信息</span></div><div class="line"><span class="number">87</span>      <span class="keyword">bd_t</span> *bd = gd-&gt;bd;                                          <span class="comment">// 处于 CFG_GBL_DATA_SIZE 段内</span></div><div class="line"><span class="number">90</span>      <span class="keyword">char</span> *commandline = getenv (<span class="string">"bootargs"</span>);                    <span class="comment">// 获取 bootargs 参数</span></div><div class="line">        </div><div class="line"><span class="number">93</span>      theKernel = (<span class="keyword">void</span> (*)(<span class="keyword">int</span>, <span class="keyword">int</span>, uint))ntohl(hdr-&gt;ih_ep);    <span class="comment">// ih_ep, 即linux入口地址</span></div><div class="line"></div><div class="line"><span class="number">235</span>     setup_start_tag (bd);                                       <span class="comment">// 一系列的TAG参数设置, 准备传递给linux</span></div><div class="line">        <span class="comment">// 对jz2440, TAG地址是 0x30000100. </span></div><div class="line">        <span class="comment">// 在 "./board/100ask24x0/100ask24x0.c" 中, gd-&gt;bd-&gt;bi_boot_params = 0x30000100;</span></div><div class="line"><span class="number">237</span>	    setup_serial_tag (&amp;params);</div><div class="line"><span class="number">240</span>	    setup_revision_tag (&amp;params);</div><div class="line"><span class="number">243</span>	    setup_memory_tags (bd);</div><div class="line"><span class="number">246</span>	    setup_commandline_tag (bd, commandline);                    <span class="comment">// 告知linux文件系统的位置</span></div><div class="line"><span class="number">250</span>	    setup_initrd_tag (bd, initrd_start, initrd_end);</div><div class="line"><span class="number">253</span>	    setup_videolfb_tag ((<span class="keyword">gd_t</span> *) gd);</div><div class="line"><span class="number">255</span>	    setup_end_tag (bd);                                         <span class="comment">// 参数设置结束</span></div><div class="line"></div><div class="line"><span class="number">259</span>     <span class="built_in">printf</span> (<span class="string">"\nStarting kernel ...\n\n"</span>);</div><div class="line"><span class="number">270</span>     theKernel (<span class="number">0</span>, bd-&gt;bi_arch_number, bd-&gt;bi_boot_params);      <span class="comment">// 调用入口地址, 传入参数, 启动linux</span></div><div class="line"><span class="number">271</span> &#125;</div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/07/07/1719-uboot-makefile/" itemprop="url">
                   uboot之makefile分析
                 </a>
@@ -1516,335 +1688,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/19/1713-ble/" itemprop="url">
-                  BLE基础概念
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-04-19T00:00:00+10:00" content="2017-04-19">
-              2017-04-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="ble-架构"><a href="#ble-架构" class="headerlink" title="ble 架构"></a>ble 架构</h1><p><img src="https://draapho.github.io/images/1713/ble-architecture.jpg" alt="ble architecture"></p>
-<ul>
-<li>PHY, Physical Layer:<br>物理层, 控制无线电信号的收发</li>
-<li>LL, Link Layer:<br>链路层, 定义数据包结构, 包括状态信息和收发控制, 以及链路层的加密</li>
-<li>HCI, Host-Controller Interface:<br>通过此标准接口, Host层和Controller层进行通讯</li>
-<li>L2CAP, Logical Link Control and Adaptation Protocol. 可以理解为一个协议多路复用和分配器(功能上类似于TCPIP的端口).<br><strong>一般而言, BLE应用层开发者无需了解L2CAP层的细节</strong></li>
-<li>ATT, Attribute Protocol:<br>该协议将单一的数值(信息)以Attribute(属性)的形式抽象出来，并提供一些方法，供远端设备读取和修改</li>
-<li>GATT, Generic Attribute Protocol:<br>基于ATT提供的数值, 将有用的数值组打包好, 已服务(service)的方式开放给上层应用. 它相当于提供一套数据打包框架/规则.</li>
-<li>GAP, Generic Access Profile:<br>通用访问服务, 是对LL层的广播,监听,建立连接功能的抽象, 便于开发人员来理解和开发</li>
-<li>SM, Security Manager<br>负责BLE通信中有关安全的内容.</li>
-</ul>
-<h1 id="Physical-Layer"><a href="#Physical-Layer" class="headerlink" title="Physical Layer"></a>Physical Layer</h1><p>物理层, 控制无线电信号的收发</p>
-<p><img src="https://draapho.github.io/images/1713/ble-channel.png" alt="ble channel"><br>一图胜千言. 如图所示:</p>
-<ul>
-<li>BLE占用的频段为 2402Mhz-2480Mhz, 划分为40个Channel(频道), 每个频段2Mhz</li>
-<li>3个广播频段被放在了干扰冲突最少的频段, 并被命名为 37,38,39 频道</li>
-<li>其余的频段用作数据通讯, 并会采用调频技术来避免干扰和冲突.</li>
-<li>BLE和wifi的重合频段还是比较严重的! 和 wifi 的 1,6,11 三个频道完全重合.</li>
-</ul>
-<h1 id="Link-Layer"><a href="#Link-Layer" class="headerlink" title="Link Layer"></a>Link Layer</h1><p>链路层, 定义数据包结构, 包括状态信息和收发控制, 以及链路层的加密</p>
-<p>Link Layer 链路层有5个基本状态:</p>
-<ul>
-<li>Standby: 睡觉省电.</li>
-<li>Advertising: 广播模式, 周期性地发送数据, 使用的是 37-39的广播频道</li>
-<li>Scanning: 扫描模式, 扫描/接收广播数据；</li>
-<li>Initiating: 连接发起方，扫描带有“可连接”标志的广播数据,一旦发现,则发起连接请求.</li>
-<li>Connection: 建立点对点的通讯模式, 此后就开始使用 0-36频道开始通讯了!</li>
-</ul>
-<p>设备的几种角色</p>
-<ul>
-<li>Advertiser: 广播者, 处于 Advertising 模式即广播者</li>
-<li>Scanner: 扫描者, 处于 Scanning 模式即扫描者</li>
-<li>Initiator: 扫描者, 处于 Initiating 模式的扫描, 用于准备建立连接</li>
-<li>Slave: 建立通讯后 (Connection 模式), 之前的广播者就变成了Slave从机</li>
-<li>Master: 建立通讯后 (Connection 模式), 之前的扫描者/发起者就变成了Master主机</li>
-<li>混合模式: 一个设备可以同时是 Advertiser &amp; Scanner 或者 Advertiser &amp; Master 等等. 但需要供应商的软件支持!</li>
-</ul>
-<p><strong>关于蓝牙设备的角色名称问题, 无力吐槽, 各个分层都有一套自己的术语, 看的时候注意其对应的架构层次再来理解</strong></p>
-<h2 id="Advertisement"><a href="#Advertisement" class="headerlink" title="Advertisement"></a>Advertisement</h2><table>
-<thead>
-<tr>
-<th>参数</th>
-<th>数值</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Advertisement interval</td>
-<td>20 ms to 10240 ms</td>
-<td>定义广播时间间隔</td>
-</tr>
-<tr>
-<td>Advertisement channels</td>
-<td>CH37-CH39</td>
-<td>默认值, 不可修改. BLE5新增了第二广播频道</td>
-</tr>
-<tr>
-<td>Discoverability mode</td>
-<td>ADV_IND</td>
-<td>可被连接的广播</td>
-</tr>
-<tr>
-<td></td>
-<td>ADV_DIRECT_IND</td>
-<td>可被连接的定向广播</td>
-</tr>
-<tr>
-<td></td>
-<td>ADV_NONCONN_IND</td>
-<td>不可连接的广播</td>
-</tr>
-<tr>
-<td></td>
-<td>ADV_SCAN_IND</td>
-<td>可接受SCAN_REQ请求的广播数据</td>
-</tr>
-</tbody>
-</table>
-<h2 id="Scanning"><a href="#Scanning" class="headerlink" title="Scanning"></a>Scanning</h2><table>
-<thead>
-<tr>
-<th>参数</th>
-<th>数值</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Scan interval</td>
-<td>2.5 ms to 10240 ms</td>
-<td>定义扫描时间间隔</td>
-</tr>
-<tr>
-<td>Scan window</td>
-<td>2.5 ms to 10240 ms</td>
-<td>定义扫描时间窗口</td>
-</tr>
-<tr>
-<td>Scan mode</td>
-<td>Active / Passive</td>
-<td>主动扫描(会发送Scan Request)</td>
-</tr>
-</tbody>
-</table>
-<p>上图:<br><img src="https://draapho.github.io/images/1713/ble-scan.PNG" alt="ble scan"></p>
-<h2 id="Connections"><a href="#Connections" class="headerlink" title="Connections"></a>Connections</h2><ul>
-<li>建立通讯后, 设备的角色被分为 Master 和 Slave</li>
-<li>发起建立通讯的设备, 即 Initiating 状态的扫描者, 为 Master</li>
-<li>之前在广播状态的设备, 即 Advertising 状态的广播者, 为 Slave</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>数值</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Minimum Connection Interval</td>
-<td>7.5 ms</td>
-<td>允许的最小连接间隔</td>
-</tr>
-<tr>
-<td>Maximum Connection Interval</td>
-<td>4000 ms</td>
-<td>允许的最大连接间隔</td>
-</tr>
-<tr>
-<td>Connection (slave) latency</td>
-<td>0 to 500</td>
-<td>Slaver允许的延迟次数</td>
-</tr>
-<tr>
-<td>Supervision timeout</td>
-<td>100 ms to 32000 ms</td>
-<td>设置一个失败超时时间</td>
-</tr>
-</tbody>
-</table>
-<p>对于 <code>Connection latency</code>, 就是Master会持续发送多个数据包来等待Slaver的回应.</p>
-<p>BLE点对点连接的数据交换示意图, 也同时说明了频道的变化:<br><img src="https://draapho.github.io/images/1713/ble-connect.png" alt="ble connect.png"></p>
-<h1 id="GAP"><a href="#GAP" class="headerlink" title="GAP"></a>GAP</h1><p>通用访问服务, 是对LL层的广播,监听,建立连接功能的抽象, 便于开发人员来理解和开发</p>
-<p>GAP的主要作用:</p>
-<ul>
-<li>Broadcast mode and observation procedure，实现单向的、无连接的通信方式；</li>
-<li>Discovery modes and procedures，实现蓝牙设备的发现操作；</li>
-<li>Connection modes and procedures，实现蓝牙设备的连接操作；</li>
-<li>Bonding modes and procedures，实现蓝牙设备的配对操作.</li>
-</ul>
-<p>GAP层的蓝牙设备角色:</p>
-<ul>
-<li>Broadcaster Role，设备正在发送广播；</li>
-<li>Observer Role，设备正在扫描广播；</li>
-<li>Peripheral Role， 对应Link Layer的slave角色, 可广播和被连接</li>
-<li>Central Role，对应Link Layer的master角色, 扫描和发起连接的一方</li>
-</ul>
-<p><strong>关于蓝牙设备的角色名称问题, 无力吐槽, 各个分层都有一套自己的术语, 看的时候注意其对应的架构层次再来理解</strong></p>
-<h1 id="ATT"><a href="#ATT" class="headerlink" title="ATT"></a>ATT</h1><p>该协议将单一的数值(信息)以Attribute(属性)的形式抽象出来，并提供一些方法，供远端设备读取和修改</p>
-<p>一个Attribute由Attribute Type、Attribute Handle和Attribute Value组成</p>
-<ul>
-<li>Attribute Type用于标示Attribute的类型, 譬如温度/湿度等.<br>Attribute Type使用 <code>UUID</code> (Universally Unique IDentifier)区分, 有 16-bit, 32-bit, 128-bit</li>
-<li>Attribute Handle是一个16-bit的数值, 简称 <code>Handle</code>. 用作唯一识别Attribute server上的所有Attribute<br>Attribute Handle可理解为Attribute的地址, 有如下意义：<ul>
-<li>一个server上可能存在多个相同类型的Attribute, 显然, client有区分这些Attribute的需要</li>
-<li>同一类型的多个Attribute, 可以组成一个Group, client可以通过这个Group中的起, 始handle访问所有的Attributes</li>
-</ul>
-</li>
-<li>Attribute Value代表Attribute的值，可以是任何固定长度或者可变长度的octet array （理解为字节类型的数组即可）。</li>
-<li>Attribute Permission代表Attribute的权限. 是否可读写, 是否加密等等.</li>
-</ul>
-<p>ATT设备角色, 采用client-server的形式.</p>
-<ul>
-<li>Server: 提供信息(即Attribute)的一方为服务方, 一般是传感器节点 (大多数情况是Advertiser / Slaver / Peripheral)</li>
-<li>Client: 访问信息(即Attribute)的一方为客户端, 一般是手机等终端 (大多数情况是Scanner / Master / Central)</li>
-</ul>
-<p><strong>关于蓝牙设备的角色名称问题, 无力吐槽, 各个分层都有一套自己的术语, 看的时候注意其对应的架构层次再来理解</strong></p>
-<h1 id="GATT"><a href="#GATT" class="headerlink" title="GATT"></a>GATT</h1><p>基于ATT提供的数值, 将有用的数值组打包好, 已服务(service)的方式开放给上层应用. 它相当于提供一套数据打包框架/规则.</p>
-<p>看框架图:<br><img src="https://draapho.github.io/images/1713/ble-gatt1.png" alt="ble gatt.png"><br><img src="https://draapho.github.io/images/1713/ble-gatt.gif" alt="ble gatt.gif"></p>
-<p>GATT profile的层次结构依次是： Profile—&gt;Service—&gt;characteristic</p>
-<ul>
-<li><code>Profile</code> 是基于GATT所派生出的真正的Profile， 由一个或者多个和某一应用场景有关的 <code>Service</code> 组成</li>
-<li><code>Service</code> 包含一个或者多个 <code>Characteristic</code>, 也可以通过Include的方式, 包含其它 <code>Service</code></li>
-<li><code>Characteristic</code> 则是GATT profile中最基本的数据单位, 由一个 <code>Properties / Declaration</code>, 一个 <code>Value</code>, 一个或者多个<code>Descriptor</code>组成</li>
-<li><code>Characteristic Properties / Declaration</code> 定义了characteristic的Value如何被使用，以及characteristic的Descriptor如何被访问。</li>
-<li><code>Characteristic Value</code> 是特征的实际值，例如一个温度特征，其Characteristic Value就是温度值就。</li>
-<li><code>Characteristic Descriptor</code> 则保存了一些和Characteristic Value相关的信息</li>
-</ul>
-<p>UUID 的分配</p>
-<ul>
-<li><a href="https://www.bluetooth.com/specifications/gatt/services" target="_blank" rel="external">GATT Services 官方标准</a></li>
-<li><a href="https://www.bluetooth.com/specifications/gatt/characteristics" target="_blank" rel="external">GATT Characteristics 官方标准</a></li>
-<li><a href="http://www.itu.int/en/ITU-T/asn1/Pages/UUID/uuids.aspx" target="_blank" rel="external">UUID Generation UUID 生成器</a></li>
-</ul>
-<h1 id="Security"><a href="#Security" class="headerlink" title="Security"></a>Security</h1><p>负责BLE通信中有关安全的内容.</p>
-<p>主要技术有:</p>
-<ul>
-<li>配对, pairing</li>
-<li>认证, authentication</li>
-<li>加密, encryption</li>
-</ul>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="https://www.silabs.com/documents/login/user-guides/ug103-14-fundamentals-ble.pdf" target="_blank" rel="external">UG103.14: Application Development Fundamentals: Bluetooth® Smart Technology</a></li>
-<li><a href="http://www.wowotech.net/bluetooth/bt_overview.html" target="_blank" rel="external">蓝牙协议分析(1)_基本概念</a>,<br>简单介绍了标准蓝牙和低功耗蓝牙. 正如作者所说, 蓝牙的架构设计很不”美”, 给人一种拆拆补补, 各自为政的感觉. 但不可否认, 商业上, 蓝牙是成功的!</li>
-<li><a href="http://www.wowotech.net/bluetooth/bt_protocol_arch.html" target="_blank" rel="external">蓝牙协议分析(2)_协议架构</a><br>从全局概念介绍了蓝牙架构的设计, 并对各个分层进行了简单的介绍.</li>
-<li><a href="http://www.wowotech.net/bluetooth/ble_stack_overview.html" target="_blank" rel="external">蓝牙协议分析(3)_蓝牙低功耗(BLE)协议栈介绍</a><br>对快速理解低功耗蓝牙(BLE) 非常有帮助! 也是从架构说起, 逐步深入细节的叙事风格</li>
-<li><a href="http://www.wowotech.net/bluetooth/ipv6_over_ble_intro.html" target="_blank" rel="external">蓝牙协议分析(4)_IPv6 Over BLE介绍</a><br>说明了加入IPv6协议的重大意义. 物联网大势所趋, 而IPv6必将成为数据传输的最终标准! (Zigbee也支持了IPv6, Thread天生就采用6LowPAN协议)</li>
-<li><a href="http://www.wowotech.net/bluetooth/ble_broadcast.html" target="_blank" rel="external">蓝牙协议分析(5)_BLE广播通信相关的技术分析</a></li>
-<li><a href="http://www.wowotech.net/bluetooth/ble_address_type.html" target="_blank" rel="external">蓝牙协议分析(6)_BLE地址类型</a></li>
-<li><a href="http://www.wowotech.net/bluetooth/ble_connection.html" target="_blank" rel="external">蓝牙协议分析(7)_BLE连接有关的技术分析</a></li>
-<li><a href="http://www.wowotech.net/bluetooth/ble_white_list.html" target="_blank" rel="external">蓝牙协议分析(8)_BLE安全机制之白名单</a></li>
-<li><a href="http://www.wowotech.net/bluetooth/ble_ll_privacy.html" target="_blank" rel="external">蓝牙协议分析(9)_BLE安全机制之LL Privacy</a></li>
-<li><a href="http://www.wowotech.net/bluetooth/le_encryption.html" target="_blank" rel="external">蓝牙协议分析(10)_BLE安全机制之LE Encryption</a><br>渐渐就由浅入深, 探讨技术细节了.</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1890,7 +1733,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">64</span>
+              <span class="site-state-item-count">65</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

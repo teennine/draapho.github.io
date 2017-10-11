@@ -260,6 +260,559 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/18/1628-soft-regular/" itemprop="url">
+                  正则表达式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-18T00:00:00+11:00" content="2016-12-18">
+              2016-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
+<li><a href="https://draapho.github.io/2016/12/18/1628-soft-regular/">正则表达式</a></li>
+<li><a href="https://draapho.github.io/2017/09/19/1726-soft-easyre/">人人都看得懂的正则表达式教程</a></li>
+<li><a href="https://draapho.github.io/2017/10/11/1727-soft-reexample/">最全的常用正则表达式大全</a></li>
+</ul>
+<p>本文详细介绍了正则表达式的基础内容</p>
+<h1 id="正则表达式基础内容"><a href="#正则表达式基础内容" class="headerlink" title="正则表达式基础内容"></a>正则表达式基础内容</h1><table>
+<thead>
+<tr>
+<th>RE 字符/范例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\</code></td>
+<td>跳脱/转义字符</td>
+</tr>
+<tr>
+<td><strong>占位符</strong></td>
+<td>表示一个字符</td>
+</tr>
+<tr>
+<td><code>^word</code></td>
+<td><code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;^#&#39; re.txt</code></td>
+<td>显示行首为 <code>#</code> 的行</td>
+</tr>
+<tr>
+<td><code>word$</code></td>
+<td><code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;!$&#39; re.txt</code></td>
+<td>显示行尾为 <code>!</code> 的行</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>代表<strong>任意一个</strong>字符, 必须有一个字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;e.e&#39; re.txt</code></td>
+<td>结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code></td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>字符集合. <strong>除<code>^</code> <code>\</code> <code>-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
+</tr>
+<tr>
+<td><code>[^]</code></td>
+<td>中括号内的第一个<code>^</code>表示补集, <del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
+<td>匹配 <code>(</code> <code>+</code> <code>*</code> <code>)</code> 中的一个字符.</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;[0-9]&#39; re.txt</code></td>
+<td>搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
+<td>排除结果 <code>oo0-oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
+</tr>
+<tr>
+<td><strong>数量符</strong></td>
+<td>跟在一个字符或组的后面, 重复该RE字符或组若干次</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td><strong>零个或多个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;ess*&#39; re.py</code></td>
+<td>结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code></td>
+</tr>
+<tr>
+<td>…… <code>.*</code></td>
+<td>表示任意字符</td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><strong>连续m到n个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>{m,}</code></td>
+<td><strong>连续m个及以上</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>{m}</code></td>
+<td><strong>连续m个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;go\{2,3\}g&#39; re.txt</code></td>
+<td>结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code></td>
+</tr>
+<tr>
+<td>…… <code>egrep -n &#39;go?d&#39; re.txt</code></td>
+<td>只能匹配<code>gd</code>和<code>god</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code></td>
+</tr>
+<tr>
+<td>…… <code>egrep -n &#39;go+d&#39; re.txt</code></td>
+<td>匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del></td>
+</tr>
+<tr>
+<td><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code></td>
+<td>让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符</td>
+</tr>
+<tr>
+<td>…… <code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td>会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del></td>
+</tr>
+<tr>
+<td>…… <code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td><code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串</td>
+</tr>
+<tr>
+<td><strong>逻辑分组</strong></td>
+<td>对字符进行分组和判断</td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>分组字符串</td>
+</tr>
+<tr>
+<td>…… <code>egrep &#39;A(xyz)+C&#39;</code></td>
+<td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
+</tr>
+<tr>
+<td><code>\number</code></td>
+<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
+</tr>
+<tr>
+<td>…… <code>(\d)abc\1</code></td>
+<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>|</code> 理解为或即可, 用来隔开多个正则表达式.</li>
+<li>譬如 <code>egrep -n &#39;gd|good&#39; re.txt</code>   只能匹配<code>gd</code>和<code>good</code></li>
+<li>譬如 <code>egrep -n &#39;g(la|oo)d&#39; re.txt</code> 只能匹配<code>glad</code>和<code>good</code></li>
+</ul>
+<h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
+<p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>系统字符集</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\d</code></td>
+<td>digital, 数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>\D</code></td>
+<td>非数字字符, <code>[^\d]</code></td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>space, 空白字符, <code>[ \t\r\n\f\v]</code></td>
+</tr>
+<tr>
+<td><code>\S</code></td>
+<td>非空白字符, <code>[^\s]</code></td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>word, 单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>\W</code></td>
+<td>非单词字符, <code>[^\w]</code></td>
+</tr>
+<tr>
+<td><code>\A</code></td>
+<td>仅匹配字符串开头</td>
+</tr>
+<tr>
+<td><code>\Z</code></td>
+<td>仅匹配字符串结尾</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>提取指定的<code>\w</code>串</td>
+</tr>
+<tr>
+<td>… <code>\bfoo\b</code></td>
+<td>匹配 <code>foo</code> <code>foo.</code> <code>(foo)</code> <code>b foo z</code>, <del>不匹配 <code>foobar</code></del></td>
+</tr>
+<tr>
+<td><code>\B</code></td>
+<td><code>[^\b]</code>, 指定部分内容提取<code>\w</code>串</td>
+</tr>
+<tr>
+<td>… <code>py\B</code></td>
+<td>匹配 <code>python</code> <code>py3</code>, <del>不匹配 <code>py</code> <code>py.</code> <code>py!</code></del></td>
+</tr>
+</tbody>
+</table>
+<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>系统字符集</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[:alnum:]</code></td>
+<td>单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>[:alpha:]</code></td>
+<td>字母字符, <code>[A-Za-z]</code></td>
+</tr>
+<tr>
+<td><code>[:ascii:]</code></td>
+<td>ASCII字符, <code>[\x00-\x7F]</code></td>
+</tr>
+<tr>
+<td><code>[:blank:]</code></td>
+<td>空格字符, <code>[ \t]</code></td>
+</tr>
+<tr>
+<td><code>[:cntrl:]</code></td>
+<td>控制键字符, <code>[\x00-\x1F\x7F]</code></td>
+</tr>
+<tr>
+<td><code>[:digit:]</code></td>
+<td>数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>[:graph:]</code></td>
+<td>非空字符, <code>[\x21-\x7E]</code>, <code>[:blank:]</code>的补集</td>
+</tr>
+<tr>
+<td><code>[:lower:]</code></td>
+<td>小写字母, <code>[a-z]</code></td>
+</tr>
+<tr>
+<td><code>[:print:]</code></td>
+<td>可被打印的字符, <code>[\x20-\x7E]</code></td>
+</tr>
+<tr>
+<td><code>[:punct:]</code></td>
+<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\</code>^_{}~-]丨`</td>
+</tr>
+<tr>
+<td><code>[:upper:]</code></td>
+<td>大写字母 <code>[A-Z]</code></td>
+</tr>
+<tr>
+<td><code>[:space:]</code></td>
+<td>空白字符 <code>[ \t\r\n\v\f]</code></td>
+</tr>
+<tr>
+<td><code>[:word:]</code></td>
+<td>字母字符 <code>[A-Za-z_]</code></td>
+</tr>
+<tr>
+<td><code>[:xdigit:]</code></td>
+<td>16进制类型 <code>[0-9A-Fa-f]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="BRE-基础RE"><a href="#BRE-基础RE" class="headerlink" title="BRE, 基础RE"></a>BRE, 基础RE</h2><p>即, Basic Regular Expression<br>BRE只定义了6组元字符：</p>
+<ul>
+<li><code>[]</code>, 用于在多个字符中选定一个字符进行匹配</li>
+<li><code>.</code>,  用于匹配任意字符</li>
+<li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
+<li><code>$</code>,  用于匹配行尾</li>
+<li><code>*</code>,  零个或多个的前一RE字符</li>
+<li><code>\</code>,  跳脱/转义字符</li>
+</ul>
+<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派,<br>为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪. <code>()</code> <code>{}</code> 需要使用 <code>\</code> 转义后才有特殊含义.<br>如果直接使用 <code>a{1,2}</code>, 只能去匹配 <code>a{1,2}</code> 字符串. 只有使用 <code>a\{1,2\}</code> 才能匹配为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code> <code>?</code> <code>(...|...)</code> <code>\number</code></del></p>
+<h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
+<ul>
+<li><code>{}</code> 用于表示重复匹配的次数. BRE中将<code>{}</code>当作普通字符对待，必须加<code>\</code>进行转义, 即<code>\{\}</code></li>
+<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，必须加<code>\</code>进行转义，即<code>\(\)</code></li>
+<li><code>|</code>, 完全为ERE新增的多项匹配能力定义的，BRE无多项匹配能力，只将<code>|</code>作普通字符对待</li>
+<li><code>\number</code>, ERE没有明确规定需要支持反向引用, 但不少工具都支持此功能</li>
+</ul>
+<h2 id="linux-unix下的RE表达式汇总"><a href="#linux-unix下的RE表达式汇总" class="headerlink" title="linux/unix下的RE表达式汇总"></a>linux/unix下的RE表达式汇总</h2><table>
+<thead>
+<tr>
+<th>PCRE记法</th>
+<th>vi/vim</th>
+<th>grep</th>
+<th>egrep</th>
+<th>awk</th>
+<th>sed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+<td><code>\+</code></td>
+<td><code>+</code></td>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><code>\=</code></td>
+<td><code>\?</code></td>
+<td><code>?</code></td>
+<td><code>?</code></td>
+<td><code>\?</code></td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\y</code> <code>\&lt;</code> <code>\&gt;</code></td>
+</tr>
+<tr>
+<td><code>(…)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+</tr>
+<tr>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td>不支持</td>
+<td><code>\1</code> <code>\2</code></td>
+</tr>
+</tbody>
+</table>
+<p>注意:</p>
+<ul>
+<li>PCRE中常用<code>\b</code>来表示<strong>单词的起始或结束位</strong>,</li>
+<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong>, 用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
+<li><code>sed</code>中的<code>\y</code>可以同时匹配这两个位置。</li>
+</ul>
+<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>bash shell中的含义</th>
+<th>RE中的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>零个到多个任意字符</td>
+<td>重复零个或多个前一RE字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>一个任意字符</td>
+<td>重复零个或一个前一RE字符</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>运行代码 <code>source</code></td>
+<td>一个任意字符</td>
+</tr>
+<tr>
+<td><code>[0-9a-z]</code></td>
+<td>list内的一个字符</td>
+<td>list内的一个字符</td>
+</tr>
+<tr>
+<td><code>[0-9]</code>的补集</td>
+<td><code>[!0-9]</code> ()</td>
+<td><code>[^range]</code> (<code>!</code>在RE里是普通字符)</td>
+</tr>
+<tr>
+<td><code>{}</code></td>
+<td><code>{123,abc}</code> 字符串匹配</td>
+<td><code>{m,n}</code> 重复m到n个前一RE字符</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>匹配<code>a</code>开头的任意文件<ul>
+<li>bash下 <code>ls a*</code></li>
+<li>re下 <code>ls | grep &quot;^a.*&quot;</code></li>
+</ul>
+</li>
+<li>匹配string1或string2或更多之一字符串<ul>
+<li>bash下 <code>{string1,string2,string3}</code>. 如 <code>touch a{xyz,123}.txt</code>, 结果为 <code>axyz.txt</code> <code>a123.txt</code></li>
+<li>re下 <code>(string1|string2|string3)</code>. 如 <code>ls | egrep &#39;g(la|oo)d&#39;</code>, 结果为 <code>glad</code> <code>good</code></li>
+</ul>
+</li>
+<li>连续字符匹配<ul>
+<li>bash下, 有两种连续字符表示法 <code>{0..9}</code> 和 <code>[0-9]</code>, 支持<code>[1-3a-z]</code>, <del>不支持<code>{1..3a..z}</code></del>, </li>
+<li>bash下 <code>touch {ex{1..3},ex4}.sh</code>或<code>touch {ex{1..3},ex4}.sh</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code> </li>
+<li>re下 <code>ls | egrep &quot;(ex[1-3]|ex4).sh&quot;</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code></li>
+</ul>
+</li>
+<li>简单总结, RE的功能远比bash自带的匹配符功能强大. 特别容易弄混的也就是 <code>*</code> <code>?</code> <code>[^range]</code></li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://python.usyiyi.cn/documents/python_278/library/re.html" target="_blank" rel="external">python标准库 7.2 re — 正则表达式操作</a></li>
+<li><a href="http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html" target="_blank" rel="external">Python正则表达式指南</a></li>
+<li><a href="http://linux.vbird.org/linux_basic/0330regularex.php" target="_blank" rel="external">鸟哥的私房菜 第十一章、正規表示法與文件格式化處理</a></li>
+<li><a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank" rel="external">Linux/Unix工具与正则表达式的POSIX规范</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/17/1627-linux-cmd-bash/" itemprop="url">
                   Bash Shell及环境变量
                 </a>
@@ -2381,238 +2934,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/24/1621-python-string/" itemprop="url">
-                  python 字符串处理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-24T00:00:00+11:00" content="2016-11-24">
-              2016-11-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="进制转换-编码转换"><a href="#进制转换-编码转换" class="headerlink" title="进制转换 / 编码转换"></a>进制转换 / 编码转换</h1><ul>
-<li><a href="https://docs.python.org/2/library/functions.html#hex" target="_blank" rel="external">hex</a>, 十进制-&gt;十六进制字符串</li>
-<li><a href="https://docs.python.org/2/library/functions.html#oct" target="_blank" rel="external">oct</a>, 十进制-&gt;八进制字符串</li>
-<li><a href="https://docs.python.org/2/library/functions.html#oct" target="_blank" rel="external">oct</a>, 十进制-&gt;八进制字符串</li>
-<li><a href="https://docs.python.org/2/library/functions.html#chr" target="_blank" rel="external">chr</a>, 十进制-&gt;ASCII码字符</li>
-<li><a href="https://docs.python.org/2/library/functions.html#unichr" target="_blank" rel="external">unichr</a>,  十进制-&gt;unicode编码</li>
-<li><a href="https://docs.python.org/2/library/functions.html#ord" target="_blank" rel="external">ord</a>,  ascii码/unicode编码-&gt;十进制</li>
-<li><a href="https://docs.python.org/2/library/binascii.html" target="_blank" rel="external">binascii</a>, 字符串&lt;-&gt;字节流</li>
-<li><a href="https://docs.python.org/2/library/struct.html" target="_blank" rel="external">struct</a>, 字符串&lt;-&gt;字节流<ul>
-<li>struct中的 <a href="https://docs.python.org/2/library/struct.html#format-characters" target="_blank" rel="external">fmt</a> 详解</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/stdtypes.html#string-methods" target="_blank" rel="external">str.decode / str.encode</a>, 基于unicode的编码转换</li>
-<li><a href="https://docs.python.org/2/library/codecs.html#standard-encodings" target="_blank" rel="external">Standard Encodings</a>, python支持的编码表<ul>
-<li>常用的有 <code>hex</code>, <code>utf-8</code>, <code>unicode_escape</code></li>
-</ul>
-</li>
-<li><a href="http://blog.csdn.net/pipisorry/article/details/44136297" target="_blank" rel="external">python字符串编码及乱码解决方案</a><ul>
-<li>解释了unicode与str在python2.7 和 python3下的区别. <code>str.decode</code>和<code>str.encode</code>的含义</li>
-<li>python2.7, 默认str编码为ascii, 需要使用<code>s=u&quot;人生苦短&quot;</code>来表示unicode编码字符串(便于跨平台统一)</li>
-<li><strong>终极原则： decode early, unicode everywhere, encode late</strong></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/functions.html" target="_blank" rel="external">更多的python内置函数</a>如下<ul>
-<li>int(x [,base ]), 将x转换为一个整数</li>
-<li>long(x [,base ]), 将x转换为一个长整数</li>
-<li>float(x), 将x转换到一个浮点数</li>
-<li>complex(real [,imag ]), 创建一个复数</li>
-<li>str(x) , 将对象 x 转换为字符串</li>
-<li>repr(x), 将对象 x 转换为表达式字符串</li>
-<li>eval(str), 用来计算在字符串中的有效Python表达式,并返回一个对象</li>
-<li>tuple(s), 将序列 s 转换为一个元组</li>
-<li>list(s), 将序列 s 转换为一个列表</li>
-</ul>
-</li>
-</ul>
-<h2 id="十进制-lt-gt-十六进制字符串"><a href="#十进制-lt-gt-十六进制字符串" class="headerlink" title="十进制&lt;-&gt;十六进制字符串"></a>十进制&lt;-&gt;十六进制字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>hex(<span class="number">255</span>)</div><div class="line"><span class="string">'0xff'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>float.hex(<span class="number">1.0</span>)</div><div class="line"><span class="string">'0x1.0000000000000p+0'</span></div><div class="line"></div><div class="line"><span class="comment"># 可以有前缀 0b/0B(二进制), 0o/0O/0(八进制), or 0x/0X(十六进制),</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'0xff'</span>, <span class="number">16</span>)</div><div class="line"><span class="number">255</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'ff'</span>, <span class="number">16</span>)</div><div class="line"><span class="number">255</span></div></pre></td></tr></table></figure>
-<h2 id="二进制字符串-lt-gt-十六进制字符串"><a href="#二进制字符串-lt-gt-十六进制字符串" class="headerlink" title="二进制字符串&lt;-&gt;十六进制字符串"></a>二进制字符串&lt;-&gt;十六进制字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>bin(int(<span class="string">'0xff'</span>, <span class="number">16</span>))</div><div class="line"><span class="string">'0b11111111'</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>hex(int(<span class="string">'0b1010'</span>,<span class="number">2</span>))</div><div class="line"><span class="string">'0xa'</span></div></pre></td></tr></table></figure>
-<h2 id="十进制-lt-gt-unicode字符串-lt-gt-utf8编码"><a href="#十进制-lt-gt-unicode字符串-lt-gt-utf8编码" class="headerlink" title="十进制&lt;-&gt;unicode字符串&lt;-&gt;utf8编码"></a>十进制&lt;-&gt;unicode字符串&lt;-&gt;utf8编码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>c = <span class="string">u'ñ'</span>            <span class="comment"># u表示使用unicode编码存储.</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>c                   <span class="comment"># 显示c在电脑中的值</span></div><div class="line"><span class="string">u'\xf1'</span>                 <span class="comment"># 即 u'\u00f1', \u需要2byte!</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>ord(c)</div><div class="line"><span class="number">241</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>unichr(<span class="number">241</span>)</div><div class="line"><span class="string">u'\xf1'</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">u'\u00f1'</span>.encode(<span class="string">'utf-8'</span>)       <span class="comment"># unicode-&gt;utf-8</span></div><div class="line"><span class="string">'\xc3\xb1'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'\xc3\xb1'</span>.decode(<span class="string">'utf-8'</span>)      <span class="comment"># utf-8-&gt;unicode</span></div><div class="line"><span class="string">u'\xf1'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="string">u'\u00f1'</span>                 <span class="comment"># 打印显示</span></div><div class="line">ñ</div></pre></td></tr></table></figure>
-<h2 id="字节流-lt-gt-整数"><a href="#字节流-lt-gt-整数" class="headerlink" title="字节流&lt;-&gt;整数"></a>字节流&lt;-&gt;整数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 使用 struct</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> struct</div><div class="line"></div><div class="line"><span class="comment"># 字节流-&gt;整数</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.unpack(<span class="string">'&lt;hh'</span>, bytes(<span class="string">b'\x01\x00\x00\x00'</span>))    <span class="comment"># 转义为short型整数</span></div><div class="line">(<span class="number">1</span>, <span class="number">0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.unpack(<span class="string">'&lt;L'</span>, bytes(<span class="string">b'\x01\x00\x00\x00'</span>))     <span class="comment"># 转义为long型整数</span></div><div class="line">(<span class="number">1</span>,)</div><div class="line"></div><div class="line"><span class="comment"># 整数-&gt;字节流</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.pack(<span class="string">'&lt;HH'</span>, <span class="number">1</span>,<span class="number">2</span>)</div><div class="line"><span class="string">'\x01\x00\x02\x00'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.pack(<span class="string">'&lt;LL'</span>, <span class="number">1</span>,<span class="number">2</span>)</div><div class="line"><span class="string">'\x01\x00\x00\x00\x02\x00\x00\x00'</span></div></pre></td></tr></table></figure>
-<h2 id="几个实用的例子"><a href="#几个实用的例子" class="headerlink" title="几个实用的例子"></a>几个实用的例子</h2><ul>
-<li>去掉字符串中的跳脱符, 生成标准的unicode字符串</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">u'\\u4f60\\u4f60'</span>.decode(<span class="string">'unicode_escape'</span>)</div><div class="line"><span class="string">u'\u4f60\u4f60'</span></div></pre></td></tr></table></figure>
-<ul>
-<li>解码16进制字符串：也可以直接 print 出来</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>b=<span class="string">'\xd1\xee\xba\xea\xc1\xc1\n'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> unicode(b, <span class="string">'gbk'</span>).encode(<span class="string">'utf8'</span>) <span class="comment"># 等同于 print b.decode('gbk').encode('utf8')</span></div></pre></td></tr></table></figure>
-<ul>
-<li>bin &lt;-&gt; ascii</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;ASCII编码串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'1234'</span>.encode(<span class="string">"hex"</span>)</div><div class="line"><span class="string">'31323334'</span></div><div class="line"><span class="comment"># ASCII编码串-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'3031'</span>.decode(<span class="string">"hex"</span>)</div><div class="line"><span class="string">'01'</span></div><div class="line"></div><div class="line"><span class="comment"># 使用 binascii</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> binascii</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>binascii.hexlify(<span class="string">"1234"</span>)    <span class="comment"># 或者 binascii.b2a_hex("1234")</span></div><div class="line"><span class="string">'31323334'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>binascii.unhexlify(<span class="string">"3031"</span>)  <span class="comment"># 或者 binascii.a2b_hex("3031")</span></div><div class="line"><span class="string">'01'</span></div></pre></td></tr></table></figure>
-<h1 id="字符串-lt-gt-数值-列表-字典"><a href="#字符串-lt-gt-数值-列表-字典" class="headerlink" title="字符串&lt;-&gt;数值/列表/字典"></a>字符串&lt;-&gt;数值/列表/字典</h1><h2 id="字符串-lt-gt-数值"><a href="#字符串-lt-gt-数值" class="headerlink" title="字符串&lt;-&gt;数值"></a>字符串&lt;-&gt;数值</h2><ul>
-<li>int(x [,base ]), 将x转换为一个整数</li>
-<li>long(x [,base ]), 将x转换为一个长整数</li>
-<li>float(x), 将x转换到一个浮点数</li>
-<li><strong>使用re正则表达式, 实用范例</strong></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>str = <span class="string">"test: 12a345 to 325.-123.34"</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># this can get the number from str like "good456sdg78", return ['456', '78']</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">r'\d+'</span>, str)</div><div class="line">[<span class="string">'12'</span>, <span class="string">'345'</span>, <span class="string">'325'</span>, <span class="string">'123'</span>, <span class="string">'34'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># this can get the number seperate in str like "good12sd 45 78 ", return ['45', '78']</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">r'\b\d+\b'</span>, str)</div><div class="line">[<span class="string">'325'</span>, <span class="string">'123'</span>, <span class="string">'34'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># more complicated, can recognize and return [30, -10, 34.12, -12.34, 67.56E+3, -14.23e-2]</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">"[-+]?\d+[\.]?\d+[eE]?[-+]?\d*"</span>, str)</div><div class="line">[<span class="string">'12'</span>, <span class="string">'345'</span>, <span class="string">'325'</span>, <span class="string">'-123.34'</span>]</div></pre></td></tr></table></figure>
-<h2 id="字符串-gt-列表-字典-去掉引号"><a href="#字符串-gt-列表-字典-去掉引号" class="headerlink" title="字符串-&gt;列表/字典 (去掉引号)"></a>字符串-&gt;列表/字典 (去掉引号)</h2><ul>
-<li>eval(), 将str当成有效的表达式来求值并返回计算结果. 在确保str源安全的情况下可用.<ul>
-<li><a href="http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html" target="_blank" rel="external">Eval really is dangerous</a></li>
-<li><a href="http://blog.csdn.net/zhanh1218/article/details/37562167" target="_blank" rel="external">Python:eval的妙用和滥用</a></li>
-</ul>
-</li>
-<li><a href="https://docs.python.org/2/library/ast.html#ast-helpers" target="_blank" rel="external">ast.literal_eval()</a>, eval的替代品, 更安全</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"[1,2,3]"</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"&#123;'one':1, 'two':2&#125;"</span>)</div><div class="line">&#123;<span class="string">'two'</span>: <span class="number">2</span>, <span class="string">'one'</span>: <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="字符串-lt-gt-列表"><a href="#字符串-lt-gt-列表" class="headerlink" title="字符串&lt;-&gt;列表"></a>字符串&lt;-&gt;列表</h2><ul>
-<li>str.join(), 列表-&gt;字符串</li>
-<li>str.split(), 字符串-&gt;列表</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = list(<span class="string">"hello"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst</div><div class="line">[<span class="string">'h'</span>, <span class="string">'e'</span>, <span class="string">'l'</span>, <span class="string">'l'</span>, <span class="string">'o'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(lst)</div><div class="line"><span class="string">'hello'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表 (指定分隔符, 如空格, 逗号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season = <span class="string">'spring, summer, autumn, winter'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season.split (<span class="string">','</span>)</div><div class="line">[<span class="string">'spring'</span>, <span class="string">' summer'</span>, <span class="string">' autumn'</span>, <span class="string">' winter'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="string">"spring"</span>, <span class="string">"summer"</span>, <span class="string">"autumn"</span>, <span class="string">"winter"</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">', '</span>.join(lst)</div><div class="line"><span class="string">'spring, summer, autumn, winter'</span></div><div class="line"></div><div class="line"><span class="comment"># 整数列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(str(e) <span class="keyword">for</span> e <span class="keyword">in</span> lst)</div><div class="line"><span class="string">'123'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;hex格式列表-&gt;hex格式字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>map(ord, <span class="string">"1234"</span>) <span class="comment"># [0x31, 0x32, 0x33 0x34]</span></div><div class="line">[<span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join([<span class="string">"%02x"</span> % i <span class="keyword">for</span> i <span class="keyword">in</span> map(ord, <span class="string">"1234"</span>)])</div><div class="line"><span class="string">'31323334'</span></div></pre></td></tr></table></figure>
-<h1 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h1><h2 id="操作基础"><a href="#操作基础" class="headerlink" title="操作基础"></a>操作基础</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 去前后空格及特殊符号</span></div><div class="line">s.strip().lstrip().rstrip(<span class="string">','</span>)</div><div class="line"></div><div class="line"><span class="comment"># 查找字符</span></div><div class="line">sStr1.index(sStr2)  <span class="comment"># 返回所在位置, 不存在则报错</span></div><div class="line">sStr2 <span class="keyword">in</span> sStr1      <span class="comment"># 返回 True or False</span></div><div class="line"></div><div class="line"><span class="comment"># 比较字符串</span></div><div class="line">cmp(sStr1,sStr)</div><div class="line"></div><div class="line"><span class="comment"># 字符串长度</span></div><div class="line">len(sStr1)</div><div class="line"></div><div class="line"><span class="comment"># 将字符串中的大小写转换</span></div><div class="line">sStr1.upper().lower()</div><div class="line"></div><div class="line"><span class="comment"># 扩充到指定长度</span></div><div class="line">str(<span class="number">01</span>).zfill(<span class="number">5</span>) <span class="comment"># “00001”</span></div><div class="line"></div><div class="line"><span class="comment"># 翻转字符串</span></div><div class="line">sStr1[::<span class="number">-1</span>]</div><div class="line"></div><div class="line"><span class="comment"># 分割字符串</span></div><div class="line">s.split(<span class="string">','</span>)</div><div class="line"></div><div class="line"><span class="comment"># 字符串切片</span></div><div class="line">str = ’<span class="number">0123456789</span>′</div><div class="line"><span class="keyword">print</span> str[<span class="number">0</span>:<span class="number">3</span>]      <span class="comment"># 截取第一位到第三位的字符</span></div><div class="line"><span class="keyword">print</span> str[:]        <span class="comment"># 截取字符串的全部字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">6</span>:]       <span class="comment"># 截取第七个字符到结尾</span></div><div class="line"><span class="keyword">print</span> str[:<span class="number">-3</span>]      <span class="comment"># 截取从头开始到倒数第三个字符之前</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">2</span>]        <span class="comment"># 截取第三个字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-1</span>]       <span class="comment"># 截取倒数第一个字符</span></div><div class="line"><span class="keyword">print</span> str[::<span class="number">-1</span>]     <span class="comment"># 创造一个与原字符串顺序相反的字符串</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-3</span>:<span class="number">-1</span>]    <span class="comment"># 截取倒数第三位与倒数第一位之前的字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-3</span>:]      <span class="comment"># 截取倒数第三位到结尾</span></div></pre></td></tr></table></figure>
-<h2 id="查看手册及高阶使用"><a href="#查看手册及高阶使用" class="headerlink" title="查看手册及高阶使用"></a>查看手册及高阶使用</h2><ul>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/chapters/p02_strings_and_text.html" target="_blank" rel="external">cookbook-第二章：字符串和文本</a>, 实用范例<ul>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p01_split_string_on_multiple_delimiters.html" target="_blank" rel="external">2.1 使用多个界定符分割字符串</a>, split(), re.split()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p02_match_text_at_start_end.html" target="_blank" rel="external">2.2 字符串开头或结尾匹配</a>, startswith(), endswith()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p03_match_strings_with_shell_wildcard.html" target="_blank" rel="external">2.3 用Shell通配符匹配字符串</a>, fnmatch(), fnmatchcase()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p04_match_and_search_text.html" target="_blank" rel="external">2.4 字符串匹配和搜索</a>, find(), findall(), match(), re.match()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p05_search_and_replace_text.html" target="_blank" rel="external">2.5 字符串搜索和替换</a>, replace(), re.sub()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p06_search_replace_case_insensitive.html" target="_blank" rel="external">2.6 字符串忽略大小写的搜索替换</a>, re.IGNORECASE</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p07_specify_regexp_for_shortest_match.html" target="_blank" rel="external">2.7 最短匹配模式</a>, 解决成对符号的问题, 避免贪婪算法</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p08_regexp_for_multiline_partterns.html" target="_blank" rel="external">2.8 多行匹配模式</a>, 解决回车换行的问题</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p09_normalize_unicode_text_to_regexp.html" target="_blank" rel="external">2.9 将Unicode文本标准化</a></li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p10_work_with_unicode_in_regexp.html" target="_blank" rel="external">2.10 在正则式中使用Unicode</a></li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p11_strip_unwanted_characters.html" target="_blank" rel="external">2.11 删除字符串中不需要的字符</a>, strip(), replace(), re.sub()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p12_sanitizing_clean_up_text.html" target="_blank" rel="external">2.12 审查清理文本字符串</a></li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p13_aligning_text_strings.html" target="_blank" rel="external">2.13 字符串对齐</a>, ljust(), rjust(), center(), format()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p14_combine_and_concatenate_strings.html" target="_blank" rel="external">2.14 合并拼接字符串</a>, join()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p15_interpolating_variables_in_strings.html" target="_blank" rel="external">2.15 字符串中插入变量</a>, format()的高阶使用</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p16_reformat_text_to_fixed_number_columns.html" target="_blank" rel="external">2.16 以指定列宽格式化字符串</a>, textwrap</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p17_handle_html_xml_in_text.html" target="_blank" rel="external">2.17 在字符串中处理html和xml</a></li>
-<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p18_tokenizing_text.html" target="_blank" rel="external">2.18 字符串令牌解析</a>, 语法的解析</del></li>
-<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p19_writing_recursive_descent_parser.html" target="_blank" rel="external">2.19 实现一个简单的递归下降分析器</a>, 语法的解析</del></li>
-<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p20_perform_text_operations_on_byte_string.html" target="_blank" rel="external">2.20 字节字符串上的字符串操作</a>, bytearray</del></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/stdtypes.html#string-methods" target="_blank" rel="external">String Methods</a>, string提供的方法/函数<ul>
-<li><a href="https://docs.python.org/2/library/stdtypes.html#string-formatting-operations" target="_blank" rel="external">String Formatting Operations</a>, 格式化显示, 建议使用format替代</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/string.html" target="_blank" rel="external">string — Common string operations</a>, python官方手册之字符串操作<ul>
-<li><a href="https://docs.python.org/2/library/string.html#string-constants" target="_blank" rel="external">String constants</a>, 字符串常量, 如字母, 数字</li>
-<li><a href="https://docs.python.org/2/library/string.html#format-examples" target="_blank" rel="external">Format examples</a>, 格式化显示</li>
-<li><del><a href="https://docs.python.org/2/library/string.html#template-strings" target="_blank" rel="external">Template strings</a>, 模板显示</del>, 建议使用format代替.</li>
-</ul>
-</li>
-</ul>
-<h2 id="使用正则表达式的一些例子"><a href="#使用正则表达式的一些例子" class="headerlink" title="使用正则表达式的一些例子"></a>使用正则表达式的一些例子</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 去掉所有的空格和tab</span></div><div class="line">re.sub(<span class="string">'[\s+]'</span>, <span class="string">''</span>, str)</div><div class="line"></div><div class="line"><span class="comment"># 转换小写下划线格式变化为驼峰格式</span></div><div class="line">re.sub(<span class="string">'^\w|_\w'</span>, <span class="keyword">lambda</span> x:x.group()[<span class="number">-1</span>].upper(), <span class="string">'blog_view'</span>) <span class="comment"># 输出 'BlogView'。</span></div></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2658,7 +2979,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">64</span>
+              <span class="site-state-item-count">65</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
