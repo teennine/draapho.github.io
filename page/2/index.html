@@ -260,6 +260,358 @@
             
               
                 
+                <a class="post-title-link" href="/2017/09/01/1722-kernel-compile/" itemprop="url">
+                  kernel之编译体验
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-09-01T00:00:00+10:00" content="2017-09-01">
+              2017-09-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linlux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 回顾一下s3c2440的地址分配</li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="解压缩和打补丁"><a href="#解压缩和打补丁" class="headerlink" title="解压缩和打补丁"></a>解压缩和打补丁</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu shell</span></div><div class="line"></div><div class="line">tar xjvf linux-2.6.22.6.tar.bz2             <span class="comment"># 解压kernel源码</span></div><div class="line"><span class="built_in">cd</span> linux-2.6.22.6                           <span class="comment"># 进入kernel源码目录</span></div><div class="line">patch -p1 &lt; ../linux-2.6.22.6_jz2440.patch  <span class="comment"># 打补丁文件, p1表忽略patch文件内的1层目录</span></div><div class="line"></div><div class="line"><span class="comment"># pwd = linux-2.6.22.6</span></div><div class="line">mv ../4.3寸LCD_mach-smdk2440.c arch/arm/mach<span class="_">-s</span>3c2440/mach-smdk2440.c    <span class="comment"># 替换为4.3寸屏源码</span></div></pre></td></tr></table></figure>
+<h1 id="生成配置文件-“-config”"><a href="#生成配置文件-“-config”" class="headerlink" title="生成配置文件 “.config”"></a>生成配置文件 “.config”</h1><p>整个嵌入式linux系统的配置, 其根源就是这么一个 “.config” 文件.<br>然后编译时, 会通过makefile变量和C语言的宏定义来实现模块的使能, 禁止或生成为<code>.ko</code>模块.</p>
+<h2 id="生成”-config”"><a href="#生成”-config”" class="headerlink" title="生成”.config”"></a>生成”.config”</h2><p>生成<code>.config</code>配置文件有三种方法:</p>
+<ul>
+<li>直接使用 <code>make menuconfig</code> 进行配置<ul>
+<li>配置项太多了, 基本不会直接用这种方式</li>
+</ul>
+</li>
+<li>基于默认配置自行修改<ul>
+<li>确保 <code>pwd</code> 路径在kernel源码路径下: <code>./linux-2.6.22.6/</code></li>
+<li><code>find -name &quot;*defconfig&quot;</code>, 查找默认配置文件</li>
+<li>可以找到, 最相关的配置文件为 <code>./arch/arm/configs/s3c2410_defconfig</code></li>
+<li><code>make s3c2410_defconfig</code>, 加载这个默认配置.</li>
+<li>注意最后一句 “configuration written to .config”, 因此最终生成的就是一个 <code>.config</code> 文件</li>
+<li><code>make menuconfig</code> 根据需求, 部分修改配置 <code>.config</code> 文件.</li>
+<li>如果遇到错误提示 <code>fatal error: curses.h:</code>. 安装 <code>sudo apt-get install libncurses5-dev libncursesw5-dev</code></li>
+</ul>
+</li>
+<li>使用厂家提供的配置文件<ul>
+<li>jz2440 提供的配置文件名为 <code>config_ok</code></li>
+<li><code>cp config_ok .config</code> 直接改名为 <code>.config</code> 文件即可.</li>
+<li><code>make menuconfig</code>, 一样可以再自己定制配置.</li>
+</ul>
+</li>
+</ul>
+<h2 id="修改”-config”"><a href="#修改”-config”" class="headerlink" title="修改”.config”"></a>修改”.config”</h2><p>执行 <code>make menuconfig</code> 后, 有个简单的用户界面. 关键操作如下:</p>
+<ul>
+<li><code>上下左右</code>键进行移动, <code>Enter</code>键进入子菜单.</li>
+<li>按两边 <code>ESC</code> 返回上一级, 或退出界面.</li>
+<li><code>蓝色高亮字母</code> 为快捷键, 按了直接跳到那一行</li>
+<li><code>Y</code> 表示需要加载这个模块</li>
+<li><code>N</code> 表示不要加载这个模块</li>
+<li><code>M</code> 表示将此模块生成 <code>.ko</code> 文件, 可动态加载.</li>
+<li><code>?</code> 显示当前行的帮助信息, 帮助页按 <code>上下</code> 或 <code>jk</code> 进行翻页</li>
+<li><code>/</code> 搜索关键字</li>
+</ul>
+<h1 id="分析配置过程"><a href="#分析配置过程" class="headerlink" title="分析配置过程"></a>分析配置过程</h1><p>从 “.config” 文件出发, 分析查看该文件如何影响 Makefile 文件以及C语言的宏定义.</p>
+<h2 id="“-config”-文件"><a href="#“-config”-文件" class="headerlink" title="“.config” 文件"></a>“.config” 文件</h2><p>使用 <code>vim .config</code> 查看该文件, 可知其基本格式为 <code>CONFIG_XXX=</code></p>
+<ul>
+<li><code># CONFIG_XXX is not set</code> 此项被配置为 <code>N</code>, 不编译</li>
+<li><code>CONFIG_XXX=y</code> 此项被配置为 <code>Y</code>, 直接编译进内核</li>
+<li><code>CONFIG_XXX=m</code> 此项被配置为 <code>M</code>, 编译为<code>.ko</code>文件, 供动态加载</li>
+<li><code>CONFIG_LOCALVERSION=&quot;&quot;</code> 此项为字符串, 也可能是数值</li>
+</ul>
+<p>我们以 <code>CONFIG_DM9000</code> 为例, 进行搜索. 忽略一些其他的配置文件, 关键的文件有如下几个:</p>
+<ul>
+<li><code>include/linux/autoconf.h:129:   #define CONFIG_DM9000 1</code><ul>
+<li>这是个C语言的头文件, 很明显是给C语言代码调用的.</li>
+<li>该文件由Makefile调用 <code>./scripts/kconfig/</code> 内的脚本自动生成.</li>
+<li>对于 <code>y</code> <code>m</code> 的配置项, 宏定义为 <code>1</code></li>
+<li>对于 <code>n</code> 的配置项, 不进行宏定义</li>
+</ul>
+</li>
+<li><code>include/config/auto.conf:128:   CONFIG_DM9000=y</code><ul>
+<li>这个文件是给 Makefile 调用的, 里面的值全部被认为是Makefile变量.</li>
+<li>该文件由Makefile调用 <code>./scripts/kconfig/</code> 内的脚本自动生成.</li>
+<li>对于 <code>y</code> <code>m</code> 以及其它值的配置项, 照抄一遍 <code>.config</code> 里的内容</li>
+<li>对于 <code>n</code> 的配置项, 无定义!</li>
+</ul>
+</li>
+<li><code>drivers/net/Makefile:197:   obj-$(CONFIG_DM9000) += dm9dev9000c.o</code><ul>
+<li>子目录下的 Makefile 会被顶层的 Makefile 包含</li>
+<li>由<code>auto.conf</code>文件可知<code>$(CONFIG_DM9000)=y</code></li>
+<li>所以此句等同于 <code>obj-y += dm9dev9000c.o</code></li>
+<li>同理, 被设置成 <code>m</code> 的变量就会有 <code>obj-m += xxx.o</code></li>
+<li>如果配置项被设为 <code>n</code>, 则变量为空, 替换后为 <code>obj- += xxx.o</code>, 会被直接忽略</li>
+<li>Makefile 最后就通过 <code>obj-y</code> 或 <code>obj-m</code> 来识别配置, 编译模块.</li>
+</ul>
+</li>
+<li><code>.config:588:   CONFIG_DM9000=y</code><ul>
+<li><code>./.config</code> 配置文件. 一切配置的源头文件.</li>
+</ul>
+</li>
+</ul>
+<h1 id="编译和烧录内核"><a href="#编译和烧录内核" class="headerlink" title="编译和烧录内核"></a>编译和烧录内核</h1><h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">cp config_ok .config                        <span class="comment"># 加载厂家默认配置</span></div><div class="line">make clean                                  <span class="comment"># 清空</span></div><div class="line">make uImage                                 <span class="comment"># 编译获得内核image</span></div><div class="line"></div><div class="line"><span class="comment"># 可能在make时, 提示如下错误信息. 原因是新版的make对老的Makefile规则不兼容</span></div><div class="line">Makefile:1449: *** mixed implicit and normal rules.  Stop.</div><div class="line"></div><div class="line">vim Makefile</div><div class="line">    <span class="comment"># 416行      config %config: scripts_basic outputmakefile FORCE</span></div><div class="line">    <span class="comment">#   改为 -&gt;  %config: scripts_basic outputmakefile FORCE</span></div><div class="line">    <span class="comment"># 1449行     / %/: prepare scripts FORCE</span></div><div class="line">    <span class="comment">#   改为 -&gt;  %/: prepare scripts FORCE</span></div><div class="line">    <span class="comment"># 保存后重新编译即可.</span></div></pre></td></tr></table></figure>
+<h2 id="使用-nfs-烧录"><a href="#使用-nfs-烧录" class="headerlink" title="使用 nfs 烧录"></a>使用 nfs 烧录</h2><p>如果配置好网路, 建议使用 nfs 进行烧录<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 uboot</span></div><div class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址</span></div><div class="line"><span class="comment"># 将 .../linux-2.6.22.6/arch/arm/boot/uImage 拷贝到 /jz2440/</span></div><div class="line"></div><div class="line"><span class="comment"># kernel: 在OpenJTAG&gt; 提示符下</span></div><div class="line">nfs 30000000 10.0.0.98:/jz2440/uImage       <span class="comment"># nfs 加载 kernel 固件到ram中 (0x30000000是sdram的地址)</span></div><div class="line">nand erase kernel                           <span class="comment"># 擦除 falsh 的 kernel 区</span></div><div class="line">nand write.jffs2 30000000 kernel            <span class="comment"># 烧录 kernel (ram-&gt;flash)</span></div></pre></td></tr></table></figure></p>
+<h2 id="使用-dnw-烧录"><a href="#使用-dnw-烧录" class="headerlink" title="使用 dnw 烧录"></a>使用 dnw 烧录</h2><p><strong>确保链接了开发板的串口和usb口, 并把usb口关联到Ubuntu上.</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 uboot</span></div><div class="line"></div><div class="line"><span class="comment"># 打开 jz2440 开发板串口终端, 启动时输入空格键, 进入如下菜单</span></div><div class="line"><span class="comment">##### 100ask Bootloader for OpenJTAG #####</span></div><div class="line">[n] Download u-boot to Nand Flash</div><div class="line">[o] Download u-boot to Nor Flash            <span class="comment"># 如果是Nand Flash启动的话，这个菜单项没有</span></div><div class="line">[k] Download Linux kernel uImage</div><div class="line">[j] Download root_jffs2 image</div><div class="line">[y] Download root_yaffs image</div><div class="line">[d] Download to SDRAM &amp; Run</div><div class="line">[z] Download zImage into RAM</div><div class="line">[g] Boot linux from RAM</div><div class="line">[f] Format the Nand Flash</div><div class="line">[s] Set the boot parameters</div><div class="line">[b] Boot the system</div><div class="line">[r] Reboot u-boot</div><div class="line">[q] Quit from menu</div><div class="line"></div><div class="line">Enter your selection: k                     <span class="comment"># 输入k, 烧录 kernel</span></div><div class="line">USB host is connected. Waiting a download.  <span class="comment"># 提示连接成功</span></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 切换到 Ubuntu 终端, 输入</span></div><div class="line"><span class="comment"># pwd = ./linux-2.6.22.6                    # 确保在 kernel 源码路径下</span></div><div class="line">sudo dnw ./arch/arm/boot/uImage             <span class="comment"># 输入dnw指令, 指明烧录文件</span></div><div class="line"><span class="comment"># DNW usb device found!                     # 开始烧录</span></div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/08/30/1721-uboot-modify/" itemprop="url">
+                  uboot之定制指令
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-08-30T00:00:00+10:00" content="2017-08-30">
+              2017-08-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linlux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 回顾一下s3c2440的地址分配</li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+</ul>
+<p>本文基于 u-boot-1.1.6, 使用jz2440开发板. 若要使用最新的u-boot版本见: <a href="http://www.denx.de/wiki/U-Boot/WebHome" target="_blank" rel="external">u-boot官网</a>  <a href="ftp://ftp.denx.de/pub/u-boot/" target="_blank" rel="external">u-boot下载</a></p>
+<h1 id="hello-world"><a href="#hello-world" class="headerlink" title="hello world"></a>hello world</h1><ol>
+<li>新建文件 <code>./common/cmd_hello.c</code>, 按照其他 cmd_XXX 文件内容, 依样画葫芦即可.</li>
+<li>打开文件 <code>./common/Makefile</code>, 在 <code>COBJS = ...</code> 一行, 加入 <code>cmd_hello.o</code> 即可.</li>
+<li>Linux主机下, <code>make</code> 指令重新编译 u-boot, 并生成 <code>u-boot.bin</code> 文件</li>
+<li>烧录并执行, 测试新指令即可, 譬如在uboot命令行下, 输入 <code>hello DRA&amp;PHO</code>.</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;common.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;command.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">do_hello</span> <span class="params">(<span class="keyword">cmd_tbl_t</span> *cmdtp, <span class="keyword">int</span> flag, <span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> i;</div><div class="line"></div><div class="line">    <span class="built_in">printf</span> (<span class="string">"hello world!, %d\n"</span>, argc);</div><div class="line">    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;argc; i++) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"argv[%d]: %s\n"</span>, i, argv[i]);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">U_BOOT_CMD(</div><div class="line">    hello,  CFG_MAXARGS,    <span class="number">1</span>,  do_hello,</div><div class="line">    <span class="string">"hello   - print hello world and arguments\n"</span>,</div><div class="line">    <span class="string">"[arg [arg ...]]\n    - print hello and arguments\n"</span></div><div class="line">    <span class="string">"\ttest purpose, learn to write uboot command\n"</span></div><div class="line">);</div></pre></td></tr></table></figure>
+<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><p>我们用倒推法, 从关键的 <code>U_BOOT_CMD</code> 宏定义开始分析.<br>找到其宏定义所在的文件 <code>./include/command.h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="number">39</span>  <span class="keyword">struct</span> cmd_tbl_s &#123;</div><div class="line"><span class="number">40</span>      <span class="keyword">char</span>        *name;      <span class="comment">/* Command Name         */</span>          <span class="comment">// 指令名称</span></div><div class="line"><span class="number">41</span>      <span class="keyword">int</span>     maxargs;    <span class="comment">/* maximum number of arguments  */</span>      <span class="comment">// 参数最大数量</span></div><div class="line"><span class="number">42</span>      <span class="keyword">int</span>     repeatable; <span class="comment">/* autorepeat allowed?      */</span>          <span class="comment">// 空格键是否可自动重复指令</span></div><div class="line"><span class="number">44</span>      <span class="keyword">int</span>     (*cmd)(<span class="keyword">struct</span> cmd_tbl_s *, <span class="keyword">int</span>, <span class="keyword">int</span>, <span class="keyword">char</span> *[]);     <span class="comment">// 指令函数</span></div><div class="line"><span class="number">45</span>      <span class="keyword">char</span>        *usage;     <span class="comment">/* Usage message    (short) */</span>      <span class="comment">// 短帮助说明</span></div><div class="line"><span class="number">47</span>      <span class="keyword">char</span>        *help;      <span class="comment">/* Help  message    (long)  */</span>      <span class="comment">// 长帮助说明</span></div><div class="line"><span class="number">53</span>  &#125;;</div><div class="line"><span class="number">55</span>  <span class="keyword">typedef</span> <span class="keyword">struct</span> cmd_tbl_s    <span class="keyword">cmd_tbl_t</span>;</div><div class="line"></div><div class="line"><span class="number">57</span>  <span class="keyword">extern</span> <span class="keyword">cmd_tbl_t</span>  __u_boot_cmd_start;</div><div class="line"><span class="number">58</span>  <span class="keyword">extern</span> <span class="keyword">cmd_tbl_t</span>  __u_boot_cmd_end;</div><div class="line">    <span class="comment">// 这两个变量不存在与任何的C或者汇编文件中, 其来源于 "./board/100ask24x0/u-boot.lds" 链接脚本里面</span></div><div class="line"></div><div class="line"><span class="number">93</span>  <span class="meta">#<span class="meta-keyword">define</span> Struct_Section  __attribute__ ((unused,section (<span class="meta-string">".u_boot_cmd"</span>)))</span></div><div class="line">    <span class="comment">// 指定变量存放的段位置, 由链接脚本决定.</span></div><div class="line"></div><div class="line"><span class="number">97</span>  <span class="meta">#<span class="meta-keyword">define</span> U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \</span></div><div class="line">98  cmd_tbl_t __u_boot_cmd_##name Struct_Section = &#123;#name, maxargs, rep, cmd, usage, help&#125;</div><div class="line"></div><div class="line">    <span class="comment">// 已 U_BOOT_CMD(hello,  CFG_MAXARGS, 1, do_hello, ...); 为例, 展开后为</span></div><div class="line">    <span class="keyword">cmd_tbl_t</span> __u_boot_cmd_hello __attribute__ ((unused,section (<span class="string">".u_boot_cmd"</span>))) = &#123;</div><div class="line">    <span class="comment">// 这个变量结构被指定存放在 ".u_boot_cmd" 段内</span></div><div class="line">        hello,                                                      <span class="comment">// 指令名称 hello</span></div><div class="line">        CFG_MAXARGS,                                                <span class="comment">// 参数最大数量</span></div><div class="line">        <span class="number">1</span>,                                                          <span class="comment">// 可重复指令</span></div><div class="line">        do_hello,                                                   <span class="comment">// 指令函数</span></div><div class="line">        <span class="string">"hello   - print hello world and arguments\n"</span>,              <span class="comment">// 短帮助说明</span></div><div class="line">        <span class="string">"..."</span>                                                       <span class="comment">// 长帮助说明</span></div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>清楚了指令的结构体存放方式后, 需要考虑uboot是如何识别输入的指令, 并执行其指定的函数 <code>do_XXX</code><br>这个文件位于 <code>./common/command.c</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="number">346</span> <span class="keyword">cmd_tbl_t</span> *find_cmd (<span class="keyword">const</span> <span class="keyword">char</span> *cmd) &#123;</div><div class="line"><span class="number">360</span>     <span class="keyword">for</span> (cmdtp = &amp;__u_boot_cmd_start;                           <span class="comment">// 在".u_boot_cmd"段内查找指令</span></div><div class="line"><span class="number">361</span>          cmdtp != &amp;__u_boot_cmd_end;</div><div class="line"><span class="number">362</span>          cmdtp++) &#123;</div><div class="line"><span class="number">363</span>          <span class="keyword">if</span> (<span class="built_in">strncmp</span> (cmd, cmdtp-&gt;name, len) == <span class="number">0</span>) &#123;</div><div class="line"><span class="number">364</span>             <span class="keyword">if</span> (len == <span class="built_in">strlen</span> (cmdtp-&gt;name))</div><div class="line"><span class="number">365</span>                 <span class="keyword">return</span> cmdtp;   <span class="comment">/* full match */</span></div><div class="line"><span class="number">367</span>             cmdtp_temp = cmdtp; <span class="comment">/* abbreviated command ? */</span></div><div class="line"><span class="number">368</span>             n_found++;</div><div class="line"><span class="number">369</span>         &#125;</div><div class="line"><span class="number">370</span>     &#125;</div><div class="line"><span class="number">371</span>     <span class="keyword">if</span> (n_found == <span class="number">1</span>) &#123;         <span class="comment">/* exactly one match */</span></div><div class="line"><span class="number">372</span>         <span class="keyword">return</span> cmdtp_temp;</div><div class="line"><span class="number">373</span>     &#125;</div><div class="line"><span class="number">376</span> &#125;</div></pre></td></tr></table></figure>
+<p>此时, 通过查找 find_cmd 函数, 发现被多次调用, 其中一条路径是指令自动完成, 此处忽略.<br>可以发现它也被 <code>./common/main.c</code> 的 <code>run_command</code> 调用了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">301</span>  <span class="function"><span class="keyword">void</span> <span class="title">main_loop</span> <span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line">        <span class="comment">// 源码分析中, 已经分析到此函数. 用于自动启动kernel, 或者等待终端输入指令并执行</span></div><div class="line"><span class="number">488</span>     <span class="keyword">for</span> (;;) &#123;                                  <span class="comment">// 死循环, 等待终端输入</span></div><div class="line"><span class="number">497</span>         len = readline (CFG_PROMPT);            <span class="comment">// 读取整行, 会存放到 console_buffer 中</span></div><div class="line"><span class="number">501</span>         <span class="built_in">strcpy</span> (lastcommand, console_buffer);   <span class="comment">// 赋值给 lastcommand, 譬如 hello 指令</span></div><div class="line"><span class="number">521</span>         rc = run_command (lastcommand, flag);   <span class="comment">// 执行 lastcommand</span></div><div class="line"><span class="number">527</span>     &#125;</div><div class="line"><span class="number">529</span>  &#125;</div><div class="line"></div><div class="line"><span class="number">1280</span> <span class="function"><span class="keyword">int</span> <span class="title">run_command</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *cmd, <span class="keyword">int</span> flag)</span> </span>&#123;</div><div class="line"><span class="number">1361</span>    <span class="keyword">if</span> ((cmdtp = find_cmd(argv[<span class="number">0</span>])) == <span class="literal">NULL</span>) &#123;...&#125;          <span class="comment">// 查找指令</span></div><div class="line"><span class="number">1391</span>    <span class="keyword">if</span> ((cmdtp-&gt;cmd) (cmdtp, flag, argc, argv) != <span class="number">0</span>) &#123;...&#125;  <span class="comment">// 执行指令函数, 譬如调用 do_hello</span></div><div class="line"><span class="number">1403</span> &#125;</div></pre></td></tr></table></figure>
+<p>至此, 指令部分的实现分析完成. 再倒过来总结一下:</p>
+<ul>
+<li>main_loop 中, 终端等待用户输入指令, 譬如 “hello”</li>
+<li>run_command 先查找指令是否存在, 调用find_cmd</li>
+<li>find_cmd 会在 “.u_boot_cmd” 段内查找指令是否存在</li>
+<li>因此, 增减指令很简单, 只有两个关键点:<ul>
+<li>使用 <code>U_BOOT_CMD</code> 宏定义, 定义好指令结构, 编译器会自动存放进”.u_boot_cmd” 段</li>
+<li>实现指令函数. 习惯上将其命名为 “do_XXX”, 如 “do_hello”.</li>
+</ul>
+</li>
+<li>指令存在的话, 执行指令函数, 即通过 (cmdtp-&gt;cmd) (cmdtp, flag, argc, argv) 的形式调用 do_hello</li>
+<li>执行完成后, 继续死循环等待下一条输入</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/08/25/1720-uboot-source/" itemprop="url">
                   uboot之源码分析
                 </a>
@@ -1158,536 +1510,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/17/1715-c/" itemprop="url">
-                  C语言知识巩固
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-05-17T00:00:00+10:00" content="2017-05-17">
-              2017-05-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/software/" itemprop="url" rel="index">
-                    <span itemprop="name">software</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="常数的数据类型"><a href="#常数的数据类型" class="headerlink" title="常数的数据类型"></a>常数的数据类型</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1234            <span class="comment">// default type, int</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123456l         <span class="comment">// long</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1234u           <span class="comment">// unsigned int</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123456ul        <span class="comment">// unsigned long</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123.4f          <span class="comment">// float</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1e-2f           <span class="comment">// float</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 123.4           <span class="comment">// default type, double</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> 1e-2            <span class="comment">// default type, double</span></span></div></pre></td></tr></table></figure>
-<h1 id="字符和字符串"><a href="#字符和字符串" class="headerlink" title="字符和字符串"></a>字符和字符串</h1><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">#define X    'x'        // 直接使用字母, 会自动转换为ASCII编码</div><div class="line">#define CR   '\015'     // 八进制表示CR, 以\0开头</div><div class="line">#define CR   '\13'      // 十进制表示CR, 以\开头</div><div class="line">#define CR   '\x0D'     // 十六进制表示CR, 以\x开头</div><div class="line">#define CR   '\r'       // 特殊表示法</div><div class="line"></div><div class="line">// 字符串, 独立使用多个双引号, 也表示一串字符串</div><div class="line">char short_str[] = "hello," " world" "!";</div><div class="line">char long_str[] = "this is a very very long string,"</div><div class="line">                  "so you can set it in multi lines "</div><div class="line">                  "by this way"</div></pre></td></tr></table></figure>
-<h1 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"># <span class="number">1.</span> == 和 != 优先级高于位操作符 &amp; | ^</div><div class="line"><span class="keyword">if</span> ((x &amp; MASK) == <span class="number">0</span>)        <span class="comment">// (x &amp; MASK) 括号不能省!</span></div><div class="line"><span class="keyword">if</span> ( x &amp; y == <span class="number">0</span>)            <span class="comment">// 含义为 x &amp; (y==0)</span></div><div class="line"></div><div class="line"># <span class="number">2.</span> 赋值运算符优先级最低 (只比逗号高一级别)</div><div class="line"><span class="keyword">if</span> ((c = getchar()) != EOF) <span class="comment">// c获得输入值, 然后判断是否是结束符</span></div><div class="line"><span class="keyword">if</span> (c = getchar() != EOF)   <span class="comment">// 含义为 c = (getchar() != EOF), 所以c的赋值为 TRUE 或者 FALSE</span></div><div class="line"></div><div class="line"># <span class="number">3.</span> &amp;&amp; 的优先级 高于 ||</div><div class="line"><span class="keyword">if</span> ((cond1 || cond2) &amp;&amp; cond3)  <span class="comment">// 先或再与</span></div><div class="line"><span class="keyword">if</span> (cond1 || cond2 &amp;&amp; cond3)    <span class="comment">// 含义为 cond1 || (cond2 &amp;&amp; cond3)</span></div><div class="line"></div><div class="line"># <span class="number">4.</span> 算数运算优先级高于位移运算</div><div class="line">(msb &lt;&lt; <span class="number">4</span>) + lsb            <span class="comment">// 先位移, 再做加法</span></div><div class="line">msb &lt;&lt; <span class="number">4</span> + lsb              <span class="comment">// 含义为 msb &lt;&lt; (4 + lsb)</span></div><div class="line"></div><div class="line"># <span class="number">5.</span> 先-&gt;/./&amp;, 然后++/--, 最后 *,</div><div class="line">++p-&gt;len                    <span class="comment">// ++(p-&gt;len), len值++</span></div><div class="line">p-&gt;len++                    <span class="comment">// (p-&gt;len)++, len值++</span></div><div class="line">(++p)-&gt;len                  <span class="comment">// 先加p的值, 然后取len值</span></div><div class="line">p++-&gt;len                    <span class="comment">// (p++)-&gt;len 先加p的值, 然后取len值</span></div><div class="line">p-&gt;++len                    <span class="comment">// p-&gt;(++len) 语法错误, 不知道len是什么!</span></div><div class="line"></div><div class="line">++*p                        <span class="comment">// ++(*p), 内容++</span></div><div class="line">(*p)++                      <span class="comment">// 内容++</span></div><div class="line">*p++                        <span class="comment">// *(p++), 地址++, 然后取内容</span></div><div class="line"></div><div class="line">++*p-&gt;str                   <span class="comment">// ++(*p-&gt;str). str指向的内容++</span></div><div class="line">(*p-&gt;str)++                 <span class="comment">// str指向的内容++</span></div><div class="line">*p-&gt;str++                   <span class="comment">// *(p-&gt;str), (p-&gt;str)++. 取出str的内容, 然后str地址++</span></div><div class="line">*p++-&gt;str                   <span class="comment">// *p-&gt;str, p++. 取出str的内容, 然后p++</span></div><div class="line">*++p-&gt;str                   <span class="comment">// *(++p-&gt;str). str地址++, 然后取str的内容</span></div><div class="line">*p-&gt;++str                   <span class="comment">// *p-&gt;(++str) 语法错误, 不知道str是什么!</span></div><div class="line"></div><div class="line">++*p.len                    <span class="comment">// ++*(p.len), 多数情况下p是指针, 因此语法错误</span></div><div class="line">++(*p).len                  <span class="comment">// ++(p-&gt;len), str值++</span></div><div class="line">(*p++).len                  <span class="comment">// p++-&gt;len, p地址++, 然后取str值</span></div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>优先级</th>
-<th>运算符</th>
-<th>说明</th>
-<th>结合方向</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>后置 <code>++</code> <code>--</code></td>
-<td>自增++ 自减–</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>　　</td>
-<td><code>[]</code></td>
-<td>数组下标</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>()</code></td>
-<td>（表达式）/函数名(形参表)</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>.</code></td>
-<td>对象.成员名</td>
-<td></td>
-</tr>
-<tr>
-<td>　</td>
-<td><code>-&gt;</code></td>
-<td>对象指针-&gt;成员名</td>
-<td>　</td>
-</tr>
-<tr>
-<td>2</td>
-<td><code>-</code></td>
-<td>负号</td>
-<td>右到左</td>
-</tr>
-<tr>
-<td></td>
-<td><code>(类型)</code></td>
-<td>强制类型转换</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>++</code> <code>--</code> 前置</td>
-<td>++自增 –自减</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>*</code></td>
-<td>*指针表达式</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>&amp;</code></td>
-<td>&amp;左值表达式</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>!</code></td>
-<td>!表达式</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>~</code></td>
-<td>~表达式</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><code>sizeof</code></td>
-<td>sizeof 表达式/sizeof(类型)</td>
-<td></td>
-</tr>
-<tr>
-<td>　3</td>
-<td><code>*</code> <code>/</code> <code>%</code></td>
-<td>乘 除 取余</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>4</td>
-<td><code>+</code> <code>-</code></td>
-<td>加 减</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>5</td>
-<td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td>
-<td>左移 右移</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>6</td>
-<td><code>&gt;</code> <code>&gt;=</code> <code>&lt;</code> <code>&lt;=</code></td>
-<td>大于(等于) 小于(等于)</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>7</td>
-<td><code>==</code> <code>!=</code></td>
-<td>等于 不等于</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>8</td>
-<td><code>&amp;</code></td>
-<td>按位与</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>9</td>
-<td><code>^</code></td>
-<td>按位异或</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>10</td>
-<td><code>l</code> (竖杠)</td>
-<td>按位或</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>11</td>
-<td><code>&amp;&amp;</code></td>
-<td>逻辑与</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>12</td>
-<td><code>ll</code> (竖杠)</td>
-<td>逻辑或</td>
-<td>左到右</td>
-</tr>
-<tr>
-<td>13</td>
-<td><code>?:</code></td>
-<td>表达式1? 表达式2: 表达式3</td>
-<td>右到左</td>
-</tr>
-<tr>
-<td>14</td>
-<td><code>=</code> <code>/=</code> <code>*=</code> <code>%=</code> <code>+=</code> <code>-=</code></td>
-<td>赋值运算符</td>
-<td>右到左</td>
-</tr>
-<tr>
-<td></td>
-<td><code>&lt;&lt;=</code> <code>&gt;&gt;=</code> <code>&amp;=</code> <code>^=</code> <code>l=</code> (竖杠)</td>
-<td>位赋值运算符</td>
-<td></td>
-</tr>
-<tr>
-<td>15</td>
-<td><code>,</code></td>
-<td>表达式,表达式,…</td>
-<td>左到右</td>
-</tr>
-</tbody>
-</table>
-<h1 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 以 const 为例, volitale是一样的.</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">int</span>;          <span class="comment">// int是const</span></div><div class="line"><span class="keyword">int</span> <span class="keyword">const</span>;          <span class="comment">// int是const</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">char</span>*;        <span class="comment">// char是const</span></div><div class="line"><span class="keyword">char</span> <span class="keyword">const</span>*;        <span class="comment">// char是const</span></div><div class="line"><span class="keyword">char</span>* <span class="keyword">const</span>;        <span class="comment">// *(指针)是const</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span>;  <span class="comment">// char和*都是const</span></div><div class="line"><span class="keyword">char</span> <span class="keyword">const</span>* <span class="keyword">const</span>;  <span class="comment">//char和*都是const</span></div></pre></td></tr></table></figure>
-<ul>
-<li><code>register</code>, 建议编译器把该变量直接放到寄存器中, 而不是内存中. 以提高运算速度!<ul>
-<li>注意, 只是<strong>建议</strong>, 因此编译器可以忽略这个关键字</li>
-<li>变量必须是能被CPU寄存器接收的数据类型, 如 <code>int</code></li>
-<li>现代编译器的优化效率很高, 因此 <code>register</code> 很少使用.</li>
-<li><strong>还有一点</strong>. 譬如 <code>register int val;</code> 这时 <code>&amp;val</code> 会报错! 因为取的是内存地址, 而val是在寄存器内, 所以不存在内存地址!</li>
-</ul>
-</li>
-<li><code>auto</code>, 老版本C用于声明这是一个局部变量(与<code>static</code>相反). 新版本用于声明一个自动类型的变量.<ul>
-<li>这个关键字是真没人去用. 因为函数内默认就是局部变量.</li>
-<li>习惯写C的人, 基本习惯了先选好一个数据类型.</li>
-</ul>
-</li>
-</ul>
-<h1 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// #, Stringfication! 将宏变量直接转变为字符串(加上双引号)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> debug(v)        printf(#v <span class="meta-string">"=%x\n"</span>, v)</span></div><div class="line"></div><div class="line">debug(value);           <span class="comment">// 宏展开为 printf("value" "=%x\n", value)</span></div><div class="line">                        <span class="comment">// 若value值为0xFF, 执行结果就是打印出: value=0xFF</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ##, Concatenator! 宏变量连接符, 多用于自动生成变量名</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> CAT(x,y)        x##y</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> LINK(a,b,c)     a##_##b##_##c</span></div><div class="line"></div><div class="line">CAT(var, <span class="number">12</span>);           <span class="comment">// 宏展开为 var12</span></div><div class="line">LINK(name,age,sex);     <span class="comment">// 宏展开为 name_age_sex</span></div><div class="line"></div><div class="line"><span class="comment">// __VA_ARGS__, 宏定义可变参数</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_DEBUG 1</span></div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> DRV_DEBUG</span></div><div class="line">    <span class="meta">#<span class="meta-keyword">define</span> DRV_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">else</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">define</span> DRV_PRINT(fmt, ...)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"></div><div class="line"><span class="comment">// 编译器内置的宏定义:</span></div><div class="line">__LINE__                <span class="comment">// 在源代码中插入当前源代码行号；</span></div><div class="line">__FILE__                <span class="comment">// 在源文件中插入当前源文件名；</span></div><div class="line">__DATE__                <span class="comment">// 在源文件中插入当前的编译日期</span></div><div class="line">__TIME__                <span class="comment">// 在源文件中插入当前编译时间；</span></div><div class="line">__STDC__                <span class="comment">// 当要求程序严格遵循ANSI C标准时该标识被赋值为1；</span></div><div class="line">__cplusplus             <span class="comment">// 当编写C++程序时该标识符被定义。</span></div></pre></td></tr></table></figure>
-<h1 id="typedef-的用法"><a href="#typedef-的用法" class="headerlink" title="typedef 的用法"></a>typedef 的用法</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 我习惯将所有typedef定义为形如 uint8_t, 即已 "_t" 结尾</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span>&#123;</div><div class="line">    <span class="keyword">int</span> x;</div><div class="line">    <span class="keyword">int</span> y;</div><div class="line">&#125; <span class="keyword">point_t</span>;                          <span class="comment">// 数据结构</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*<span class="keyword">pfun_t</span>)</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span></span>;    <span class="comment">// 函数</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> <span class="keyword">array80_t</span>[<span class="number">80</span>];         <span class="comment">// 数组</span></div></pre></td></tr></table></figure>
-<h1 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> *name[] = &#123; <span class="string">"None"</span>, <span class="string">"Jan"</span>, <span class="string">"Feb"</span>, <span class="string">"Mar"</span> &#125;;     <span class="comment">// 指针数组 name</span></div><div class="line"><span class="keyword">int</span> *daytab[<span class="number">13</span>];    <span class="comment">// 指针数组 daytab</span></div><div class="line"><span class="keyword">int</span> (*daytab)[<span class="number">13</span>];  <span class="comment">// 数组指针 daytab, 譬如 int a[3][13], 则可以 p=a; p++后就指向了 &amp;a[1][0]</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> *<span class="title">f</span><span class="params">()</span></span>;           <span class="comment">// f 函数的返回值为指针类型</span></div><div class="line"><span class="keyword">int</span> (*pf)();        <span class="comment">// 函数指针 pf</span></div></pre></td></tr></table></figure>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这两个是极端复杂的例子, 实际代码建议先用 typedef 定义好一层, 然后再嵌套使用, 会容易理解的多!</span></div><div class="line"><span class="keyword">char</span> (*(*x[<span class="number">3</span>])())[<span class="number">5</span>];   <span class="comment">// x: array[3] of pointer to function returning pointer to array[5] of char</span></div><div class="line">                        <span class="comment">// x,一个指针数组, 这些指针指向函数, 函数的返回值是数组指针...</span></div><div class="line"><span class="keyword">char</span> (*(*x())[])();     <span class="comment">// x: function returning pointer to array[] of pointer to function returning char</span></div><div class="line">                        <span class="comment">// x,一个函数, 返回值为一个指针. 这个指针指向一个函数指针列表. 函数指针列表指向的函数是返回 char 类型的.</span></div><div class="line"></div><div class="line"><span class="comment">// 举个例子 -----&gt;</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">foo</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'a'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bar</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'b'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">blurga</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'c'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bletch</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'d'</span>; &#125;</div><div class="line"></div><div class="line"><span class="keyword">char</span> (*gfunclist[])() = &#123;foo, bar, blurga, bletch&#125;;</div><div class="line"></div><div class="line"><span class="keyword">char</span> (*(*x())[])()</div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="title">char</span> <span class="params">(*funclist[<span class="number">4</span>])</span><span class="params">()</span> </span>= &#123;foo, bar, blurga, bletch&#125;;</div><div class="line">    <span class="keyword">return</span> &amp;funclist;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,gfunclist[<span class="number">0</span>]());</div><div class="line"></div><div class="line">    <span class="keyword">char</span> (*(*fs)[<span class="number">4</span>])();</div><div class="line">    fs = x();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,(*fs)[<span class="number">1</span>]());</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 更容易读懂的版本 -----&gt;</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">char</span> <span class="params">(*<span class="keyword">pfun_t</span>)</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">foo</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'a'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bar</span><span class="params">()</span>    </span>&#123; <span class="keyword">return</span> <span class="string">'b'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">blurga</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'c'</span>; &#125;</div><div class="line"><span class="function"><span class="keyword">char</span> <span class="title">bletch</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">'d'</span>; &#125;</div><div class="line"></div><div class="line"><span class="keyword">pfun_t</span> gfunclist[] = &#123;foo, bar, blurga, bletch&#125;;</div><div class="line"></div><div class="line"><span class="keyword">pfun_t</span>* x()</div><div class="line">&#123;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">pfun_t</span> funclist[<span class="number">4</span>] = &#123;foo, bar, blurga, bletch&#125;;</div><div class="line">    <span class="keyword">return</span> funclist;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,gfunclist[<span class="number">0</span>]());</div><div class="line"></div><div class="line">    <span class="keyword">pfun_t</span> *fs;</div><div class="line">    fs = x();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%c\n"</span>,fs[<span class="number">1</span>]());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="结构体和位域"><a href="#结构体和位域" class="headerlink" title="结构体和位域"></a>结构体和位域</h1><ul>
-<li><code>Bit-fields</code> 位域, 一般不建议使用. 编译器相关且机器相关, 因此可移植性很差.</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">union</span> &#123;</div><div class="line">    <span class="keyword">int</span> is;</div><div class="line">    <span class="keyword">struct</span> &#123;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> keyword : <span class="number">1</span>;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="keyword">extern</span> : <span class="number">1</span>;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="keyword">static</span> : <span class="number">1</span>;</div><div class="line">    &#125; flags;</div><div class="line">&#125; bit_union;</div></pre></td></tr></table></figure>
-<h1 id="printf-及-scanf"><a href="#printf-及-scanf" class="headerlink" title="printf 及 scanf"></a>printf 及 scanf</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 打印任意字符串的安全方法</span></div><div class="line"><span class="built_in">printf</span>(s);                      <span class="comment">// FAILS if s contains %</span></div><div class="line"><span class="built_in">printf</span>(<span class="string">"%s"</span>, s);                <span class="comment">// SAFE</span></div><div class="line"></div><div class="line"><span class="comment">// 调用可变参数的方法</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">minprintf</span><span class="params">(<span class="keyword">char</span> *fmt, ...)</span></span></div><div class="line">&#123;</div><div class="line">    va_list ap; <span class="comment">/* points to each unnamed arg in turn */</span></div><div class="line">    va_start(ap, fmt); <span class="comment">/* make ap point to 1st unnamed arg */</span></div><div class="line"></div><div class="line">    <span class="comment">// do something ...</span></div><div class="line">    ival = va_arg(ap, <span class="keyword">int</span>);</div><div class="line">    <span class="comment">// do something ...</span></div><div class="line"></div><div class="line">    va_end(ap);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 宏定义 printf</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_PRINT(fmt, ...) printf(fmt, __VA_ARGS__)</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// scanf 避免溢出的方法</span></div><div class="line"><span class="built_in">scanf</span>(<span class="string">"%s"</span>, buf);               <span class="comment">// 可能溢出!</span></div><div class="line"><span class="built_in">scanf</span>(<span class="string">"%20s"</span>, buf);             <span class="comment">// 最多读取20个字符串</span></div><div class="line"></div><div class="line"><span class="comment">// 自己写个scanner.</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">scanner</span><span class="params">(<span class="keyword">char</span> *buffer, <span class="keyword">size_t</span> buflen)</span> </span>&#123;</div><div class="line">    <span class="keyword">char</span> format[<span class="number">32</span>];</div><div class="line">    <span class="keyword">if</span> (buflen == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    <span class="built_in">snprintf</span>(format, <span class="keyword">sizeof</span>(format), <span class="string">"%%%ds"</span>, (<span class="keyword">int</span>)(buflen<span class="number">-1</span>));</div><div class="line">    <span class="keyword">return</span> <span class="built_in">scanf</span>(format, buffer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="http://net.pku.edu.cn/~course/cs101/2008/resource/The_C_Programming_Language.pdf" target="_blank" rel="external">The C programming Language</a></li>
-<li>[Cheat Sheets of the C standard library][<a href="http://ws3.ntcu.edu.tw/ACS099133/cheatsheet/c-libraries-cheatsheet.pdf" target="_blank" rel="external">http://ws3.ntcu.edu.tw/ACS099133/cheatsheet/c-libraries-cheatsheet.pdf</a>]</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/04/1714-expression/" itemprop="url">
-                  逻辑|这样表达，事半功倍
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-05-04T00:00:00+10:00" content="2017-05-04">
-              2017-05-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/thoughts/" itemprop="url" rel="index">
-                    <span itemprop="name">thoughts</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自 <a href="http://www.jianshu.com/p/a2bcce138f48" target="_blank" rel="external">逻辑|这样表达，事半功倍（附训练方法）</a></em></strong></p>
-<hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>﻿表达是生活工作中最重要的沟通方式。<br>正式场合的表达，我们称为“演讲”、“汇报”、“发言”等；<br>休闲场合的表达，我们称为“闲聊”、“侃大山”、“吹牛”等。<br>总而言之，表达是我们传递信息、交流感情的重要技能。<br>那怎样的表达，能事半功倍呢？</p>
-<h1 id="一段对话"><a href="#一段对话" class="headerlink" title="一段对话"></a>一段对话</h1><p>我们先来看这样的对话：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">老板：“年会准备得怎么样？”</div><div class="line">小美：“酒店我们定的XX大酒店，最近搞年会的多，只有那里时间价格都合适。</div><div class="line">我们让各个部门都出了节目，彩排了一次，删掉了几个唱歌的节目，剩下都是舞蹈、魔术、小品等。</div><div class="line">主持人还在筛选中，主持稿已经编好了。</div><div class="line">优秀员工的名单还没定好，有的部门经理还没交名单，不过奖品已经准备好了。</div><div class="line">会场的宣传品也买好了，因为是十周年，所以背景墙和装饰品都是十年为主。”</div></pre></td></tr></table></figure></p>
-<p>听完小美的回答，你觉得老板的感受是什么？<br>老板清楚年会准备情况了吗？老板又怎么看待小美的能力呢？<br>在现实中，老板听完小美的回答，默默的走开，向另外一个员工询问情况去了。<br>这也就意味着，小美那么长的回答、那么详细的回答，其实都是无效的！</p>
-<p>日常生活中，我们经常会有这样类似的表达，所以，我们总是感觉：“我说得这么清楚，对方却还是不明白、不会做、做不好，对方还是不明白我的苦心”。</p>
-<p>对方的因素，我们暂不讨论，讨论也无用，我们改变不了别人。<br>我们尝试一下从自己的角度着手，也许，改变一下自己表达的逻辑，就能让对方接收到更多的信息和更正确的感情。</p>
-<h1 id="一、神马是逻辑"><a href="#一、神马是逻辑" class="headerlink" title="一、神马是逻辑"></a>一、神马是逻辑</h1><p>如何把200ML的水装进100ML的杯子里呢？（不需要局限目前科学情况能不能做到，展开想象，因为这个例子是为了说明逻辑思考过程，而不是真的让您去装水，嘿嘿）<br>首先我们来分析来题目，正常情况我们都知道，把200ML的水倒入100ML的杯子里，水肯定会流出来，想要装进而不流出来，就要先想想，水会流出来的原因是什么？<br>第一、水太多了<br>第二、杯子容量太小了</p>
-<p>还有第三吗？<br>还有一个动词叫“流出来”！所以，第三：地球有引力，多出来的水会流下来。<br>所以，思考这个题目就可以从这三方面着手：水、杯子、客观环境。</p>
-<p>水，我们能改变什么呢？<br>形态！把200ML的水成冰柱放进杯子里可以吗？<br>杯子，我们能改变什么呢？<br>数量、材质！两个杯子可以放200ML的水吧！固定材质的杯子确实装不了200ML的水，如果是软性材质的杯子呢？比如类似气球材质的杯子。<br>客观环境，怎样使水不流出来呢？</p>
-<p>我把200ML的水倒进一个200ML的量瓶里（或者海绵），把量瓶放进杯子可以吗？﻿我在没有引力的特殊空间里倒水可以吗？</p>
-<p><img src="https://draapho.github.io/images/1714/water-analysis.jpg" alt="water-analysis.jpg"></p>
-<p>这个案例告诉我们，<strong>任何事物都是分三个关键因素的：主体、客体、外部环境。</strong><br>这个案例的推导过程，便是传说中的“逻辑”：运用概念、判断、推理等思维类型反映事物本质与规律的认识过程。</p>
-<p>比如，我走了很远的路，你就能推理出来，我腿软腿酸加口渴。这就是逻辑。<br>所以，我们的<strong>表达需要符合逻辑，才符合人类正常的判断、分析问题的思维过程。</strong></p>
-<p>那么什么样的表达才叫“有逻辑”呢？</p>
-<p><img src="https://draapho.github.io/images/1714/four-principle.jpg" alt="four-principle.jpg"></p>
-<h1 id="二、结论先行"><a href="#二、结论先行" class="headerlink" title="二、结论先行"></a>二、结论先行</h1><p>为什么要结论先行？<br>因为人类的大脑，只能逐句理解我们表达的思想，大脑会默认，我们的前后句表达具有某种逻辑的关系。</p>
-<p><strong>如果我们不预先告诉听众这种逻辑关系是什么，听众会非常吃力的去一句一句的去理解、去推导。</strong>在这个过程中，一旦听众的理解与我们的理解不一样，就会造成信息误差，这就是为什么别人做的事总是不符合我们的要求！</p>
-<p>而且，如果我们的<strong>表达句式很长，或信息量很大，对方会由于逐句理解而产生疲劳</strong>，那我们表达的后半段，对听众而言，都是无效的。</p>
-<p><img src="https://draapho.github.io/images/1714/pyramid-people.jpg" alt="pyramid-people.jpg"></p>
-<p><strong>解决办法只有一个：结论先行！</strong></p>
-<h2 id="举个栗子："><a href="#举个栗子：" class="headerlink" title="举个栗子："></a>举个栗子：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">上个星期，我去了我舅舅家。</div><div class="line">你知道吗，我舅舅家在很偏远的乡下。</div><div class="line">就是路边还有很老的电线杆，晚上开灯，灯还会忽亮忽暗的乡下。</div><div class="line">他们主要是种田为生，要么就出门打工，当然打工的人也就过年才回老家咯。</div><div class="line">我到他家里的时候，正好他们忙完农活，我想着他们忙完了应该回家休息或者做晚饭对吧，</div><div class="line">没想到啊，他们竟然聚集在一个修了洋房的村民家买彩票，</div><div class="line">没想到啊，乡下比城里更加盛行彩票...</div></pre></td></tr></table></figure>
-<p>请问以上表达，中心思想是什么？你看完后，心累吗？<br>不好意思，主人，为了案情需要，编了这么长一段废话，为了让您感受到结论先行的突出优势，哈哈哈，不要打我~</p>
-<p>怎样把上面的话，变成结论先行的表达呢？ 修改如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">原来乡下比城里更加盛行彩票！</div><div class="line">上个星期，我去了我舅舅家，他家在很偏远的乡下。</div><div class="line">我到他家里的时候，正好他们忙完农活，我想着他们忙完了应该回家休息或做晚饭对吧，</div><div class="line">没想到啊，他们竟然聚集在一个修了洋房的村民家买彩票...</div></pre></td></tr></table></figure>
-<p>结论先行还有个好处就是督促自己少说废话。因为话是我们自己说出来的，我们都急于维护自己的观点，所以后面的解释，一般都是为了维护…</p>
-<h2 id="否定的结论，记得先赞美对方！"><a href="#否定的结论，记得先赞美对方！" class="headerlink" title="否定的结论，记得先赞美对方！"></a><strong>否定的结论，记得先赞美对方！</strong></h2><h2 id="训练方法："><a href="#训练方法：" class="headerlink" title="训练方法："></a>训练方法：</h2><p>方法一、表达从这句开始：我想表达一个观点…（强迫自己从结论说起）<br>方法二、</p>
-<pre><code>1. 自己围绕一个主题说一段话并且录音
-2. 重听录音，找到结论
-3. 从结论开始再说一次，并录音
-4. 对比两段录音的效果，找到成就感。
-</code></pre><h1 id="三、以上统下"><a href="#三、以上统下" class="headerlink" title="三、以上统下"></a>三、以上统下</h1><p>以上统下的意思是：所有的论据都要支撑论点，所有的原因都要支持结论。<br>翻译为人话就是：荤类下面没有南瓜，也不能把鸡腿放到素菜下面。<br>当我们做到了结论先行，后面的表达都要能支持这个结论。像上面的案例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">他们主要是种田为生，要么就出门打工，当然打工的人也就过年才回老家咯。</div></pre></td></tr></table></figure>
-<p>这句话不能支持“乡下比城里更加盛行彩票”的结论，就应该删掉！<br>想要做到以上统下，可以向自己提问，“论据支持论点吗？”</p>
-<h2 id="举个栗子：-1"><a href="#举个栗子：-1" class="headerlink" title="举个栗子："></a>举个栗子：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">我喜欢男神宋仲基，因为他帅，他眼神温柔，他脱衣有肉、穿衣显瘦（咽口水），</div><div class="line">都敏俊也很帅～</div></pre></td></tr></table></figure>
-<p>那句话不能支持“我喜欢宋仲基”？<br>对，就是最后一句，都敏俊！</p>
-<h2 id="训练方法：-1"><a href="#训练方法：-1" class="headerlink" title="训练方法："></a>训练方法：</h2><ol>
-<li>自己围绕一个主题说一段话并且录音</li>
-<li>重听录音，找到结论和论点、论据，并画成如上图一样的结构图</li>
-<li>问自己“论据支持论点吗”</li>
-<li>修改论点或者论据</li>
-<li>按照修改后的结构图，再说一次并录音</li>
-<li>对比两段录音的效果，找到成就感。</li>
-</ol>
-<h2 id="四、归类分组"><a href="#四、归类分组" class="headerlink" title="四、归类分组"></a>四、归类分组</h2><p>你现在正准备出去散步，你爱人说“顺便买点东西回来：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">葡萄、牛奶、土豆、胡萝卜、鸡蛋、橘子、咸鸭蛋、苹果、酸奶</div></pre></td></tr></table></figure></p>
-<p>你买回来什么？<br>如果换成这样呢？</p>
-<p><img src="https://draapho.github.io/images/1714/buy-stuff.jpg" alt="buy-stuff.jpg"></p>
-<p>有没有好记一些？<br><strong>人的大脑天生就会把相似的东西串在一起记忆、理解</strong>，这就是为什么英语背单词有词根记忆这码事。<br>我们不能违背人的天性，所以，在表达中，我们要把相似的论据放在一起，不同的论据进行分组呈现。<br>归类分组要注意<strong>不要重复！</strong></p>
-<p>我经常会在工作总结中看到别人的总结如下：<br>成绩：业绩达成80%<br>不足：业绩只达成80%<br>这就是典型的分组有问题，80%的业绩到底是成绩还是不足？<br>一个论据只能在一个论点里！</p>
-<h2 id="训练方法：-2"><a href="#训练方法：-2" class="headerlink" title="训练方法："></a>训练方法：</h2><ol>
-<li>围绕主题罗列所以的论据</li>
-<li>将论据分组</li>
-<li>给每组找到一个中心思想，这个中心思想是该组每个论据的共同特质</li>
-<li>检查结果“有没有遗漏”、“有没有重复”</li>
-</ol>
-<h1 id="五、逻辑递进"><a href="#五、逻辑递进" class="headerlink" title="五、逻辑递进"></a>五、逻辑递进</h1><p>逻辑递进就是按照某种推导方向，来全面的认知事物，翻译为人话叫：顺序！<br>常用的逻辑递进方式有：<br>时间（步骤）顺序：第一、第二、第三；<br>结构（空间）顺序：东南西北中，动作表情语言；<br>程度（重要性）顺序：最重要（核心）、次重要、第三重要……<br>演绎顺序：大前提、小前提、结论；</p>
-<p>而我想着重强调的是，表达中最有效的顺序，应该是： <strong>以听众的利益/需求程度来排序</strong></p>
-<h2 id="举个栗子：-2"><a href="#举个栗子：-2" class="headerlink" title="举个栗子："></a>举个栗子：</h2><p>我们银行需要跟餐饮商家合作，我们的工作人员交出以下合作方案：</p>
-<ol>
-<li>客户持卡消费享受88折</li>
-<li>客户通过我们银行的APP购买商家优惠券80抵100元（类似团购APP消费模式）</li>
-<li>客户到店消费满200元送乐扣水杯（水杯归我们银行出钱购买）</li>
-</ol>
-<p>这样的排序方式能打动商家吗？<br>商家需要什么？商家想要打折、想少收钱吗？<br>商家想要的是，你能帮我提高客单价，让我赚实实在在的钱！你能帮我吸引很多的客户入店，让我赚实实在在的钱！</p>
-<p>所以，最好的排序方式应该是：</p>
-<ol>
-<li>客户到店消费满200元送乐扣水杯（提高了客单价，还不用商家出钱）</li>
-<li>APP购买优惠券80抵100（虽然少赚点钱，但是能吸引客户从店外入店消费）</li>
-<li>客户持卡消费88折（已经到店吃完了的客户，多么不想打折）</li>
-</ol>
-<h2 id="训练方法：-3"><a href="#训练方法：-3" class="headerlink" title="训练方法："></a>训练方法：</h2><ol>
-<li>自己围绕一个主题说一段话并且录音</li>
-<li>重听录音，找到结论和论点、论据，并画成结构图</li>
-<li>写下听众的需求和利益点</li>
-<li>按照需求程度将论据重新排序</li>
-<li>按照修改后的结构图，再说一次并录音</li>
-<li>对比两段录音的效果，找到成就感。</li>
-</ol>
-<h1 id="六、终极栗子"><a href="#六、终极栗子" class="headerlink" title="六、终极栗子"></a>六、终极栗子</h1><p>你马上要参加技术总监岗位的竞聘，以下是你多年来的工作业绩，请问你怎么表达？<br>工作业绩总结：2010年至2016年，参与了10个项目</p>
-<ul>
-<li>项目1： 担任技术负责人，保证多个项目如期完成      </li>
-<li>项目2： 克服人员经验不足的困难，开展岗位培训      </li>
-<li>项目3： 辅助技术攻关，解决重大难点      </li>
-<li>项目4： 在公司流程基础上，制定新的公司管理流程和规范      </li>
-<li>项目5： 为方便员工学习及知识传承，建立领域知识库      </li>
-<li>项目6： 主持项目实施研讨，制定项目实施规范      </li>
-<li>项目7： 作为导师，带教3位新员工</li>
-<li>项目8： 制作全套岗位课件（10个PPT），并授课</li>
-<li>项目9： 负责梦里花大型项目技术担当，并作出突出贡献</li>
-<li>项目10： 组织技术部人员与华为技术部人员学习沟通，提供人员综合能力</li>
-</ul>
-<p>试着自己画结构图，表达一下，再看答案欧～<br><img src="https://draapho.github.io/images/1714/work-performance.jpg" alt="work-performance.jpg"></p>
-<h1 id="彩蛋：表达生动三大宝"><a href="#彩蛋：表达生动三大宝" class="headerlink" title="彩蛋：表达生动三大宝"></a>彩蛋：表达生动三大宝</h1><p>这部分属于彩蛋，跟逻辑没关系，跟表达有关系。<br>很多人的表达干巴巴的，没有说服力，怎么办呢？<br><strong>表达生动三大宝：数据、案例、对比</strong></p>
-<h2 id="举个栗子：-3"><a href="#举个栗子：-3" class="headerlink" title="举个栗子："></a>举个栗子：</h2><p>“这块我很熟练”<br>这句话听上去是不是很没有说服力？<br>加个数据：“我有三年的工作经验”、“我处理过上百起这类业务”<br>加个案例“之前XX公司他们的那个XX项目，听说过吗，就是我做的”<br>加个对比“之前我们领导对这块很不满意，我接手一年以后，这块业务直接成了公司的重点发展项目！”<br>怎么样，是不是听上去更值得相信？</p>
-<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><p>还记得文章开头的案例吗？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">老板：年会准备得怎么样？</div><div class="line">小美的同事，我，这样回答：</div><div class="line">    其他准备工作都已经完成，只差敲定主持人跟优秀员工名单了（结论先行）。</div><div class="line">    会场（论点A）定的XX大酒店，</div><div class="line">    XX大酒店时间与价格都合适（论据A1），</div><div class="line">    会场装饰道具都已经采购好，全是以十周年为主题（论据A2），</div><div class="line">    节目这块（论点B）已经彩排了一次，</div><div class="line">    择优录取了十个节目，都是舞蹈、魔术、小品等（论据B1），</div><div class="line">    主持人还在筛选中，主持稿已经编好了（论据B2），</div><div class="line">    颁奖的优秀员工的名单还没定好，因为有的部门经理还没交名单，不过奖品已经准备好了（论据B3）。</div><div class="line">    您放心，肯定能按时完成准备工作，您要是能帮忙催下部门经理就好了，我们催得他们都烦了。</div><div class="line">老板：行，优秀员工的事我去催一下！</div></pre></td></tr></table></figure></p>
-<p><img src="https://draapho.github.io/images/1714/annual-meeting.jpg" alt="annual-meeting.jpg"></p>
-<p><strong>表达：一定要让对方好理解、好接受为原则，一定要以对方的利益为出发点！</strong><br>注：本文逻辑结构来源于《金字塔原理》书中金字塔结构～</p>
-<hr>
-<p><strong><em>转载自 <a href="http://www.jianshu.com/p/a2bcce138f48" target="_blank" rel="external">逻辑|这样表达，事半功倍（附训练方法）</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1733,7 +1555,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-count">67</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
