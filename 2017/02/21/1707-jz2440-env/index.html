@@ -82,43 +82,61 @@
 
 
 
-<meta name="description" content="环境及结论
+<meta name="description" content="总览
+嵌入式linux环境搭建
+嵌入式linux环境搭建-jz2440开发板
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+fs之Busybox的编译与使用
+fs之创建文件系统
+
+环境及结论
 大环境的搭建思路可参考嵌入式linux环境搭建
-gateway ip 10.0.0.138
-PC windows: win10 64bit, ip 10.0.0.98
-PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100
-Embedded Linux: jz2440v3 ip 10.0.0.111
-
-
-用 jLink 或 o">
+gateway ip 10.0.0.13">
 <meta property="og:type" content="article">
 <meta property="og:title" content="嵌入式linux环境搭建-jz2440开发板">
 <meta property="og:url" content="https://draapho.github.io/2017/02/21/1707-jz2440-env/index.html">
 <meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="环境及结论
+<meta property="og:description" content="总览
+嵌入式linux环境搭建
+嵌入式linux环境搭建-jz2440开发板
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+fs之Busybox的编译与使用
+fs之创建文件系统
+
+环境及结论
 大环境的搭建思路可参考嵌入式linux环境搭建
-gateway ip 10.0.0.138
-PC windows: win10 64bit, ip 10.0.0.98
-PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100
-Embedded Linux: jz2440v3 ip 10.0.0.111
-
-
-用 jLink 或 o">
+gateway ip 10.0.0.13">
 <meta property="og:image" content="https://draapho.github.io/images/1707/address-mapping.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1707/nor-flash-boot.png">
 <meta property="og:image" content="https://draapho.github.io/images/1707/nand-flash-boot.png">
-<meta property="og:updated_time" content="2017-10-02T05:19:08.982Z">
+<meta property="og:updated_time" content="2017-11-03T11:15:07.088Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建-jz2440开发板">
-<meta name="twitter:description" content="环境及结论
+<meta name="twitter:description" content="总览
+嵌入式linux环境搭建
+嵌入式linux环境搭建-jz2440开发板
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+fs之Busybox的编译与使用
+fs之创建文件系统
+
+环境及结论
 大环境的搭建思路可参考嵌入式linux环境搭建
-gateway ip 10.0.0.138
-PC windows: win10 64bit, ip 10.0.0.98
-PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100
-Embedded Linux: jz2440v3 ip 10.0.0.111
-
-
-用 jLink 或 o">
+gateway ip 10.0.0.13">
 <meta name="twitter:image" content="https://draapho.github.io/images/1707/address-mapping.jpg">
 
 
@@ -345,7 +363,19 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
       
 
       
-        <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></li>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a></li>
+<li><a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></li>
+</ul>
+<h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
 <li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a><ul>
 <li>gateway ip <code>10.0.0.138</code></li>
 <li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
@@ -624,7 +654,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">65</span>
+                <span class="site-state-item-count">66</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -664,7 +694,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境及结论"><span class="nav-number">1.</span> <span class="nav-text">环境及结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#嵌入式linux简介"><span class="nav-number">2.</span> <span class="nav-text">嵌入式linux简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#linux软件层次"><span class="nav-number">2.1.</span> <span class="nav-text">linux软件层次</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jz2440的分区和启动"><span class="nav-number">2.2.</span> <span class="nav-text">jz2440的分区和启动</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置静态ip"><span class="nav-number">3.</span> <span class="nav-text">设置静态ip</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#uboot-设置静态ip"><span class="nav-number">3.1.</span> <span class="nav-text">uboot 设置静态ip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#嵌入式linux下设置静态ip"><span class="nav-number">3.2.</span> <span class="nav-text">嵌入式linux下设置静态ip</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#uboot-的编译和烧录"><span class="nav-number">4.</span> <span class="nav-text">uboot 的编译和烧录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#uboot-打补丁和编译"><span class="nav-number">4.1.</span> <span class="nav-text">uboot 打补丁和编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uboot-的烧录和升级"><span class="nav-number">4.2.</span> <span class="nav-text">uboot 的烧录和升级</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kernel-的编译和烧录"><span class="nav-number">5.</span> <span class="nav-text">kernel 的编译和烧录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel-打补丁和编译"><span class="nav-number">5.1.</span> <span class="nav-text">kernel 打补丁和编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-dnw-烧录-kernel"><span class="nav-number">5.2.</span> <span class="nav-text">使用 dnw 烧录 kernel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-nfs-烧录-kernel"><span class="nav-number">5.3.</span> <span class="nav-text">使用 nfs 烧录 kernel</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#加载-filesystem"><span class="nav-number">6.</span> <span class="nav-text">加载 filesystem</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#制作-filesystem"><span class="nav-number">6.1.</span> <span class="nav-text">制作 filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-dnw-烧录-filesystem"><span class="nav-number">6.2.</span> <span class="nav-text">使用 dnw 烧录 filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-nfs-烧录-filesystem"><span class="nav-number">6.3.</span> <span class="nav-text">使用 nfs 烧录 filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#直接加载-nfs-文件系统"><span class="nav-number">6.4.</span> <span class="nav-text">直接加载 nfs 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载其它nfs文件"><span class="nav-number">6.5.</span> <span class="nav-text">加载其它nfs文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于-fs-mini-mdev-制作-qt"><span class="nav-number">6.6.</span> <span class="nav-text">基于 fs_mini_mdev 制作 qt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#编译qt依赖的库文件"><span class="nav-number">6.6.1.</span> <span class="nav-text">编译qt依赖的库文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#制作QT文件系统"><span class="nav-number">6.6.2.</span> <span class="nav-text">制作QT文件系统</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译驱动程序"><span class="nav-number">7.</span> <span class="nav-text">编译驱动程序</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境及结论"><span class="nav-number">2.</span> <span class="nav-text">环境及结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#嵌入式linux简介"><span class="nav-number">3.</span> <span class="nav-text">嵌入式linux简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#linux软件层次"><span class="nav-number">3.1.</span> <span class="nav-text">linux软件层次</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jz2440的分区和启动"><span class="nav-number">3.2.</span> <span class="nav-text">jz2440的分区和启动</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置静态ip"><span class="nav-number">4.</span> <span class="nav-text">设置静态ip</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#uboot-设置静态ip"><span class="nav-number">4.1.</span> <span class="nav-text">uboot 设置静态ip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#嵌入式linux下设置静态ip"><span class="nav-number">4.2.</span> <span class="nav-text">嵌入式linux下设置静态ip</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#uboot-的编译和烧录"><span class="nav-number">5.</span> <span class="nav-text">uboot 的编译和烧录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#uboot-打补丁和编译"><span class="nav-number">5.1.</span> <span class="nav-text">uboot 打补丁和编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uboot-的烧录和升级"><span class="nav-number">5.2.</span> <span class="nav-text">uboot 的烧录和升级</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kernel-的编译和烧录"><span class="nav-number">6.</span> <span class="nav-text">kernel 的编译和烧录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel-打补丁和编译"><span class="nav-number">6.1.</span> <span class="nav-text">kernel 打补丁和编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-dnw-烧录-kernel"><span class="nav-number">6.2.</span> <span class="nav-text">使用 dnw 烧录 kernel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-nfs-烧录-kernel"><span class="nav-number">6.3.</span> <span class="nav-text">使用 nfs 烧录 kernel</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#加载-filesystem"><span class="nav-number">7.</span> <span class="nav-text">加载 filesystem</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#制作-filesystem"><span class="nav-number">7.1.</span> <span class="nav-text">制作 filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-dnw-烧录-filesystem"><span class="nav-number">7.2.</span> <span class="nav-text">使用 dnw 烧录 filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-nfs-烧录-filesystem"><span class="nav-number">7.3.</span> <span class="nav-text">使用 nfs 烧录 filesystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#直接加载-nfs-文件系统"><span class="nav-number">7.4.</span> <span class="nav-text">直接加载 nfs 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载其它nfs文件"><span class="nav-number">7.5.</span> <span class="nav-text">加载其它nfs文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于-fs-mini-mdev-制作-qt"><span class="nav-number">7.6.</span> <span class="nav-text">基于 fs_mini_mdev 制作 qt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#编译qt依赖的库文件"><span class="nav-number">7.6.1.</span> <span class="nav-text">编译qt依赖的库文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#制作QT文件系统"><span class="nav-number">7.6.2.</span> <span class="nav-text">制作QT文件系统</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译驱动程序"><span class="nav-number">8.</span> <span class="nav-text">编译驱动程序</span></a></li></ol></div>
             
           </div>
         </section>
