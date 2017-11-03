@@ -104,7 +104,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 
 
 目的是尝试不同linu">
-<meta property="og:updated_time" content="2017-05-29T11:37:41.362Z">
+<meta property="og:updated_time" content="2017-11-03T10:32:28.876Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建2-CentOS7">
 <meta name="twitter:description" content="环境及结论
@@ -356,6 +356,12 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
 <li>没法直接安装 u-boot-tools</li>
 <li>彻底放弃! 转战Ubuntu</li>
 <li>不知是 centos 做 2440 的交叉编译兼容性不好, 还是64bit linux的兼容性不好. 或者两者皆有!</li>
+<li><strong>最新补充(2017-09-30). 根据实践, 建议的方式如下</strong>:<ul>
+<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
+<li>linux下安装NFS服务器, 便于让开发板linux通过网络加载文件系统. <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
+<li>好处是相比于windows下, 源码放在linux下grep搜索以及编译都会快的多.</li>
+</ul>
+</li>
 </ul>
 <h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><p>静态ip, 安装向导时, 就设置了.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">yum install net-tools 	<span class="comment"># to use ifconfig  or use ip addr</span></div><div class="line">yum install bzip2		<span class="comment"># bz2压缩格式</span></div><div class="line">yum install patch</div><div class="line">yum install gcc</div><div class="line"></div><div class="line"><span class="comment"># 64位系统要安装了32位程序, 安装如下软件</span></div><div class="line">yum install glibc.i686</div><div class="line">yum install libstdc++.so.6</div></pre></td></tr></table></figure>
@@ -480,7 +486,7 @@ Embedded Linux: jz2440v3 ip 10.0.0.111
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">67</span>
+              <span class="site-state-item-count">69</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

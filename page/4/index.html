@@ -260,6 +260,325 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/05/1710-jz2440-led/" itemprop="url">
+                  jz2440 裸板程序的开发
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-05T00:00:00+10:00" content="2017-04-05">
+              2017-04-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>s3c2440 的裸板开发和单片机无异, 此文主要目的是<strong>熟悉linux下的交叉编译环境和开发方式</strong>.</p>
+<h1 id="crt0-S-文件"><a href="#crt0-S-文件" class="headerlink" title="crt0.S 文件"></a><code>crt0.S</code> 文件</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">@******************************************************************************</div><div class="line">@ File：crt0.S</div><div class="line">@ 功能：通过它转入C程序</div><div class="line">@******************************************************************************</div><div class="line"></div><div class="line">.text</div><div class="line">.global _start</div><div class="line">_start:</div><div class="line">            ldr     r0, =0x53000000     @ WATCHDOG寄存器地址</div><div class="line">            mov     r1, #0x0</div><div class="line">            str     r1, [r0]            @ 写入0，禁止WATCHDOG，否则CPU会不断重启</div><div class="line"></div><div class="line">            ldr     sp, =1024*4         @ 设置堆栈，注意：不能大于4k, 因为现在可用的内存只有4K</div><div class="line">                                        @ nand flash中的代码在复位后会移到内部ram中，此ram只有4K</div><div class="line">            bl      main                @ 调用C程序中的main函数</div><div class="line">halt_loop:</div><div class="line">            b       halt_loop</div></pre></td></tr></table></figure>
+<h1 id="led-c-文件"><a href="#led-c-文件" class="headerlink" title="led.c 文件"></a><code>led.c</code> 文件</h1><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">/************************************</div><div class="line"> * 按下按钮, 就点亮对应的LED灯.</div><div class="line"> * KEY: EINT0, EINT2, EINT11</div><div class="line"> * KEY: GPF0,  GPF2,  GPG3</div><div class="line"> * LED: D12,   D11,   D10</div><div class="line"> * LED: GPF6,  GPF5,  GPF4</div><div class="line"> ************************************</div><div class="line">*/</div><div class="line"></div><div class="line">// s3c2440 对应的寄存器地址. 需要看数据手册.</div><div class="line">#define GPFCON      (*(volatile unsigned long *)0x56000050)</div><div class="line">#define GPFDAT      (*(volatile unsigned long *)0x56000054)</div><div class="line">#define GPFUP       (*(volatile unsigned long *)0x56000058)</div><div class="line">#define GPGCON      (*(volatile unsigned long *)0x56000060)</div><div class="line">#define GPGDAT      (*(volatile unsigned long *)0x56000064)</div><div class="line">#define GPGUP       (*(volatile unsigned long *)0x56000068)</div><div class="line"></div><div class="line">#define PIN0        (1&lt;&lt;0)</div><div class="line">#define PIN1        (1&lt;&lt;1)</div><div class="line">#define PIN2        (1&lt;&lt;2)</div><div class="line">#define PIN3        (1&lt;&lt;3)</div><div class="line">#define PIN4        (1&lt;&lt;4)</div><div class="line">#define PIN5        (1&lt;&lt;5)</div><div class="line">#define PIN6        (1&lt;&lt;6)</div><div class="line">#define PIN7        (1&lt;&lt;7)</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    GPFCON = 0x1500;        // set LED pin as output</div><div class="line">    GPFDAT = 0x00;</div><div class="line">    GPGCON = 0x00;</div><div class="line"></div><div class="line">    while (1) &#123;</div><div class="line">        if (GPFDAT &amp; PIN0) &#123;</div><div class="line">            GPFDAT |= PIN6;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN6;</div><div class="line">        &#125;</div><div class="line">        if (GPFDAT &amp; PIN2) &#123;</div><div class="line">            GPFDAT |= PIN5;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN5;</div><div class="line">        &#125;</div><div class="line">        if (GPGDAT &amp; PIN3) &#123;</div><div class="line">            GPFDAT |= PIN4;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN4;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="Makefile-文件"><a href="#Makefile-文件" class="headerlink" title="Makefile 文件"></a><code>Makefile</code> 文件</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 目标文件 : 依赖文件1 依赖文件2</span></div><div class="line">led.bin : crt0.S led.c</div><div class="line">    <span class="comment"># 汇编-&gt;目标文件</span></div><div class="line">    arm-linux-gcc -g -c -o crt0.o crt0.S</div><div class="line">    <span class="comment"># C-&gt;汇编</span></div><div class="line">    arm-linux-gcc -g -c -o led.o led.c</div><div class="line">    <span class="comment"># 目标文件链接为 led_elf, 初始地址为0</span></div><div class="line">    arm-linux-ld -Ttext 0x0000000 -g  crt0.o led.o -o led_elf</div><div class="line">    <span class="comment"># 用 led_elf文件生成 烧录文件 led.bin</span></div><div class="line">    arm-linux-objcopy -O binary -S led_elf led.bin</div><div class="line">    <span class="comment"># 反汇编</span></div><div class="line">    arm-linux-objdump -D -m arm led_elf &gt; led.dis</div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">    rm -f led.dis led.bin led_elf *.o</div></pre></td></tr></table></figure>
+<h1 id="编译和烧录"><a href="#编译和烧录" class="headerlink" title="编译和烧录"></a>编译和烧录</h1><ul>
+<li>将上述三个文件放入同一个目录, 譬如 <code>/led_test</code><ul>
+<li><code>crt0.S</code> 可理解为硬件初始化, 使用模板即可</li>
+<li><code>led.c</code> 需要自己写, 软件的大部分开发工作用C语言实现</li>
+<li><code>Makefile</code> 写的非常直白的makefile, 不适用于复杂的工程.</li>
+</ul>
+</li>
+<li>使用Linux主机进行编译.<ul>
+<li>即登录 Ubuntu, 即配置好交叉编译环境的Linux主机</li>
+<li>shell 下进入 <code>/led_test</code> 目录</li>
+<li>输入指令 <code>make</code> 即可, 就会得到 <code>led.bin</code> 文件</li>
+<li>清空编译和链接文件, 输入 <code>make clean</code>, 就相当于执行了 <code>rm -f led.dis led.bin led_elf *.o</code></li>
+</ul>
+</li>
+<li>将 <code>led.bin</code> 烧录到 Flash 中, 最后重启开发板.<ul>
+<li>有多种烧录方式, 我这边使用的是 JLINK, 用JFlash烧录即可 (只支持烧录 Nor Flash)</li>
+<li>s3c2440 属于 ARM9 系列. 使用Nor Flash启动时, SRAM 起始地址为 0x4000_0000</li>
+<li>或者使用uboot+dnw的方式, 烧录到SDRAM中并运行</li>
+</ul>
+</li>
+<li>然后, 如果开发的是嵌入式linux, 基本流程也是这样的 (注意区分两个Linux):<ul>
+<li><ol>
+<li>在电脑上开发软件 (Windows, Linux, Mac 随便的)</li>
+</ol>
+</li>
+<li><ol>
+<li>在<strong>Linux主机</strong>上进行编译(就是交叉编译), 获得一个可执行文件.</li>
+</ol>
+</li>
+<li><ol>
+<li>把可执行文件烧录/加载到<strong>嵌入式Linux(开发板)</strong>上, 运行即可.</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/04/1709-linux-makefile/" itemprop="url">
+                  快速读懂 makefile
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-04T00:00:00+10:00" content="2017-04-04">
+              2017-04-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong><br><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">跟我一起写Makefile</a></em></strong></p>
+<hr>
+<h1 id="Makefile最基本的组成"><a href="#Makefile最基本的组成" class="headerlink" title="Makefile最基本的组成"></a>Makefile最基本的组成</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">target: dependencies</div><div class="line">[TAB] command</div><div class="line"></div><div class="line">目标: 依赖1 依赖2</div><div class="line">[TAB] 命令</div></pre></td></tr></table></figure>
+<ul>
+<li><code>target</code> 可以是object文件，也可以是可执行文件，也可以是target关键字。<br> 可以一次写多个文件作为同一批次的target。</li>
+<li><code>dependencies</code> 有的是源文件，有的是链接文件，如果没有的话可以不写；<br> 想要编target必须先准备好dependencies。</li>
+<li><code>clean</code> 是一个特殊的target，一般要做的是rm清理工作；</li>
+<li><code>make</code>命令在执行的时候会检查目标文件是否存在, 并比较target文件和dependencies文件的修改日期，<br>如果存在更新的dependencies文件，那么对应的command就会执行，否则的话就不执行，还使用已存在target文件。</li>
+<li><code>command</code> 必须要以<code>TAB</code>来对齐， 一般会是gcc/g++的编译命令；</li>
+<li>细化到模块一般会有若干个分支target，形成层级的target依赖关系。</li>
+</ul>
+<p>举个例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 编译和链接一起做了, 看不到中间的.o目标文件</span></div><div class="line">hello: hello.c a.c</div><div class="line">    gcc -o hello hello.c a.c</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 对于大型系统, 更推荐的是编译和链接分开, 如下:</span></div><div class="line">hello: hello.o a.o                  <span class="comment"># 可执行文件hello 依赖于 hello.o 和 a.o</span></div><div class="line">    gcc -o hello hello.o a.o        <span class="comment"># 执行链接</span></div><div class="line"></div><div class="line">hello.o: hello.c                    <span class="comment"># 目标文件依赖于hello.c</span></div><div class="line">    gcc -o hello.o -c hello.c       <span class="comment"># 编译出目标文件</span></div><div class="line"></div><div class="line">a.o : a.c                           <span class="comment"># 另一个目标文件</span></div><div class="line">    gcc -o a.o -c a.c               <span class="comment"># -o: object 目标文件, -c: compile 编译</span></div></pre></td></tr></table></figure></p>
+<h1 id="隐形规则和变量"><a href="#隐形规则和变量" class="headerlink" title="隐形规则和变量"></a>隐形规则和变量</h1><p>为了使得makefile的内容尽量少一些废话，GNU为makefile加入了一些约定的规则。</p>
+<ul>
+<li>如果<code>target</code>文件的名称是<code>aa.o</code>，那么make会主动的把同名的源代码文件（如<code>aa.c</code>,<code>aa.cpp</code>）加入到依赖中去。</li>
+<li><code>target</code> 和 <code>dependencies</code> 处: 用 <code>%</code> 通配任意的非空字符串</li>
+<li><code>command</code> 处: <code>$@</code>目标文件, <code>$&lt;</code>依赖1, <code>$^</code>所有的依赖文件, <code>$?</code>比目标文件新的依赖. 这三个叫自动变量.</li>
+<li>变量在定义或被赋值时不加$()，在使用其值时要加 <code>$()</code></li>
+<li>常用<code>$(CC)</code>来代替具体的编译器，比如 <code>CC=g++</code></li>
+<li>常用<code>$(CFLAGS)</code>来代替C语言编译选项，比如 <code>CFLAGS=-c -Wall</code><br>还会指定头文件include路径，比如 <code>CFLAGS+=-I/usr/include</code></li>
+<li>常用<code>$(LDFLAGS)</code>来指定库文件lib路径，比如 <code>LDFLAGS+=-L/usr/lib</code></li>
+<li>常用<code>$(LDLIBS)</code>来指定要链接的库名称，比如 <code>LDLIBS+=-llibname</code></li>
+</ul>
+<p>修改上面的例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 先使用通配符 % 及自动变量</span></div><div class="line">hello: hello.o a.o</div><div class="line">    gcc -o $@ $^                    <span class="comment"># $@ 表示hello, $^ 表示两个.o文件</span></div><div class="line"></div><div class="line">%.o : %.c                           <span class="comment"># 对应了hello.o 和 a.o 两条语句!</span></div><div class="line">    gcc -o $@ -c $&lt;                 <span class="comment"># $@ 表示 .o 文件, $&lt; 表示第一个依赖, 即 .c 文件</span></div><div class="line"></div><div class="line"><span class="comment"># 然后使用更多的变量 $()</span></div><div class="line">hello: hello.o a.o</div><div class="line">    $(CC) -o $@ $^                  <span class="comment"># CC=gcc, 因此 $(CC)表示gcc</span></div><div class="line"></div><div class="line">%.o : %.c                           <span class="comment"># 使用更多的编译参数变量</span></div><div class="line">    $(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $&lt;</div></pre></td></tr></table></figure></p>
+<h1 id="伪目标"><a href="#伪目标" class="headerlink" title="伪目标"></a>伪目标</h1><p><code>.PHONY</code> 经常被用来作为伪目标。 它的使用目的是这样的：<br>因为当类似clean这样的target关键字作为target并且没有依赖文件时，<br>假如目录下有一个文件也叫clean时，make clean命令则会以为我想编clean这个目标文件，<br>恰好clean文件又不会比依赖文件更旧，所以下面的command就不会被执行。</p>
+<p>现在我们用.PHONY作为target，clean作为依赖。<br>这就是告诉make，clean它是一个target，而不是一个普通的文件。</p>
+<p>加入 clean 的例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">hello: hello.o a.o                          <span class="comment"># 执行文件hello, 依赖于.o文件</span></div><div class="line">    $(CC) -o $@ $^                          <span class="comment"># 进行链接</span></div><div class="line"></div><div class="line">%.o : %.c                                   <span class="comment"># 目标文件.o 依赖于同名的.c文件</span></div><div class="line">    $(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $&lt; <span class="comment"># 编译出目标文件</span></div><div class="line"></div><div class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></div><div class="line">clean:                                      <span class="comment"># 目标指令, 可调用 make clean 来执行了!</span></div><div class="line">    rm -rf *.o                              <span class="comment"># 删除所有的.o文件</span></div></pre></td></tr></table></figure></p>
+<h1 id="文件引用和条件判断"><a href="#文件引用和条件判断" class="headerlink" title="文件引用和条件判断"></a>文件引用和条件判断</h1><ul>
+<li>如果makefile中引入其他makefile， 使用 <code>include</code> 即可</li>
+<li>条件语句的基本结构一般由 <code>ifeq</code> <code>else</code> <code>endif</code> 三个关键字组成</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">include another.mk                          <span class="comment"># 调用 another.mk</span></div><div class="line">include foo *.mk $(bar)                     <span class="comment"># 更复杂的调用</span></div><div class="line"></div><div class="line"></div><div class="line">libs_for_gcc = -lgnu                        # 变量赋值</div><div class="line">normal_libs =</div><div class="line"></div><div class="line">ifeq ($(CC),gcc)                            <span class="comment"># 条件判断 $(CC) 是否为gcc</span></div><div class="line">    libs=$(libs_for_gcc)                    <span class="comment"># 变量赋值</span></div><div class="line">else</div><div class="line">    libs=$(normal_libs)</div><div class="line">endif</div><div class="line"></div><div class="line">foo: $(objects)                             <span class="comment"># 目标: 依赖</span></div><div class="line">ifeq ($(CC),gcc)</div><div class="line">    $(CC) -o foo $(objects) $(libs_for_gcc) <span class="comment"># 执行的命令</span></div><div class="line">else</div><div class="line">    $(CC) -o foo $(objects) $(normal_libs)</div><div class="line">endif</div></pre></td></tr></table></figure>
+<h1 id="使用函数"><a href="#使用函数" class="headerlink" title="使用函数"></a>使用函数</h1><p>函数调用，很像变量的使用，也是以“$”来标识的，有两种语法, 如下：<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$(&lt;function&gt; &lt;arguments&gt;)</div><div class="line">$&#123;&lt;function&gt; &lt;arguments&gt;&#125;</div></pre></td></tr></table></figure></p>
+<p>还是来看一个示例：<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">comma := ,</div><div class="line">empty :=</div><div class="line">space := <span class="variable">$(empty)</span> <span class="variable">$(empty)</span></div><div class="line">foo:= a b c</div><div class="line">bar:= <span class="variable">$(subst $(space)</span>,<span class="variable">$(comma)</span>,<span class="variable">$(foo)</span>)</div></pre></td></tr></table></figure></p>
+<ul>
+<li><code>$(bar)</code>调用了函数一个函数.<ul>
+<li>函数    : <code>$(subst &lt;from&gt;,&lt;to&gt;,&lt;text&gt;)</code>, 相当于c语言的 <code>subst(from, to, text)</code></li>
+<li>参数from: <code>$(comma)</code> 的值是一个逗号</li>
+<li>参数to  : <code>$(space)</code> 使用了 <code>$(empty)</code> 定义了一个空格</li>
+<li>参数text: <code>$(foo)</code>   的值是 “a b c”</li>
+</ul>
+</li>
+<li>这个函数是把$(foo)中的空格替换成逗号，所以$(bar)的值是“a,b,c”。<ul>
+<li>这是一个替换函数</li>
+<li>第一个参数是被替换字串</li>
+<li>第二个参数是替换字串</li>
+<li>第三个参数是替换操作作用的字串</li>
+</ul>
+</li>
+</ul>
+<p>Makefile 支持的函数有限, 详情可参考 <a href="http://wiki.ubuntu.org.cn/%E8%B7%9F%E6%88%91%E4%B8%80%E8%B5%B7%E5%86%99Makefile:%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0" target="_blank" rel="external">跟我一起写Makefile:使用函数</a></p>
+<hr>
+<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">怎么看懂和编写makefile</a></em></strong><br><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="external">跟我一起写Makefile</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/23/1708-docker/" itemprop="url">
                   Docker 初学笔记
                 </a>
@@ -775,6 +1094,12 @@
 <li>使用环境: Ubuntu server 16.04 32bit (安装在win10的虚拟机内)</li>
 <li>在经历了两次失败后, 成功搭建了整个环境. 服务器版去掉了UI, 给虚拟机用很好.</li>
 <li>补充一点, 刚开始用的是 ubuntu server 16.04 64 bit, 也遇到点问题.<br>由于是要做交叉编译的开发环境, 所以 PC linux 和 embedded linux 用一样的带宽才好.</li>
+<li><strong>最新补充(2017-09-30). 根据实践, 建议的方式如下</strong>:<ul>
+<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
+<li>linux下安装NFS服务器, 便于让开发板linux通过网络加载文件系统. <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
+<li>好处是相比于windows下, 源码放在linux下grep搜索以及编译都会快的多.</li>
+</ul>
+</li>
 </ul>
 <h1 id="apt-get使用摘要"><a href="#apt-get使用摘要" class="headerlink" title="apt-get使用摘要"></a>apt-get使用摘要</h1><ul>
 <li>软件升级: <code>sudo apt-get update</code></li>
@@ -930,6 +1255,12 @@
 <li>没法直接安装 u-boot-tools</li>
 <li>彻底放弃! 转战Ubuntu</li>
 <li>不知是 centos 做 2440 的交叉编译兼容性不好, 还是64bit linux的兼容性不好. 或者两者皆有!</li>
+<li><strong>最新补充(2017-09-30). 根据实践, 建议的方式如下</strong>:<ul>
+<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
+<li>linux下安装NFS服务器, 便于让开发板linux通过网络加载文件系统. <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
+<li>好处是相比于windows下, 源码放在linux下grep搜索以及编译都会快的多.</li>
+</ul>
+</li>
 </ul>
 <h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><p>静态ip, 安装向导时, 就设置了.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">yum install net-tools 	<span class="comment"># to use ifconfig  or use ip addr</span></div><div class="line">yum install bzip2		<span class="comment"># bz2压缩格式</span></div><div class="line">yum install patch</div><div class="line">yum install gcc</div><div class="line"></div><div class="line"><span class="comment"># 64位系统要安装了32位程序, 安装如下软件</span></div><div class="line">yum install glibc.i686</div><div class="line">yum install libstdc++.so.6</div></pre></td></tr></table></figure>
@@ -1075,6 +1406,12 @@
 <li>还好, 最终 <strong>windows做NFS服务器</strong> 成功了</li>
 </ul>
 </li>
+<li><strong>最新补充(2017-09-30). 根据实践, 建议的方式如下</strong>:<ul>
+<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
+<li>linux下安装NFS服务器, 便于让开发板linux通过网络加载文件系统. <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
+<li>好处是相比于windows下, 源码放在linux下grep搜索以及编译都会快的多.</li>
+</ul>
+</li>
 </ul>
 <h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 查看 make 和 gcc 工具 (非交叉编译用)</span></div><div class="line">make -v                     <span class="comment"># GNU Make 3.81</span></div><div class="line">gcc -v                      <span class="comment"># gcc version 4.8.4</span></div></pre></td></tr></table></figure>
 <h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><p>个人更喜欢用静态IP, 这样putty的设置更直观方便.<br>如果要使用动态IP, 可以设置 windwos 的 HaneWIN, 用<code>-range</code>来指定nfs客户端的网址段</p>
@@ -1094,385 +1431,6 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sudo <span class="_">-s</span>                                             <span class="comment"># 登录超级账户</span></div><div class="line">vi /etc/profile                                     <span class="comment"># 打开profile</span></div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/arm/4.3.2/bin</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
 <h2 id="遇到问题并解决-结果是坑"><a href="#遇到问题并解决-结果是坑" class="headerlink" title="遇到问题并解决, 结果是坑"></a><del>遇到问题并解决, 结果是坑</del></h2><p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/16/1705-linux-env/" itemprop="url">
-                  嵌入式linux环境搭建
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-16T00:00:00+11:00" content="2017-02-16">
-              2017-02-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="嵌入式linux开发环境搭建思路"><a href="#嵌入式linux开发环境搭建思路" class="headerlink" title="嵌入式linux开发环境搭建思路"></a>嵌入式linux开发环境搭建思路</h1><ol>
-<li>PC windows 所有资料存在windows目录下, 所有操作在windows环境下. NFS设置可参考:<ul>
-<li><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
-</ul>
-</li>
-<li>PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:<ul>
-<li>第一次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/">嵌入式linux环境搭建1-Ubuntu14</a></del></li>
-<li>第二次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/19/1706-linux-centos7/">嵌入式linux环境搭建2-CentOS7</a></del></li>
-<li>第三次尝试, 成功! <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
-</ul>
-</li>
-<li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统. 其参数设置可参考:<ul>
-<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
-</ul>
-</li>
-<li><strong>最新补充(2017-09-30). 根据实践, 建议的方式如下</strong>:<ul>
-<li>linux下使用samba实现文件共享, <a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
-<li>linux下安装NFS服务器, 便于让开发板linux通过网络加载文件系统. <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
-<li>好处是相比于windows下, 源码放在linux下grep搜索以及编译都会更快.</li>
-</ul>
-</li>
-</ol>
-<p>整个环境的搭建思路基于尽可能少的文件传输, 系统切换操作, 以便提高效率. 可以选择的方案有NFS方案, windows文件共享方案.<br>细化下去有:</p>
-<ul>
-<li>windows做NFS服务器</li>
-<li>ubuntu做NFS服务器</li>
-<li>ubuntu使用samba来支持windows文件共享</li>
-<li>交叉使用上述方案.</li>
-</ul>
-<p>一些列折腾之后, 最后顺利基于hanewin, win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享.<br>而且使用这个方案还有一个好处, 开发文件都存放在熟悉的windows环境下, 修改/维护/备份都很方便.</p>
-<h2 id="PC-windows-win10"><a href="#PC-windows-win10" class="headerlink" title="PC windows, win10"></a>PC windows, win10</h2><p>ip addr: <code>10.0.0.98</code><br>gateway: <code>10.0.0.138</code></p>
-<ol>
-<li>配置为静态IP. <code>10.0.0.98</code></li>
-<li>当NFS服务器, 向PC linux和Embedded linux, u-boot提供NFS服务.<br>使用了hanewin, 注意使能 nfs version2 以及权限设置 (-mapall:0:0)</li>
-<li>虚拟机安装 PC linux</li>
-<li>烧录工具, jlink, OpenJtag, dnw, 网络传输.<br>早期需要使用. 开发到应用层就可以不用了.<br>用基于nfs的网络传输, 放弃使用dnw.</li>
-<li>使用putty, 远程登录控制 PC linux.<br>文本编辑器建议用vim</li>
-<li>使用串口, 可用putty 或 TeraTerm, 远程登录控制 Embedded linux,<br>文本编辑器只能用vi</li>
-<li>PC windows的环境搭建可参考:<br>设置IP, 安装虚拟机属于常规内容, 按下不表.<br>NFS服务器 HaneWIN 的配置见 <strong><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows 软件系列-基于NFS的家庭网</a></strong><br>其中 <code>Exports</code> 内容如下:</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># for linux</span></div><div class="line">E:\My_Study\linux -name:study -mapall:0:0 10.0.0.100</div><div class="line">E:\My_Work\linux -name:work -mapall:0:0 10.0.0.100</div><div class="line"></div><div class="line"><span class="comment"># for embedded linux.</span></div><div class="line">E:\My_Study\linux\jz2440\ -name:jz2440 -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"></div><div class="line"><span class="comment"># for loading file system, should be no limit, root account</span></div><div class="line"><span class="comment"># E:\My_Study\linux\jz2440\nfs\fs_qtopia -name:fs -mapall:0:0 10.0.0.111</span></div><div class="line"><span class="comment"># E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 10.0.0.111</span></div><div class="line"><span class="comment"># E:\My_Study\linux\jz2440\nfs\fs_mini -name:fs -mapall:0:0 10.0.0.111</span></div><div class="line"><span class="comment"># please choose one:</span></div><div class="line"></div><div class="line">E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 10.0.0.111</div></pre></td></tr></table></figure>
-<h2 id="PC-linux-ubuntu-serve-16-04-32bit"><a href="#PC-linux-ubuntu-serve-16-04-32bit" class="headerlink" title="PC linux ubuntu serve 16.04 32bit"></a>PC linux ubuntu serve 16.04 32bit</h2><p>ip addr: <code>10.0.0.100</code><br>gateway: <code>10.0.0.138</code></p>
-<ol>
-<li>配置为静态IP. (弄不好就是无法上外网. 这里折腾半天)</li>
-<li>安装NFS客户端. 开机mount NFS文件</li>
-<li>安装SSH服务, 以便在windows下使用putty</li>
-<li>安装交叉编译工具并测试<br>arm-linux-gcc 3.4.5 (对于2440系列, 别用新版本, 不停的有坑)<br>u-boot-tools<br>mkyaffs2image</li>
-<li>PC linux的环境搭建可参考:<ul>
-<li>第一次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/">嵌入式linux环境搭建1-Ubuntu14</a></del></li>
-<li>第二次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/19/1706-linux-centos7/">嵌入式linux环境搭建2-CentOS7</a></del></li>
-<li>第三次尝试, 成功! <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
-</ul>
-</li>
-</ol>
-<h2 id="Embedded-Linux-jz2440v3"><a href="#Embedded-Linux-jz2440v3" class="headerlink" title="Embedded Linux jz2440v3"></a>Embedded Linux jz2440v3</h2><p>ip addr: <code>10.0.0.111</code><br>gateway: <code>10.0.0.138</code></p>
-<ol>
-<li><p>用 jlink 或 openJtag <strong>烧录u-boot</strong></p>
-<ul>
-<li>u-boot的编译</li>
-<li>需要工具jlink或OpenJtag, 一般开发板都会事先烧录好</li>
-</ul>
-</li>
-<li><p>基于u-boot, 用dnw或网络传输 <strong>烧录内核文件</strong></p>
-<ul>
-<li>最后成功使用nfs, 在u-boot下烧录内核文件. 彻底放弃dnw, 接线也更简洁.</li>
-<li>注意hanewin不支持多层文件夹!!!</li>
-<li><del>dnw 需要在window下安装驱动, win7/win10下支持不好. win10 有数字签名问题 (重启即失效)</del></li>
-<li><del>dnw 在虚拟机下的linux没有尝试成功, 因为我用的hyper-v虚拟机, 要连接到物理usb太麻烦.</del></li>
-<li><del>网络传输我这边表现很不稳定, 而且操作上也比dnw繁琐.</del></li>
-<li><del>我最终使用的是 windows 下的dnw. 因为只是烧录内核的时候需要使用.</del></li>
-</ul>
-</li>
-<li><p>基于u-boot, 更改 <strong>file system</strong> 的加载方式为nfs系统, 并自动加载</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 以jz2440的u-boot为例, 进入u-boot命令行模式, 将其设置为nfs加载file system</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</div><div class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></div><div class="line"><span class="comment"># (默认值: 'set bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0')</span></div><div class="line">save        <span class="comment"># 保存修改</span></div><div class="line">reset       <span class="comment"># 重启.</span></div></pre></td></tr></table></figure>
-</li>
-<li><p>jz2440的环境搭建可参考:</p>
-<ul>
-<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux-jz2440环境搭建</a></li>
-</ul>
-</li>
-</ol>
-<h1 id="折腾记"><a href="#折腾记" class="headerlink" title="折腾记"></a>折腾记</h1><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><ol>
-<li>之前玩过NAS, 所以有现成的hanewin让windows做NFS服务器.</li>
-<li>Ubuntu上安装 nfs-common, 顺利加载NFS文件. 编译了u-boot和kernel, 一切正常</li>
-<li>开发板手动挂载nfs, 也成功了</li>
-<li>开发板开机通过nfs挂载文件系统时, 各种permssion deny.</li>
-<li>明显权限问题, 退回到ubuntu下, 尝试在ubuntu下也做个NFS服务器, 然后windows再倒过来加载.</li>
-<li>发现在ubuntu下, 不能把加载过来的NFS文件再次通过NFS分享出去, 应该是出于安全考虑, 没有深入追究.</li>
-<li>被第五条思路折腾了挺久, 最后是因为win10专业版下没有找到能做NFS客户端的软件而放弃.</li>
-<li>折腾一圈后, 又想到windows共享文件方法, 结果Ubuntu 14.04安装Samba提示依赖错误, 搜索半天网络, 没有解决. 按下不表.</li>
-<li>返璞归真, 在ubuntu下老老实实修改权限为777, 编译文件系统, 烧录测试… 结果开发板开机依旧提示错误…</li>
-<li>一天后, 理了理思路, 再分析. 应该还是权限问题没跑, 要么chmod, 要么uid, gid问题. 毕竟是windows下NFS传过来的文件.</li>
-<li>开始研究hanewin的权限问题, 翻到官网的说明, 确实有几个参数可以设置用户和权限.</li>
-<li>一通假设加穷举后, 顺利解决用户和权限问题. 再回到开发板开机通过nfs挂载文件系统, 终于成功了, 而且还是最理想的只需要windows当NFS服务器即可.</li>
-<li>期间还因为使用的arm-linux-gcc 4.3.2 版本, 编译成功, 加载部分fs可以运行, 部分fs有问题.一度以为是有些fs源码有问题, 多个问题交织在一起, 所以排错过程就显得异常痛苦迷茫了.</li>
-<li>嵌入式开发的起步阶段, 基本就是想打主线游戏, 但不停的有分支任务, 分支任务的分支打断你, 让人直直的想骂这tmd是谁设计的鬼游戏, 还让不让人玩下去…</li>
-<li>我想说, 只有保持着对主线好奇, 不忘要打败大boss的初心, 并在分支任务中寻求一点满足感, 才能坚持下去.</li>
-</ol>
-<h2 id="编译器的巨坑"><a href="#编译器的巨坑" class="headerlink" title="编译器的巨坑"></a><del>编译器的巨坑</del></h2><p>刚开始用了 arm-linux-gcc 4.3.2, 编译u-boot时遇到了第一个坑, 还给解决了.<br>于是”顺利”使用 arm-linux-gcc 4.3.2 编译了u-boot, kernel, led驱动程序.<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
-<p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法 (<strong>巨坑的开始</strong>):</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
-<p>最后, 对于 arm-linux-gcc 版本问题, 又研究了一下. 应该说不是新版本不能用, 而是需要设置.<br>对应编译原理之类的基本不懂, 暂时也没有时间去验证, 此处写出来提供一个思路, 感觉是可行的.<br>关键点有这么几个.</p>
-<ul>
-<li>要使用 arm-none-linux-gnueabi</li>
-<li>要指定arm架构 -</li>
-<li>指定使用的库</li>
-</ul>
-<p>这个在上面uboot的例子也能看出一二了. 在网上还有人提到:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 编译 hello.c 时, 需要用如下命令</span></div><div class="line">arm-none-linux-gnueabi-gcc -o hello hello.c -static <span class="comment"># 特别指明了 static不能省略!</span></div><div class="line"><span class="comment"># 配置Makefile时, 需要指明arm架构</span></div><div class="line">CC=<span class="string">"arm-none-linux-gnueabi-gcc -march=armv4t"</span></div><div class="line"><span class="comment"># 指定交叉编译工具</span></div><div class="line"><span class="built_in">export</span> CROSS_COMPILE=/usr/<span class="built_in">local</span>/arm-2008q3/bin/arm-none-linux-gnueabi-</div><div class="line"><span class="comment"># 最后, 还是没明白 arm-linux-gcc 和 arm-none-linux-gnueabi-gcc的区别.</span></div><div class="line"><span class="comment"># 因为打开 arm-linux-gcc 4.3.2 bin下的 arm-linux-gcc 可以看到如下内容:</span></div><div class="line"><span class="built_in">exec</span> arm-none-linux-gnueabi-gcc -march=armv4t $*</div></pre></td></tr></table></figure></p>
-<p>找到二篇详细说明的, 放上链接<br><a href="http://www.veryarm.com/296.html" target="_blank" rel="external">arm交叉编译器gnueabi、none-eabi、arm-eabi、gnueabihf、gnueabi区别</a><br><a href="http://blog.csdn.net/u013467442/article/details/44197725" target="_blank" rel="external">arm-none-linux-gnueabi交叉工具链安装,介绍，区别总结</a></p>
-<h1 id="新技术-Docker"><a href="#新技术-Docker" class="headerlink" title="新技术 Docker"></a>新技术 <a href="https://docs.docker.com/" target="_blank" rel="external">Docker</a></h1><p>Linux下的环境搭建一直让人比较痛苦, 这也直接使得 <code>Docker</code> 优势尽显.<br>简单研究了一下Docker, 这个方案是可行的!<br>可参考 <a href="https://draapho.github.io/2017/02/23/1708-docker/">Docker 初学笔记</a></p>
-<p>基于Docker的ARM交叉编译环境, 已经有人在做了.</p>
-<ul>
-<li><a href="https://github.com/dockcross/dockcross" target="_blank" rel="external">dockcross/dockcross</a>, 但S3C2440是ARM9, 采用的ARMv4架构</li>
-<li><a href="http://hackaday.com/2016/09/01/how-to-use-docker-to-cross-compile-for-raspberry-pi-and-more/" target="_blank" rel="external">HOW TO USE DOCKER TO CROSS COMPILE FOR RASPBERRY PI</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/15/1704-linux-source6/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-内存管理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-15T00:00:00+11:00" content="2017-02-15">
-              2017-02-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p>本人手工制作的 <strong>Linux 0.11 内存管理图解</strong><br><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
-<ul>
-<li>虚拟内存的实现, 使用的是页面出错异常处理. 然后调用 <code>do_no_page()</code> 来读取硬盘数据(必要时先回写), 腾出内存空间.</li>
-<li>写时复制 (copy on write) 机制, 新建进程时, linux不会立刻复制进程数据.<br>只有某个进程需要进行数据写操作时, 才真正开始执行复制操作.<br>好处是, 节约内存, 加快创建进程的速度.</li>
-<li>Linux 0.11版本的内存管理的主要文件 <code>/mm/memory.c</code></li>
-<li>内存的一些基础概念请参考 <a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-</ul>
-<h1 id="进程的内存空间"><a href="#进程的内存空间" class="headerlink" title="进程的内存空间"></a>进程的内存空间</h1><p>进程代码和数据在其逻辑地址空间中的分布<br><img src="https://draapho.github.io/images/1704/6-mm-process.jpg" alt="mm"></p>
-<ul>
-<li>Linux 0.11 每个进程只能有64M byte的逻辑内存.</li>
-<li>环境参数块最多128K</li>
-<li>堆栈指针是在逻辑地址的高位, 向下增长</li>
-<li>bss是进程未初始化的数据段, 第一页会被初始化为0</li>
-<li>使用需求加载机制 (Load on demand), 因此在加载运行文件时, 只是分配64M的线性地址空间, 没有分配任何真正的物理内存.</li>
-<li>此时, 内核在执行代码或加载数据时, 会触发缺页异常中断, 此时才调用 <code>do_no_page</code> 加载内容到物理内存.</li>
-</ul>
-<h1 id="内存的分配-malloc"><a href="#内存的分配-malloc" class="headerlink" title="内存的分配 malloc"></a>内存的分配 <code>malloc</code></h1><p>使用存储桶原理进行内存的分配管理<br><img src="https://draapho.github.io/images/1704/6-mm-malloc.jpg" alt="mm"></p>
-<ul>
-<li>实现很巧妙. 指针应用的出神入化</li>
-<li>仅内核代码可以调用.</li>
-<li>基本思想: 对申请的不同的内存块大小, 使用存储桶分别进行处理.</li>
-<li>提高内存利用率, 可有效避免内存碎片化.</li>
-<li>源码文件 <code>/lib/malloc.c</code></li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-</ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
@@ -1548,7 +1506,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">67</span>
+              <span class="site-state-item-count">69</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
