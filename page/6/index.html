@@ -260,6 +260,182 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/26/1704-linux-source1/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-内存的基础概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-26T00:00:00+11:00" content="2017-01-26">
+              2017-01-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存条的分配"><a href="#内存条的分配" class="headerlink" title="内存条的分配"></a>内存条的分配</h2><p><em>Linux0.11 对物理内存条的分配</em><br><img src="https://draapho.github.io/images/1704/1-memory.jpg" alt="memory"></p>
+<ul>
+<li><code>内核模块</code>, Linux Kernel的代码</li>
+<li><code>高速缓冲 Buffer</code>, 缓存内核对硬盘的读写操作. 仅部分内核函数可用</li>
+<li><code>主内存 Memory</code>, 应用程序可用的内存区. 虚拟内存也是针对这一块区域而言的.</li>
+</ul>
+<h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
+<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
+<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
+<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
+<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
+<li>分段机制<ul>
+<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
+<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
+</ul>
+</li>
+<li>分页机制<ul>
+<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
+<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
+<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
+<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
+<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
+<li>页表, Page Table, 对应80x86的 Page Table</li>
+</ul>
+</li>
+<li>任务状态段<ul>
+<li>TSS (Task State Segment)</li>
+<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
+<li>TSS存放于GDT内</li>
+</ul>
+</li>
+</ul>
+<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
+<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
+<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
+<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
+<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
+<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
+<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
+<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
+<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
+<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
+<li>0为最高优先级, 对应于Linux内核态</li>
+<li>3为最低优先级, 对应于Linux用户态</li>
+<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
+<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
+<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
+</ul>
+<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
+<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/01/23/1704-linux-source/" itemprop="url">
                   Linux 0.11 源码阅读笔记-总览
                 </a>
@@ -2347,516 +2523,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/16/1626-linux-cmd-file/" itemprop="url">
-                  linux文件与目录相关指令
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-16T00:00:00+11:00" content="2016-12-16">
-              2016-12-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="linux-文件基础"><a href="#linux-文件基础" class="headerlink" title="linux 文件基础"></a>linux 文件基础</h1><h2 id="特殊符号代表的目录"><a href="#特殊符号代表的目录" class="headerlink" title="特殊符号代表的目录:"></a>特殊符号代表的目录:</h2><table>
-<thead>
-<tr>
-<th>特殊符号</th>
-<th>目录</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>.</code></td>
-<td>代表此层目录</td>
-</tr>
-<tr>
-<td><code>..</code></td>
-<td>代表上一层目录</td>
-</tr>
-<tr>
-<td><code>~</code></td>
-<td>代表<strong>目前使用者</strong>所在的家目录</td>
-</tr>
-<tr>
-<td><code>~account</code></td>
-<td>代表<strong>account</strong>这个使用者的家目录</td>
-</tr>
-<tr>
-<td><code>~+</code></td>
-<td>当前的工作目录, 等同于<code>pwd</code></td>
-</tr>
-<tr>
-<td><code>~-</code></td>
-<td>上次的工作目录</td>
-</tr>
-</tbody>
-</table>
-<h2 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h2><table>
-<thead>
-<tr>
-<th>bit9</th>
-<th>8</th>
-<th>7</th>
-<th>6</th>
-<th>5</th>
-<th>4</th>
-<th>3</th>
-<th>2</th>
-<th>1</th>
-<th>0</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>-</td>
-<td>r</td>
-<td>w</td>
-<td>x</td>
-<td>r</td>
-<td>-</td>
-<td>x</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>bit</th>
-<th>字母</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>9</td>
-<td></td>
-<td>文件类型</td>
-</tr>
-<tr>
-<td></td>
-<td><code>d</code></td>
-<td>目录(dir)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>-</code></td>
-<td>文件</td>
-</tr>
-<tr>
-<td></td>
-<td><code>l</code></td>
-<td>链接文件(link)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>b</code></td>
-<td>块设备文件(block)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>c</code></td>
-<td>字符设备文件(character)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>s</code></td>
-<td>网络接口文件(sockets)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>p</code></td>
-<td>管道文件(FIFO, pipe)</td>
-</tr>
-<tr>
-<td>876</td>
-<td><code>rwx</code></td>
-<td>拥有人的权限, r为可读, w为可写, x为可执行</td>
-</tr>
-<tr>
-<td>543</td>
-<td><code>r-x</code></td>
-<td>同群组的权限, r为可读, -为不可写, x为可执行</td>
-</tr>
-<tr>
-<td>210</td>
-<td><code>---</code></td>
-<td>其它群组权限, 不可读, 不可写, 不可执行</td>
-</tr>
-</tbody>
-</table>
-<h1 id="文件与目录常用指令"><a href="#文件与目录常用指令" class="headerlink" title="文件与目录常用指令"></a>文件与目录常用指令</h1><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>cd</code></td>
-<td><strong>Change Directory</strong>, 变换目录</td>
-</tr>
-<tr>
-<td><code>pwd</code></td>
-<td><strong>Print Working Directory</strong>, 显示目前的目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>pwd -P</code></strong></td>
-<td>显示真实路径, 而非link路径</td>
-</tr>
-<tr>
-<td><code>mkdir dir</code></td>
-<td>Make Directory, 建立一个新的目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>mkdir -p dir1/dir2</code></strong></td>
-<td>递归建立所有目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>mkdir -m 711 dir</code></strong></td>
-<td>建立目录时,设定权限</td>
-</tr>
-<tr>
-<td><code>rmdir dir</code></td>
-<td><strong>Remove Directory</strong>, 删除一个空的目录</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>ls</code></td>
-<td><strong>List Files</strong>, 显示文件与目录</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -h</code></strong></td>
-<td>以KB,GB显示容量.</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -R</code></strong></td>
-<td>Recursive, 递归显示子目录信息</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -t</code></strong></td>
-<td>以时间排序</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -S</code></strong></td>
-<td>以容量大小排序</td>
-</tr>
-<tr>
-<td>…… <strong><code>ll</code></strong></td>
-<td><code>ls –al</code>, List All, 显示所有文件及信息</td>
-</tr>
-<tr>
-<td><code>cp src dst</code></td>
-<td>copy</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp -a src dst</code></strong></td>
-<td>即<code>cp -pdr</code>, 递归复制目录.不会改变属性和权限</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp -f src dst</code></strong></td>
-<td>Force, 强制复制,不询问使用者</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp -u src dst</code></strong></td>
-<td>若 src比dst新,才进行复制工作,多用于备份</td>
-</tr>
-<tr>
-<td>…… <strong><code>cp src1 src2 src3 dir</code></strong></td>
-<td>将多个原文件拷贝到指定目录</td>
-</tr>
-<tr>
-<td><code>mv src dst</code></td>
-<td><strong>move</strong>, 移动目录和文件</td>
-</tr>
-<tr>
-<td><code>rm file_dir</code></td>
-<td><strong>remove</strong>, 移除文件</td>
-</tr>
-<tr>
-<td>…… <strong><code>rm -fr dir</code></strong></td>
-<td>强制递归删除dir下的所有文件和目录</td>
-</tr>
-<tr>
-<td><code>ln -s src dst</code></td>
-<td><strong>Symbolic Link</strong>, 创建一个符号链接</td>
-</tr>
-<tr>
-<td>…… <strong><code>ln file hardLink</code></strong></td>
-<td>实际链接, 仅支持同区块下的文件,不占用inode</td>
-</tr>
-<tr>
-<td>…… <strong><code>ln -s dir symbolicLink</code></strong></td>
-<td>符号链接, 同快捷方式,为一个文件,占用inode</td>
-</tr>
-<tr>
-<td><code>basename /dir/dir/file</code></td>
-<td>结果为<code>file</code>, 路径中取得文件名称</td>
-</tr>
-<tr>
-<td><code>dirname /dir/dir/file</code></td>
-<td>结果为<code>/dir/dir</code>, 路径中取得目录名称</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>cat file</code></td>
-<td><strong>Concatenate</strong> (连续), 连续显示文件内容</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat -n file</code></strong></td>
-<td>在前面加上行号</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat -A</code></strong></td>
-<td>即 <code>cat -vET</code>, 可显示一些特殊符号</td>
-</tr>
-<tr>
-<td><code>more</code> <code>less</code> <code>head</code> <code>tail</code></td>
-<td>都用于显示文件内容, <code>less</code>功能最强大</td>
-</tr>
-<tr>
-<td><code>od -t x1 file</code></td>
-<td>按1byte 十六进制显示文件.若x2则为2byte.</td>
-</tr>
-<tr>
-<td><code>touch file</code></td>
-<td>建立一个空文件, 修改文件时间(mtime和atime)</td>
-</tr>
-<tr>
-<td><code>file file</code></td>
-<td>读取文件类型</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>umask</code></td>
-<td>读取和设置当前默认权限, 数字是被取消的默认权限</td>
-</tr>
-<tr>
-<td>…… <strong><code>umask 022</code></strong></td>
-<td>新建文档权限为 777-022 = 755权限</td>
-</tr>
-<tr>
-<td><code>chgrp -R group file_dir</code></td>
-<td>递归改变file_dir文件/目录的群组(group必须存在)</td>
-</tr>
-<tr>
-<td><code>chown owner file_dir</code></td>
-<td>改变文件或目录的所有者(owner必须存在)</td>
-</tr>
-<tr>
-<td>…… <strong><code>chown -R owner:group dir</code></strong></td>
-<td>递归改变dir的所有者和组群</td>
-</tr>
-<tr>
-<td>…… <strong><code>chmod -R 755 file_dir</code></strong></td>
-<td>递归改名文件或目录的权限 (7=0b111=rwx)</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>which -a cmd</code></td>
-<td>搜索执行文件完整路径</td>
-</tr>
-<tr>
-<td><code>whereis file</code></td>
-<td>快速搜索文件(用数据库),实测下来没啥用</td>
-</tr>
-<tr>
-<td><code>find dir -name file</code></td>
-<td>搜索文件(整个硬盘),很强大的一个指令</td>
-</tr>
-<tr>
-<td>…… <strong><code>-name</code></strong></td>
-<td>表示按文件名搜索. 类似的参数有很多.有需要在查.</td>
-</tr>
-<tr>
-<td><code>grep pattern files</code></td>
-<td>在files中寻找 pattern项,支持正则表达式</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -r “hello” ./*</code></strong></td>
-<td>在当前文件夹下的所有文件下搜索 “hello”</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -n “Test” *</code></strong></td>
-<td>在当前文件夹下搜索 “hello”, 并显示行号</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -i “Bye” *</code></strong></td>
-<td>在当前文件夹下忽略大小写搜索 ”Bye”</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -w “Test” aa bb</code></strong></td>
-<td>在aa, bb文件内,只匹配整个单词搜索 “Test”</td>
-</tr>
-<tr>
-<td>…… <strong><code>grep -nd skip 100ask24x0 *</code></strong></td>
-<td>仅在当前目录查找, 不显示子目录信息</td>
-</tr>
-<tr>
-<td><code>find ./ -name &quot;*&quot; l(竖杠) xargs grep --color &quot;key&quot;</code></td>
-<td>在当前文件夹下查找包含 “key” 内容的文件</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>tar -cvf file.tar /dir</code></td>
-<td>将/dir打包为file.tar,没有压缩</td>
-</tr>
-<tr>
-<td><code>tar -zcvf file.tar.gz /dir</code></td>
-<td>将/dir打包为file.tar.gz,用gzip压缩</td>
-</tr>
-<tr>
-<td><code>tar -jcvf file.tar.bz2 /dir</code></td>
-<td>将/dir打包为file.tar.gz2,用bzip2压缩</td>
-</tr>
-<tr>
-<td><code>tar -xvf file.tar</code></td>
-<td>还原file.tar到当前目录</td>
-</tr>
-<tr>
-<td><code>tar -zxvf file.tar.gz</code></td>
-<td>解压file.tar.gz到当前目录</td>
-</tr>
-<tr>
-<td><code>tar -jxvf file.tar.bz2</code></td>
-<td>解压file.tar.bz2到当前目录</td>
-</tr>
-<tr>
-<td><code>tar -N ‘2005/06/01’ -zcvffile.tar.gz /dir</code></td>
-<td>将/dir下比2005/06/01新的文件备份</td>
-</tr>
-<tr>
-<td><code>cpio</code></td>
-<td>文件/设备的输入输出, 多配合find进行备份</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong><code>find ./ -name &quot;*&quot; | xargs grep --color &quot;key&quot;</code></strong> 在当前文件夹下查找包含 “key” 内容的文件</li>
-<li><strong><code>find / -print | cpio -covB &gt; /dev/st0</code></strong> , 将系统数据全部写入磁带机</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2902,7 +2568,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">69</span>
+              <span class="site-state-item-count">70</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2919,7 +2585,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-count">67</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
