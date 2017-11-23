@@ -260,6 +260,673 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/17/1627-linux-cmd-bash/" itemprop="url">
+                  Bash Shell及环境变量
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-17T00:00:00+11:00" content="2016-12-17">
+              2016-12-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="入门教程"><a href="#入门教程" class="headerlink" title="入门教程"></a>入门教程</h1><p>推荐 <a href="http://c.biancheng.net/cpp/shell/" target="_blank" rel="external">C语言中文网-Shell教程</a></p>
+<ul>
+<li><a href="http://c.biancheng.net/cpp/view/6998.html" target="_blank" rel="external">第一个shell脚本</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/6999.html" target="_blank" rel="external">shell变量</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="external">shell特殊变量</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2737.html" target="_blank" rel="external">shell替换</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2736.html" target="_blank" rel="external">shell运算符</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7000.html" target="_blank" rel="external">shell注释</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7001.html" target="_blank" rel="external">shell字符串</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7002.html" target="_blank" rel="external">shell数组</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7003.html" target="_blank" rel="external">shell echo命令</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/1499.html" target="_blank" rel="external">shell printf命令</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7005.html" target="_blank" rel="external">shell if else语句</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7006.html" target="_blank" rel="external">shell case esac语句</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7007.html" target="_blank" rel="external">shell for循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7008.html" target="_blank" rel="external">shell while循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7009.html" target="_blank" rel="external">shell until循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7010.html" target="_blank" rel="external">shell跳出循环</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/7011.html" target="_blank" rel="external">shell函数</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2491.html" target="_blank" rel="external">shell函数参数</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2738.html" target="_blank" rel="external">shell输入输出重定向</a></li>
+<li><a href="http://c.biancheng.net/cpp/view/2740.html" target="_blank" rel="external">shell文件包含</a></li>
+</ul>
+<h1 id="Bash-Shell基础操作"><a href="#Bash-Shell基础操作" class="headerlink" title="Bash Shell基础操作"></a>Bash Shell基础操作</h1><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[Tab]</code></td>
+<td>指令或文件名自动补齐</td>
+</tr>
+<tr>
+<td><code>[Tab][Tab]</code></td>
+<td>连按两下[Tab], 列出所有可补齐的指令或档案</td>
+</tr>
+<tr>
+<td><code>[ctrl]-c</code></td>
+<td>中断指令</td>
+</tr>
+<tr>
+<td><code>[ctrl]-d</code></td>
+<td>EOF,表示输入结束</td>
+</tr>
+<tr>
+<td><code>[↑]</code> <code>[↓]</code></td>
+<td>浏览历史指令</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>stty</code></td>
+<td>查看和设置终端按键参数</td>
+</tr>
+<tr>
+<td>…… <strong><code>stty -a</code></strong></td>
+<td>查看终端所有的按键参数</td>
+</tr>
+<tr>
+<td><code>history</code></td>
+<td>查询历史指令, 建议将其设置别名<code>alias h=’history’</code></td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>执行历史指令, 后接数字或字母</td>
+</tr>
+<tr>
+<td>…… <strong><code>!!</code></strong></td>
+<td>执行上一个指令</td>
+</tr>
+<tr>
+<td>…… <strong><code>!al</code></strong></td>
+<td>执行以al为开头的最后一个指令</td>
+</tr>
+<tr>
+<td>…… <strong><code>!12</code></strong></td>
+<td>执行第12条历史指令(先用history查看历史指令号)</td>
+</tr>
+<tr>
+<td><code>alias cmd=’command’</code></td>
+<td>设置指令别名, command为指令字符串</td>
+</tr>
+<tr>
+<td>…… <strong><code>alias h=history</code></strong></td>
+<td>设置指令history的别名为h.不用引号,单双引号皆可</td>
+</tr>
+<tr>
+<td><code>unalias cmd</code></td>
+<td>取消指令别名</td>
+</tr>
+<tr>
+<td><code>type -a command</code></td>
+<td>查询指令类型(file外部指令; alias别名指令;builtin内建指令)</td>
+</tr>
+<tr>
+<td><code>command --help</code></td>
+<td>获取command内置的帮助信息,较为简短</td>
+</tr>
+<tr>
+<td><code>man command</code></td>
+<td>获取command的帮助文件. <code>j</code> <code>k</code>上下移动, <code>q</code>退出</td>
+</tr>
+<tr>
+<td><code>sh file</code></td>
+<td>创建一个子shell, 执行file内的指令</td>
+</tr>
+<tr>
+<td><code>source file</code></td>
+<td>在当前shell内,执行file内的指令</td>
+</tr>
+<tr>
+<td><code>. file</code></td>
+<td>等同于source file</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>su -l user</code></td>
+<td>切换用户, -l表示环境变量一起变</td>
+</tr>
+<tr>
+<td>…… <strong><code>su</code></strong></td>
+<td>切换为管理员账户</td>
+</tr>
+<tr>
+<td><code>sudo command</code></td>
+<td>赋予用户临时的管理员权限 (<code>/etc/sudoers</code>决定是否支持)</td>
+</tr>
+<tr>
+<td><code>exit</code></td>
+<td>退出当前用户的终端环境</td>
+</tr>
+<tr>
+<td><code>shutdown -h now</code></td>
+<td>立刻关机</td>
+</tr>
+<tr>
+<td><code>sync; sync; shutdown -r now</code></td>
+<td>立刻重启, 重启前需要存储一下数据</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>时间</td>
+</tr>
+<tr>
+<td><code>cal</code></td>
+<td>日期</td>
+</tr>
+<tr>
+<td><code>bc</code></td>
+<td>计算器, 输入quit退出</td>
+</tr>
+<tr>
+<td><code>apt-get</code></td>
+<td>ubuntu deb包软件管理</td>
+</tr>
+<tr>
+<td>…… <strong><code>sudo apt-get install packagename</code></strong></td>
+<td>安装指定软件包</td>
+</tr>
+<tr>
+<td>…… <strong><code>sudo apt-get autoremovepackagename</code></strong></td>
+<td>删除指定软件包 (包括配置文件)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="变量与环境变量"><a href="#变量与环境变量" class="headerlink" title="变量与环境变量"></a>变量与环境变量</h1><ul>
+<li>系统变量一般大写, 如MAIL</li>
+<li>用户变量一般小写, 如myhome</li>
+<li>普通变量(也称shell变量)作用范围: 当前的shell</li>
+<li>环境变量(也称用户变量)作用范围: 当前的shell及其子shell</li>
+<li>环境变量开机设置文档<ul>
+<li><code>~/.bashrc</code>, <code>~/.profile</code>, <code>/etc/profile</code>, <code>/etc/bash.bashrc</code>,等等</li>
+<li>首先读取 <code>/etc/profile</code>, 最后读取 <code>~/.bashrc</code></li>
+<li>个人设定建议放在<code>~/.bashrc</code>内,并做如下修改:</li>
+<li>修改<code>HISTSIZE=50</code>  (减少记录的历史指令,安全)</li>
+<li>加入<code>alias h=&#39;history&#39;</code></li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>myhome=/home/my/</code></td>
+<td>无空格字符串,注意等号左右不要有空格</td>
+</tr>
+<tr>
+<td><code>myhome=’/home/my/’</code></td>
+<td>单引号内可包含任意字符串, 无特殊含义</td>
+</tr>
+<tr>
+<td><code>myname=”my name is”</code></td>
+<td>双引号内某些字符有特殊作用, 如 $</td>
+</tr>
+<tr>
+<td><code>read variable</code></td>
+<td>键盘输入变量, 回车表示结束输入</td>
+</tr>
+<tr>
+<td>…… <strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
+<td>提示输入变量给myname, 30秒输入时间</td>
+</tr>
+<tr>
+<td><code>echo $myhome</code></td>
+<td>变量名前加上$, 即可读取该变量的值</td>
+</tr>
+<tr>
+<td><code>echo “$myhome”</code></td>
+<td>“$变量名”,无歧义. 注意不能单引号</td>
+</tr>
+<tr>
+<td><code>echo ${myhome}</code></td>
+<td>${变量名},无歧义</td>
+</tr>
+<tr>
+<td><code>unset myhome</code></td>
+<td>删除变量</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>let val=10*10</code></td>
+<td>加上let后, val值为100,而非10*10. 用的比declare多!</td>
+</tr>
+<tr>
+<td><code>readonly VAL=’read only’</code></td>
+<td>将VAL为只读变量,不可更改和unset (等同 declare -r)</td>
+</tr>
+<tr>
+<td><code>declare -ai array</code></td>
+<td>将array声明为整数数组 (不加参数a,效果一样)</td>
+</tr>
+<tr>
+<td><code>array[1]=10*10</code></td>
+<td>数组的赋值, array定义为整数,因此array[1]值为100</td>
+</tr>
+<tr>
+<td><code>echo ${array[1]}</code></td>
+<td>使用”$array[1]”没用.若无{}, 会认为是”$array”[1]</td>
+</tr>
+<tr>
+<td><code>unset array</code></td>
+<td>将array数组变量删除</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PATH=/home:$PATH</code></td>
+<td>新增”/home:”在PATH变量最前面</td>
+</tr>
+<tr>
+<td><code>PATH=”$PATH””:/home”</code></td>
+<td>前后都加”双引号”,无歧义. 建议这样书写</td>
+</tr>
+<tr>
+<td><code>PATH=${PATH}’:/home’</code></td>
+<td>变量名用{大括号}指明,无歧义. 新增变量也可用’单引号’</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>echo $?</code></td>
+<td>?为特殊变量,为上一指令传回的值. 0成功, !0失败</td>
+</tr>
+<tr>
+<td><code>echo $$</code></td>
+<td>获取并显示当前shell的 PID (process ID)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>#</code> <code>##</code> <code>%</code> <code>%%</code> <code>/</code> <code>//</code></td>
+<td>变量的截取和替换. 以<code>myhome=/home/test/test.sh</code>为例</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome#/*/}</code></strong></td>
+<td><code>test/test.sh</code>,从头比较, 单次删除,故<del><code>/home/</code></del></td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome##/*/}</code></strong></td>
+<td><code>test.sh</code>, 从头比较, 全部删除,获得文件名</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome%/*}</code></strong></td>
+<td><code>/home/test</code>,从尾比较, 单次删除,获得路径</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome%%/*}</code></strong></td>
+<td>从尾比较, 全部删除,故全部被删掉</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome/test/TEST}</code></strong></td>
+<td><code>/home/TEST/test.h</code>, 从头比较, 单次替换</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${myhome//test/TEST}</code></strong></td>
+<td><code>/home/TEST/TEST.h</code>,从头比较, 全部替换</td>
+</tr>
+<tr>
+<td><code>-</code> <code>:-</code> <code>+</code> <code>:+</code> <code>=</code> <code>:=</code> <code>?</code> <code>:?</code></td>
+<td>变量的比较和判断. 常用于判断和确保变量有效</td>
+</tr>
+<tr>
+<td>…… <strong><code>var=${str-expr}</code></strong></td>
+<td>var为目标变量, str为已有变量, expr为变量值</td>
+</tr>
+<tr>
+<td>…… <strong><code>myname=${myname:-root}</code></strong></td>
+<td>若myname不存在或为空,则myname=root</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>enviroment, 显示当前环境变量,用的最多!</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>显示所有变量(环境变量,普通变量)</td>
+</tr>
+<tr>
+<td><code>export</code></td>
+<td>显示已成为当前环境变量的普通变量</td>
+</tr>
+<tr>
+<td>…… <strong><code>export variable</code></strong></td>
+<td>将variable设为环境变量, 等同 <code>declare -x variable</code></td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td>查看当前语言的环境变量</td>
+</tr>
+<tr>
+<td>…… <strong><code>locale -a</code></strong></td>
+<td>查看系统支持的语言</td>
+</tr>
+</tbody>
+</table>
+<h1 id="Bash-Shell特殊符号"><a href="#Bash-Shell特殊符号" class="headerlink" title="Bash Shell特殊符号"></a>Bash Shell特殊符号</h1><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>万用字符, 表示0或多个字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>万用字符, 表示一个字符</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>逻辑非, 通常在<code>[中括号]</code>内使用</td>
+</tr>
+<tr>
+<td><code>\</code></td>
+<td>转义字符, 需要转义的字符 <code>&quot;</code> <code>&#39;</code> <code>$</code> <code>\</code> <code>` \</code></td>
+</tr>
+<tr>
+<td>…… <strong><code>\n</code></strong></td>
+<td>换行</td>
+</tr>
+<tr>
+<td>…… <strong><code>\r</code></strong></td>
+<td>回车</td>
+</tr>
+<tr>
+<td>…… <strong><code>\t</code></strong></td>
+<td>水平制表符</td>
+</tr>
+<tr>
+<td>…… <strong><code>\v</code></strong></td>
+<td>垂直制表符</td>
+</tr>
+<tr>
+<td>…… <strong><code>\b</code></strong></td>
+<td>后退</td>
+</tr>
+<tr>
+<td>…… <strong><code>\a</code></strong></td>
+<td>蜂鸣</td>
+</tr>
+<tr>
+<td>…… <strong><code>\077</code></strong></td>
+<td>八进制字符</td>
+</tr>
+<tr>
+<td>…… <strong><code>\xff</code></strong></td>
+<td>十六进制</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>批注</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>$variable</code></td>
+<td>变量名</td>
+</tr>
+<tr>
+<td><code>${variable}</code></td>
+<td>大括号. 中间为命令区块组合,限定变量名范围</td>
+</tr>
+<tr>
+<td>…… <strong><code>echo ${array[1]}</code></strong></td>
+<td>显示<code>array[1]</code> 变量值, array为数组,需用<code>{大括号}</code>包含变量名</td>
+</tr>
+<tr>
+<td><code>[a-f], [35], [!a-z]</code></td>
+<td>中括号. 中间为字符组合, <code>[仅代表一个字符]</code></td>
+</tr>
+<tr>
+<td>…… <strong><code>ls -d ~/*[0-9]*</code></strong></td>
+<td>列出用户home目录下所有包含数字的文件和目录</td>
+</tr>
+<tr>
+<td><code>$(command)</code></td>
+<td>小括号. 中间为子shell,此命令等同于`command`</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&#39;$string&#39;</code></td>
+<td>单引号, 特殊符号无效,变量不置换, 显示为$string</td>
+</tr>
+<tr>
+<td><code>&quot;$variable&quot;</code></td>
+<td>双引号, 特殊符号有用,变量置换</td>
+</tr>
+<tr>
+<td>`command`</td>
+<td>`(键盘1左边的字符),需要优先执行的指令</td>
+</tr>
+<tr>
+<td>…… <strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
+<td>进入当前linux的内核源码目录</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>cmd1 l cmd2 和 cm1 ll cmd2</td>
+<td>hexo解析问题, 无法再表格中正确显示<code>丨</code>, <strong>故放到表格的最后</strong></td>
+</tr>
+<tr>
+<td><code>cut</code> <code>grep</code> <code>split</code></td>
+<td>截取分割, 通常配合 <code>pipe</code>使用</td>
+</tr>
+<tr>
+<td><code>sort</code> <code>wc</code> <code>uniq</code></td>
+<td>排序命令, 通常配合 <code>pipe</code>使用</td>
+</tr>
+<tr>
+<td><code>tr</code> <code>col</code> <code>join</code> <code>paste</code> <code>expand</code></td>
+<td>字符转换, 通常配合 <code>pipe</code>使用</td>
+</tr>
+<tr>
+<td><code>cmd1;cmd2; cmd3</code></td>
+<td>可以一行写多个指令</td>
+</tr>
+<tr>
+<td><code>cmd1 &amp;&amp; cmd2</code></td>
+<td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&gt;</code> <code>2&gt;</code> <code>&gt;&gt;</code> <code>2&gt;&gt;</code></td>
+<td>输出到文件 (&gt;写入, &gt;&gt;累加, 2错误信息)</td>
+</tr>
+<tr>
+<td>…… <strong><code>ll &gt; list.txt</code></strong></td>
+<td>将当前目录下的文件详细信息存储到list.txt文件中</td>
+</tr>
+<tr>
+<td>…… <strong><code>ls / &gt;&gt; list.txt</code></strong></td>
+<td>将根目录下的文件信息追加到list.txt文件中</td>
+</tr>
+<tr>
+<td>…… <strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
+<td>将正确信息写到ok中,错误的写到error中</td>
+</tr>
+<tr>
+<td>…… <strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
+<td>将所有信息都写到list中 (&amp;1是数字一)</td>
+</tr>
+<tr>
+<td>…… <strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
+<td><code>/dev/null</code>相当于黑洞.只将错误写到err中</td>
+</tr>
+<tr>
+<td><code>&lt;</code> <code>&lt;&lt;</code></td>
+<td>输入信息(&lt;从文件获取, &lt;&lt;结束的输入字符)</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat &gt; catfile</code></strong></td>
+<td>从键盘获取文本并写到catfile中 (键盘按[ctrl]+d结束输入)</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
+<td>从键盘获取文本并写到catfile中(键盘输入end结束输入)</td>
+</tr>
+<tr>
+<td>…… <strong><code>cat &gt; catfile &lt; input</code></strong></td>
+<td>导入input文件信息再写到catfile中</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>cmd1 | cmd2</code>  <code>pipe</code>管线命令,将cmd1的处理结果传给cmd2继续处理</li>
+<li>譬如 <code>ll | more</code>  将ll获得的数据传给more进一步处理</li>
+<li><code>cmd1 || cmd2</code>  cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</li>
+<li>譬如 <code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; || echo &quot;nofile&quot;</code> 如果<code>/tmp/test</code>存在显示<code>exist</code>,否则<code>nofile</code></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/16/1626-linux-cmd-file/" itemprop="url">
                   linux文件与目录相关指令
                 </a>
@@ -1946,362 +2613,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/23/1620-software-data-struct/" itemprop="url">
-                  数据结构资料收集
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-23T00:00:00+11:00" content="2016-11-23">
-              2016-11-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/software/" itemprop="url" rel="index">
-                    <span itemprop="name">software</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="python各数据结构性能列表-TimeComplexity"><a href="#python各数据结构性能列表-TimeComplexity" class="headerlink" title="python各数据结构性能列表, TimeComplexity"></a>python各数据结构性能列表, <a href="https://wiki.python.org/moin/TimeComplexity" target="_blank" rel="external">TimeComplexity</a></h1><ul>
-<li>list</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Average Case</th>
-<th>Amortized Worst Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Copy</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Append[1]</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>Insert</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Get Item</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>Set Item</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>Delete Item</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Iteration</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Get Slice</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>Del Slice</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Set Slice</td>
-<td>O(k+n)</td>
-<td>O(k+n)              </td>
-</tr>
-<tr>
-<td>Extend[1]</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>Sort</td>
-<td>O(n log n)</td>
-<td>O(n log n)          </td>
-</tr>
-<tr>
-<td>Multiply</td>
-<td>O(nk)</td>
-<td>O(nk)               </td>
-</tr>
-<tr>
-<td>x in s</td>
-<td>O(n)</td>
-<td>-                   </td>
-</tr>
-<tr>
-<td>min(s), max(s)</td>
-<td>O(n)</td>
-<td>-                   </td>
-</tr>
-<tr>
-<td>Get Length</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>collections.deque</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Average Case</th>
-<th>Amortized Worst Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Copy</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>append</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>appendleft</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>pop</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>popleft</td>
-<td>O(1)</td>
-<td>O(1)                </td>
-</tr>
-<tr>
-<td>extend</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>extendleft</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>rotate</td>
-<td>O(k)</td>
-<td>O(k)                </td>
-</tr>
-<tr>
-<td>remove</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>dict</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Average Case</th>
-<th>Amortized Worst Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Copy[2]</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Get Item</td>
-<td>O(1)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Set Item[1]</td>
-<td>O(1)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Delete Item</td>
-<td>O(1)</td>
-<td>O(n)                </td>
-</tr>
-<tr>
-<td>Iteration[2]</td>
-<td>O(n)</td>
-<td>O(n)                </td>
-</tr>
-</tbody>
-</table>
-<h1 id="教科书风格的数据结构"><a href="#教科书风格的数据结构" class="headerlink" title="教科书风格的数据结构"></a><a href="http://sjjp.tjuci.edu.cn/sjjg/datastructure/ds/web/gailun/gailun1.1.1b.htm" target="_blank" rel="external">教科书风格的数据结构</a></h1><ul>
-<li>讲述了 <code>线性链表</code>, <code>字符串</code>, <code>栈和队列</code>, <code>多维数组</code>, <code>广义表</code>, <code>树</code>, <code>图</code>, <code>排序</code>, <code>查找</code>, <code>文件</code></li>
-<li><strong>有较为详细的性能分析</strong>, 偏重理论细节, 还有习题可以做!<ul>
-<li>平方阶(O(n^2))排序: 一般称为简单排序，例如直接插入、直接选择和冒泡排序</li>
-<li>线性对数阶(O(nlgn))排序: 如快速、堆和归并排序</li>
-<li>O(n^(1+￡))阶排序(0&lt;￡&lt;1): 如希尔排序</li>
-<li>线性阶(O(n))排序: 如桶、箱和基数排序</li>
-</ul>
-</li>
-<li>排序方法的选择<ul>
-<li>简单排序中直接插入最好，快速排序最快，当文件为正序时，直接插入和冒泡均最佳。</li>
-<li>若n较小(如n≤50)，可采用直接插入或直接选择排序。</li>
-<li>若文件初始状态基本有序(指正序)，则应选用直接插人、冒泡或随机的快速排序为宜；</li>
-<li>若n较大，则应采用时间复杂度为O(nlgn)的排序方法：快速排序、堆排序或归并排序。<ul>
-<li>快速排序是目前基于比较的内部排序中被认为是最好的方法，当待排序的关键字是随机分布时，快速排序的平均时间最短；</li>
-<li>堆排序所需的辅助空间少于快速排序，并且不会出现快速排序可能出现的最坏情况。这两种排序都是不稳定的。</li>
-<li>若要求排序稳定，则可选用归并排序。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="纸上谈兵-算法与数据结构"><a href="#纸上谈兵-算法与数据结构" class="headerlink" title="纸上谈兵: 算法与数据结构"></a><a href="http://www.cnblogs.com/vamei/archive/2013/03/22/2974052.html" target="_blank" rel="external">纸上谈兵: 算法与数据结构</a></h1><ul>
-<li>理论与实践相结合的讲述数据结构, <strong>配图很有意思, 并提供了C代码</strong>. 但没有对性能和特性做详细介绍.</li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/30/2989930.html" target="_blank" rel="external">纸上谈兵: 数学归纳法, 递归, 栈</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/12/2948847.html" target="_blank" rel="external">纸上谈兵: 排序算法简介及其C实现</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/14/2958940.html" target="_blank" rel="external">纸上谈兵: 表 (list)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/14/2960201.html" target="_blank" rel="external">纸上谈兵: 栈 (stack)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/15/2961729.html" target="_blank" rel="external">纸上谈兵: 队列 (queue)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/17/2962290.html" target="_blank" rel="external">纸上谈兵: 树, 二叉树, 二叉搜索树</a><ul>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/21/2964092.html" target="_blank" rel="external">纸上谈兵: AVL树</a></li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/24/2976545.html" target="_blank" rel="external">纸上谈兵: 伸展树 (splay tree)</a></li>
-</ul>
-</li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/20/2966612.html" target="_blank" rel="external">纸上谈兵: 堆 (heap)</a><ul>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/04/19/2978555.html" target="_blank" rel="external">纸上谈兵: 左倾堆 (leftist heap)</a></li>
-</ul>
-</li>
-<li><a href="http://www.cnblogs.com/vamei/archive/2013/03/24/2970339.html" target="_blank" rel="external">纸上谈兵: 哈希表 (hash table)</a></li>
-<li><a href="http://www.cnblogs.com/vamei/p/3113912.html" target="_blank" rel="external">纸上谈兵: 图 (graph)</a><ul>
-<li><a href="http://www.cnblogs.com/vamei/p/3232432.html" target="_blank" rel="external">纸上谈兵: 拓扑排序</a></li>
-<li><a href="http://www.cnblogs.com/vamei/p/3604629.html" target="_blank" rel="external">纸上谈兵: 最短路径与贪婪</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2342,7 +2658,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">70</span>
+              <span class="site-state-item-count">71</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2359,7 +2675,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">67</span>
+                <span class="site-state-item-count">68</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

@@ -1,0 +1,876 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="embedded linux,driver," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+嵌入式linux环境搭建
+嵌入式linux环境搭建-jz2440开发板
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+fs之Busybox的编译与使用
+fs之创建文件系统
+驱动之字符设备-框架
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+li">
+<meta property="og:type" content="article">
+<meta property="og:title" content="驱动之字符设备-框架">
+<meta property="og:url" content="https://draapho.github.io/2017/11/22/1733-drv-chr1/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+嵌入式linux环境搭建
+嵌入式linux环境搭建-jz2440开发板
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+fs之Busybox的编译与使用
+fs之创建文件系统
+驱动之字符设备-框架
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+li">
+<meta property="og:image" content="https://draapho.github.io/images/1733/Linux_kernel_System_Call_Interface_and_glibc.png">
+<meta property="og:image" content="https://draapho.github.io/images/1733/Linux_kernel_Layer.JPG">
+<meta property="og:updated_time" content="2017-11-23T07:50:39.783Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="驱动之字符设备-框架">
+<meta name="twitter:description" content="总览
+嵌入式linux环境搭建
+嵌入式linux环境搭建-jz2440开发板
+uboot之makefile分析
+uboot之源码分析
+uboot之定制指令
+kernel之编译体验
+kernel之Makefile分析
+kernel之内核启动分析
+fs之Busybox的编译与使用
+fs之创建文件系统
+驱动之字符设备-框架
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+li">
+<meta name="twitter:image" content="https://draapho.github.io/images/1733/Linux_kernel_System_Call_Interface_and_glibc.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/11/22/1733-drv-chr1/"/>
+
+
+  <title> 驱动之字符设备-框架 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                驱动之字符设备-框架
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-11-22T00:00:00+11:00" content="2017-11-22">
+              2017-11-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></li>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
+<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a></li>
+<li><a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="linux-架构概念"><a href="#linux-架构概念" class="headerlink" title="linux 架构概念"></a>linux 架构概念</h1><p><img src="https://draapho.github.io/images/1733/Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc.png"></p>
+<p><img src="https://draapho.github.io/images/1733/Linux_kernel_Layer.JPG" alt="Linux_kernel_Layer.JPG"></p>
+<ul>
+<li>一个操作系统需要软硬件分离. 应用端无需关注底层硬件的实现.</li>
+<li>Linux采用的接口就是 GNU C Library 标准, 下面简称C库.<ul>
+<li>譬如 <code>open</code> <code>read</code> <code>write</code></li>
+</ul>
+</li>
+<li>应用程序和C库运行在芯片的用户空间 (权限受限, 保证安全).</li>
+<li>当应用程序调用C库, C库会使用 <code>SWI</code> 汇编指令触发异常, 切换到内核空间.</li>
+<li>内核空间的对外接口是 <strong>System Call Interface</strong>, 下面简称系统调用<ul>
+<li>譬如 <code>sys_open</code> <code>sys_read</code> <code>sys_write</code></li>
+</ul>
+</li>
+<li>触发系统调用后, Linux内核会根据框架结构自动去调用对应的驱动.</li>
+<li>编写驱动时, 需要了解的是Linux各个驱动的实现框架.<ul>
+<li>譬如 <code>led_open</code> <code>led_read</code> <code>led_write</code></li>
+</ul>
+</li>
+<li>最后一点, <strong>Linux下一切皆文件, 文件即节点(inode)</strong>. 所以驱动也是一个个文件节点.</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://www.gnu.org/software/libc/documentation.html" target="_blank" rel="external">The GNU C Library (glibc) Documentation</a></li>
+</ul>
+<p><strong>重点推荐</strong></p>
+<ul>
+<li><a href="https://www.kernel.org/doc/man-pages/" target="_blank" rel="external">The Linux man-pages project</a> Library部分就是GNUC库的函数说明</li>
+<li><a href="https://www.fsl.cs.sunysb.edu/kernel-api/" target="_blank" rel="external">Linux Kernel API</a> Linux内核API函数说明</li>
+</ul>
+<h1 id="字符设备的驱动框架"><a href="#字符设备的驱动框架" class="headerlink" title="字符设备的驱动框架"></a>字符设备的驱动框架</h1><ul>
+<li>实现 <code>led_open</code> <code>led_write</code> <code>led_read</code> 等函数</li>
+<li>定义一个 <code>file_operations</code> 结构体, 设置好对应的函数指针<ul>
+<li><code>/include/linux/fs.h</code> 下包含了此结构</li>
+</ul>
+</li>
+<li>实现一个初始化函数, 并调用 <code>register_chrdev</code> 注册定义好的 <code>file_operations</code><ul>
+<li><code>/include/linux/fs.h</code> 下包含了此函数</li>
+<li>源码位于 <code>/fs/chr_dev.c</code>, 使用 <code>EXPORT_SYMBOL</code> 让内核函数可以调用它.</li>
+</ul>
+</li>
+<li>使用 <code>module_init</code> 指定好初始化函数.</li>
+<li>内核在加载驱动时, 会先自动调用初始化函数. 初始化函数做相关的注册工作</li>
+<li>这样, 系统调用就能找到最终要执行的函数了.</li>
+</ul>
+<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h2><ul>
+<li>主设备号. 可以人工指定, 也可以由系统动态分配. 理解为设备类型的id即可.</li>
+<li>子设备号. 譬如一个led灯的驱动设备, 可以实现多个led的控制. 子设备号可以提供针对特定的led进行控制<ul>
+<li>譬如: 0表示控制所有led, 1表示led1, 2表示led2…</li>
+</ul>
+</li>
+<li>mdev. 根据动态驱动模块的信息自动创建设备节点.</li>
+<li>地址映射. 这是与单片机的区别. 单片机操作寄存器可以直接使用物理地址. 但linux下使用的是虚拟地址!<ul>
+<li>地址转换使用 <code>ioremap</code> <code>iounmap</code> 函数.</li>
+<li>一般的芯片商也会提供操作寄存器的函数, 譬如 <code>s3c2410_gpio_setpin</code></li>
+</ul>
+</li>
+<li>用户空间和内核空间. 两个空间的资源不能直接相互访问.<ul>
+<li>驱动程序内经常要用 <code>copy_to_user</code> 以及 <code>copy_from_user</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="人工绑定设备号"><a href="#人工绑定设备号" class="headerlink" title="人工绑定设备号"></a>人工绑定设备号</h1><h2 id="驱动代码-drv-leds-c"><a href="#驱动代码-drv-leds-c" class="headerlink" title="驱动代码 drv_leds.c"></a>驱动代码 drv_leds.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds.c</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_NAME <span class="meta-string">"drv_leds"</span>      <span class="comment">// 设备类型名称, cat /proc/devices 可以看到</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> LED_MAJOR   111             <span class="comment">// 主设备号</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFF_LEN    5               <span class="comment">// 缓存大小. 这里定小一点便于测试      </span></span></div><div class="line"></div><div class="line"><span class="comment">// ===== 驱动的硬件实现部分, 和单片机类似 =====</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">drv_leds_open</span><span class="params">(<span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *file)</span> </span></div><div class="line">&#123;</div><div class="line">    printk(<span class="string">"drv_leds_open\n"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">ssize_t</span> drv_leds_write(<span class="keyword">struct</span> file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *data, <span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *ppos) </div><div class="line">&#123;</div><div class="line"></div><div class="line">    <span class="keyword">char</span> buff[BUFF_LEN];</div><div class="line">    <span class="keyword">int</span> i, l;</div><div class="line">    </div><div class="line">    printk(<span class="string">"drv_leds_write: "</span>);</div><div class="line">    <span class="keyword">do</span> &#123;</div><div class="line">        l = len&lt;BUFF_LEN? len:BUFF_LEN;</div><div class="line">        copy_from_user(buff, data, l);                      <span class="comment">// 一点点拷贝, 避免溢出</span></div><div class="line">        data += l;</div><div class="line">        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;l; i++)</div><div class="line">            printk(<span class="string">"%c"</span>, buff[i]);</div><div class="line">        len -= l;</div><div class="line">    &#125; <span class="keyword">while</span> (len&gt;<span class="number">0</span>);</div><div class="line"></div><div class="line">    printk(<span class="string">"\n"</span>);</div><div class="line">    <span class="keyword">return</span> len;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 此结构体指定了C库的文件操作函数需要调用的底层驱动的函数名.</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">struct</span> file_operations drv_leds_fops = &#123;</div><div class="line">    .owner  =   THIS_MODULE,        <span class="comment">// 这是一个宏，指向编译模块时自动创建的__this_module变量. 和平台相关</span></div><div class="line">    .open   =   drv_leds_open,     </div><div class="line">    .write  =   drv_leds_write,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 加载和卸载内核时, 指定要调用的函数 =====</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">drv_leds_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></div><div class="line">&#123;</div><div class="line">    register_chrdev(LED_MAJOR, DEVICE_NAME, &amp;drv_leds_fops);<span class="comment">// 注册驱动, 包含了函数指针</span></div><div class="line">    printk(DEVICE_NAME <span class="string">" initialized\n"</span>);                   <span class="comment">// 调试用</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">drv_leds_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></div><div class="line">&#123;</div><div class="line">    unregister_chrdev(LED_MAJOR, DEVICE_NAME);</div><div class="line">    printk(DEVICE_NAME <span class="string">" deinitialized\n"</span>);     </div><div class="line">&#125;</div><div class="line"></div><div class="line">module_init(drv_leds_init);</div><div class="line">module_exit(drv_leds_exit);</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 描述驱动程序的一些信息，不是必须的 =====</span></div><div class="line">MODULE_AUTHOR(<span class="string">"draapho"</span>);</div><div class="line">MODULE_VERSION(<span class="string">"0.1.0"</span>);</div><div class="line">MODULE_DESCRIPTION(<span class="string">"First Driver for LED"</span>);</div><div class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</div></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ~/jz2440/driver/drv_leds/Makefile</span></div><div class="line"></div><div class="line">KERN_DIR = ~/jz2440/kernel/linux-2.6.22.6</div><div class="line"><span class="comment"># 这是交叉编译, 需要指定嵌入式linux内核地址</span></div><div class="line"></div><div class="line"><span class="section">all:</span></div><div class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules </div><div class="line"><span class="comment"># pwd 表示当前目录, 即驱动代码所在的目录</span></div><div class="line"><span class="comment"># 驱动目录并不需要放在内核目录下面.</span></div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules clean</div><div class="line">	rm -rf modules.order</div><div class="line"></div><div class="line">obj-m	+= drv_leds.o</div></pre></td></tr></table></figure>
+<h2 id="测试代码-drv-leds-test-c"><a href="#测试代码-drv-leds-test-c" class="headerlink" title="测试代码, drv_leds_test.c"></a>测试代码, drv_leds_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds_test.c</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd;</div><div class="line"></div><div class="line">    fd = open(<span class="string">"/dev/xxx"</span>, O_RDWR);      <span class="comment">// 这里设备名字并不重要, 设备和驱动的关联方式是主设备号!</span></div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) </div><div class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (argc &gt;=<span class="number">2</span>) &#123;</div><div class="line">        <span class="keyword">int</span> i;</div><div class="line">        <span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;argc; i++)</div><div class="line">        write(fd, argv[i], <span class="built_in">strlen</span>(argv[i]));</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"./drv_led_test &lt;str1&gt; [str2]\n"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="编译加载并测试"><a href="#编译加载并测试" class="headerlink" title="编译加载并测试"></a>编译加载并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ===== Ubuntu主机端, 编译驱动 =====</span></div><div class="line"><span class="comment"># pwd = drv_leds.c所在的目录.</span></div><div class="line">$ make clean</div><div class="line">$ make                                  <span class="comment"># 编译驱动</span></div><div class="line"><span class="comment"># 成功后, 生成 drv_leds.ko 动态库</span></div><div class="line"></div><div class="line">$ cp drv_leds.ko ~/jz2440/fs_first/     <span class="comment"># 先直接放到文件系统根目录下了.</span></div><div class="line"><span class="comment"># 嵌入式端最好用网络的方式加载文件系统, 这样就不用重新烧录文件系统了, 便于调试!</span></div><div class="line"></div><div class="line"><span class="comment"># ===== 嵌入式Linux端, 加载驱动 =====</span></div><div class="line"><span class="comment"># pwd = /</span></div><div class="line">$ insmod drv_leds.ko                    <span class="comment"># 加载模块</span></div><div class="line">drv_leds initialized                    <span class="comment"># 打印的调试信息</span></div><div class="line">$ cat /proc/devices                     <span class="comment"># 查看设备信息</span></div><div class="line">Character devices:</div><div class="line">111 drv_leds                            <span class="comment"># 应该能找到这一项</span></div><div class="line"></div><div class="line"><span class="comment"># ===== Ubuntu主机端, 编译测试源码 =====</span></div><div class="line"><span class="comment"># pwd = drv_leds_test.c所在的目录.</span></div><div class="line">$ arm-linux-gcc -o drv_leds_test drv_leds_test.c    <span class="comment"># 编译应用程序</span></div><div class="line">$ cp drv_leds_test ~/jz2440/fs_first/               <span class="comment"># 先直接放到文件系统根目录下了.</span></div><div class="line"></div><div class="line"><span class="comment"># 如果此时直接在嵌入式端运行 ./drv_leds_test</span></div><div class="line"><span class="comment"># 会显示 can't open! 因为不存在文件 /dev/xxx </span></div><div class="line"></div><div class="line"><span class="comment"># ===== Ubuntu主机端, 创建文件节点 ======</span></div><div class="line">$ mknod /dev/xxx c 111 0</div><div class="line"><span class="comment"># 创建设备xxx文件, c-字符设备, 111-主设备号(关联到了drv_les驱动设备), 0-子设备号(先随便写)</span></div><div class="line"></div><div class="line"><span class="comment"># ===== 嵌入式Linux端, 测试驱动 =====</span></div><div class="line">$ ./drv_leds_test 123</div><div class="line">drv_leds_open</div><div class="line">drv_leds_write: 123</div></pre></td></tr></table></figure>
+<h1 id="自动化实现"><a href="#自动化实现" class="headerlink" title="自动化实现"></a>自动化实现</h1><h2 id="驱动代码-drv-leds-c-1"><a href="#驱动代码-drv-leds-c-1" class="headerlink" title="驱动代码 drv_leds.c"></a>驱动代码 drv_leds.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds.c</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_NAME <span class="meta-string">"drv_leds"</span>                      <span class="comment">// 设备类型名称, cat /proc/devices 可以看到</span></span></div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">int</span> major;                                   <span class="comment">// 存储自动分配的主设备号</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">struct</span> <span class="keyword">class</span> *leds_class;                    <span class="comment">// 类, 供mdev用, ls /sys/class/ 可以看到</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">struct</span> class_device	*leds_class_devs[<span class="number">4</span>];    <span class="comment">// 类下设备, ls /sys/class/class_name 可以看到</span></div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> gpio_base;                     <span class="comment">// gpio 寄存器基础地址</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_OFFSET(addr) ((addr) - 0x56000000)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> GPFCON  (*(volatile unsigned long *)(gpio_base + GPIO_OFFSET(0x56000050)))</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> GPFDAT  (*(volatile unsigned long *)(gpio_base + GPIO_OFFSET(0x56000054)))</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 驱动的硬件实现部分, 和单片机类似 =====</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_open</span><span class="params">(<span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *file)</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> minor = MINOR(inode-&gt;i_rdev);</div><div class="line">    </div><div class="line">    <span class="comment">// 初始化对应的LED</span></div><div class="line">    <span class="keyword">if</span> ((minor == <span class="number">1</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led1 或 leds</span></div><div class="line">        GPFCON &amp;= ~(<span class="number">0x3</span>&lt;&lt;(<span class="number">4</span>*<span class="number">2</span>));                    <span class="comment">// GPF4 配置为输出</span></div><div class="line">        GPFCON |= (<span class="number">1</span>&lt;&lt;(<span class="number">4</span>*<span class="number">2</span>));</div><div class="line">        GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">4</span>);                           <span class="comment">// 关灯</span></div><div class="line">    &#125;      </div><div class="line">    <span class="keyword">if</span> ((minor == <span class="number">2</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led2 或 leds</span></div><div class="line">        GPFCON &amp;= ~(<span class="number">0x3</span>&lt;&lt;(<span class="number">5</span>*<span class="number">2</span>));                    <span class="comment">// GPF5 配置为输出</span></div><div class="line">        GPFCON |= (<span class="number">1</span>&lt;&lt;(<span class="number">5</span>*<span class="number">2</span>));</div><div class="line">        GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">5</span>);     </div><div class="line">    &#125;      </div><div class="line">    <span class="keyword">if</span> ((minor == <span class="number">3</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led3 或 leds</span></div><div class="line">        <span class="comment">// GPFCON &amp;= ~(0x3&lt;&lt;(6*2));                    // GPF6 配置为输出</span></div><div class="line">        <span class="comment">// GPFCON |= (1&lt;&lt;(6*2));</span></div><div class="line">        <span class="comment">// GPFDAT |= (1&lt;&lt;6);    </span></div><div class="line">        s3c2410_gpio_cfgpin(S3C2410_GPF6, S3C2410_GPF6_OUTP);   </div><div class="line">        s3c2410_gpio_setpin(S3C2410_GPF6, <span class="number">1</span>);       <span class="comment">// 另外一种方法</span></div><div class="line">    &#125;      </div><div class="line">    printk(<span class="string">"drv_leds_open\n"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_leds_write</span><span class="params">(<span class="keyword">struct</span> file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *data, <span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *ppos)</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> minor = MINOR(file-&gt;f_dentry-&gt;d_inode-&gt;i_rdev);</div><div class="line">    <span class="keyword">char</span> val;</div><div class="line">    </div><div class="line">    copy_from_user(&amp;val, data, <span class="number">1</span>);</div><div class="line">    </div><div class="line">    <span class="comment">// 操作对应的LED</span></div><div class="line">    <span class="keyword">if</span> ((minor == <span class="number">1</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led1 或 leds</span></div><div class="line">        <span class="keyword">if</span> (val)</div><div class="line">            GPFDAT &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">4</span>);                      <span class="comment">// 开灯</span></div><div class="line">        <span class="keyword">else</span></div><div class="line">            GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">4</span>);                       <span class="comment">// 关灯</span></div><div class="line">    &#125;      </div><div class="line">    <span class="keyword">if</span> ((minor == <span class="number">2</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led2 或 leds</span></div><div class="line">        <span class="keyword">if</span> (val)</div><div class="line">            GPFDAT &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">5</span>);   </div><div class="line">        <span class="keyword">else</span>   </div><div class="line">            GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">5</span>);    </div><div class="line">    &#125;      </div><div class="line">    <span class="keyword">if</span> ((minor == <span class="number">3</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led3 或 leds        </span></div><div class="line">        <span class="comment">// if (val)</span></div><div class="line">            <span class="comment">// GPFDAT &amp;= ~(1&lt;&lt;6);    </span></div><div class="line">        <span class="comment">// else   </span></div><div class="line">            <span class="comment">// GPFDAT |= (1&lt;&lt;6);</span></div><div class="line">        s3c2410_gpio_setpin(S3C2410_GPF6, !val);     <span class="comment">// 另外一种方法</span></div><div class="line">    &#125;</div><div class="line">    printk(<span class="string">"drv_leds_write, led%d=%d\n"</span>, minor, val);</div><div class="line">    <span class="keyword">return</span> len;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 此结构体指定了C库的文件操作函数需要调用的底层驱动的函数名.</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">struct</span> file_operations drv_leds_fops = &#123;</div><div class="line">    .owner  =   THIS_MODULE,        <span class="comment">// 这是一个宏，指向编译模块时自动创建的__this_module变量. 和平台相关</span></div><div class="line">    .open   =   drv_leds_open,     </div><div class="line">    .write  =   drv_leds_write,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 加载和卸载内核时, 指定要调用的函数 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> minor;</div><div class="line"></div><div class="line">    <span class="comment">// 获取寄存器起始地址的虚拟地址值. 其它寄存器基于此值再用偏移量.</span></div><div class="line">    gpio_base = ioremap(<span class="number">0x56000000</span>, <span class="number">0xD0</span>);</div><div class="line">    <span class="keyword">if</span> (!gpio_base) &#123;</div><div class="line">        <span class="keyword">return</span> -EIO;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="comment">// 注册驱动, 指定主设备号</span></div><div class="line"><span class="comment">//    minor = register_chrdev(LED_MAJOR, DEVICE_NAME, &amp;s3c24xx_leds_fops);</span></div><div class="line"><span class="comment">//    if (minor &lt; 0) &#123;</span></div><div class="line"><span class="comment">//        printk(DEVICE_NAME " can't register major number\n");</span></div><div class="line"><span class="comment">//        return minor;</span></div><div class="line"><span class="comment">//    &#125;</span></div><div class="line"></div><div class="line">    <span class="comment">// 注册驱动, 0表示动态分配主设备号</span></div><div class="line">    major = register_chrdev(<span class="number">0</span>, DEVICE_NAME, &amp;drv_leds_fops);    </div><div class="line">    </div><div class="line">    <span class="comment">// 生成系统设备信息, 供mdev自动创建设备节点使用</span></div><div class="line">	leds_class = class_create(THIS_MODULE, <span class="string">"leds"</span>);             <span class="comment">// 创建 leds 类</span></div><div class="line">	<span class="keyword">if</span> (IS_ERR(leds_class))</div><div class="line">		<span class="keyword">return</span> PTR_ERR(leds_class);</div><div class="line">    </div><div class="line">    <span class="comment">// 创建 leds 类下面的设备. 0表示所有led, 名称为 leds</span></div><div class="line">    leds_class_devs[<span class="number">0</span>] = class_device_create(leds_class, <span class="literal">NULL</span>, MKDEV(major, <span class="number">0</span>), <span class="literal">NULL</span>, <span class="string">"leds"</span>);</div><div class="line">	</div><div class="line">    <span class="comment">// 1-3 表示3个独立的led, 名称为 led1, led2, led3</span></div><div class="line">    <span class="keyword">for</span> (minor = <span class="number">1</span>; minor &lt; <span class="number">4</span>; minor++) &#123;</div><div class="line">		leds_class_devs[minor] = class_device_create(leds_class, <span class="literal">NULL</span>, MKDEV(major, minor), <span class="literal">NULL</span>, <span class="string">"led%d"</span>, minor);</div><div class="line">		<span class="keyword">if</span> (unlikely(IS_ERR(leds_class_devs[minor])))</div><div class="line">			<span class="keyword">return</span> PTR_ERR(leds_class_devs[minor]);</div><div class="line">	&#125;</div><div class="line">    </div><div class="line">    printk(DEVICE_NAME <span class="string">" initialized\n"</span>);                       <span class="comment">// 调试用</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">drv_leds_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> minor;</div><div class="line"></div><div class="line">	<span class="keyword">for</span> (minor = <span class="number">0</span>; minor &lt; <span class="number">4</span>; minor++) &#123;                       </div><div class="line">		class_device_unregister(leds_class_devs[minor]);        <span class="comment">// 删除设备节点</span></div><div class="line">	&#125;</div><div class="line">	class_destroy(leds_class);                                  <span class="comment">// 删除设备类</span></div><div class="line">    </div><div class="line">    unregister_chrdev(major, DEVICE_NAME);                      <span class="comment">// 卸载驱动</span></div><div class="line">    iounmap(gpio_base);</div><div class="line">    printk(DEVICE_NAME <span class="string">" deinitialized\n"</span>);     </div><div class="line">&#125;</div><div class="line"></div><div class="line">module_init(drv_leds_init);</div><div class="line">module_exit(drv_leds_exit);</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 描述驱动程序的一些信息，不是必须的 =====</span></div><div class="line">MODULE_AUTHOR(<span class="string">"draapho"</span>);</div><div class="line">MODULE_VERSION(<span class="string">"0.1.1"</span>);</div><div class="line">MODULE_DESCRIPTION(<span class="string">"First Driver for LED"</span>);</div><div class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</div></pre></td></tr></table></figure>
+<h2 id="Makefile-1"><a href="#Makefile-1" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ~/jz2440/driver/drv_leds/Makefile</span></div><div class="line"></div><div class="line">KERN_DIR = ~/jz2440/kernel/linux-2.6.22.6</div><div class="line"><span class="comment"># 这是交叉编译, 需要指定嵌入式linux内核地址</span></div><div class="line"></div><div class="line"><span class="section">all:</span></div><div class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules </div><div class="line"><span class="comment"># pwd 表示当前目录, 即驱动代码所在的目录</span></div><div class="line"><span class="comment"># 驱动目录并不需要放在内核目录下面.</span></div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules clean</div><div class="line">	rm -rf modules.order</div><div class="line"></div><div class="line">obj-m	+= drv_leds.o</div></pre></td></tr></table></figure>
+<h2 id="测试代码-drv-leds-test-c-1"><a href="#测试代码-drv-leds-test-c-1" class="headerlink" title="测试代码, drv_leds_test.c"></a>测试代码, drv_leds_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds_test.c</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="comment">/*</span></div><div class="line">  *  ledtest &lt;dev&gt; &lt;on|off&gt;</div><div class="line">  */</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_usage</span><span class="params">(<span class="keyword">char</span> *file)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"Usage:\n"</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s &lt;dev&gt; &lt;on|off&gt;\n"</span>,file);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"eg. \n"</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/leds on\n"</span>, file);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/leds off\n"</span>, file);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/led1 on\n"</span>, file);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/led1 off\n"</span>, file);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd;</div><div class="line">    <span class="keyword">char</span>* filename;</div><div class="line">    <span class="keyword">char</span> val;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (argc != <span class="number">3</span>) &#123;                        <span class="comment">// 输入错误, 打印帮助信息</span></div><div class="line">        print_usage(argv[<span class="number">0</span>]);</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    filename = argv[<span class="number">1</span>];</div><div class="line"></div><div class="line">    fd = open(filename, O_RDWR);            <span class="comment">// 打开设备</span></div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"error, can't open %s\n"</span>, filename);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">strcmp</span>(<span class="string">"on"</span>, argv[<span class="number">2</span>])) &#123;    <span class="comment">// 亮灯</span></div><div class="line">        val = <span class="number">1</span>;</div><div class="line">        write(fd, &amp;val, <span class="number">1</span>);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">strcmp</span>(<span class="string">"off"</span>, argv[<span class="number">2</span>])) &#123;   <span class="comment">// 灭灯</span></div><div class="line">        val = <span class="number">0</span>;</div><div class="line">        write(fd, &amp;val, <span class="number">1</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        print_usage(argv[<span class="number">0</span>]);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="编译加载并测试-1"><a href="#编译加载并测试-1" class="headerlink" title="编译加载并测试"></a>编译加载并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ===== Ubuntu主机端, 编译驱动 =====</span></div><div class="line"><span class="comment"># pwd = drv_leds.c所在的目录.</span></div><div class="line">$ make clean</div><div class="line">$ make                                  <span class="comment"># 编译驱动</span></div><div class="line"><span class="comment"># 成功后, 生成 drv_leds.ko 动态库</span></div><div class="line"></div><div class="line">$ cp drv_leds.ko ~/jz2440/fs_first/     <span class="comment"># 先直接放到文件系统根目录下了.</span></div><div class="line"><span class="comment"># 嵌入式端最好用网络的方式加载文件系统, 这样就不用重新烧录文件系统了, 便于调试!</span></div><div class="line"></div><div class="line"><span class="comment"># ===== 嵌入式Linux端, 加载驱动 =====</span></div><div class="line"><span class="comment"># pwd = /</span></div><div class="line">$ insmod drv_leds.ko                    <span class="comment"># 加载模块</span></div><div class="line">drv_leds initialized                    <span class="comment"># 打印的调试信息</span></div><div class="line">$ cat /proc/devices                     <span class="comment"># 查看设备信息</span></div><div class="line">Character devices:</div><div class="line">252 drv_leds                            <span class="comment"># 应该能找到这一项, 自动分配的主设备号252</span></div><div class="line"></div><div class="line"><span class="comment"># 需要配置好 mdev. 才支持insmod后自动生成设备节点.</span></div><div class="line">$ ls <span class="_">-l</span> /dev/led1                       <span class="comment"># 查看自动加载的设备节点 led1. 其它3个同理查看</span></div><div class="line">crw-rw----  1 0     0       252, 1  时间信息    /dev/led1</div><div class="line">$ <span class="built_in">cd</span> /sys/class/                        <span class="comment"># 查看设备的类</span></div><div class="line">$ ls</div><div class="line">leds                                    <span class="comment"># 可以找到这一项</span></div><div class="line">$ ls leds/                              <span class="comment"># 查看类下面的设备</span></div><div class="line">led1 led2 led3 leds</div><div class="line">$ cat leds/led1/dev                     <span class="comment"># 查看设备信息</span></div><div class="line">252:1                                   <span class="comment"># 主设备号252(自动分配的), 次设备号为1</span></div><div class="line">$ rmmod drv_leds.ko                     <span class="comment"># 移除驱动</span></div><div class="line">drv_leds deinitialized                  <span class="comment"># 打印的调试信息</span></div><div class="line">$ ls /dev/led1                          <span class="comment"># 会告知文件或目录不存在</span></div><div class="line">$ ls /sys/class                         <span class="comment"># leds 已经不见了! 说明mdev把这个设备节点自动卸载掉了.</span></div><div class="line">$ insmod drv_leds.ko                    <span class="comment"># 加载一下, 为测试做准备</span></div><div class="line"></div><div class="line"><span class="comment"># ===== Ubuntu主机端, 编译测试源码 =====</span></div><div class="line"><span class="comment"># pwd = drv_leds_test.c所在的目录.</span></div><div class="line">$ arm-linux-gcc -o drv_leds_test drv_leds_test.c    <span class="comment"># 编译应用程序</span></div><div class="line">$ cp drv_leds_test ~/jz2440/fs_first/               <span class="comment"># 先直接放到文件系统根目录下了.</span></div><div class="line"></div><div class="line"><span class="comment"># ===== 嵌入式Linux端, 测试驱动 =====</span></div><div class="line">$ ./drv_leds_test                       <span class="comment"># 显示使用方法</span></div><div class="line">$ ./drv_leds_test /dev/leds on          <span class="comment"># LED全开</span></div><div class="line">$ ./drv_leds_test /dev/led2 off         <span class="comment"># 关LED2</span></div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/embedded-linux/" rel="tag">#embedded linux</a>
+          
+            <a href="/tags/driver/" rel="tag">#driver</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/13/1732-python-pip/" rel="next" title="Python2和Python3共存时, pip的使用">
+                <i class="fa fa-chevron-left"></i> Python2和Python3共存时, pip的使用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">68</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#linux-架构概念"><span class="nav-number">2.</span> <span class="nav-text">linux 架构概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">2.1.</span> <span class="nav-text">参考资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#字符设备的驱动框架"><span class="nav-number">3.</span> <span class="nav-text">字符设备的驱动框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一些概念"><span class="nav-number">3.1.</span> <span class="nav-text">一些概念</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#人工绑定设备号"><span class="nav-number">4.</span> <span class="nav-text">人工绑定设备号</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#驱动代码-drv-leds-c"><span class="nav-number">4.1.</span> <span class="nav-text">驱动代码 drv_leds.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile"><span class="nav-number">4.2.</span> <span class="nav-text">Makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试代码-drv-leds-test-c"><span class="nav-number">4.3.</span> <span class="nav-text">测试代码, drv_leds_test.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译加载并测试"><span class="nav-number">4.4.</span> <span class="nav-text">编译加载并测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自动化实现"><span class="nav-number">5.</span> <span class="nav-text">自动化实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#驱动代码-drv-leds-c-1"><span class="nav-number">5.1.</span> <span class="nav-text">驱动代码 drv_leds.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile-1"><span class="nav-number">5.2.</span> <span class="nav-text">Makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试代码-drv-leds-test-c-1"><span class="nav-number">5.3.</span> <span class="nav-text">测试代码, drv_leds_test.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译加载并测试-1"><span class="nav-number">5.4.</span> <span class="nav-text">编译加载并测试</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
