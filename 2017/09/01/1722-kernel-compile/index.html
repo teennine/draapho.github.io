@@ -83,54 +83,36 @@
 
 
 <meta name="description" content="总览
-嵌入式linux环境搭建
-嵌入式linux环境搭建-jz2440开发板
-uboot之makefile分析
-uboot之源码分析
-uboot之定制指令
+嵌入式linux学习目录
 kernel之编译体验
 kernel之Makefile分析
 kernel之内核启动分析
-fs之Busybox的编译与使用
-fs之创建文件系统
 
 本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
-解压缩和打补丁123456">
+解压缩和打补丁12345678# ubuntu shelltar xjvf linux-2.6.22.6.tar.bz2             # 解压kernel源码cd linux-2.6.22.6">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kernel之编译体验">
 <meta property="og:url" content="https://draapho.github.io/2017/09/01/1722-kernel-compile/index.html">
 <meta property="og:site_name" content="DRA&PHO">
 <meta property="og:description" content="总览
-嵌入式linux环境搭建
-嵌入式linux环境搭建-jz2440开发板
-uboot之makefile分析
-uboot之源码分析
-uboot之定制指令
+嵌入式linux学习目录
 kernel之编译体验
 kernel之Makefile分析
 kernel之内核启动分析
-fs之Busybox的编译与使用
-fs之创建文件系统
 
 本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
-解压缩和打补丁123456">
-<meta property="og:updated_time" content="2017-11-03T11:15:07.088Z">
+解压缩和打补丁12345678# ubuntu shelltar xjvf linux-2.6.22.6.tar.bz2             # 解压kernel源码cd linux-2.6.22.6">
+<meta property="og:updated_time" content="2017-11-27T03:06:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kernel之编译体验">
 <meta name="twitter:description" content="总览
-嵌入式linux环境搭建
-嵌入式linux环境搭建-jz2440开发板
-uboot之makefile分析
-uboot之源码分析
-uboot之定制指令
+嵌入式linux学习目录
 kernel之编译体验
 kernel之Makefile分析
 kernel之内核启动分析
-fs之Busybox的编译与使用
-fs之创建文件系统
 
 本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
-解压缩和打补丁123456">
+解压缩和打补丁12345678# ubuntu shelltar xjvf linux-2.6.22.6.tar.bz2             # 解压kernel源码cd linux-2.6.22.6">
 
 
 
@@ -357,16 +339,10 @@ fs之创建文件系统
 
       
         <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建</a></li>
-<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
-<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
 <li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
 <li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
-<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a></li>
-<li><a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></li>
 </ul>
 <p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
 <h1 id="解压缩和打补丁"><a href="#解压缩和打补丁" class="headerlink" title="解压缩和打补丁"></a>解压缩和打补丁</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu shell</span></div><div class="line"></div><div class="line">tar xjvf linux-2.6.22.6.tar.bz2             <span class="comment"># 解压kernel源码</span></div><div class="line"><span class="built_in">cd</span> linux-2.6.22.6                           <span class="comment"># 进入kernel源码目录</span></div><div class="line">patch -p1 &lt; ../linux-2.6.22.6_jz2440.patch  <span class="comment"># 打补丁文件, p1表忽略patch文件内的1层目录</span></div><div class="line"></div><div class="line"><span class="comment"># pwd = linux-2.6.22.6</span></div><div class="line">mv ../4.3寸LCD_mach-smdk2440.c arch/arm/mach<span class="_">-s</span>3c2440/mach-smdk2440.c    <span class="comment"># 替换为4.3寸屏源码</span></div></pre></td></tr></table></figure>
@@ -560,7 +536,7 @@ fs之创建文件系统
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-count">75</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -577,7 +553,7 @@ fs之创建文件系统
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">68</span>
+                <span class="site-state-item-count">71</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

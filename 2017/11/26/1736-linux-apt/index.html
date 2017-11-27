@@ -1,0 +1,898 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,apt," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="背景接触linux至今, 遇到的最大的坑就是软件的安装!找不到包, 找不到指定版本的包, 包依赖关系出问题, 软件源要更新…因此, 在这里集中整理一下上述问题的解决方式.
+apt 命令最新 Ubuntu推荐使用 apt 指令. 其常用功能如下
+
+
+
+apt 命令
+功能说明
+对应的旧命令
+
+
+
+
+apt list
+根据名称列出软件包
+dpkg list
+
+
+apt search
+搜索软件包描述
+ap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux软件的安装和管理">
+<meta property="og:url" content="https://draapho.github.io/2017/11/26/1736-linux-apt/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="背景接触linux至今, 遇到的最大的坑就是软件的安装!找不到包, 找不到指定版本的包, 包依赖关系出问题, 软件源要更新…因此, 在这里集中整理一下上述问题的解决方式.
+apt 命令最新 Ubuntu推荐使用 apt 指令. 其常用功能如下
+
+
+
+apt 命令
+功能说明
+对应的旧命令
+
+
+
+
+apt list
+根据名称列出软件包
+dpkg list
+
+
+apt search
+搜索软件包描述
+ap">
+<meta property="og:updated_time" content="2017-11-27T05:50:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux软件的安装和管理">
+<meta name="twitter:description" content="背景接触linux至今, 遇到的最大的坑就是软件的安装!找不到包, 找不到指定版本的包, 包依赖关系出问题, 软件源要更新…因此, 在这里集中整理一下上述问题的解决方式.
+apt 命令最新 Ubuntu推荐使用 apt 指令. 其常用功能如下
+
+
+
+apt 命令
+功能说明
+对应的旧命令
+
+
+
+
+apt list
+根据名称列出软件包
+dpkg list
+
+
+apt search
+搜索软件包描述
+ap">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/11/26/1736-linux-apt/"/>
+
+
+  <title> linux软件的安装和管理 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                linux软件的安装和管理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-11-26T00:00:00+11:00" content="2017-11-26">
+              2017-11-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>接触linux至今, 遇到的最大的坑就是软件的安装!<br>找不到包, 找不到指定版本的包, 包依赖关系出问题, 软件源要更新…<br>因此, 在这里集中整理一下上述问题的解决方式.</p>
+<h1 id="apt-命令"><a href="#apt-命令" class="headerlink" title="apt 命令"></a>apt 命令</h1><p>最新 Ubuntu推荐使用 <code>apt</code> 指令. 其常用功能如下</p>
+<table>
+<thead>
+<tr>
+<th>apt 命令</th>
+<th>功能说明</th>
+<th>对应的旧命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apt list</code></td>
+<td>根据名称列出软件包</td>
+<td><code>dpkg list</code></td>
+</tr>
+<tr>
+<td><code>apt search</code></td>
+<td>搜索软件包描述</td>
+<td><code>apt-cache search</code></td>
+</tr>
+<tr>
+<td><code>apt show</code></td>
+<td>显示软件包细节</td>
+<td><code>apt-cache show</code></td>
+</tr>
+<tr>
+<td><code>apt install</code></td>
+<td>安装软件包</td>
+<td><code>apt-get install</code></td>
+</tr>
+<tr>
+<td><code>apt remove</code></td>
+<td>移除软件包</td>
+<td><code>apt-get remove</code></td>
+</tr>
+<tr>
+<td><code>apt update</code></td>
+<td>更新可用软件包列表</td>
+<td><code>apt-get update</code></td>
+</tr>
+<tr>
+<td><code>apt upgrade</code></td>
+<td>升级指定的软件</td>
+<td><code>apt-get upgrade</code></td>
+</tr>
+<tr>
+<td><code>apt full-upgrade</code></td>
+<td>升级指定的软件并安装或删除其依赖的软件</td>
+<td><code>apt-get dist-upgrade</code></td>
+</tr>
+<tr>
+<td><code>apt edit-sources</code></td>
+<td>编辑软件源信息文件</td>
+<td><code>vim /etc/apt/sources.list</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="软件源"><a href="#软件源" class="headerlink" title="软件源"></a>软件源</h1><p>就是存放Ubuntu可执行软件的网址. 分为官方软件源和PPA软件源<br>Ubuntu的软件源都记录在了 <code>/etc/apt/sources.list</code> 文件下面.</p>
+<h2 id="Ubuntu-官方软件源"><a href="#Ubuntu-官方软件源" class="headerlink" title="Ubuntu 官方软件源"></a>Ubuntu 官方软件源</h2><p>顾名思义, 就是官方提供的软件下载地址. 格式如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">deb http://us.archive.ubuntu.com/ubuntu/ xenial main restricted</div><div class="line"># deb-src http://us.archive.ubuntu.com/ubuntu/ xenial main restricted</div></pre></td></tr></table></figure></p>
+<p>由于众所周知的原因, 在国内经常是不能用的. 那么可以替换为如下网址, 是官方软件源的镜像.<br>更多可见 <a href="https://segmentfault.com/a/1190000000375848" target="_blank" rel="external">国内开源镜像站点汇总</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">deb http://mirrors.zju.edu.cn/ubuntu/ xenial main restricted</div><div class="line"># deb-src http://mirrors.zju.edu.cn/ubuntu/ xenial main restricted</div></pre></td></tr></table></figure></p>
+<h2 id="PPA软件源"><a href="#PPA软件源" class="headerlink" title="PPA软件源"></a>PPA软件源</h2><p>PPA软件源, 即”Personal Package Archives”, 个人软件包集.<br>Ubuntu开设了一个开发者平台, 允许开发者建立自己的软件仓库并上传.<br>因此, 用PPA不能保证安全性.</p>
+<p>PPA的格式如下, 网址都是 <code>ppa.launchpad.net</code> 开头的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">deb http://ppa.launchpad.net/wireshark-dev/stable/ubuntu trusty main</div><div class="line"><span class="comment"># deb-src http://ppa.launchpad.net/wireshark-dev/stable/ubuntu trusty main</span></div></pre></td></tr></table></figure>
+<h1 id="update-upgrade-dist-upgrade-的区别"><a href="#update-upgrade-dist-upgrade-的区别" class="headerlink" title="update upgrade dist-upgrade 的区别"></a><code>update</code> <code>upgrade</code> <code>dist-upgrade</code> 的区别</h1><p>update 更新的是软件源信息. 因此一般习惯在install之前, 使用update更新一下.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo apt edit-sources       <span class="comment"># 更改软件源列表</span></div><div class="line">sudo apt update             <span class="comment"># 根据软件源列表下载新的版本信息和包信息</span></div><div class="line">sudo apt install XXX        <span class="comment"># 可以下载了. 如果还是有问题, 说明这个软件在源列表中不存在或者是网络问题.</span></div></pre></td></tr></table></figure>
+<p>upgrade 更新的是指定的软件到最新版本. 但不去考虑依赖关系.<br>dist-upgrade 会判断软件新版本的依赖关系, 如果依赖关系变了, 它能自动升级依赖的软件.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo apt upgrade XXX        <span class="comment"># 只升级指定的软件, 不考虑其依赖关系</span></div><div class="line">sudo apt full-upgrade XXX   <span class="comment"># 字面意思: 全面升级! 就是会去自动安装/删除依赖的软件.</span></div></pre></td></tr></table></figure></p>
+<h1 id="build-dep-自动建立编译环境"><a href="#build-dep-自动建立编译环境" class="headerlink" title="build-dep 自动建立编译环境"></a>build-dep 自动建立编译环境</h1><p>譬如要手工编译 apache2, 那么可以用 <code>apt-get build-dep</code> 来快速建立编译环境.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">sudo apt-get build-dep apache2</div><div class="line"><span class="comment"># 会列出一系列会被安装的软件, 并询问是否要安装.</span></div><div class="line"><span class="comment"># 先回答NO.</span></div><div class="line"></div><div class="line">sudo apt-get build-dep apache2 | tee apache2.log </div><div class="line"><span class="comment"># 为了便于日后查看关系包, 建议先做个记录:</span></div></pre></td></tr></table></figure>
+<h1 id="查看依赖关系"><a href="#查看依赖关系" class="headerlink" title="查看依赖关系"></a>查看依赖关系</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">apt-cache depends XXX</div><div class="line"><span class="comment"># 查看正向依赖, XXX依赖的软件</span></div><div class="line"></div><div class="line">apt-cache rdepends XXX</div><div class="line"><span class="comment"># 查看反向依赖, 依赖XXX的软件</span></div></pre></td></tr></table></figure>
+<h1 id="遇到错误"><a href="#遇到错误" class="headerlink" title="遇到错误"></a>遇到错误</h1><h2 id="找不到资源"><a href="#找不到资源" class="headerlink" title="找不到资源"></a>找不到资源</h2><ul>
+<li>检查网络, 是否需要翻墙. 必要的话, 更改软件源列表.</li>
+<li>检查网络, 是否安全性太高了. 有些公司网络容易产生这样的情况.</li>
+<li><code>sudo apt update</code>, 更新软件源在试试.</li>
+</ul>
+<h2 id="Java-安装失败"><a href="#Java-安装失败" class="headerlink" title="Java 安装失败"></a>Java 安装失败</h2><p>Java向下兼容, 建议直接安装java最新版<br><code>sudo apt-get install openjdk-8-jdk</code></p>
+<p>更复杂的情况, 参考这篇stackoverflow吧</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/32942023/ubuntu-openjdk-8-unable-to-locate-package" target="_blank" rel="external">Ubuntu: OpenJDK 8 - Unable to locate package</a></li>
+</ul>
+<h2 id="Could-not-get-lock"><a href="#Could-not-get-lock" class="headerlink" title="Could not get lock"></a>Could not get lock</h2><p><code>E:Could not get lock /var/lib/apt/lists/lock - open (11: Resource temporarily unavailable)</code><br>获取资源锁失败, 说明有另外一个apt-get在运行. 这种情况多发生在新装的Ubuntu中, 他会自动运行apt-get<br>解决方法:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 或者去查看进程</span></div><div class="line">ps <span class="_">-e</span> | grep apt</div><div class="line"><span class="comment"># 看是否有进程在执行</span></div><div class="line"><span class="comment"># 6362 ? 00:00:00 apt</span></div><div class="line"><span class="comment"># 6934 ? 00:00:00 apt-get</span></div><div class="line"><span class="comment"># 7368 ? 00:00:00 synaptic</span></div><div class="line"></div><div class="line"><span class="comment"># 有的话, 直接杀掉</span></div><div class="line">sudo killall apt</div><div class="line">sudo killall apt-get</div><div class="line">sudo killall synaptic</div><div class="line"></div><div class="line"><span class="comment"># 还是不行的话, 直接移除锁</span></div><div class="line">sudo rm /var/cache/apt/archives/lock</div><div class="line">sudo rm /var/lib/dpkg/lock</div></pre></td></tr></table></figure></p>
+<h2 id="软件版本问题"><a href="#软件版本问题" class="headerlink" title="软件版本问题"></a>软件版本问题</h2><p>先试试指定版本号安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">apt-get install package=version</div><div class="line"></div><div class="line"><span class="comment"># 譬如</span></div><div class="line">apt-get install nautilus=2.2.4-1</div></pre></td></tr></table></figure>
+<p>如果更复杂的, 譬如依赖的软件需要指定版本, 直接参考stackoverflow吧<br><a href="https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies-after-adding-a-ppa" target="_blank" rel="external">How do I resolve unmet dependencies after adding a PPA?</a></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://www.jianshu.com/p/3dad50f452b6" target="_blank" rel="external">apt与apt-get的区别</a></li>
+<li><a href="http://www.jianshu.com/p/57a91bc0c594" target="_blank" rel="external">详解Ubuntu软件源</a></li>
+<li><a href="http://blog.csdn.net/wangyezi19930928/article/details/54928201" target="_blank" rel="external">apt-get update ，upgarde 和dist-upgrade 的区别</a></li>
+<li><a href="http://blog.csdn.net/mifangdebaise/article/details/50553596" target="_blank" rel="external">记一条好用的ubuntu命令: apt-get build-dep</a></li>
+<li><a href="http://blog.csdn.net/zwjsatan/article/details/8101712" target="_blank" rel="external">sudo apt-get update更新源失败</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag">#linux</a>
+          
+            <a href="/tags/apt/" rel="tag">#apt</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/24/1735-jz2440-basic/" rel="next" title="jz2440分区及启动的基础概念">
+                <i class="fa fa-chevron-left"></i> jz2440分区及启动的基础概念
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/27/1737-linux-ide/" rel="prev" title="LinK+, 一款Linux内核开发IDE">
+                LinK+, 一款Linux内核开发IDE <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">75</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">71</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#apt-命令"><span class="nav-number">2.</span> <span class="nav-text">apt 命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#软件源"><span class="nav-number">3.</span> <span class="nav-text">软件源</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ubuntu-官方软件源"><span class="nav-number">3.1.</span> <span class="nav-text">Ubuntu 官方软件源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PPA软件源"><span class="nav-number">3.2.</span> <span class="nav-text">PPA软件源</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#update-upgrade-dist-upgrade-的区别"><span class="nav-number">4.</span> <span class="nav-text">update upgrade dist-upgrade 的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#build-dep-自动建立编译环境"><span class="nav-number">5.</span> <span class="nav-text">build-dep 自动建立编译环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查看依赖关系"><span class="nav-number">6.</span> <span class="nav-text">查看依赖关系</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#遇到错误"><span class="nav-number">7.</span> <span class="nav-text">遇到错误</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#找不到资源"><span class="nav-number">7.1.</span> <span class="nav-text">找不到资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-安装失败"><span class="nav-number">7.2.</span> <span class="nav-text">Java 安装失败</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Could-not-get-lock"><span class="nav-number">7.3.</span> <span class="nav-text">Could not get lock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件版本问题"><span class="nav-number">7.4.</span> <span class="nav-text">软件版本问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
