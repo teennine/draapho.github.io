@@ -260,6 +260,420 @@
             
               
                 
+                <a class="post-title-link" href="/2017/09/15/1725-kernel-launch/" itemprop="url">
+                  kernel之内核启动分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-09-15T00:00:00+10:00" content="2017-09-15">
+              2017-09-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="内核引导阶段-head-S"><a href="#内核引导阶段-head-S" class="headerlink" title="内核引导阶段 head.S"></a>内核引导阶段 <code>head.S</code></h1><p>由 <a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a> 可知, uboot最后调用的函数是</p>
+<ul>
+<li><code>theKernel (0, bd-&gt;bi_arch_number, bd-&gt;bi_boot_params)</code>, 会把一些板级参数传递给linux内核使用.</li>
+</ul>
+<p>由 <a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a> 可知, 两个重要的文件如下:</p>
+<ul>
+<li>第1个文件: <code>arch/arm/kernel/head.S</code></li>
+<li>链接脚本: <code>arch/arm/kernel/vmlinux.lds</code></li>
+</ul>
+<p><code>head.S</code> 主要完成了如下工作.</p>
+<p><img src="https://draapho.github.io/images/1725/stage1.JPG" alt="内核引导阶段"></p>
+<ul>
+<li><code>__lookup_machine_type</code> 会将 theKernel 传入的单板类型与内核支持的单板类型逐一比较.</li>
+<li><code>.arch.info.init</code> 这一个段存放的就是内核支持的单板类型.<ul>
+<li>定义在 <code>./arch/arm/kernel/vmlinux.lds</code></li>
+<li><code>__lookup_machine_type</code> 会对该段进行轮询</li>
+<li>该段的数据结构为 <code>machine_desc</code>, 定义在 <code>./include/asm-arm/mach/arch.h</code></li>
+<li><code>arch.h</code> 文件还宏定义了 <code>MACHINE_START</code> <code>MACHINE_END</code>,<br>  调用该宏定义, 就会将相关数据放在 <code>.arch.info.init</code> 段内</li>
+</ul>
+</li>
+<li><code>./arch/arm/mach-s3c2440/mach-smdk2440.c:</code> 内调用了 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code><ul>
+<li>kernel下 <code>grep -nr MACH_TYPE_S3C2440</code> 可知 MACH_TYPE_S3C2440 的值为 362</li>
+<li>uboot下 <code>grep -nr bi_arch_number</code> 可知其值为 MACH_TYPE_S3C2440, 即 362</li>
+<li>这样, kernel就能确定是支持当前的开发板的. (当前的开发板信息由uboot提供给kernel)</li>
+</ul>
+</li>
+</ul>
+<h1 id="内核启动第二阶段-init-main-c"><a href="#内核启动第二阶段-init-main-c" class="headerlink" title="内核启动第二阶段 init/main.c"></a>内核启动第二阶段 <code>init/main.c</code></h1><p><code>head-common.S</code> 调用 <code>start_kernel</code> 后, 代码会转到 <code>init/main.c</code>, 使用的是C语言.</p>
+<p><img src="https://draapho.github.io/images/1725/stage2.JPG" alt="内核启动第二阶段"></p>
+<p>从 <code>start_kernel</code> 开始, 函数的基本调用关系如下:</p>
+<ul>
+<li><code>setup_arch(&amp;command_line);</code> 读取uboot传过来的TAG参数<ul>
+<li>位于 <code>./arch/arm/kernel/setup.c</code> 770 行</li>
+<li>uboot 的 <code>setup_memory_tags</code> 存放内存大小</li>
+<li>uboot 的 <code>setup_commandline_tag</code> 告知linux挂载文件系统的命令行</li>
+<li>uboot 的 <code>/board/100ask24x0/100ask24x0.c</code> 中, <code>gd-&gt;bd-&gt;bi_boot_params = 0x30000100</code></li>
+<li>使用了 <code>machine_desc</code> 结构体, <code>.boot_params = S3C2410_SDRAM_PA + 0x100</code>, 其值就是 <code>0x30000100</code></li>
+<li>至此, uboot存放在内存中的TAG参数, 就能被内核读取出来了.</li>
+<li>此函数还会把挂载文件系统的命令赋值给 <code>boot_command_line</code>, 后续会去处理.</li>
+<li><code>parse_cmdline</code> 会去处理放在 <code>early_param.init</code> 段的指令.</li>
+</ul>
+</li>
+<li><code>parse_early_param</code>, 此函数会把 <code>boot_command_line</code>传递给<code>do_early_param</code>让其执行挂载文件系统的指令.<ul>
+<li><code>do_early_param</code><ul>
+<li>搜索 <code>.init.setup</code> 段, 调用有early标记的函数 (大多只是设置一下参数)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>unknown_bootoption</code> (使用 parse_args 先检查参数后再执行该函数)<ul>
+<li><code>obsolete_checksetup</code><ul>
+<li>搜索 <code>.init.setup</code> 段, 调用非early标记的函数 (大多只是设置一下参数)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>rest_init</code>, 去做剩余的初始化工作<ul>
+<li><code>kernel_thread(kernel_init, NULL, CLONE_FS | CLONE_SIGHAND);</code> 首先就是创建一个线程来做初始化工作<ul>
+<li><code>kernel_init</code> 会调用 <code>prepare_namespace</code><ul>
+<li>在 <code>do_mounts.c</code> 文件下 <code>prepare_namespace</code> 调用 <code>mount_root</code></li>
+<li>目的就是挂载文件系统.</li>
+</ul>
+</li>
+<li>挂载完文件系统后, 调用 <code>init_post</code>, 尝试执行第一个应用程序(下述应用程序不会再返回)<ul>
+<li><code>run_init_process(execute_command);</code></li>
+<li><code>run_init_process(&quot;/sbin/init&quot;);</code></li>
+<li><code>run_init_process(&quot;/etc/init&quot;);</code></li>
+<li><code>run_init_process(&quot;/bin/init&quot;);</code></li>
+<li><code>run_init_process(&quot;/bin/sh&quot;);</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>以默认的启动指令为例 <code>&quot;root=/dev/hda1 ro init=/bin/bash console=ttySAC0&quot;</code><pre><code>- `__setup(&quot;root=&quot;, root_dev_setup);` 位于 `./init/do_mounts.c`
+- `__setup(&quot;init=&quot;, init_setup);` 位于 `./init/main.c`
+- `__setup(&quot;console=&quot;, console_setup);` 位于 `./kernel/printk.c`
+- 以上命令对应的函数都会由 `obsolete_checksetup` 函数来调用. 主要是设置好相关参数.
+</code></pre></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ./init/main.c</span></div><div class="line"></div><div class="line"><span class="number">497</span> asmlinkage <span class="keyword">void</span> __<span class="function">init <span class="title">start_kernel</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line"><span class="number">520</span>     tick_init();</div><div class="line"><span class="number">521</span>     boot_cpu_init();</div><div class="line"><span class="number">522</span>     page_address_init();</div><div class="line"><span class="number">524</span>     printk(linux_banner);                           <span class="comment">// 打印linux版本信息</span></div><div class="line"><span class="number">525</span>     setup_arch(&amp;command_line);                      <span class="comment">// 读取uboot传过来的TAG参数</span></div><div class="line">                                                        <span class="comment">// 搜索 "early_param.init" 段, 并调用相关函数</span></div><div class="line"><span class="number">526</span>     setup_command_line(command_line);               <span class="comment">// 复制一下 command_line.</span></div><div class="line"></div><div class="line"><span class="number">544</span>     printk(KERN_NOTICE <span class="string">"Kernel command line: %s\n"</span>, boot_command_line); <span class="comment">// 打印文件系统挂载命令</span></div><div class="line"><span class="number">545</span>     parse_early_param();                            <span class="comment">// 最终会搜索 ".init.setup" 段, 调用有early标记的函数</span></div><div class="line"><span class="number">546</span>     parse_args(<span class="string">"Booting kernel"</span>, static_command_line, __start___param,</div><div class="line"><span class="number">547</span>        __stop___param - __start___param,            <span class="comment">// 搜索 "__param" 段</span></div><div class="line"><span class="number">548</span>        &amp;unknown_bootoption);                        <span class="comment">// 最终会搜索 ".init.setup" 段, 调用非early标记的函数</span></div><div class="line"></div><div class="line"><span class="number">575</span>     console_init();                                 <span class="comment">// 控制终端初始化</span></div><div class="line"></div><div class="line"><span class="number">636</span>     rest_init();                                    <span class="comment">// 剩余部分的初始化</span></div><div class="line"><span class="number">637</span> &#125;</div><div class="line"></div><div class="line"><span class="number">466</span> <span class="keyword">void</span> __<span class="function">init <span class="title">parse_early_param</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line"><span class="number">475</span>     strlcpy(tmp_cmdline, boot_command_line, COMMAND_LINE_SIZE);</div><div class="line">        <span class="comment">// parse_args 会先检查参数, 最后调用函数, 此处是do_early_param,</span></div><div class="line">        <span class="comment">// 参数为 boot_command_line 启动命令, 由uboot传递进来. 实际不会在此处执行.</span></div><div class="line"><span class="number">476</span>     parse_args(<span class="string">"early options"</span>, tmp_cmdline, <span class="literal">NULL</span>, <span class="number">0</span>, do_early_param);</div><div class="line"><span class="number">478</span> &#125;</div><div class="line"></div><div class="line"><span class="number">450</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">do_early_param</span><span class="params">(<span class="keyword">char</span> *param, <span class="keyword">char</span> *val)</span> </span>&#123;</div><div class="line"><span class="number">454</span>     <span class="keyword">for</span> (p = __setup_start; p &lt; __setup_end; p++)   <span class="comment">// 遍历 ".init.setup" 段</span></div><div class="line"><span class="number">455</span>         <span class="keyword">if</span> (p-&gt;early &amp;&amp; <span class="built_in">strcmp</span>(param, p-&gt;str) == <span class="number">0</span>) <span class="comment">// 在段内找了匹配boot_command_line的命令, 则执行</span></div><div class="line"><span class="number">456</span>             <span class="keyword">if</span> (p-&gt;setup_func(val) != <span class="number">0</span>)</div><div class="line"><span class="number">463</span> &#125;</div><div class="line"></div><div class="line"><span class="number">258</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">unknown_bootoption</span><span class="params">(<span class="keyword">char</span> *param, <span class="keyword">char</span> *val)</span> </span>&#123;</div><div class="line"><span class="number">274</span>     <span class="keyword">if</span> (obsolete_checksetup(param))                 <span class="comment">// 调用 obsolete_checksetup</span></div><div class="line"><span class="number">313</span> &#125;</div><div class="line"></div><div class="line"><span class="number">190</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">obsolete_checksetup</span><span class="params">(<span class="keyword">char</span> *line)</span> </span>&#123;</div><div class="line"><span class="number">195</span>     p = __setup_start;                              <span class="comment">// 遍历 ".init.setup" 段</span></div><div class="line"><span class="number">196</span>     <span class="keyword">do</span> &#123;</div><div class="line"><span class="number">199</span>         <span class="keyword">if</span> (p-&gt;early) &#123;                             <span class="comment">// 有early标记, 跳过.</span></div><div class="line"><span class="number">210</span>         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (p-&gt;setup_func(line + n))         <span class="comment">// 执行指令对应的函数</span></div><div class="line"><span class="number">214</span>     &#125; <span class="keyword">while</span> (p &lt; __setup_end);<span class="number">24</span></div><div class="line"><span class="number">217</span> &#125;</div><div class="line"></div><div class="line"><span class="number">426</span> <span class="keyword">static</span> <span class="keyword">void</span> noinline __<span class="function">init_refok <span class="title">rest_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</div><div class="line">        kernel_thread(kernel_init, <span class="literal">NULL</span>, CLONE_FS | CLONE_SIGHAND); <span class="comment">// 创建一个初始化用的线程</span></div><div class="line">        schedule();                                     <span class="comment">// 调度</span></div><div class="line"><span class="number">447</span> &#125;</div><div class="line"></div><div class="line"><span class="number">787</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">kernel_init</span><span class="params">(<span class="keyword">void</span> * unused)</span> </span>&#123;</div><div class="line"><span class="number">828</span>         prepare_namespace();                        <span class="comment">// 调用 mount_root, 加载文件系统</span></div><div class="line"><span class="number">836</span>     init_post();                                    <span class="comment">// 执行应用程序</span></div><div class="line"><span class="number">838</span> &#125;</div><div class="line"></div><div class="line"><span class="number">748</span> <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> noinline <span class="title">init_post</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;               <span class="comment">// 执行应用程序</span></div><div class="line"><span class="number">756</span>     <span class="keyword">if</span> (sys_open((<span class="keyword">const</span> <span class="keyword">char</span> __user *) <span class="string">"/dev/console"</span>, O_RDWR, <span class="number">0</span>) &lt; <span class="number">0</span>)      </div><div class="line">                                                        <span class="comment">// 尝试打开终端设备, 文件0-&gt;printf</span></div><div class="line"><span class="number">757</span>         printk(KERN_WARNING <span class="string">"Warning: unable to open an initial console.\n"</span>);</div><div class="line"><span class="number">759</span>	    (<span class="keyword">void</span>) sys_dup(<span class="number">0</span>);                              <span class="comment">// 赋值文件0, 生成文件1-&gt;scanf</span></div><div class="line"><span class="number">760</span>	    (<span class="keyword">void</span>) sys_dup(<span class="number">0</span>);                              <span class="comment">// 赋值文件0, 生成文件2-&gt;err</span></div><div class="line">        <span class="comment">// 以上四句作用为设置标准输入输出流, (printf, scanf, err)</span></div><div class="line">        </div><div class="line"><span class="number">744</span> 	<span class="keyword">if</span> (execute_command) &#123;</div><div class="line"><span class="number">745</span>	    	run_init_process(execute_command);</div><div class="line"><span class="number">746</span>		    printk(KERN_WARNING <span class="string">"Failed to execute %s.  Attempting "</span></div><div class="line"><span class="number">747</span>					<span class="string">"defaults...\n"</span>, execute_command);</div><div class="line"><span class="number">748</span>  	&#125;</div><div class="line">        <span class="comment">// 传入的启动参数内有 "init=" 启动程序, 则执行! 执行成功的话不会再返回这里!</span></div><div class="line"></div><div class="line"><span class="number">779</span>     run_init_process(<span class="string">"/sbin/init"</span>);</div><div class="line"><span class="number">780</span>     run_init_process(<span class="string">"/etc/init"</span>);</div><div class="line"><span class="number">781</span>     run_init_process(<span class="string">"/bin/init"</span>);</div><div class="line"><span class="number">782</span>     run_init_process(<span class="string">"/bin/sh"</span>);</div><div class="line">        <span class="comment">// 没有配置过启动指令, 依次尝试上述四个默认程序. 某一个执行成功后就不会再返回!</span></div><div class="line">        </div><div class="line"><span class="number">784</span>     panic(<span class="string">"No init found.  Try passing init= option to kernel."</span>);</div><div class="line">        <span class="comment">// 执行首个应用程序失败, 打印内核错误信息!</span></div><div class="line"><span class="number">785</span> &#125;</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 我们擦除开发板文件系统后, 来看一下打印出来的启动信息</span></div><div class="line"></div><div class="line">OpenJTAG&gt; nand erase root           <span class="comment"># uboot 下, 擦除root块</span></div><div class="line">OpenJTAG&gt; reset                     <span class="comment"># uboot 下, 重启系统</span></div><div class="line"></div><div class="line">Booting Linux ...</div><div class="line">NAND <span class="built_in">read</span>: device 0 offset 0x60000, size 0x200000</div><div class="line"><span class="comment">## Booting image at 30007fc0 ...</span></div><div class="line">...</div><div class="line">Starting kernel ...</div><div class="line">...</div><div class="line">Kernel <span class="built_in">command</span> line: noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</div><div class="line">loop: module loaded</div><div class="line">...</div><div class="line">Creating 4 MTD partitions on <span class="string">"NAND 256MiB 3,3V 8-bit"</span>:</div><div class="line">0x00000000-0x00040000 : <span class="string">"bootloader"</span></div><div class="line">0x00040000-0x00060000 : <span class="string">"params"</span></div><div class="line">0x00060000-0x00260000 : <span class="string">"kernel"</span></div><div class="line">0x00260000-0x10000000 : <span class="string">"root"</span></div><div class="line">...</div><div class="line">VFS: Mounted root (yaffs filesystem).</div><div class="line">...</div><div class="line">Kernel panic - not syncing: No init found.  Try passing init= option to kernel.</div><div class="line"><span class="comment"># 此句就是由./init/main.c文件784行打印出来的. 因为没有文件系统, 第一个应用程序执行失败!</span></div></pre></td></tr></table></figure>
+<p>如果正常启动, 会打印如下信息, 可知第一个应用程序名字是 <code>BusyBox</code>, 然后启动了 <code>/bin/sh</code>!!!<br><code>init started: BusyBox v1.7.0 (2008-01-22 10:04:09 EST)</code><br><code>starting pid 764, tty &#39;&#39;: &#39;/etc/init.d/rcS&#39;</code><br><code>Please press Enter to activate this console.</code><br><code>starting pid 770, tty &#39;/dev/s3c2410_serial0&#39;: &#39;/bin/sh&#39;</code></p>
+<h1 id="初始化中用到的段-vmlinux-lds"><a href="#初始化中用到的段-vmlinux-lds" class="headerlink" title="初始化中用到的段 vmlinux.lds"></a>初始化中用到的段 <code>vmlinux.lds</code></h1><h2 id="init-setup-段分析"><a href="#init-setup-段分析" class="headerlink" title=".init.setup 段分析"></a><code>.init.setup</code> 段分析</h2><p>在 <code>./arch/arm/kernel/vmlinux.lds</code> 中有这么一个段<br><code>*(.init.setup)</code>, 其头尾为 <code>__setup_start</code> <code>__setup_end</code></p>
+<p>这一个段存放着需要通过读取命令行来执行的初始化工作, 内核称之为 <code>unknow_xxx</code><br>定义在此段的变量通过两个宏定义实现 <code>__setup</code> 以及 <code>early_param</code><br>简单理解的话, <code>early_param</code> 是需要先执行的命令行, <code>__setup</code> 则稍后执行.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># ./include/linux/init.h</div><div class="line"></div><div class="line"><span class="number">148</span> <span class="keyword">struct</span> obs_kernel_param &#123;</div><div class="line"><span class="number">149</span>     <span class="keyword">const</span> <span class="keyword">char</span> *str;</div><div class="line"><span class="number">150</span>     <span class="keyword">int</span> (*setup_func)(<span class="keyword">char</span> *);</div><div class="line"><span class="number">151</span>     <span class="keyword">int</span> early;</div><div class="line"><span class="number">152</span> &#125;;</div><div class="line"></div><div class="line"><span class="number">160</span> <span class="meta">#<span class="meta-keyword">define</span> __setup_param(str, unique_id, fn, early)            \</span></div><div class="line">161     static char __setup_str_##unique_id[] __initdata = str; \</div><div class="line">162     static struct obs_kernel_param __setup_##unique_id  \</div><div class="line">163         __attribute_used__              \</div><div class="line">164         __attribute__((__section__(<span class="meta-string">".init.setup"</span>))) \</div><div class="line">165         __attribute__((aligned((sizeof(long)))))    \</div><div class="line">166         = &#123; __setup_str_##unique_id, fn, early &#125;</div><div class="line"></div><div class="line"><span class="number">171</span> <span class="meta">#<span class="meta-keyword">define</span> __setup(str, fn)                    \</span></div><div class="line">172     __setup_param(str, fn, fn, 0)</div><div class="line"></div><div class="line"><span class="number">179</span> <span class="meta">#<span class="meta-keyword">define</span> early_param(str, fn)                    \</span></div><div class="line">180     __setup_param(str, fn, fn, 1)</div></pre></td></tr></table></figure>
+<p>先来分析 <code>__setup(str, fn)</code> 这么一个宏定义, 它设置的就是命令行队列, 将字符串关联到函数.</p>
+<ul>
+<li><code>unique_id</code> 就是fn的函数地址</li>
+<li>存放在 <code>.init.setup</code> 段内.</li>
+<li>与数据结构 <code>obs_kernel_param</code> 相关. 保存的就是 str, fn, 以及early三个变量.</li>
+<li>通过这样一种结构, 可以很方便的使用字符串来调用指定的函数.</li>
+<li><code>grep -nwr __setup ./arch/arm</code> 可找到 <code>__setup(&quot;tft=&quot;, qt2410_tft_setup);</code>, 很明显就是用来初始化屏幕的.</li>
+<li>在 <code>./init/do_mounts.c</code>里, 还能找到 <code>__setup(&quot;root=&quot;, root_dev_setup)</code>, 是用来挂载文件系统的.</li>
+</ul>
+<p>然后看 <code>early_param(str, fn)</code> 宏定义.</p>
+<ul>
+<li><code>__setup</code> 是一样的.</li>
+<li>只是将标记 <code>early</code> 赋值为1. 表示需要较早执行的初始化工作, 一般为更底层的驱动</li>
+<li>arm 架构几乎没有用到 <code>early_param</code> 的地方, 搜索的话, 可以看到 pci 的初始化就用到了 <code>early_param</code></li>
+</ul>
+<h2 id="early-param-init-段"><a href="#early-param-init-段" class="headerlink" title="early_param.init 段"></a><code>early_param.init</code> 段</h2><p>和 <code>.init.setup</code> 段类似, 其定义在<br><code>./include/asm-arm/setup.h</code>, 220行.<br>关联的宏定义为 <code>__early_param</code>, 初始化如 <code>initrd=</code> <code>mem=</code> 之类的命令<br><code>grep -nwr __early_param</code> 进行查询, 结果不多的.<br>搜索 <code>grep -nwr __early_begin</code>, 可知, 其处理函数为 <code>parse_cmdline</code></p>
+<h2 id="param-段"><a href="#param-段" class="headerlink" title="__param 段"></a><code>__param</code> 段</h2><p>该段主要用于给驱动模块的初始化. 设置参数使用.<br>定义在 <code>./include/linux/moduleparam.h</code>, 72 行<br>其调用位于 <code>./init/main.c</code> 的 <code>parse_args</code> (<code>grep -nwr __start___param</code>)<br>关联的宏定义为 <code>module_param_call</code> <code>module_param_named</code> <code>module_param</code> 以及 <code>module_param_string</code><br>查阅后, 可以发现全部是和驱动模块有关的.</p>
+<h1 id="linux下的分区"><a href="#linux下的分区" class="headerlink" title="linux下的分区"></a>linux下的分区</h1><p>jz2440的启动参数为 <code>root= /dev/mtdblock3</code>,<br>linux下没有分区表的概念, 这里分区是在内核源码里写死的.<br>可见 <code>./arch/arm/plat-s3c24xx/common-smdk.c</code> 的118行, <code>smdk_default_nand_part</code><br>它分配了4个的分区:</p>
+<table>
+<thead>
+<tr>
+<th>分区</th>
+<th>对应mtdblock</th>
+<th>size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bootloader</code></td>
+<td>mtdblock0</td>
+<td>0x00040000</td>
+</tr>
+<tr>
+<td><code>params</code></td>
+<td>mtdblock1</td>
+<td>0x00020000</td>
+</tr>
+<tr>
+<td><code>kernel</code></td>
+<td>mtdblock2</td>
+<td>0x00200000</td>
+</tr>
+<tr>
+<td><code>root</code></td>
+<td>mtdblock3</td>
+<td>MTDPART_SIZ_FULL</td>
+</tr>
+</tbody>
+</table>
+<h1 id="更多参考"><a href="#更多参考" class="headerlink" title="更多参考"></a>更多参考</h1><ul>
+<li><a href="http://blog.csdn.net/skyflying2012/article/details/41142801" target="_blank" rel="external"> linux kernel的cmdline参数解析原理分析</a></li>
+<li><a href="https://danielmaker.github.io/blog/linux/inside_start_kernel.html" target="_blank" rel="external">深入淺出 start_kernel</a></li>
+<li><a href="http://blog.sina.com.cn/s/blog_5d9051c00100ij93.html" target="_blank" rel="external">嵌入式Linux中基于MTD的文件系统的结构框架图</a></li>
+<li><a href="http://blog.csdn.net/yusiguyuan/article/details/9471577" target="_blank" rel="external">u-boot中分区和内核MTD分区关系</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/09/14/1724-kernel-makefile/" itemprop="url">
+                  kernel之Makefile分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-09-14T00:00:00+10:00" content="2017-09-14">
+              2017-09-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linlux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
+<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="Makefile-概览"><a href="#Makefile-概览" class="headerlink" title="Makefile 概览"></a>Makefile 概览</h1><p><code>.\linux-2.6.22.6\Documentation\kbuild\makefiles.txt</code> 详细介绍了 kernel 的 makefile用法.<br>建议完整过一遍, 它对如何配置, 生成配置, 编译过程有完整的阐述.</p>
+<p>Makefile分为5个部分:</p>
+<ul>
+<li><code>Makefile</code>, 位于kernel根目录, 顶层Makefile. 最终目的是编译内核, 生成 <code>vmlinux</code> 和 <code>modules</code>.</li>
+<li><code>.config</code>, kernel配置文件, 已在 <a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a>分析过生成方式和过程</li>
+<li><code>arch/$(ARCH)/Makefile</code>, 芯片架构相关的Makefile</li>
+<li><code>scripts/Makefile.*</code>, Makefile的规则和脚本</li>
+<li><code>kbuild Makefiles</code>, 即各子目录下的<code>Makefile</code>, 最终都会被顶层Makefile调用的.</li>
+</ul>
+<p><code>obj-y</code>, 表示需要编译进内核, 其形式很简单</p>
+<ul>
+<li><code>obj-$(CONFIG_DM9000) += dm9dev9000c.o</code>, 含变量的形式.</li>
+<li><code>obj-y += dm9dev9000c.o</code>, 替换变量后的直观形式.</li>
+</ul>
+<p><code>obj-m</code>, 表示需要编译为<code>.ko</code>模块. 有三种形式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># 单文件编译为模块, 变量$(CONFIG_ISDN_PPP_BSDCOMP)为m</div><div class="line">obj-$(CONFIG_ISDN_PPP_BSDCOMP) += isdn_bsdcomp.o</div><div class="line"></div><div class="line"># 多文件编译为模块, 变量$(CONFIG_ISDN)为m</div><div class="line"># 目标模块名称 isdn.ko</div><div class="line">obj-$(CONFIG_ISDN) += isdn.o</div><div class="line"># 关联相关源文件, 使用 xxx-objs. $(LD) 链接命令会链接如下文件.</div><div class="line">isdn-objs := isdn_net_lib.o isdn_v110.o isdn_common.o</div><div class="line"></div><div class="line"># 多文件可配置, 编译为模块. 可使用 xxx-$(CONFIG_) 来配置</div><div class="line"># $(CONFIG_EXT2_FS) 为m, 即需要生成 ext2.ko 模块文件</div><div class="line">obj-$(CONFIG_EXT2_FS)        += ext2.o</div><div class="line"># 必须的关联文件有如下两个, 此处效果等同于 ext2-objs := balloc.o bitmap.o</div><div class="line">ext2-y                       := balloc.o bitmap.o</div><div class="line"># 另外一个文件则根据配置决定是否编译进模块. 其值为 y 或者空.</div><div class="line">ext2-$(CONFIG_EXT2_FS_XATTR) += xattr.o</div></pre></td></tr></table></figure>
+<p><code>lib-y</code> 编译为库文件. 形如 <code>lib-y := checksum.o delay.o</code><br>一般仅用于 <code>lib/</code> 以及 <code>arch/*/lib-y</code> 目录下面</p>
+<p>另外还有一些 <code>EXTRA_CFLAGS</code>, <code>EXTRA_AFLAGS</code>, <code>EXTRA_LDFLAGS</code>, <code>EXTRA_ARFLAGS</code> 的 flag配置<br>此处略过不表.</p>
+<h1 id="linux下关键字搜索技巧"><a href="#linux下关键字搜索技巧" class="headerlink" title="linux下关键字搜索技巧"></a>linux下关键字搜索技巧</h1><p>由于有多个Makefile, 变量也分布在不同的文件中, 所以阅读起来比较麻烦.<br>此处再重复列举一下linux下的搜索技巧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">grep -n 100ask24x0 ./Makefile       <span class="comment"># 在Makefile文件下查找 100ask24x0, 并显示行号</span></div><div class="line">grep -nr 100ask24x0 *               <span class="comment"># 当前目录递归查找 100ask24x0</span></div><div class="line">grep -nwr 100ask24x0 *              <span class="comment"># w=word, 100ask24x0 作为一个单词查找</span></div><div class="line">grep -nd skip 100ask24x0 *          <span class="comment"># 仅在当前目录查找, 不显示子目录信息</span></div><div class="line"></div><div class="line"><span class="comment"># 特别强大的一条指令, 可针对指定文件搜索指定关键字!</span></div><div class="line"><span class="comment"># 先用find找出所有的Makefile文件, 然后在Makefile文件内查找 uImage 关键字.</span></div><div class="line">find ./ -name <span class="string">"Makefile"</span> | xargs grep -nw --color <span class="string">"uImage"</span></div></pre></td></tr></table></figure>
+<h1 id="Makefile整体分析"><a href="#Makefile整体分析" class="headerlink" title="Makefile整体分析"></a>Makefile整体分析</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line">    <span class="comment"># 顶层Makefile, 位于 "./linux-2.6.22.6/Makefile"</span></div><div class="line">    <span class="comment"># 这里就不按文件顺序排列, 而按照分析Makefile的逻辑顺序排列了.</span></div><div class="line"></div><div class="line">186 ARCH		?= arm                  <span class="comment"># arm 架构</span></div><div class="line">187 CROSS_COMPILE	?= arm-linux-       <span class="comment"># 指定编译器</span></div><div class="line"></div><div class="line">192 KCONFIG_CONFIG	?= .config          <span class="comment"># 指定配置文件</span></div><div class="line"></div><div class="line">284 LD		= $(CROSS_COMPILE)ld        <span class="comment"># 指定一些列指令</span></div><div class="line">285 CC		= $(CROSS_COMPILE)gcc</div><div class="line"></div><div class="line">    <span class="comment"># 编译时, 我们使用 make uImage, 因为需要uImage格式.</span></div><div class="line">    <span class="comment"># 但过程和 make all 是一样的, 都需要生成 vmlinux </span></div><div class="line">484 all: vmlinux                       <span class="comment"># 直接make, 就是生成vmlinux</span></div><div class="line"></div><div class="line">581 <span class="comment"># Build vmlinux. 可以看一行开始的注释, 说明了vmlinux的依赖结构</span></div><div class="line"></div><div class="line">    <span class="comment"># 找到了 vmlinux 这个目标有关的依赖文件, 逐一扩展来看</span></div><div class="line">745 vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE</div><div class="line">    <span class="comment"># kernel/kallsyms.c</span></div><div class="line"></div><div class="line">608 vmlinux-init := $(head-y) $(init-y)</div><div class="line">609 vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)</div><div class="line">611 vmlinux-lds  := arch/$(ARCH)/kernel/vmlinux.lds</div><div class="line">    <span class="comment"># vmlinux-lds:= arch/arm/kernel/vmlinux.lds</span></div><div class="line">    <span class="comment"># 此文件由 vmlinux.lds.S 在make时自动生成!</span></div><div class="line"></div><div class="line">434 init-y		:= init/</div><div class="line">435 drivers-y	:= drivers/ sound/</div><div class="line">436 net-y		:= net/</div><div class="line">437 libs-y		:= lib/</div><div class="line">438 core-y		:= usr/</div><div class="line">562 core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/</div><div class="line"></div><div class="line">573 init-y		:= $(patsubst %/, %/built-in.o, $(init-y))</div><div class="line">574 core-y		:= $(patsubst %/, %/built-in.o, $(core-y))</div><div class="line">575 drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))</div><div class="line">576 net-y		:= $(patsubst %/, %/built-in.o, $(net-y))</div><div class="line">577 libs-y1		:= $(patsubst %/, %/lib.a, $(libs-y))</div><div class="line">578 libs-y2		:= $(patsubst %/, %/built-in.o, $(libs-y))</div><div class="line">579 libs-y		:= $(libs-y1) $(libs-y2)</div><div class="line"></div><div class="line">    <span class="comment"># patsubst 是makefile内的字符串替换函数, 替换结果为:</span></div><div class="line">    <span class="comment"># init-y    := init/built-in.o</span></div><div class="line">    <span class="comment"># core-y    := usr/built-in.o kernel/built-in.o mm/built-in.o fs/built-in.o ... (略)</span></div><div class="line">    <span class="comment"># drivers-y := drivers/built-in.o sound/built-in.o</span></div><div class="line">    <span class="comment"># net-y     := net/built-in.o</span></div><div class="line">    <span class="comment"># libs-y    := lib/lib.a lib/built-in.o</span></div><div class="line">    </div><div class="line">    <span class="comment"># find ./ -name "Makefile" | xargs grep -nw --color "head-y"</span></div><div class="line">    <span class="comment"># 查出 head-y 位于 "./arch/arm/Makefile" 以及 "./arch/arm/kernel/Makefile" 内</span></div><div class="line">    <span class="comment"># head-y	:= arch/arm/kernel/head.S arch/arm/kernel/init_task.c, 分析见 架构文件内的Makefile.</span></div><div class="line">    </div><div class="line"></div><div class="line">    </div><div class="line">    <span class="comment"># 此句就是执行指令, 将上述相关文件打包生成vmlinux二进制内核文件. 太难懂, 先略过.</span></div><div class="line">745 vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE</div><div class="line">749	$(call if_changed_rule,vmlinux__)</div><div class="line">750	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost $@</div><div class="line">751	$(Q)rm -f .old_version</div></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">    <span class="comment"># 架构文件内的 Makefile, 位于 "./arch/arm/Makefile"</span></div><div class="line"></div><div class="line">    <span class="comment"># 查找 .config 文件可知, CONFIG_MMU=y</span></div><div class="line">26  ifeq ($(CONFIG_MMU),)       <span class="comment"># CONFIG_MMU不为空, 条件不成立</span></div><div class="line">27  MMUEXT		:= -nommu</div><div class="line">28  endif                       <span class="comment"># 因此 $(MMUEXT) 为空</span></div><div class="line"></div><div class="line">94  head-y		:= arch/arm/kernel/head$(MMUEXT).o arch/arm/kernel/init_task.o</div><div class="line">    <span class="comment"># head-y	:= arch/arm/kernel/head.S arch/arm/kernel/init_task.c</span></div><div class="line">    <span class="comment"># 至于 "./arch/arm/kernel/Makefile" 内的head-y, 猜测是为 extra-y 服务的, 不去追究.</span></div><div class="line">    </div><div class="line">    <span class="comment"># make uImage时, 也需要先生成 vmlinux. 事实上, uImage格式只是比vmlinux多64字节的头.</span></div><div class="line">227 zImage Image xipImage bootpImage uImage: vmlinux</div></pre></td></tr></table></figure>
+<p>至此, 为生成vmlinux的原材料都已经分析完成, 就看如何执行指令了.<br>但是, 由Makefile进行分析的话, 需要去看一系列的脚本文件, 工作量太大, 也难以理解.<br>我们倒过来分析, 直接执行 <code>make uImage V=1</code>, 查看编译指令是否和分析的一致.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = ./linux-2.6.22.6</span></div><div class="line">make uImage             <span class="comment"># 生成 uImage, 如有必要, 先 make clean</span></div><div class="line">rm vmlinux              <span class="comment"># 删除目标文件vmlinux</span></div><div class="line">make uImage V=1         <span class="comment"># 查看生成vmlinux时, 详细的编译指令</span></div><div class="line"></div><div class="line"><span class="comment"># 可以在执行结果中, 找到这么一行:</span></div><div class="line"><span class="comment"># arm-linux-ld -EL  -p --no-undefined -X -o vmlinux -T arch/arm/kernel/vmlinux.lds </span></div><div class="line"><span class="comment"># arch/arm/kernel/head.o arch/arm/kernel/init_task.o  init/built-in.o </span></div><div class="line"><span class="comment"># --start-group  usr/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o  arch/arm/common/built-in.o  arch/arm/mach-s3c2410/built-in.o  arch/arm/mach-s3c2400/built-in.o  arch/arm/mach-s3c2412/built-in.o  arch/arm/mach-s3c2440/built-in.o  arch/arm/mach-s3c2442/built-in.o  arch/arm/mach-s3c2443/built-in.o  arch/arm/nwfpe/built-in.o  arch/arm/plat-s3c24xx/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  block/built-in.o  arch/arm/lib/lib.a  lib/lib.a  arch/arm/lib/built-in.o  lib/built-in.o  drivers/built-in.o  sound/built-in.o  net/built-in.o </span></div><div class="line"><span class="comment"># --end-group .tmp_kallsyms2.o</span></div><div class="line"></div><div class="line"><span class="comment"># 分析如下:</span></div><div class="line">    <span class="comment"># "arm-linux-ld"                    链接命令</span></div><div class="line">    <span class="comment"># "-o vmlinux"                      目标文件</span></div><div class="line">    <span class="comment"># "-T arch/arm/kernel/vmlinux.lds"  指定链接脚本</span></div><div class="line">    <span class="comment"># 一系列的 ".o" 文件, 就是前文分析出的相关文件, 能一一对应的.</span></div></pre></td></tr></table></figure>
+<h1 id="链接指令的工作方式"><a href="#链接指令的工作方式" class="headerlink" title="链接指令的工作方式"></a>链接指令的工作方式</h1><p>链接指令的工作方式为, 根据链接脚本的要求对每个文件内的段按顺序排放. 相同的段, 则按照指令的文件顺序排放.<br>譬如: lds 一开始的段位 <code>.text.head</code> 和 <code>.init</code>. 那么以 head.o 和 init_task.o 为例, 其排放顺序为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># .text.head 段开始</div><div class="line">head.text.head          # 第一个文件的 .text.head 段</div><div class="line">init_task.text.head     # 第二个文件的 .text.head 段</div><div class="line"># .text.head 段结束</div><div class="line"></div><div class="line"># .init 段开始</div><div class="line">head.init               # 第一个文件的 .init 段</div><div class="line">init_task.init          # 第二个文件的 .init 段</div><div class="line"># .init 段结束</div><div class="line"></div><div class="line"># 这样, 链接指令就会把各文件打包生成一个最终的二进制文件, 名称为 vmlinux</div></pre></td></tr></table></figure></p>
+<p>为分析内核启动过程, 重要的信息如下:</p>
+<ul>
+<li>第1个文件: <code>arch/arm/kernel/head.S</code></li>
+<li>链接脚本:  <code>arch/arm/kernel/vmlinux.lds</code></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/09/07/1723-linux-cmd-useful/" itemprop="url">
                   最实用的 Linux 命令行使用技巧
                 </a>
@@ -1065,423 +1479,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/06/1718-linux-samba/" itemprop="url">
-                  Ubuntu下配置支持Windows访问的samba共享
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-07-06T00:00:00+10:00" content="2017-07-06">
-              2017-07-06
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>家用电脑, 环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a></p>
-<p>单位电脑, 没有使用nfs共享文件.<br>用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享<br>尝试编译uboot时, 弹出一个错误提示</p>
-<blockquote>
-<p>ln: creating symbolic link XXXXXX : Operation not supported</p>
-</blockquote>
-<p>问题根源和解决方法:<br>出现这类问题，主要是由于在编译的时候，要用ln去建立一些软链接，而这些文件是从Windows中，通过VMWare虚拟机共享进Linux的，Windows不支持软链接，所以，编译会报错。<br>解决办法就是，在VMWare下的Linux中，建立Samba服务， 然后新创建新samba用户和文件夹，然后在windows中就可以访问到该文件夹了。</p>
-<p>相比于nfs共享文件, 唯一的缺点是: 文件存放在虚拟机中, 需要始终打开虚拟机才能在windows下访问文件. 因此文件的备份和修复也稍微麻烦一点. 优点是, 不需要付费软件.</p>
-<hr>
-<p>下文转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
-<hr>
-<h1 id="一、安装Ubuntu-samba服务器"><a href="#一、安装Ubuntu-samba服务器" class="headerlink" title="一、安装Ubuntu samba服务器"></a>一、安装Ubuntu samba服务器</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install samba</div><div class="line">$ sudo apt-get install smbclient <span class="comment"># Linux客户端测试用</span></div></pre></td></tr></table></figure>
-<h1 id="二、创建samba配置文件"><a href="#二、创建samba配置文件" class="headerlink" title="二、创建samba配置文件"></a>二、创建samba配置文件</h1><ol>
-<li><p>备份原配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak</div></pre></td></tr></table></figure>
-</li>
-<li><p>创建共享目录</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /home/share</div><div class="line"><span class="comment"># 一般来说，该目录的权限为755，将其改为777之后，Owner之外的其他用户才有权限写入。</span></div><div class="line">$ sudo chmod 777 /home/share</div></pre></td></tr></table></figure>
-</li>
-<li><p>修改配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/samba/smb.conf</div><div class="line"></div><div class="line"><span class="comment"># ===== 文件内容, 在smb.conf最后添加： =====</span></div><div class="line">[share]</div><div class="line">    path = /home/share</div><div class="line">    browseable = yes</div><div class="line">    writable = yes</div><div class="line">    comment = smb share <span class="built_in">test</span></div><div class="line"><span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>另外，总结一下常见的samba配置及说明：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">[share]                           # 该共享的共享名</div><div class="line">    comment = smb share test  # 该共享的备注</div><div class="line">    path = /home/share        # 共享路径</div><div class="line">    allow hosts = host(subnet) # 设置该Samba服务器允许的工作组或者域</div><div class="line">    deny hosts = host(subnet) # 设置该Samba服务器拒绝的工作组或者域</div><div class="line">    available = yes|no        # 设置该共享目录是否可用</div><div class="line">    browseable = yes|no       # 设置该共享目录是否可显示</div><div class="line">    writable = yes|no         # 指定了这个目录缺省是否可写，也可以用readonly = no来设置可写</div><div class="line">    public = yes|no           # 指明该共享资源是否能给游客帐号访问，guest ok = yes其实和public = yes是一样的</div><div class="line">    user = user, @group       # user设置所有可能使用该共享资源的用户，也可以用@group代表group这个组的所有成员，不同的项目之间用空格或者逗号隔开</div><div class="line">    valid users = user, @group # 指定能够使用该共享资源的用户和组</div><div class="line">    invalid users = user, @group # 指定不能够使用该共享资源的用户和组</div><div class="line">    read list = user, @group  # 指定只能读取该共享资源的用户和组</div><div class="line">    write list = user, @group # 指定能读取和写该共享资源的用户和组</div><div class="line">    admin list = user, @group # 指定能管理该共享资源（包括读写和权限赋予等）的用户和组</div><div class="line">    hide dot files = yes|no   # 指明是否像UNIX那样隐藏以“.”号开头的文件</div><div class="line">    create mode = 0755        # 指明新建立的文件的属性，一般是0755</div><div class="line">    directory mode = 0755     # 指明新建立的目录的属性，一般是0755</div><div class="line">    sync always = yes|no      # 指明对该共享资源进行写操作后是否进行同步操作</div><div class="line">    short preserve case = yes|no # 指明是否区分文件名大小写</div><div class="line">    preserve case = yes|no    # 指明是否保持大小写</div><div class="line">    case sensitive = yes|no   # 指明是否对大小写敏感，一般选no，不然可能引起错误</div><div class="line">    mangle case = yes|no      # 指明混合大小写</div><div class="line">    default case = upper|lower # 指明缺省的文件名是全部大写还是小写</div><div class="line">    force user = testuser     # 强制把建立文件的属主是谁。如果我有一个目录，让guest可以写，那么guest就可以删除，如果我用force user= testuser强制建立文件的属主是testuser，同时限制create mask = 0755，这样guest就不能删除了</div><div class="line">    wide links = yes|no       # 指明是否允许共享外符号连接，比如共享资源里面有个连接指向非共享资源里面的文件或者目录，如果设置wide links = no将使该连接不可用</div><div class="line">    max connections = 100     # 设定最大同时连接数</div><div class="line">    delete readonly = yes|no  # 指明能否删除共享资源里面已经被定义为只读的文件</div></pre></td></tr></table></figure>
-<h1 id="三、创建samba用户"><a href="#三、创建samba用户" class="headerlink" title="三、创建samba用户"></a>三、创建samba用户</h1><p>注意，创建samba用户之前，必须先确保有一个同名的linux用户，否则samba用户会创建失败。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo smbpasswd <span class="_">-a</span> smbuser</div></pre></td></tr></table></figure></p>
-<h1 id="四、重启samba服务"><a href="#四、重启samba服务" class="headerlink" title="四、重启samba服务"></a>四、重启samba服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo service smbd restart</div></pre></td></tr></table></figure>
-<h1 id="五-客户端访问测试"><a href="#五-客户端访问测试" class="headerlink" title="五. 客户端访问测试"></a>五. 客户端访问测试</h1><ol>
-<li><p>Linux客户端访问测试</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ smbclient -L //localhost/share</div></pre></td></tr></table></figure>
-</li>
-<li><p>Windows客户端访问测试<br> 可以访问如下地址 <code>\\Linux的IP或者主机名\share</code></p>
-</li>
-<li><p>我一般会把虚拟机端Linux的IP搞成静态地址, 这样远程登录也更方便</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ ifconfig                          <span class="comment"># 查看IP信息</span></div><div class="line">$ sudo vim /etc/network/interfaces</div><div class="line"></div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static          <span class="comment"># 使用静态地址</span></div><div class="line">    address  192.168.0.100          <span class="comment"># 设置静态地址</span></div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  192.168.0.1            <span class="comment"># 网关</span></div><div class="line">    dns-nameservers   8.8.8.8  192.168.0.1 </div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>如果public = no，此时需要输入samba用户密码；<br>如果public = yes，则作为nobody用户直接访问。<br>另外，在Windows客户端使用 <code>net use * /del /y</code> 这条命令可以清理访问缓存。</p>
-<hr>
-<p>转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/31/1717-scrum/" itemprop="url">
-                  敏捷开发 Scrum 学习
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-05-31T00:00:00+10:00" content="2017-05-31">
-              2017-05-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/software/" itemprop="url" rel="index">
-                    <span itemprop="name">software</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="学习资源推荐"><a href="#学习资源推荐" class="headerlink" title="学习资源推荐"></a>学习资源推荐</h1><ul>
-<li><a href="http://scrumtrainingseries.com/" target="_blank" rel="external">Scrum Training Series</a>, 通俗易懂的视频教程</li>
-<li><a href="http://www.scrumreferencecard.com/" target="_blank" rel="external">Scrum Reference Card</a>, Scrum 参考卡</li>
-<li><a href="http://scrummasterchecklist.org/" target="_blank" rel="external">The Scrum Master Checklist</a>, Scrum Master 职能清单</li>
-<li><a href="http://www.scrumguides.org/download.html" target="_blank" rel="external">The Scrum Guide™</a>, Scrum 指导手册下载 (多国语言)</li>
-<li>测试. 建议测试完后, 再看一下 <a href="http://scrumtrainingseries.com/" target="_blank" rel="external">Scrum Training Series</a> 视频<ul>
-<li><a href="https://www.proprofs.com/quiz-school/story.php?title=mte3mjcynamkcf" target="_blank" rel="external">Scrum Assessment</a></li>
-<li><a href="https://www.proprofs.com/quiz-school/story.php?title=quizscrum" target="_blank" rel="external">Scrum (Programming) Quiz</a></li>
-<li><a href="https://www.proprofs.com/quiz-school/story.php?title=certified-scrum-master-test" target="_blank" rel="external">Certified Scrum Master Test</a></li>
-<li><a href="https://www.proprofs.com/quiz-school/story.php?title=NjAyMjg5#" target="_blank" rel="external">Scrum Training Series, Part 1: Introduction To Scrum</a></li>
-<li><a href="https://www.proprofs.com/quiz-school/story.php?title=NzA4NjI0OO75" target="_blank" rel="external">Scrum 30题</a></li>
-</ul>
-</li>
-</ul>
-<h1 id="Scrum-核心点概要"><a href="#Scrum-核心点概要" class="headerlink" title="Scrum 核心点概要"></a>Scrum 核心点概要</h1><p><img src="https://draapho.github.io/images/1717/Sprint.JPG" alt="Sprint"></p>
-<h2 id="敏捷开发宣言"><a href="#敏捷开发宣言" class="headerlink" title="敏捷开发宣言"></a>敏捷开发宣言</h2><ul>
-<li><strong>Individuals and interactions</strong> over processes and tools</li>
-<li><strong>Working software</strong> over comprehensive documentation</li>
-<li><strong>Customer collaboration</strong> over contract negotiation</li>
-<li><strong>Responding to change</strong> over following a plan</li>
-</ul>
-<h2 id="Scrum-Team-Roles"><a href="#Scrum-Team-Roles" class="headerlink" title="Scrum Team Roles"></a>Scrum Team Roles</h2><ul>
-<li><strong>Product Owner</strong>, 产品负责人<ol>
-<li>核心工作是确定产品需求, 确定产品是否可接受/可发布. 并确保研发团队专注于该产品的开发(挡住干系人对研发团队可能的干扰)</li>
-<li>管理和维护 <code>PBI</code>, 并设定优先级.</li>
-<li>确保 <code>PBI</code> 对整个团队清晰可见, 高度透明, 并清楚的知道最高优先项.</li>
-<li>需要与第三方(利益相关者/老板/客户)确定需求, 接纳或拒绝新需求.</li>
-<li>第三方只能和产品负责人讨论产品进度/好坏之类的问题, 甚至发牢骚. 不得直接干预研发团队!</li>
-<li>一般地, 此职位可由项目经理担任. 需要特别注意公司老板不得越过项目经理去分配任务!</li>
-<li>产品负责人只需要粗颗粒的拆分一下需求, 更细粒度的拆分由研发团队一起完成.</li>
-<li><strong>Focused more on the what than on how</strong>. 侧重于要产品实现什么, 而不是怎么实现的问题.</li>
-<li>仅对产品负责, 并不是研发团队的管理人员! Scrum 要求研发团队自我管理.</li>
-</ol>
-</li>
-<li><strong>Development Team</strong>, 研发团队<ol>
-<li>产品的技术实现团队, 由4-9人组成较为合适. 譬如 UI设计师x1, 行业专家x1, 软件开发x2, 测试x1.</li>
-<li>跨职能, 职责包括需求分析和拆解, 设计, 编码, 测试以及部署.</li>
-<li>团队成员自我组织和管理, 高度协作. 相互平等, 没有领导者!</li>
-<li>整个团队最好在一起工作, 可以大大提高效率.</li>
-<li>在 <code>Sprint Planning Meeting</code> 上, 把 <code>PBI</code> 拆解为 <code>Sprint Tasks</code> 放在 <code>Sprint Backlog</code> 一栏.</li>
-<li>以 <code>Sprint</code> 为周期, 都要尽可能的完成一个可演示/可发布的产品版本.</li>
-</ol>
-</li>
-<li><strong>Scrum Master</strong>, Scrum大师 (被误解最多的一个职位)<ol>
-<li>Scrum的起步很困难, 因此有了Scrum大师来帮助整个团队理解Scrum的理论, 实践方式, 以及内在精神. 排除实践过程中可能走得弯路.</li>
-<li>Scrum大师没有任何决策权, 也不是一个管理岗位. 主要作用就是帮助团队学习使用Scrum框架, 消除误解, 排除干扰和障碍.</li>
-<li>这个角色的初衷, 类似于婴儿学步阶段需要有个引导者, 这样可以学的快, 少摔跤. 但没有这个角色, 并不是说就学不会走路了.</li>
-<li>实际项目中, 很少有团队会去请一个Scrum大师… 因此这个职位可以被分解为两部分: 理解Scrum, 严格执行Scrum的实践要求.</li>
-<li>Scrum的理论和精神已经摆在那里, 因此可以团队成员一起学习讨论, 在实践中进行案例分析, 自学之.</li>
-<li>严格执行Scrum的实践, 主要包括: 建立一个舒适的会议环境, 安排和控制会议时间, 确保会议内容仅与项目相关. 建议找一个项目之外的人来做.</li>
-</ol>
-</li>
-</ul>
-<h2 id="The-Sprint"><a href="#The-Sprint" class="headerlink" title="The Sprint"></a>The Sprint</h2><ul>
-<li><code>Sprint</code> 是Scrum的核心, 时间跨度为2周到一个月.</li>
-<li><code>Sprint</code> 由 <code>Sprint Planning</code>, <code>Daily Scrums</code>, 开发工作, <code>Sprint Review</code>, <code>Sprint Retrospective</code> 组成</li>
-<li>一个 Sprint 周期内, 可以看成是一个完整的瀑布模式:<ul>
-<li>不能改变设定的目标</li>
-<li>必须有测试, 不能降低检测标准</li>
-<li>目标实现的范围可以和 <code>Product Owner</code> 重新讨论和确定</li>
-<li>最终实现一个可用的, 完全测试过的, 可潜在发布的软件版本.</li>
-</ul>
-</li>
-<li>仅<code>Product Owner</code> 有权取消一个 <code>Sprint</code>. 很少出现这种情况, 写在这里只是为了明确职责.</li>
-<li><code>Done</code>的定义<ul>
-<li>Scrum团队的每个人都清除的知道 <code>Done</code> 意味着什么.</li>
-<li><code>Done</code> 可以是大家共同理解的惯例, 标准或指南</li>
-<li><code>Done</code> 也可以由 <code>Development Team</code> 在 <code>Sprint Planning Meeting</code> 上确定.</li>
-</ul>
-</li>
-</ul>
-<h2 id="Scrum-Meetings"><a href="#Scrum-Meetings" class="headerlink" title="Scrum Meetings"></a>Scrum Meetings</h2><p><img src="https://draapho.github.io/images/1717/meeting_flow.JPG" alt="meeting_flow"></p>
-<p><img src="https://draapho.github.io/images/1717/meeting_schedule.JPG" alt="meeting_schedule"></p>
-<ul>
-<li><strong>Backlog Refinement Meeting</strong> PBI修整会议<ol>
-<li>所有Scrum人员参与, 可以在每个Sprint执行过程中拿出点时间(如2小时)进行一次, 为下一次的 <code>Sprint Planning</code> 做准备</li>
-<li>主要任务是将部分高优先级的粗颗粒<code>PBI</code>分解为细颗粒 <code>PBI</code>, 并确定对<code>Product Owner</code>而言何为 <code>Done</code></li>
-<li>细化程度为 <a href="http://xp123.com/articles/invest-in-good-stories-and-smart-tasks/" target="_blank" rel="external"><strong>INVEST</strong>: Independent, Negotiable, Valuable, Estimable, Small, Testable 或 <strong>SMART</strong>: Specific, Measurable, Achievable, Relevant, Time-boxed</a>, 以及 <strong>3W</strong>: Who, What, Why</li>
-</ol>
-</li>
-<li><strong>Sprint Planning Meeting</strong> 计划会议<ol>
-<li>所有Scrum人员参与. 时间控制在4-8小时左右.</li>
-<li><code>Sprint Planning</code> 需要确定在一个<code>Sprint</code>周期内, 做什么以及怎么做.</li>
-<li><code>Product Owner</code> 维护 <code>PBI</code> 的优先级. 每次总是讨论最高优先级的 <code>PBI</code></li>
-<li><code>Product Owner</code> 不应对 <code>Development Team</code> 施加进度压力. 产品开发复杂度远大于外行的想象, 直接干预容易在后期造成技术负债.</li>
-<li><code>Development Team</code> 确定何为 <code>Done</code>. 需要特别注意还要考虑代码的向后兼容性, 必要时甚至重构.</li>
-<li><code>Development Team</code> 进一步拆分 <code>PBI</code> 为 <code>Sprint Task</code>, 并认领这些任务.</li>
-<li><code>Development Team</code> 需要相互协作和评估, 设定在一个 <code>Sprint</code> 周期内可完成的目标.<br>初期, 开发人员容易接受过多的任务, 而不是过少的任务. 这会导致一个 <code>Sprint</code> 内无法完成承诺的任务!<br>注意, 这里不单是指编码工作, 还包含了设计, 代码重构, 完整的测试, 以及潜在的发布, 是一整个瀑布开发的模式.</li>
-</ol>
-</li>
-<li><strong>Daily Scrum Meeting</strong> 日会<ol>
-<li>每天同一时间, 同一地点, <code>Development Team</code> 花费15分钟相互报告情况.</li>
-<li>内容为: 昨天做了什么, 今天要做什么, 是否遇到障碍. 这样可确保任务透明, 成员自律而高效.</li>
-<li>站着开会, 以保持会议简短. 如果有额外需要关注的话题, 在该会议结束后, 相关人员参与即可.</li>
-<li><code>Product Owner</code> 可以选择参与. 但团队的领导或主管不要参与!</li>
-<li>日会讨论时, 可能会讨论出其他不相干的话题(sidebar), 则可以日会后仅相关人员参与. 不要占用日会时间.</li>
-</ol>
-</li>
-<li><strong>Sprint Review Meeting</strong> 评审会议<ol>
-<li>一个<code>Sprint</code>周期到达后, 就需要开评审会议, 以确定成果. <code>Development Team</code> 展示一个可潜在交付的软件版本.</li>
-<li>所有Scrum人员, 以及干系人都可以参加, <code>Development Team</code> 进行现场演示以获得干系人的反馈 (不是写文案做报告).</li>
-<li><code>Product Owner</code> 逐条检查在 <code>Sprint Backlog</code> 里的 <code>PBI</code>, 宣布哪些<code>Done</code>, 哪些没有完成(即将完成也是没完成!). </li>
-<li><code>Product Owner</code> 将没完成的 <code>PBI</code> 放回 <code>Product Backlog</code>, 重新设定优先级</li>
-<li><code>Product Owner</code> 配合干系人, 将他们新的意见转换为需求, 放入 <code>Product Backlog</code>, 设定优先级</li>
-</ol>
-</li>
-<li><strong>Sprint Retrospective Meeting</strong> 回顾会议<ol>
-<li>所有Scrum人员参与, 可以放在<code>Sprint Review Meeting</code> 之后, 花费1-3小时.</li>
-<li>回顾上一个 Sprint 执行过程中的经验得失 (譬如交流是否顺畅, 开发工具的使用, 学习心得) . 是否有改进余地.</li>
-<li><code>Scrum Master</code> 需要引导与会人真实的表达了自己的想法, 达到解决障碍和问题, 改进流程的目的. </li>
-<li>回顾会议不是为了评估谁好谁坏, 决定日后如何分配奖金. 追求的是共同进步, 一起完成项目, 追求团队的成功.</li>
-<li>这一部分, 我理解的不是很好.</li>
-</ol>
-</li>
-</ul>
-<h2 id="Scrum-Artifacts"><a href="#Scrum-Artifacts" class="headerlink" title="Scrum Artifacts"></a>Scrum Artifacts</h2><ul>
-<li><strong>Product Backlog</strong><ol>
-<li>一个展示区, 用于展示项目所期望的功能, 可以随时增减. 说明要做什么(开发目标)</li>
-<li>所有干系人可见, 所有干系人(包括团队)均可添加条目</li>
-<li><code>Product Owner</code> 持续地按优先级在 <code>Product Backlog</code> 区域排列 <code>PBI</code></li>
-<li>顶部为细颗粒<code>PBI</code>, 底部为粗颗粒<code>PBI</code>.</li>
-</ol>
-</li>
-<li><strong>Product Backlog Item</strong>, 简称<code>PBI</code><ol>
-<li>由 <code>Backlog Refinement Meeting</code> 分解条目, 安排优先级.</li>
-<li><code>PBI</code> 通常写成 <code>User Story</code>, 工作规模控制在 2-3个人工作2-3天可完成.</li>
-</ol>
-</li>
-<li><strong>Sprint Backlog</strong><ol>
-<li>在 <code>Sprint Planning Meeting</code> 上, <code>Development Team</code> 和 <code>Product Owner</code> 协商承诺的<code>PBI</code>组成</li>
-<li>整个Scrum人员可见. 在Sprint执行期间, 承诺范围和任务目标不可改变.</li>
-<li>在Sprint执⾏行期间, 团队将发现兑现既定范围承诺还需要的附加任务, 则放到 <code>Sprint Backlog</code> 中.</li>
-<li>放在这里的 <code>PBI</code> 需要定义好 <code>Done</code>. 注意考虑复用性和向后兼容性, 以防止潜在的技术债务.</li>
-</ol>
-</li>
-<li><strong>Sprint Task</strong> (optional)<ol>
-<li>对如何完成一条PBI的若干简单描述. 该任务必须细化到一天以内即可完成</li>
-<li>在Sprint执行期间, 每个人都可主动认领任务</li>
-<li>由整个团队拥有, 需要协作.</li>
-<li>这是一个可选项, 而非必须项. 过度使用并不利于提高效率.</li>
-</ol>
-</li>
-<li><strong>Increment</strong><ol>
-<li><code>Increment</code> 是一个 Sprint 完成的所有产品待办列表项的总和</li>
-<li>完成一个 Sprint 时, 新的 <code>Increment</code> 必须是 <code>Done</code> 的, 并可用和潜在可发布.</li>
-</ol>
-</li>
-</ul>
-<h2 id="若干种Sprint的展示板"><a href="#若干种Sprint的展示板" class="headerlink" title="若干种Sprint的展示板"></a>若干种Sprint的展示板</h2><p><img src="https://draapho.github.io/images/1717/Sprint_backlog_1.JPG" alt="Sprint_backlog_1"></p>
-<p><img src="https://draapho.github.io/images/1717/Sprint_backlog_2.JPG" alt="Sprint_backlog_2"></p>
-<p><img src="https://draapho.github.io/images/1717/Sprint_backlog_3.JPG" alt="Sprint_backlog_3"></p>
-<p><img src="https://draapho.github.io/images/1717/Sprint_backlog_4.JPG" alt="Sprint_backlog_4"></p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1527,7 +1524,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">75</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1544,7 +1541,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">71</span>
+                <span class="site-state-item-count">73</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

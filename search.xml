@@ -4,6 +4,165 @@
   
     
     <entry>
+      <title><![CDATA[Ubuntu 16.04安装配置NFS]]></title>
+      <url>https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/</url>
+      <content type="html"><![CDATA[<p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a><br><strong>略有改动和增加</strong></p>
+<hr>
+<p>NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。</p>
+<h1 id="NFS服务端"><a href="#NFS服务端" class="headerlink" title="NFS服务端"></a>NFS服务端</h1><p>安装nfs-kernel-server：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt install nfs-kernel-server</div></pre></td></tr></table></figure>
+<h1 id="NFS客户端"><a href="#NFS客户端" class="headerlink" title="NFS客户端"></a>NFS客户端</h1><p>安装 nfs-common：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt install nfs-common</div></pre></td></tr></table></figure>
+<h1 id="服务端创建共享目录"><a href="#服务端创建共享目录" class="headerlink" title="服务端创建共享目录"></a>服务端创建共享目录</h1><p>客户端通过远程挂载的方式访问服务端共享目录，为了说明两种不同的文件权限，我会使用不同的选项创建两个共享目录。</p>
+<ul>
+<li>默认情况下客户端不允许在NFS共享目录上执行root操作，如：更改文件所有权等。</li>
+<li>但是有时用户需要用root权限操作NFS共享目录，这可以通过配置实现。</li>
+</ul>
+<h2 id="创建默认配置的共享目录"><a href="#创建默认配置的共享目录" class="headerlink" title="创建默认配置的共享目录"></a>创建默认配置的共享目录</h2><p>创建一个目录：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /var/nfs/sharedir</div></pre></td></tr></table></figure></p>
+<p>更改目录权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo chown nobody:nogroup /var/nfs/sharedir</div></pre></td></tr></table></figure></p>
+<h2 id="以root权限共享home目录"><a href="#以root权限共享home目录" class="headerlink" title="以root权限共享home目录"></a>以root权限共享home目录</h2><p>配置NFS：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/exports</div></pre></td></tr></table></figure>
+<p>如下格式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">/var/nfs/sharedir   *(rw,sync,no_subtree_check)</div><div class="line">/home               *(rw,sync,no_root_squash,no_subtree_check)</div><div class="line"></div><div class="line"># 要限制客户端IP</div><div class="line"># /var/nfs/sharedir 122.111.222.111(rw,sync,no_subtree_check)</div><div class="line"># /home             122.111.222.111(rw,sync,no_root_squash,no_subtree_check)</div></pre></td></tr></table></figure></p>
+<p>下面是一些NFS共享的常用参数说明： </p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rw</td>
+<td>可读写的权限 </td>
+</tr>
+<tr>
+<td>ro</td>
+<td>只读的权限 </td>
+</tr>
+<tr>
+<td>no_root_squash</td>
+<td>权限不压缩, 远程客户端拥有root权限. (不安全, 但嵌入式要用!)</td>
+</tr>
+<tr>
+<td>root_squash</td>
+<td>权限压缩, 远程客户端root权限压缩成为匿名使用者(默认)</td>
+</tr>
+<tr>
+<td>sync</td>
+<td>资料同步写入到内存与硬盘当中 </td>
+</tr>
+<tr>
+<td>async</td>
+<td>资料会先暂存于内存当中，而非直接写入硬盘 </td>
+</tr>
+<tr>
+<td>hide</td>
+<td>不共享子目录</td>
+</tr>
+<tr>
+<td>no_hide</td>
+<td>共享子目录</td>
+</tr>
+<tr>
+<td>subtree_check</td>
+<td>共享子目录时, 检查父目录的权限(默认)</td>
+</tr>
+<tr>
+<td>no_subtree_check</td>
+<td>共享子目录时, 不检查父目录的权限</td>
+</tr>
+</tbody>
+</table>
+<p>重启nfs-kernel-server：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo systemctl restart nfs-kernel-server</div></pre></td></tr></table></figure></p>
+<p>如果开启了防火墙，打开NFS的2049端口。</p>
+<p>查看共享文件情况<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ showmount <span class="_">-e</span></div><div class="line">/home *</div></pre></td></tr></table></figure></p>
+<h1 id="客户端挂载共享目录"><a href="#客户端挂载共享目录" class="headerlink" title="客户端挂载共享目录"></a>客户端挂载共享目录</h1><p><strong>此方法不适用于嵌入式Linux!</strong></p>
+<p>创建两个挂载点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /nfs/sharedir</div><div class="line">$ sudo mkdir -p /nfs/home</div></pre></td></tr></table></figure>
+<p>挂载远程共享目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo mount nfs_server_ip:/var/nfs/sharedir /nfs/sharedir</div><div class="line">$ sudo mount nfs_server_ip:/home /nfs/home</div></pre></td></tr></table></figure>
+<p>查看挂载点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ df -h</div><div class="line">Filesystem                       Size  Used Avail Use% Mounted on</div><div class="line">udev                             861M     0  861M   0% /dev</div><div class="line">...</div><div class="line">192.168.0.100:/var/nfs/sharedir   29G  4.5G   23G  17% /nfs/sharedir</div><div class="line">192.168.0.100:/home               29G  4.5G   23G  17% /nfs/home</div></pre></td></tr></table></figure>
+<p>现在你可以使用共享目录了。</p>
+<p>使用完之后不要忘了卸载：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo umount /nfs/home</div><div class="line">$ sudo umount /nfs/sharedir</div></pre></td></tr></table></figure></p>
+<h1 id="开机自动挂载NFS共享目录"><a href="#开机自动挂载NFS共享目录" class="headerlink" title="开机自动挂载NFS共享目录"></a>开机自动挂载NFS共享目录</h1><p>编辑fstab文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/fstab</div></pre></td></tr></table></figure></p>
+<p>添加如下两行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">your_nfs_server_Ip:/var/nfs/sharedir    /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div><div class="line">your_nfs_server_Ip:/home                /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div></pre></td></tr></table></figure></p>
+<p>或者使用hostname<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">nfs_server_hostname:/var/nfs/sharedir   /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div><div class="line">nfs_server_hostname:/home               /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div></pre></td></tr></table></figure></p>
+<hr>
+<p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[基于DHCP建立嵌入式Linux开发环境]]></title>
+      <url>https://draapho.github.io/2017/11/28/1738-dhcp-env/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a></li>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></li>
+</ul>
+<p>之前的环境搭建都是基于静态IP的. 但有些网络不方便设置静态IP, 而必须使用动态IP.<br>针对这种情况, 介绍一下Windows主机, Ubuntu主机, 以及开发板全部使用DHCP动态IP的方法.</p>
+<h1 id="主机端"><a href="#主机端" class="headerlink" title="主机端"></a>主机端</h1><p>Ubuntu安装好后, 默认就是dhcp分配动态IP地址.<br>那么在windows端的Putty, 我们需要使用Ubuntu的hostname, 而不是其IP地址即可.</p>
+<p>方法很简单. Ubuntu的bash终端下面<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ hostname</div><div class="line">ubuntu</div><div class="line"></div><div class="line"><span class="comment"># 或者</span></div><div class="line">$ uname -n</div><div class="line">ubuntu</div></pre></td></tr></table></figure></p>
+<p>Windows下查看主机名<br>我的电脑-&gt;属性, <code>电脑名称</code>就是主机名<br>或者cmd终端下面, 输入 <code>ipconfig -all</code><br>第一行就是 <code>Host Name</code>.</p>
+<p>这样putty端直接使用 <code>hostname</code> 或者 <code>user@hostname</code> 就可以使用ssh远程登录了.</p>
+<h1 id="开发板DHCP"><a href="#开发板DHCP" class="headerlink" title="开发板DHCP"></a>开发板DHCP</h1><p>开发板要支持dhcp比较复杂一点.<br>基本思路如下:</p>
+<ul>
+<li>嵌入式linux启动后, 自动启动dhcp联网.</li>
+<li>嵌入式linux安装nfs client, 挂载Ubuntu上的nfs文件.</li>
+<li>内核和文件系统需要烧录到开发板.</li>
+<li>此方法适用于开发驱动和应用层软件. </li>
+<li>新版本的uboot肯定支持dhcp, 但老版本的不确定, 不去吃螃蟹了.</li>
+<li>有兴趣的参考 <a href="https://www.emcraft.com/som/using-dhcp" target="_blank" rel="external"><br>Using DHCP Client in U-Boot for Loading Linux Images via Network</a></li>
+</ul>
+<h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><p>首先需要内核支持更多的网络特性.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = linux-2.6.22.6</span></div><div class="line">cp config_ok .config</div><div class="line">make menuconfig</div><div class="line"></div><div class="line"><span class="comment"># 进行如下配置</span></div><div class="line">Networking  ---&gt;    </div><div class="line">    [*] Networking support         </div><div class="line">        Networking options  ---&gt;             </div><div class="line">        &lt;* &gt; Packet socket                 <span class="comment"># 使能CONFIG_PACKET, socket包           </span></div><div class="line">        [ * ]     IP: DHCP support         <span class="comment"># 使能DHCP           </span></div><div class="line">        [ * ] Network packet filtering framework (Netfilter)  ---&gt;  <span class="comment"># 使能 </span></div><div class="line">        <span class="comment"># 后面子选项可不选</span></div><div class="line"><span class="comment"># 保存并退回到终端</span></div><div class="line"></div><div class="line">make clean</div><div class="line">make uImage</div></pre></td></tr></table></figure>
+<p>然后烧录新的内核到开发板. </p>
+<ul>
+<li>内核的编译和烧录可参考 <a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
+<li>如果内核没有支持上述特性, 后面执行udhcpc时会报错: <code>Address family not supported by protocol</code></li>
+</ul>
+<h2 id="编译Busybox"><a href="#编译Busybox" class="headerlink" title="编译Busybox"></a><del>编译Busybox</del></h2><p>jz2440提供的文件系统包含udhcpc命令, 所以不用重新配置编译了.<br><strong>可跳过此步骤</strong>.</p>
+<p>如果要自己做, 注意勾选下面的选项(有的版本默认支持dhcp指令)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Busybox Settings  ---&gt;  </div><div class="line">    Busybox Library Tuning  ---&gt; </div><div class="line">    [*]   Tab completion                <span class="comment"># 指令自动填充, 非常必要的属性, 默认关闭...</span></div><div class="line">        </div><div class="line">Networking Utilities  ---&gt;           </div><div class="line">    [] udhcp Server (udhcpd)            <span class="comment"># 在此不作服务端，故不选。生成udhcpd命令    </span></div><div class="line">    [*] udhcp Client (udhcpc)           <span class="comment"># 生成udhcpc命令</span></div></pre></td></tr></table></figure>
+<p>针对嵌入式系统, 由于是交叉编译, Busybox编译和安装有特别的要求, 可参考:</p>
+<ul>
+<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之BusyBox的使用与编译</a></li>
+</ul>
+<h2 id="完善文件系统"><a href="#完善文件系统" class="headerlink" title="完善文件系统"></a>完善文件系统</h2><p>自己构建文件系统也很麻烦. 可以参考 <a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></p>
+<p>我是基于jz2440提供的 <code>fs_mini_mdev</code> 修改后, 使其支持dhcp的<br>busybox包含的udhcpc没有提供运行脚本, 直接运行会报错:<br><code>udhcpc: exec /usr/share/udhcpc/default.script: No such file or directory</code></p>
+<p>因此对整个文件系统的改造有如下步骤</p>
+<ul>
+<li>建立udhcpc要用的default.script</li>
+<li>加入可执行属性</li>
+<li>启动自动执行udhcpc指令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = fs_mini_mdev_dhcp/</span></div><div class="line"></div><div class="line">mkdir -p /usr/share/udhcpc/     <span class="comment"># 自动建立多层目录</span></div><div class="line">vim /usr/share/udhcpc/default.script</div><div class="line"></div><div class="line"><span class="comment"># ===== 打开vim, 写入如下内容 =====</span></div><div class="line"><span class="meta">#!/bin/sh</span></div><div class="line">[ -z <span class="string">"<span class="variable">$1</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"Error: should be called from udhcpc"</span> &amp;&amp; <span class="built_in">exit</span> 1</div><div class="line"></div><div class="line">RESOLV_CONF=<span class="string">"/etc/resolv.conf"</span></div><div class="line">[ -n <span class="string">"<span class="variable">$broadcast</span>"</span> ] &amp;&amp; BROADCAST=<span class="string">"broadcast <span class="variable">$broadcast</span>"</span></div><div class="line">[ -n <span class="string">"<span class="variable">$subnet</span>"</span> ] &amp;&amp; NETMASK=<span class="string">"netmask <span class="variable">$subnet</span>"</span></div><div class="line"> </div><div class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$1</span>"</span> <span class="keyword">in</span></div><div class="line">  deconfig)</div><div class="line">    /sbin/ifconfig <span class="variable">$interface</span> 0.0.0.0</div><div class="line">    ;;</div><div class="line"> </div><div class="line">  renew|bound)</div><div class="line">    /sbin/ifconfig <span class="variable">$interface</span> <span class="variable">$ip</span> <span class="variable">$BROADCAST</span> <span class="variable">$NETMASK</span></div><div class="line"> </div><div class="line">    <span class="keyword">if</span> [ -n <span class="string">"<span class="variable">$router</span>"</span> ] ; <span class="keyword">then</span></div><div class="line">      <span class="built_in">echo</span> <span class="string">"deleting routers"</span></div><div class="line">      <span class="keyword">while</span> route del default gw 0.0.0.0 dev <span class="variable">$interface</span> ; <span class="keyword">do</span></div><div class="line">        :</div><div class="line">      <span class="keyword">done</span></div><div class="line"> </div><div class="line">      <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$router</span> ; <span class="keyword">do</span></div><div class="line">        route add default gw <span class="variable">$i</span> dev <span class="variable">$interface</span></div><div class="line">      <span class="keyword">done</span></div><div class="line">    <span class="keyword">fi</span></div><div class="line"> </div><div class="line">    <span class="built_in">echo</span> -n &gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    [ -n <span class="string">"<span class="variable">$domain</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> search <span class="variable">$domain</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$dns</span> ; <span class="keyword">do</span></div><div class="line">      <span class="built_in">echo</span> adding dns <span class="variable">$i</span></div><div class="line">      <span class="built_in">echo</span> nameserver <span class="variable">$i</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    <span class="keyword">done</span></div><div class="line">    ;;</div><div class="line"><span class="keyword">esac</span></div><div class="line"> </div><div class="line"><span class="built_in">exit</span> 0</div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line">chmod +x /usr/share/udhcpc/default.script       <span class="comment"># 加入可执行属性</span></div><div class="line"></div><div class="line">vim /etc/init.d/rcs             <span class="comment"># 开机自动执行udhcpc</span></div><div class="line"><span class="comment"># ===== 打开vim, 修改/增加如下内容 =====</span></div><div class="line"><span class="comment"># ifconfig eth0 192.168.1.17</span></div><div class="line"> </div><div class="line"><span class="comment"># 文件末尾, 打开eth0, 然后执行dhcp</span></div><div class="line">ifconfig eth0 up</div><div class="line">udhcpc eth0</div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 制作文件系统</span></div><div class="line"><span class="comment"># pwd = fs_mini_mdev_dhcp/..</span></div><div class="line">mkyaffs2image fs_mini_mdev_dhcp fs_mini_mdev_dhcp.yaffs2</div></pre></td></tr></table></figure>
+<p>上述工作完成后, 烧录到开发板即可. 详情可参考:<a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></p>
+<h2 id="开发板测试"><a href="#开发板测试" class="headerlink" title="开发板测试"></a>开发板测试</h2><p>烧录好内核和文件系统后, 开机测试一下.<br>注意, udhcpc比较傻, 如果不能联网, 开机就会死在 <code>Sending discover...</code><br>成功启动后, 使用 <code>ifconfig</code> 就可以看到dhcp自动分配的ip地址了.</p>
+<p>所以也有人用别的方式实现dhcp. 我没有尝试, 列在这里供参考</p>
+<ul>
+<li><a href="http://www.linuxidc.com/Linux/2011-05/36038.htm" target="_blank" rel="external">成功移植DHCP客户端到mini2440</a>, 用的 dhclient 指令</li>
+<li><a href="https://wenku.baidu.com/view/bca0c470e418964bcf84b9d528ea81c758f52ed1.html" target="_blank" rel="external">jz2440自动获取ip地址</a>, 源码编译udhcpc, 估计里面会有 default.script 文件.</li>
+</ul>
+<h1 id="开发板挂载nfs"><a href="#开发板挂载nfs" class="headerlink" title="开发板挂载nfs"></a>开发板挂载nfs</h1><p>主机端 nfs环境搭建参考: <a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a></p>
+<p>…………….</p>
+<p>在开发板上挂载服务器共享的目录<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ mkdir /mnt/share</div><div class="line">$ mount -t nfs -o nolock 192.168.0.124:/home/xuan/tftp/ /mnt/share/</div></pre></td></tr></table></figure></p>
+<p><a href="http://blog.csdn.net/wang328452854/article/details/51304217" target="_blank" rel="external">http://blog.csdn.net/wang328452854/article/details/51304217</a></p>
+<p>……………..</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://blog.csdn.net/ruglcc/article/details/7802077" target="_blank" rel="external">ubuntu永久修改主机名</a></li>
+<li><a href="http://felix-lin.com/linux/busybox-%E6%87%89%E7%94%A8-udhcpc/" target="_blank" rel="external">BusyBox 應用 – udhcpc</a></li>
+<li><a href="https://wenku.baidu.com/view/bca0c470e418964bcf84b9d528ea81c758f52ed1.html" target="_blank" rel="external">jz2440自动获取ip地址</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[LinK+, 一款Linux内核开发IDE]]></title>
       <url>https://draapho.github.io/2017/11/27/1737-linux-ide/</url>
       <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>LinK+ 是一款在linux下基于eclipse开发的免费的Linux内核以及驱动开发软件.<br>和大名顶顶的 Source Insight 相比, 只有优点, 没有缺点!<br>可惜的是, 这个软件在国外知名度也不高. 国内更是没人介绍过这一款软件.</p>
@@ -257,12 +416,13 @@
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
 <li><a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
-<li><a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
+<li><a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a></li>
 <li><a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a></li>
 <li><a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
 </ul>
 </li>
 <li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></li>
 <li><a href="https://draapho.github.io/2017/04/05/1710-jz2440-led/">jz2440裸板程序的开发</a></li>
 <li><a href="https://draapho.github.io/2017/11/24/1735-jz2440-basic/">jz2440分区及启动的基础概念</a></li>
 <li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
@@ -2768,6 +2928,7 @@
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a></li>
 <li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></li>
 </ul>
 <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
 <li>大环境的搭建思路如下:<ul>
@@ -2959,6 +3120,7 @@
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a></li>
 <li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></li>
 </ul>
 <h1 id="嵌入式linux开发环境搭建思路"><a href="#嵌入式linux开发环境搭建思路" class="headerlink" title="嵌入式linux开发环境搭建思路"></a>嵌入式linux开发环境搭建思路</h1><p>学习过大半, 总结经验后, 得出如下环境搭建的最新思路:</p>
 <ul>
@@ -2972,7 +3134,7 @@
 <p>配置步骤见如下文章:</p>
 <ul>
 <li><a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
-<li><a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></li>
+<li><a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a></li>
 <li><a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a></li>
 <li><a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
 </ul>
@@ -8385,31 +8547,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[stm32选型及资料搜索指南]]></title>
-      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
-      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Vim常用快捷键]]></title>
       <url>https://draapho.github.io/2016/10/01/1604-CheatSheet-vim/</url>
       <content type="html"><![CDATA[<h1 id="Vim常用快捷键"><a href="#Vim常用快捷键" class="headerlink" title="Vim常用快捷键"></a>Vim常用快捷键</h1><h2 id="进入输入模式"><a href="#进入输入模式" class="headerlink" title="进入输入模式"></a>进入输入模式</h2><table>
@@ -8779,6 +8916,31 @@
 <li><a href="https://www.gosquared.com/blog/vi-linux-terminal-help-sheet" target="_blank" rel="external">VI (Linux Terminal) Help Sheet</a><br><img src="https://downloads.gosquared.com/help_sheets/10/VI-Help-Sheet-large.jpg" alt="VI Help Sheet"></li>
 <li><a href="http://blog.vgod.tw/2009/12/08/vim-cheat-sheet-for-programmers/" target="_blank" rel="external">給程式設計師的Vim入門圖解說明</a><br><img src="http://blog.vgod.tw.s3.amazonaws.com/wp-content/uploads/2009/12/vim-cheat-sheet-diagram.png" alt="Vim入門圖解說明"></li>
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="external">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[stm32选型及资料搜索指南]]></title>
+      <url>https://draapho.github.io/2016/10/01/1605-Stm32Selection/</url>
+      <content type="html"><![CDATA[<h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>

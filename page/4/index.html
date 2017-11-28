@@ -260,6 +260,423 @@
             
               
                 
+                <a class="post-title-link" href="/2017/07/06/1718-linux-samba/" itemprop="url">
+                  Ubuntu下配置支持Windows访问的samba共享
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-07-06T00:00:00+10:00" content="2017-07-06">
+              2017-07-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>家用电脑, 环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a></p>
+<p>单位电脑, 没有使用nfs共享文件.<br>用的环境是: VMware Ubuntu 16.04 + Windows 7 + VMware 文件共享<br>尝试编译uboot时, 弹出一个错误提示</p>
+<blockquote>
+<p>ln: creating symbolic link XXXXXX : Operation not supported</p>
+</blockquote>
+<p>问题根源和解决方法:<br>出现这类问题，主要是由于在编译的时候，要用ln去建立一些软链接，而这些文件是从Windows中，通过VMWare虚拟机共享进Linux的，Windows不支持软链接，所以，编译会报错。<br>解决办法就是，在VMWare下的Linux中，建立Samba服务， 然后新创建新samba用户和文件夹，然后在windows中就可以访问到该文件夹了。</p>
+<p>相比于nfs共享文件, 唯一的缺点是: 文件存放在虚拟机中, 需要始终打开虚拟机才能在windows下访问文件. 因此文件的备份和修复也稍微麻烦一点. 优点是, 不需要付费软件.</p>
+<hr>
+<p>下文转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
+<hr>
+<h1 id="一、安装Ubuntu-samba服务器"><a href="#一、安装Ubuntu-samba服务器" class="headerlink" title="一、安装Ubuntu samba服务器"></a>一、安装Ubuntu samba服务器</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install samba</div><div class="line">$ sudo apt-get install smbclient <span class="comment"># Linux客户端测试用</span></div></pre></td></tr></table></figure>
+<h1 id="二、创建samba配置文件"><a href="#二、创建samba配置文件" class="headerlink" title="二、创建samba配置文件"></a>二、创建samba配置文件</h1><ol>
+<li><p>备份原配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak</div></pre></td></tr></table></figure>
+</li>
+<li><p>创建共享目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /home/share</div><div class="line"><span class="comment"># 一般来说，该目录的权限为755，将其改为777之后，Owner之外的其他用户才有权限写入。</span></div><div class="line">$ sudo chmod 777 /home/share</div></pre></td></tr></table></figure>
+</li>
+<li><p>修改配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/samba/smb.conf</div><div class="line"></div><div class="line"><span class="comment"># ===== 文件内容, 在smb.conf最后添加： =====</span></div><div class="line">[share]</div><div class="line">    path = /home/share</div><div class="line">    browseable = yes</div><div class="line">    writable = yes</div><div class="line">    comment = smb share <span class="built_in">test</span></div><div class="line"><span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>另外，总结一下常见的samba配置及说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">[share]                           # 该共享的共享名</div><div class="line">    comment = smb share test  # 该共享的备注</div><div class="line">    path = /home/share        # 共享路径</div><div class="line">    allow hosts = host(subnet) # 设置该Samba服务器允许的工作组或者域</div><div class="line">    deny hosts = host(subnet) # 设置该Samba服务器拒绝的工作组或者域</div><div class="line">    available = yes|no        # 设置该共享目录是否可用</div><div class="line">    browseable = yes|no       # 设置该共享目录是否可显示</div><div class="line">    writable = yes|no         # 指定了这个目录缺省是否可写，也可以用readonly = no来设置可写</div><div class="line">    public = yes|no           # 指明该共享资源是否能给游客帐号访问，guest ok = yes其实和public = yes是一样的</div><div class="line">    user = user, @group       # user设置所有可能使用该共享资源的用户，也可以用@group代表group这个组的所有成员，不同的项目之间用空格或者逗号隔开</div><div class="line">    valid users = user, @group # 指定能够使用该共享资源的用户和组</div><div class="line">    invalid users = user, @group # 指定不能够使用该共享资源的用户和组</div><div class="line">    read list = user, @group  # 指定只能读取该共享资源的用户和组</div><div class="line">    write list = user, @group # 指定能读取和写该共享资源的用户和组</div><div class="line">    admin list = user, @group # 指定能管理该共享资源（包括读写和权限赋予等）的用户和组</div><div class="line">    hide dot files = yes|no   # 指明是否像UNIX那样隐藏以“.”号开头的文件</div><div class="line">    create mode = 0755        # 指明新建立的文件的属性，一般是0755</div><div class="line">    directory mode = 0755     # 指明新建立的目录的属性，一般是0755</div><div class="line">    sync always = yes|no      # 指明对该共享资源进行写操作后是否进行同步操作</div><div class="line">    short preserve case = yes|no # 指明是否区分文件名大小写</div><div class="line">    preserve case = yes|no    # 指明是否保持大小写</div><div class="line">    case sensitive = yes|no   # 指明是否对大小写敏感，一般选no，不然可能引起错误</div><div class="line">    mangle case = yes|no      # 指明混合大小写</div><div class="line">    default case = upper|lower # 指明缺省的文件名是全部大写还是小写</div><div class="line">    force user = testuser     # 强制把建立文件的属主是谁。如果我有一个目录，让guest可以写，那么guest就可以删除，如果我用force user= testuser强制建立文件的属主是testuser，同时限制create mask = 0755，这样guest就不能删除了</div><div class="line">    wide links = yes|no       # 指明是否允许共享外符号连接，比如共享资源里面有个连接指向非共享资源里面的文件或者目录，如果设置wide links = no将使该连接不可用</div><div class="line">    max connections = 100     # 设定最大同时连接数</div><div class="line">    delete readonly = yes|no  # 指明能否删除共享资源里面已经被定义为只读的文件</div></pre></td></tr></table></figure>
+<h1 id="三、创建samba用户"><a href="#三、创建samba用户" class="headerlink" title="三、创建samba用户"></a>三、创建samba用户</h1><p>注意，创建samba用户之前，必须先确保有一个同名的linux用户，否则samba用户会创建失败。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo smbpasswd <span class="_">-a</span> smbuser</div></pre></td></tr></table></figure></p>
+<h1 id="四、重启samba服务"><a href="#四、重启samba服务" class="headerlink" title="四、重启samba服务"></a>四、重启samba服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo service smbd restart</div></pre></td></tr></table></figure>
+<h1 id="五-客户端访问测试"><a href="#五-客户端访问测试" class="headerlink" title="五. 客户端访问测试"></a>五. 客户端访问测试</h1><ol>
+<li><p>Linux客户端访问测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ smbclient -L //localhost/share</div></pre></td></tr></table></figure>
+</li>
+<li><p>Windows客户端访问测试<br> 可以访问如下地址 <code>\\Linux的IP或者主机名\share</code></p>
+</li>
+<li><p>我一般会把虚拟机端Linux的IP搞成静态地址, 这样远程登录也更方便</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ ifconfig                          <span class="comment"># 查看IP信息</span></div><div class="line">$ sudo vim /etc/network/interfaces</div><div class="line"></div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static          <span class="comment"># 使用静态地址</span></div><div class="line">    address  192.168.0.100          <span class="comment"># 设置静态地址</span></div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  192.168.0.1            <span class="comment"># 网关</span></div><div class="line">    dns-nameservers   8.8.8.8  192.168.0.1 </div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>如果public = no，此时需要输入samba用户密码；<br>如果public = yes，则作为nobody用户直接访问。<br>另外，在Windows客户端使用 <code>net use * /del /y</code> 这条命令可以清理访问缓存。</p>
+<hr>
+<p>转载自 <a href="http://blog.csdn.net/i_chips/article/details/19191957" target="_blank" rel="external">Ubuntu下配置支持Windows访问的samba共享</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/05/31/1717-scrum/" itemprop="url">
+                  敏捷开发 Scrum 学习
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-05-31T00:00:00+10:00" content="2017-05-31">
+              2017-05-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="学习资源推荐"><a href="#学习资源推荐" class="headerlink" title="学习资源推荐"></a>学习资源推荐</h1><ul>
+<li><a href="http://scrumtrainingseries.com/" target="_blank" rel="external">Scrum Training Series</a>, 通俗易懂的视频教程</li>
+<li><a href="http://www.scrumreferencecard.com/" target="_blank" rel="external">Scrum Reference Card</a>, Scrum 参考卡</li>
+<li><a href="http://scrummasterchecklist.org/" target="_blank" rel="external">The Scrum Master Checklist</a>, Scrum Master 职能清单</li>
+<li><a href="http://www.scrumguides.org/download.html" target="_blank" rel="external">The Scrum Guide™</a>, Scrum 指导手册下载 (多国语言)</li>
+<li>测试. 建议测试完后, 再看一下 <a href="http://scrumtrainingseries.com/" target="_blank" rel="external">Scrum Training Series</a> 视频<ul>
+<li><a href="https://www.proprofs.com/quiz-school/story.php?title=mte3mjcynamkcf" target="_blank" rel="external">Scrum Assessment</a></li>
+<li><a href="https://www.proprofs.com/quiz-school/story.php?title=quizscrum" target="_blank" rel="external">Scrum (Programming) Quiz</a></li>
+<li><a href="https://www.proprofs.com/quiz-school/story.php?title=certified-scrum-master-test" target="_blank" rel="external">Certified Scrum Master Test</a></li>
+<li><a href="https://www.proprofs.com/quiz-school/story.php?title=NjAyMjg5#" target="_blank" rel="external">Scrum Training Series, Part 1: Introduction To Scrum</a></li>
+<li><a href="https://www.proprofs.com/quiz-school/story.php?title=NzA4NjI0OO75" target="_blank" rel="external">Scrum 30题</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="Scrum-核心点概要"><a href="#Scrum-核心点概要" class="headerlink" title="Scrum 核心点概要"></a>Scrum 核心点概要</h1><p><img src="https://draapho.github.io/images/1717/Sprint.JPG" alt="Sprint"></p>
+<h2 id="敏捷开发宣言"><a href="#敏捷开发宣言" class="headerlink" title="敏捷开发宣言"></a>敏捷开发宣言</h2><ul>
+<li><strong>Individuals and interactions</strong> over processes and tools</li>
+<li><strong>Working software</strong> over comprehensive documentation</li>
+<li><strong>Customer collaboration</strong> over contract negotiation</li>
+<li><strong>Responding to change</strong> over following a plan</li>
+</ul>
+<h2 id="Scrum-Team-Roles"><a href="#Scrum-Team-Roles" class="headerlink" title="Scrum Team Roles"></a>Scrum Team Roles</h2><ul>
+<li><strong>Product Owner</strong>, 产品负责人<ol>
+<li>核心工作是确定产品需求, 确定产品是否可接受/可发布. 并确保研发团队专注于该产品的开发(挡住干系人对研发团队可能的干扰)</li>
+<li>管理和维护 <code>PBI</code>, 并设定优先级.</li>
+<li>确保 <code>PBI</code> 对整个团队清晰可见, 高度透明, 并清楚的知道最高优先项.</li>
+<li>需要与第三方(利益相关者/老板/客户)确定需求, 接纳或拒绝新需求.</li>
+<li>第三方只能和产品负责人讨论产品进度/好坏之类的问题, 甚至发牢骚. 不得直接干预研发团队!</li>
+<li>一般地, 此职位可由项目经理担任. 需要特别注意公司老板不得越过项目经理去分配任务!</li>
+<li>产品负责人只需要粗颗粒的拆分一下需求, 更细粒度的拆分由研发团队一起完成.</li>
+<li><strong>Focused more on the what than on how</strong>. 侧重于要产品实现什么, 而不是怎么实现的问题.</li>
+<li>仅对产品负责, 并不是研发团队的管理人员! Scrum 要求研发团队自我管理.</li>
+</ol>
+</li>
+<li><strong>Development Team</strong>, 研发团队<ol>
+<li>产品的技术实现团队, 由4-9人组成较为合适. 譬如 UI设计师x1, 行业专家x1, 软件开发x2, 测试x1.</li>
+<li>跨职能, 职责包括需求分析和拆解, 设计, 编码, 测试以及部署.</li>
+<li>团队成员自我组织和管理, 高度协作. 相互平等, 没有领导者!</li>
+<li>整个团队最好在一起工作, 可以大大提高效率.</li>
+<li>在 <code>Sprint Planning Meeting</code> 上, 把 <code>PBI</code> 拆解为 <code>Sprint Tasks</code> 放在 <code>Sprint Backlog</code> 一栏.</li>
+<li>以 <code>Sprint</code> 为周期, 都要尽可能的完成一个可演示/可发布的产品版本.</li>
+</ol>
+</li>
+<li><strong>Scrum Master</strong>, Scrum大师 (被误解最多的一个职位)<ol>
+<li>Scrum的起步很困难, 因此有了Scrum大师来帮助整个团队理解Scrum的理论, 实践方式, 以及内在精神. 排除实践过程中可能走得弯路.</li>
+<li>Scrum大师没有任何决策权, 也不是一个管理岗位. 主要作用就是帮助团队学习使用Scrum框架, 消除误解, 排除干扰和障碍.</li>
+<li>这个角色的初衷, 类似于婴儿学步阶段需要有个引导者, 这样可以学的快, 少摔跤. 但没有这个角色, 并不是说就学不会走路了.</li>
+<li>实际项目中, 很少有团队会去请一个Scrum大师… 因此这个职位可以被分解为两部分: 理解Scrum, 严格执行Scrum的实践要求.</li>
+<li>Scrum的理论和精神已经摆在那里, 因此可以团队成员一起学习讨论, 在实践中进行案例分析, 自学之.</li>
+<li>严格执行Scrum的实践, 主要包括: 建立一个舒适的会议环境, 安排和控制会议时间, 确保会议内容仅与项目相关. 建议找一个项目之外的人来做.</li>
+</ol>
+</li>
+</ul>
+<h2 id="The-Sprint"><a href="#The-Sprint" class="headerlink" title="The Sprint"></a>The Sprint</h2><ul>
+<li><code>Sprint</code> 是Scrum的核心, 时间跨度为2周到一个月.</li>
+<li><code>Sprint</code> 由 <code>Sprint Planning</code>, <code>Daily Scrums</code>, 开发工作, <code>Sprint Review</code>, <code>Sprint Retrospective</code> 组成</li>
+<li>一个 Sprint 周期内, 可以看成是一个完整的瀑布模式:<ul>
+<li>不能改变设定的目标</li>
+<li>必须有测试, 不能降低检测标准</li>
+<li>目标实现的范围可以和 <code>Product Owner</code> 重新讨论和确定</li>
+<li>最终实现一个可用的, 完全测试过的, 可潜在发布的软件版本.</li>
+</ul>
+</li>
+<li>仅<code>Product Owner</code> 有权取消一个 <code>Sprint</code>. 很少出现这种情况, 写在这里只是为了明确职责.</li>
+<li><code>Done</code>的定义<ul>
+<li>Scrum团队的每个人都清除的知道 <code>Done</code> 意味着什么.</li>
+<li><code>Done</code> 可以是大家共同理解的惯例, 标准或指南</li>
+<li><code>Done</code> 也可以由 <code>Development Team</code> 在 <code>Sprint Planning Meeting</code> 上确定.</li>
+</ul>
+</li>
+</ul>
+<h2 id="Scrum-Meetings"><a href="#Scrum-Meetings" class="headerlink" title="Scrum Meetings"></a>Scrum Meetings</h2><p><img src="https://draapho.github.io/images/1717/meeting_flow.JPG" alt="meeting_flow"></p>
+<p><img src="https://draapho.github.io/images/1717/meeting_schedule.JPG" alt="meeting_schedule"></p>
+<ul>
+<li><strong>Backlog Refinement Meeting</strong> PBI修整会议<ol>
+<li>所有Scrum人员参与, 可以在每个Sprint执行过程中拿出点时间(如2小时)进行一次, 为下一次的 <code>Sprint Planning</code> 做准备</li>
+<li>主要任务是将部分高优先级的粗颗粒<code>PBI</code>分解为细颗粒 <code>PBI</code>, 并确定对<code>Product Owner</code>而言何为 <code>Done</code></li>
+<li>细化程度为 <a href="http://xp123.com/articles/invest-in-good-stories-and-smart-tasks/" target="_blank" rel="external"><strong>INVEST</strong>: Independent, Negotiable, Valuable, Estimable, Small, Testable 或 <strong>SMART</strong>: Specific, Measurable, Achievable, Relevant, Time-boxed</a>, 以及 <strong>3W</strong>: Who, What, Why</li>
+</ol>
+</li>
+<li><strong>Sprint Planning Meeting</strong> 计划会议<ol>
+<li>所有Scrum人员参与. 时间控制在4-8小时左右.</li>
+<li><code>Sprint Planning</code> 需要确定在一个<code>Sprint</code>周期内, 做什么以及怎么做.</li>
+<li><code>Product Owner</code> 维护 <code>PBI</code> 的优先级. 每次总是讨论最高优先级的 <code>PBI</code></li>
+<li><code>Product Owner</code> 不应对 <code>Development Team</code> 施加进度压力. 产品开发复杂度远大于外行的想象, 直接干预容易在后期造成技术负债.</li>
+<li><code>Development Team</code> 确定何为 <code>Done</code>. 需要特别注意还要考虑代码的向后兼容性, 必要时甚至重构.</li>
+<li><code>Development Team</code> 进一步拆分 <code>PBI</code> 为 <code>Sprint Task</code>, 并认领这些任务.</li>
+<li><code>Development Team</code> 需要相互协作和评估, 设定在一个 <code>Sprint</code> 周期内可完成的目标.<br>初期, 开发人员容易接受过多的任务, 而不是过少的任务. 这会导致一个 <code>Sprint</code> 内无法完成承诺的任务!<br>注意, 这里不单是指编码工作, 还包含了设计, 代码重构, 完整的测试, 以及潜在的发布, 是一整个瀑布开发的模式.</li>
+</ol>
+</li>
+<li><strong>Daily Scrum Meeting</strong> 日会<ol>
+<li>每天同一时间, 同一地点, <code>Development Team</code> 花费15分钟相互报告情况.</li>
+<li>内容为: 昨天做了什么, 今天要做什么, 是否遇到障碍. 这样可确保任务透明, 成员自律而高效.</li>
+<li>站着开会, 以保持会议简短. 如果有额外需要关注的话题, 在该会议结束后, 相关人员参与即可.</li>
+<li><code>Product Owner</code> 可以选择参与. 但团队的领导或主管不要参与!</li>
+<li>日会讨论时, 可能会讨论出其他不相干的话题(sidebar), 则可以日会后仅相关人员参与. 不要占用日会时间.</li>
+</ol>
+</li>
+<li><strong>Sprint Review Meeting</strong> 评审会议<ol>
+<li>一个<code>Sprint</code>周期到达后, 就需要开评审会议, 以确定成果. <code>Development Team</code> 展示一个可潜在交付的软件版本.</li>
+<li>所有Scrum人员, 以及干系人都可以参加, <code>Development Team</code> 进行现场演示以获得干系人的反馈 (不是写文案做报告).</li>
+<li><code>Product Owner</code> 逐条检查在 <code>Sprint Backlog</code> 里的 <code>PBI</code>, 宣布哪些<code>Done</code>, 哪些没有完成(即将完成也是没完成!). </li>
+<li><code>Product Owner</code> 将没完成的 <code>PBI</code> 放回 <code>Product Backlog</code>, 重新设定优先级</li>
+<li><code>Product Owner</code> 配合干系人, 将他们新的意见转换为需求, 放入 <code>Product Backlog</code>, 设定优先级</li>
+</ol>
+</li>
+<li><strong>Sprint Retrospective Meeting</strong> 回顾会议<ol>
+<li>所有Scrum人员参与, 可以放在<code>Sprint Review Meeting</code> 之后, 花费1-3小时.</li>
+<li>回顾上一个 Sprint 执行过程中的经验得失 (譬如交流是否顺畅, 开发工具的使用, 学习心得) . 是否有改进余地.</li>
+<li><code>Scrum Master</code> 需要引导与会人真实的表达了自己的想法, 达到解决障碍和问题, 改进流程的目的. </li>
+<li>回顾会议不是为了评估谁好谁坏, 决定日后如何分配奖金. 追求的是共同进步, 一起完成项目, 追求团队的成功.</li>
+<li>这一部分, 我理解的不是很好.</li>
+</ol>
+</li>
+</ul>
+<h2 id="Scrum-Artifacts"><a href="#Scrum-Artifacts" class="headerlink" title="Scrum Artifacts"></a>Scrum Artifacts</h2><ul>
+<li><strong>Product Backlog</strong><ol>
+<li>一个展示区, 用于展示项目所期望的功能, 可以随时增减. 说明要做什么(开发目标)</li>
+<li>所有干系人可见, 所有干系人(包括团队)均可添加条目</li>
+<li><code>Product Owner</code> 持续地按优先级在 <code>Product Backlog</code> 区域排列 <code>PBI</code></li>
+<li>顶部为细颗粒<code>PBI</code>, 底部为粗颗粒<code>PBI</code>.</li>
+</ol>
+</li>
+<li><strong>Product Backlog Item</strong>, 简称<code>PBI</code><ol>
+<li>由 <code>Backlog Refinement Meeting</code> 分解条目, 安排优先级.</li>
+<li><code>PBI</code> 通常写成 <code>User Story</code>, 工作规模控制在 2-3个人工作2-3天可完成.</li>
+</ol>
+</li>
+<li><strong>Sprint Backlog</strong><ol>
+<li>在 <code>Sprint Planning Meeting</code> 上, <code>Development Team</code> 和 <code>Product Owner</code> 协商承诺的<code>PBI</code>组成</li>
+<li>整个Scrum人员可见. 在Sprint执行期间, 承诺范围和任务目标不可改变.</li>
+<li>在Sprint执⾏行期间, 团队将发现兑现既定范围承诺还需要的附加任务, 则放到 <code>Sprint Backlog</code> 中.</li>
+<li>放在这里的 <code>PBI</code> 需要定义好 <code>Done</code>. 注意考虑复用性和向后兼容性, 以防止潜在的技术债务.</li>
+</ol>
+</li>
+<li><strong>Sprint Task</strong> (optional)<ol>
+<li>对如何完成一条PBI的若干简单描述. 该任务必须细化到一天以内即可完成</li>
+<li>在Sprint执行期间, 每个人都可主动认领任务</li>
+<li>由整个团队拥有, 需要协作.</li>
+<li>这是一个可选项, 而非必须项. 过度使用并不利于提高效率.</li>
+</ol>
+</li>
+<li><strong>Increment</strong><ol>
+<li><code>Increment</code> 是一个 Sprint 完成的所有产品待办列表项的总和</li>
+<li>完成一个 Sprint 时, 新的 <code>Increment</code> 必须是 <code>Done</code> 的, 并可用和潜在可发布.</li>
+</ol>
+</li>
+</ul>
+<h2 id="若干种Sprint的展示板"><a href="#若干种Sprint的展示板" class="headerlink" title="若干种Sprint的展示板"></a>若干种Sprint的展示板</h2><p><img src="https://draapho.github.io/images/1717/Sprint_backlog_1.JPG" alt="Sprint_backlog_1"></p>
+<p><img src="https://draapho.github.io/images/1717/Sprint_backlog_2.JPG" alt="Sprint_backlog_2"></p>
+<p><img src="https://draapho.github.io/images/1717/Sprint_backlog_3.JPG" alt="Sprint_backlog_3"></p>
+<p><img src="https://draapho.github.io/images/1717/Sprint_backlog_4.JPG" alt="Sprint_backlog_4"></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/05/29/1716-AI-IoT/" itemprop="url">
                   AI和物联网的潜在应用
                 </a>
@@ -1506,358 +1923,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/10/1711-web-spider/" itemprop="url">
-                  使用网络爬虫抓取商品价格并分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-04-10T00:00:00+10:00" content="2017-04-10">
-              2017-04-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>基于 <a href="http://www.chemistwarehouse.com.au/" target="_blank" rel="external">Chemist Warehouse</a> 的商品, 抓取其每天的价格变化. 并根据历史信息, 判断其价格变化规律, 以便在打折时购买.</p>
-<p>因此, 用户需求有如下几点:</p>
-<ul>
-<li>抓取网站价格, 需要知道其商品全名, 原价, 打折价, 打折日期, 持续时间</li>
-<li>存储这些数据, 供日后分析使用</li>
-<li>数据挖掘和分析, 已直观的方式多维度显示出来(譬如单品的打折规律, 打折力度, 打折持续时间. 全年的打折规律)</li>
-</ul>
-<p>进一步, 技术分析如下:</p>
-<ul>
-<li>全程使用python即可满足全部需求.</li>
-<li>网络爬虫难度不高, 仅需针对特定商品, 每天抓一次, 无需多线程/进程, 无需登录, 无验证码, 无需考虑反爬虫, 无需额外加载JS程序.</li>
-<li>数据存储, 使用MySQL, 数据需要去重, 仅记录关键信息. 以便减少数据存储量, 简化数据挖掘和分析的工作</li>
-<li>搜索指定产品, 展示历史数据, 使用 pyqt + matplotlib.</li>
-</ul>
-<h1 id="网络爬虫"><a href="#网络爬虫" class="headerlink" title="网络爬虫"></a>网络爬虫</h1><p>花了二天时间, 简单过了一遍网络爬虫的关键技术. 参考资料如下:</p>
-<ul>
-<li><a href="http://cuiqingcai.com/1052.html" target="_blank" rel="external">Python爬虫学习系列教程-静觅</a></li>
-<li><a href="https://github.com/lining0806/PythonSpiderNotes" target="_blank" rel="external">Python入门网络爬虫之精华版</a></li>
-<li><a href="http://www.w3school.com.cn/xpath/xpath_syntax.asp" target="_blank" rel="external">XPath 语法</a></li>
-</ul>
-<p>本着项目导向, 做出结果为先的思路, 没有一步步的实验. 上来先看了几个爬虫框架.</p>
-<ul>
-<li><code>pyspider</code> 基于web UI, 感觉很直观, 适合于随便玩玩. 个人不喜欢, 二次开发不方便.</li>
-<li>python 下另外一个很有名的框架就是 <code>scrapy</code>, 可惜我连配置安装都没有成功的做完. 适合二次开发.<br>应该是公司网络安全机制比较高, 遇到的问题基本都是SSL相关的, 解决了2-3个, 剩下的实在没有思路去解决了…<br>另外scrapy依赖的库也比较多, 因此初装也就比较麻烦. 安装推荐参考<a href="https://docs.scrapy.org/en/latest/intro/install.html#" target="_blank" rel="external">官网的 Installation guide</a></li>
-<li>使用 <code>requests</code> <code>urllib</code> <code>lxml</code> 库. 简单项目直接用这个就够了.</li>
-<li>最终抓数据只用了 <code>lxml</code> 一个库就完成了数据抓取, 去重的工作. 关键源码如下:</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="comment"># pip --trusted-host pypi.python.org install lxml</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> string</div><div class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</div><div class="line"></div><div class="line"><span class="comment"># 获取url的原始数据</span></div><div class="line">doc = html.parse(<span class="string">'http://www.chemistwarehouse.com.au/search?searchtext=blackmores%20bone&amp;searchmode=allwords'</span>)</div><div class="line"><span class="comment"># 获取指定的数据值</span></div><div class="line">names = doc.xpath(<span class="string">'//a[@class="product-container search-result"]/@title'</span>)</div><div class="line"><span class="comment"># 处理数据, 准备存入数据库即可.</span></div><div class="line">name = map(string.strip, names)</div><div class="line"><span class="keyword">print</span> name</div></pre></td></tr></table></figure>
-<p>另:<br>遇到过了错误 <code>There was a problem confirming the ssl certificate: [SSL: CERTIFICATE_VERIFY_FAILED]</code><br>使用 <code>pip --trusted-host pypi.python.org install lxml</code> 即可避免. 也是安全性问题导致的.</p>
-<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><p>同样地, 该项目对数据存储的要求也很低. 直接选择使用MySQL.</p>
-<p>参考资料如下:</p>
-<ul>
-<li><a href="http://www.runoob.com/python/python-mysql.html" target="_blank" rel="external">python操作mysql数据库</a></li>
-<li><a href="http://www.crazyant.net/686.html" target="_blank" rel="external">Python操作Mysql实例代码教程（查询手册）</a></li>
-<li><a href="http://www.cnblogs.com/mr-wid/archive/2013/05/09/3068229.html" target="_blank" rel="external">21分钟 MySQL 入门教程</a></li>
-<li><a href="http://blog.csdn.net/heizistudio/article/details/8234185" target="_blank" rel="external">Windows下更改MySQL数据库的存储位置</a></li>
-</ul>
-<p>Windows 下配置使用MySQL:</p>
-<ul>
-<li>下载运行 <a href="https://dev.mysql.com/downloads/windows/" target="_blank" rel="external">MySQL Installer</a></li>
-<li>必须安装 <code>MySQL Server</code>. 建议安装 <code>MySQL Workbench</code>, 为可视化图像, 便于管理查看.</li>
-<li>可视化工具也可以使用别的软件. 如 <a href="https://www.heidisql.com/" target="_blank" rel="external">heidisql</a></li>
-<li>将<code>mysql.exe</code>的路径添加<code>PATH</code>环境变量.</li>
-<li><p>创建新的数据库(Workbecn下, 英文为<code>schema</code>), 命名为 <code>chemistwarehouse</code>. 或者输入指令:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql -u root -p      <span class="comment"># 登录本机的MySQL数据库服务</span></div><div class="line"><span class="comment"># mysql&gt;              # 成功后, 提示符变为 mysql&gt;</span></div><div class="line">create database chemistwarehouse; <span class="comment"># 创建一个数据库</span></div></pre></td></tr></table></figure>
-</li>
-<li><p>安装 <a href="https://sourceforge.net/projects/mysql-python/" target="_blank" rel="external">MySQL for Python</a><br>然后, 在python下面测试一下是否可以成功连接到刚建立的 <code>chemistwarehouse</code> 数据库.<br>成功的话, 会打印版本信息.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initDatabase</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="comment"># 连接mysql的方法：connect('ip','user','password','dbname')</span></div><div class="line">        connect_db = db.connect(</div><div class="line">            <span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'root'</span>, <span class="string">'chemistwarehouse'</span>)</div><div class="line">        <span class="comment"># 所有的查询，都在连接con的一个模块cursor上面运行的</span></div><div class="line">        cur = connect_db.cursor()</div><div class="line">        <span class="comment"># 执行一个查询</span></div><div class="line">        cur.execute(<span class="string">"SELECT VERSION()"</span>)</div><div class="line">        <span class="comment"># 取得上个查询的结果，是单个结果</span></div><div class="line">        data = cur.fetchone()</div><div class="line">        <span class="keyword">print</span> <span class="string">"Database version : %s "</span> % data</div><div class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">        logging.error(e)</div><div class="line">    <span class="keyword">finally</span>:</div><div class="line">        <span class="keyword">if</span> connect_db:</div><div class="line">            <span class="comment"># 无论如何，连接记得关闭</span></div><div class="line">            connect_db.close()</div><div class="line"></div><div class="line">initDatabase()</div></pre></td></tr></table></figure>
-</li>
-<li><p>至此, 就可以在python下正常使用MySQL数据库了.<br>将提取出来的数据去重后, 按一定的格式保存进数据库即可.</p>
-</li>
-<li><p>默认安装在C盘, 而且数据存储也是在C盘. 这个没法接受! 需要把数据存储位置修改到空间更大的E盘.</p>
-<ul>
-<li>停止MySQL服务, 命令行 <code>net stop MySQL57</code> 或者使用 <code>MySQL Workbench</code> 停止服务</li>
-<li>打开 <code>C:\ProgramData\MySQL\MySQL Server 5.7\my.ini</code></li>
-<li>修改为 <code>datadir=E:/MySQLdata</code>, 即设置数据库的新目录</li>
-<li>复制 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code> 下所有文件到 <code>E:/MySQLdata</code></li>
-<li>开启MySQL服务 命令行 <code>net start MySQL57</code> 或者使用 <code>MySQL Workbench</code> 开启服务</li>
-<li>检查 MySQL 服务器状态, 确定数据库目录已更新</li>
-<li>删除 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="数据显示"><a href="#数据显示" class="headerlink" title="数据显示"></a>数据显示</h1><p>参考资料如下:</p>
-<ul>
-<li><a href="http://blog.topspeedsnail.com/archives/814" target="_blank" rel="external">Python 中用 matplotlib 绘制直方图</a> 这个博客有对 matplotlib 制图有一个系列的文章</li>
-<li><a href="http://ningning.today/2015/04/17/python/%E7%94%A8matplotlib%E7%BB%98%E5%88%B6%E6%9F%B1%E7%8A%B6%E5%9B%BE%E5%92%8C%E9%A5%BC%E5%9B%BE/" target="_blank" rel="external">用python的matplotlib库绘制柱状图和饼图</a></li>
-<li><a href="http://www.jdon.com/idea/matplotlib.html" target="_blank" rel="external">使用Python matplotlib绘制股票走势图</a></li>
-<li><a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-1/" target="_blank" rel="external">Building a Matplotlib GUI with Qt Designer: Part 1</a>, 由三部分组成, 还有<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-2/" target="_blank" rel="external">Part2</a>和<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-3/" target="_blank" rel="external">Part3</a></li>
-<li><a href="http://eli.thegreenplace.net/2009/01/20/matplotlib-with-pyqt-guis" target="_blank" rel="external">matplotlib with PyQt GUIs</a>, 有 <a href="https://github.com/eliben/code-for-blog/blob/master/2009/qt_mpl_bars.py" target="_blank" rel="external">github 范例</a></li>
-<li>pyqt的使用可参考我的博客 <a href="https://draapho.github.io/2016/11/16/1617-python-terminal/">python的第一个小程序, 蓝牙及串口终端</a></li>
-</ul>
-<p>设计思路和注意事项</p>
-<ul>
-<li>使用pip安装 matplotlib: <code>pip --trusted-host pypi.python.org install matplotlib</code></li>
-<li>数据显示和数据抓取是完全独立的, 因此数据抓取单独生成了一个exe文件, 数据显示也单独生成一个文件.</li>
-<li>数据显示exe可以打开多个, 以便分析比较. 数据抓取仅可打开一个.</li>
-</ul>
-<h1 id="源码及性能"><a href="#源码及性能" class="headerlink" title="源码及性能"></a>源码及性能</h1><p>最终源码见 <a href="https://github.com/draapho/chemistwarehouse-spider" target="_blank" rel="external">github</a></p>
-<p>爬虫最终性能:<br>抓取效率一般, 每1000条数据大概要2分钟. 要提高效率可以考虑使用多进程!<br>但一天抓取一次即可, 因此这个速度可以接受. 暂时保持单进程不变.</p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/05/1710-jz2440-led/" itemprop="url">
-                  jz2440 裸板程序的开发
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-04-05T00:00:00+10:00" content="2017-04-05">
-              2017-04-05
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/04/05/1710-jz2440-led/">jz2440裸板程序的开发</a></li>
-<li>s3c2440 的裸板开发和单片机无异, 此文主要目的是<strong>熟悉linux下的交叉编译环境和开发方式</strong>.</li>
-</ul>
-<h1 id="crt0-S-文件"><a href="#crt0-S-文件" class="headerlink" title="crt0.S 文件"></a><code>crt0.S</code> 文件</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">@******************************************************************************</div><div class="line">@ File：crt0.S</div><div class="line">@ 功能：通过它转入C程序</div><div class="line">@******************************************************************************</div><div class="line"></div><div class="line">.text</div><div class="line">.global _start</div><div class="line">_start:</div><div class="line">            ldr     r0, =0x53000000     @ WATCHDOG寄存器地址</div><div class="line">            mov     r1, #0x0</div><div class="line">            str     r1, [r0]            @ 写入0，禁止WATCHDOG，否则CPU会不断重启</div><div class="line"></div><div class="line">            ldr     sp, =1024*4         @ 设置堆栈，注意：不能大于4k, 因为现在可用的内存只有4K</div><div class="line">                                        @ nand flash中的代码在复位后会移到内部ram中，此ram只有4K</div><div class="line">            bl      main                @ 调用C程序中的main函数</div><div class="line">halt_loop:</div><div class="line">            b       halt_loop</div></pre></td></tr></table></figure>
-<h1 id="led-c-文件"><a href="#led-c-文件" class="headerlink" title="led.c 文件"></a><code>led.c</code> 文件</h1><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">/************************************</div><div class="line"> * 按下按钮, 就点亮对应的LED灯.</div><div class="line"> * KEY: EINT0, EINT2, EINT11</div><div class="line"> * KEY: GPF0,  GPF2,  GPG3</div><div class="line"> * LED: D12,   D11,   D10</div><div class="line"> * LED: GPF6,  GPF5,  GPF4</div><div class="line"> ************************************</div><div class="line">*/</div><div class="line"></div><div class="line">// s3c2440 对应的寄存器地址. 需要看数据手册.</div><div class="line">#define GPFCON      (*(volatile unsigned long *)0x56000050)</div><div class="line">#define GPFDAT      (*(volatile unsigned long *)0x56000054)</div><div class="line">#define GPFUP       (*(volatile unsigned long *)0x56000058)</div><div class="line">#define GPGCON      (*(volatile unsigned long *)0x56000060)</div><div class="line">#define GPGDAT      (*(volatile unsigned long *)0x56000064)</div><div class="line">#define GPGUP       (*(volatile unsigned long *)0x56000068)</div><div class="line"></div><div class="line">#define PIN0        (1&lt;&lt;0)</div><div class="line">#define PIN1        (1&lt;&lt;1)</div><div class="line">#define PIN2        (1&lt;&lt;2)</div><div class="line">#define PIN3        (1&lt;&lt;3)</div><div class="line">#define PIN4        (1&lt;&lt;4)</div><div class="line">#define PIN5        (1&lt;&lt;5)</div><div class="line">#define PIN6        (1&lt;&lt;6)</div><div class="line">#define PIN7        (1&lt;&lt;7)</div><div class="line"></div><div class="line">int main()</div><div class="line">&#123;</div><div class="line">    GPFCON = 0x1500;        // set LED pin as output</div><div class="line">    GPFDAT = 0x00;</div><div class="line">    GPGCON = 0x00;</div><div class="line"></div><div class="line">    while (1) &#123;</div><div class="line">        if (GPFDAT &amp; PIN0) &#123;</div><div class="line">            GPFDAT |= PIN6;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN6;</div><div class="line">        &#125;</div><div class="line">        if (GPFDAT &amp; PIN2) &#123;</div><div class="line">            GPFDAT |= PIN5;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN5;</div><div class="line">        &#125;</div><div class="line">        if (GPGDAT &amp; PIN3) &#123;</div><div class="line">            GPFDAT |= PIN4;</div><div class="line">        &#125; else &#123;</div><div class="line">            GPFDAT &amp;= ~PIN4;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="Makefile-文件"><a href="#Makefile-文件" class="headerlink" title="Makefile 文件"></a><code>Makefile</code> 文件</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 目标文件 : 依赖文件1 依赖文件2</span></div><div class="line">led.bin : crt0.S led.c</div><div class="line">    <span class="comment"># 汇编-&gt;目标文件</span></div><div class="line">    arm-linux-gcc -g -c -o crt0.o crt0.S</div><div class="line">    <span class="comment"># C-&gt;汇编</span></div><div class="line">    arm-linux-gcc -g -c -o led.o led.c</div><div class="line">    <span class="comment"># 目标文件链接为 led_elf, 初始地址为0</span></div><div class="line">    arm-linux-ld -Ttext 0x0000000 -g  crt0.o led.o -o led_elf</div><div class="line">    <span class="comment"># 用 led_elf文件生成 烧录文件 led.bin</span></div><div class="line">    arm-linux-objcopy -O binary -S led_elf led.bin</div><div class="line">    <span class="comment"># 反汇编</span></div><div class="line">    arm-linux-objdump -D -m arm led_elf &gt; led.dis</div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">    rm -f led.dis led.bin led_elf *.o</div></pre></td></tr></table></figure>
-<h1 id="编译和烧录"><a href="#编译和烧录" class="headerlink" title="编译和烧录"></a>编译和烧录</h1><ul>
-<li>将上述三个文件放入同一个目录, 譬如 <code>/led_test</code><ul>
-<li><code>crt0.S</code> 可理解为硬件初始化, 使用模板即可</li>
-<li><code>led.c</code> 需要自己写, 软件的大部分开发工作用C语言实现</li>
-<li><code>Makefile</code> 写的非常直白的makefile, 不适用于复杂的工程.</li>
-</ul>
-</li>
-<li>使用Linux主机进行编译.<ul>
-<li>即登录 Ubuntu, 即配置好交叉编译环境的Linux主机</li>
-<li>shell 下进入 <code>/led_test</code> 目录</li>
-<li>输入指令 <code>make</code> 即可, 就会得到 <code>led.bin</code> 文件</li>
-<li>清空编译和链接文件, 输入 <code>make clean</code>, 就相当于执行了 <code>rm -f led.dis led.bin led_elf *.o</code></li>
-</ul>
-</li>
-<li>将 <code>led.bin</code> 烧录到 Flash 中, 最后重启开发板.<ul>
-<li>有多种烧录方式, 我这边使用的是 JLINK, 用JFlash烧录即可 (只支持烧录 Nor Flash)</li>
-<li>s3c2440 属于 ARM9 系列. 使用Nor Flash启动时, SRAM 起始地址为 0x4000_0000</li>
-<li>或者使用uboot+dnw的方式, 烧录到SDRAM中并运行</li>
-</ul>
-</li>
-<li>然后, 如果开发的是嵌入式linux, 基本流程也是这样的 (注意区分两个Linux):<ul>
-<li><ol>
-<li>在电脑上开发软件 (Windows, Linux, Mac 随便的)</li>
-</ol>
-</li>
-<li><ol>
-<li>在<strong>Linux主机</strong>上进行编译(就是交叉编译), 获得一个可执行文件.</li>
-</ol>
-</li>
-<li><ol>
-<li>把可执行文件烧录/加载到<strong>嵌入式Linux(开发板)</strong>上, 运行即可.</li>
-</ol>
-</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1903,7 +1968,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">75</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1920,7 +1985,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">71</span>
+                <span class="site-state-item-count">73</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

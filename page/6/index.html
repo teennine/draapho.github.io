@@ -260,6 +260,411 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/18/1706-linux-ubuntu14/" itemprop="url">
+                  嵌入式linux环境搭建1-Ubuntu14.04
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-18T00:00:00+11:00" content="2017-02-18">
+              2017-02-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
+<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
+<li>gateway ip <code>10.0.0.138</code></li>
+<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
+<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
+<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
+</ul>
+</li>
+<li>探索嵌入式linux环境搭建的各方案可行性.</li>
+<li>使用环境: Ubuntu 14.04.5 LTS 32bit 桌面版 (安装在win10的虚拟机内)</li>
+<li>成功验证了win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享的方案</li>
+<li>最终遇到了gcc编译器的坑, 就决定换到CentOS系统练练手.</li>
+<li>在win 10 下使用虚拟机安装在win10下, 略过不表.</li>
+<li>实验结论:<ul>
+<li>win10(非企业版)下, 没有找到nfs客户端. 因此没法使用 <strong>ubuntu做NFS服务器</strong> 的方案</li>
+<li>ubuntu下安装samba来支持windows文件共享, 失败告终. 因此没法使用 <strong>ubuntu使用samba来支持windows文件共享</strong> 的方案</li>
+<li>linux不允许把NFS挂载过来的文件再使用NFS服务共享出去. 因此没法使用 <strong>交叉使用上述方案</strong></li>
+<li>还好, 最终 <strong>windows做NFS服务器</strong> 成功了</li>
+</ul>
+</li>
+</ul>
+<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 查看 make 和 gcc 工具 (非交叉编译用)</span></div><div class="line">make -v                     <span class="comment"># GNU Make 3.81</span></div><div class="line">gcc -v                      <span class="comment"># gcc version 4.8.4</span></div></pre></td></tr></table></figure>
+<h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><p>个人更喜欢用静态IP, 这样putty的设置更直观方便.<br>如果要使用动态IP, 可以设置 windwos 的 HaneWIN, 用<code>-range</code>来指定nfs客户端的网址段</p>
+<p>刚开始怎么样都不能上外网, 突然按照下面的顺序就好了… 原因不明<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">sudo vim /etc/network/interfaces</div><div class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></div><div class="line">    auto lo</div><div class="line">    iface lo inet loopback</div><div class="line"></div><div class="line">    auto eth0</div><div class="line"></div><div class="line">    iface eth0 inet static</div><div class="line">    address  10.0.0.100</div><div class="line">    netmask  255.255.255.0</div><div class="line">    gateway  10.0.0.138</div><div class="line">    dns-nameservers   8.8.8.8  10.0.0.138</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line">sudo reboot</div></pre></td></tr></table></figure></p>
+<h1 id="安装nfs服务-服务器-客户端"><a href="#安装nfs服务-服务器-客户端" class="headerlink" title="安装nfs服务(服务器/客户端)"></a>安装nfs服务(服务器/客户端)</h1><p>最终方案里, windows下用了HaneWIN 做NFS服务器, 虚拟机ubuntu下安装客户端就可以了.<br>这里为了做实验, nfs服务器和客户端都安装了, 可以参考:<br><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04" target="_blank" rel="external">How To Set Up an NFS Mount on Ubuntu 14.04</a></p>
+<h2 id="nfs-客户端的安装"><a href="#nfs-客户端的安装" class="headerlink" title="nfs 客户端的安装"></a>nfs 客户端的安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装 nfs 客户端软件</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install nfs-common</div><div class="line"></div><div class="line"><span class="comment"># 建立空文件夹用于挂载nfs</span></div><div class="line">sudo mkdir -p /mnt/nfs/study</div><div class="line">sudo mkdir -p /mnt/nfs/work</div><div class="line"></div><div class="line"><span class="comment"># 开机自动挂载(参考文章中的客户端自动挂载方法没有起作用)</span></div><div class="line">sudo vim /etc/rc.local</div><div class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></div><div class="line">    sudo mount 10.0.0.98:/study /mnt/nfs/study</div><div class="line">    sudo mount 10.0.0.98:/work /mnt/nfs/work</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line"><span class="comment"># 建立软连接(快捷方式), 可忽略此步骤</span></div><div class="line">sudo ln <span class="_">-s</span> /mnt/nfs/study /home/user/study</div><div class="line">sudo ln <span class="_">-s</span> /mnt/nfs/work /home/user/work</div></pre></td></tr></table></figure>
+<h2 id="nfs-服务器的安装"><a href="#nfs-服务器的安装" class="headerlink" title="nfs 服务器的安装"></a><del>nfs 服务器的安装</del></h2><p>实际上没有用到linux的nfs服务器功能, 最终用的是windows下的HaneWIN给开发板提供的nfs服务!!!<br>因为最后测试下来, <strong>linux不允许把NFS挂载过来的文件再使用NFS服务共享出去</strong>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 虚拟机ubuntu 安装服务器, 供开发板端使用nfs.</span></div><div class="line">apt-get install nfs-kernel-server</div><div class="line">sudo vim /etc/exports</div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="comment"># 加入要共享的文件夹, 一个文件夹一行即可</span></div><div class="line">    <span class="comment"># 注意! 由windows 共享过来的目录无法再由ubuntu共享出去</span></div><div class="line">    /home/draapho 10.0.0.*(rw,no_root_squash,async,no_subtree_check)</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line"><span class="comment"># 重启服务</span></div><div class="line">sudo exportfs <span class="_">-a</span></div><div class="line">sudo /etc/init.d/nfs-kernel-server restart</div></pre></td></tr></table></figure>
+<h2 id="其它实验"><a href="#其它实验" class="headerlink" title="其它实验"></a><del>其它实验</del></h2><p>win10(非企业版)下, 没有找到nfs客户端. 因此无法让linux当nfs服务器, win10做nfs客户端.<br>ubuntu下安装samba来支持windows文件共享, 失败告终</p>
+<h1 id="安装ssh服务-用putty远程登录"><a href="#安装ssh服务-用putty远程登录" class="headerlink" title="安装ssh服务, 用putty远程登录"></a>安装ssh服务, 用putty远程登录</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装ssh服务</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install openssh-server</div><div class="line"><span class="comment"># 如果有依赖包冲突, 执行如下指令</span></div><div class="line">sudo apt-get install openssh-client=1:6.6p1-2ubuntu1</div><div class="line"></div><div class="line"><span class="comment"># 查看是否已经运行</span></div><div class="line">sudo ps <span class="_">-e</span> | grep ssh</div><div class="line"><span class="comment"># 启动服务</span></div><div class="line">sudo service ssh start</div></pre></td></tr></table></figure>
+<h1 id="安装-u-boot-tools-工具"><a href="#安装-u-boot-tools-工具" class="headerlink" title="安装 u-boot-tools 工具"></a>安装 u-boot-tools 工具</h1><p>安装 u-boot-tools, 内核编译后生成uImage使用.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装 mkimage</span></div><div class="line">sudo apt-get install u-boot-tools</div><div class="line"><span class="comment"># 验证</span></div><div class="line">mkimage -V</div></pre></td></tr></table></figure></p>
+<h1 id="安装-mkyaffs2image-工具"><a href="#安装-mkyaffs2image-工具" class="headerlink" title="安装 mkyaffs2image 工具"></a>安装 mkyaffs2image 工具</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></div><div class="line">sudo chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></div><div class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></div></pre></td></tr></table></figure>
+<h1 id="安装及使用交叉编译工具gcc"><a href="#安装及使用交叉编译工具gcc" class="headerlink" title="安装及使用交叉编译工具gcc"></a>安装及使用交叉编译工具gcc</h1><p>在 arm-linux-gcc 4.3.2 上走的比较远, 结果证明遇到坑了!<br>建议不要尝试最新版本的编译器, 老老实实使用开发板提供的 <code>gcc-3.4.5-glibc-2.3.6</code> 编译器版本.</p>
+<h2 id="安装-arm-linux-gcc-4-3-2"><a href="#安装-arm-linux-gcc-4-3-2" class="headerlink" title="安装 arm-linux-gcc 4.3.2"></a><del>安装 arm-linux-gcc 4.3.2</del></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 直接拷贝解压 arm-linux-gcc-4.3.2.tar.bz2</span></div><div class="line"><span class="comment"># 事后证明, gcc-4.3.2 不能正确编译(但能成功编译)2440的linux内核和驱动</span></div><div class="line">sudo tar xjvf arm-linux-gcc-4.3.2.tar.bz2 -C /usr/<span class="built_in">local</span>/</div><div class="line"></div><div class="line"><span class="comment"># 添加路径到环境变量</span></div><div class="line">sudo vim /etc/bash.bashrc</div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="keyword">if</span> [ <span class="_">-d</span> /usr/<span class="built_in">local</span>/arm/4.3.2 ] ; <span class="keyword">then</span></div><div class="line">        PATH=/usr/<span class="built_in">local</span>/arm/4.3.2/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></div><div class="line">    <span class="keyword">fi</span></div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line"><span class="comment"># 测试安装结果</span></div><div class="line"><span class="built_in">source</span> /etc/bash.bashrc                             <span class="comment"># 不重启更新PATH</span></div><div class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>                                          <span class="comment"># 查看PATH</span></div><div class="line">arm-linux-gcc -v                                    <span class="comment"># 测试是否安装成功</span></div></pre></td></tr></table></figure>
+<p>如果希望sudo超级账户也能用 make 指令 (没有测试过)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sudo <span class="_">-s</span>                                             <span class="comment"># 登录超级账户</span></div><div class="line">vi /etc/profile                                     <span class="comment"># 打开profile</span></div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/arm/4.3.2/bin</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div></pre></td></tr></table></figure>
+<h2 id="遇到问题并解决-结果是坑"><a href="#遇到问题并解决-结果是坑" class="headerlink" title="遇到问题并解决, 结果是坑"></a><del>遇到问题并解决, 结果是坑</del></h2><p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/16/1705-linux-env/" itemprop="url">
+                  嵌入式linux环境搭建-主机端
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-16T00:00:00+11:00" content="2017-02-16">
+              2017-02-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a></li>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></li>
+</ul>
+<h1 id="嵌入式linux开发环境搭建思路"><a href="#嵌入式linux开发环境搭建思路" class="headerlink" title="嵌入式linux开发环境搭建思路"></a>嵌入式linux开发环境搭建思路</h1><p>学习过大半, 总结经验后, 得出如下环境搭建的最新思路:</p>
+<ul>
+<li>使用32位桌面版Ubuntu, 推荐使用 <a href="http://releases.ubuntu.com/16.04/ubuntu-16.04.3-desktop-i386.iso" target="_blank" rel="external">ubuntu-16.04.3-desktop-i386.iso</a></li>
+<li>linux源码必须放在Linux文件系统下. 如果放在windows下再通过nfs共享给linux, 搜索和编译的速度太慢!</li>
+<li>可以纯linux环境工作. 如果基于windows, 虚拟机linux的话, 可以让linux使用samba与windows实现文件共享.</li>
+<li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统. 这样所需工具最少, 开发最灵活方便.</li>
+<li>烧录的话, 使用usb, 基于uboot和linux下dnw, 还是挺方便的.</li>
+<li>源码阅读和驱动开发使用 <a href="https://sourceforge.net/projects/linkplustest/" target="_blank" rel="external">LinK+</a>, 一款linux下基于eclipse开发的Linux内核开发IDE!</li>
+</ul>
+<p>配置步骤见如下文章:</p>
+<ul>
+<li><a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
+<li><a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a></li>
+<li><a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a></li>
+<li><a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
+</ul>
+<p>Windows下用虚拟机安装Ubuntu的话, 虚拟机网络类型需要选择为Briged模式. 区别如下:</p>
+<ul>
+<li>Bridged(桥接模式), 虚拟机在局域网中可见, IP和主机处于同一网段</li>
+<li>NAT(网络地址转换模式), 主机为双网卡主机, 会建立一个虚拟局域网和虚拟机通讯. 局域网看不到虚拟机的存在</li>
+<li>Host-only(主机模式), 主机建立一个网络用于和虚拟机通讯, 此网络和真实网络无关. 所以虚拟机无法上外网!</li>
+</ul>
+<p><strong>此文到此结束了, 下面的都是历史遗留产物…</strong></p>
+<h2 id="历史思路"><a href="#历史思路" class="headerlink" title="历史思路"></a><del>历史思路</del></h2><ol>
+<li>PC windows 所有资料存在windows目录下, 所有操作在windows环境下. NFS设置可参考:<ul>
+<li><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows NFS 环境搭建</a></li>
+</ul>
+</li>
+<li>PC linux 装在虚拟机里, 提供交叉编译环境. 其环境搭建可参考:<ul>
+<li>第一次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/">嵌入式linux环境搭建1-Ubuntu14</a></del></li>
+<li>第二次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/19/1706-linux-centos7/">嵌入式linux环境搭建2-CentOS7</a></del></li>
+<li>第三次尝试, 成功! <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
+</ul>
+</li>
+<li>Embedded linux 固化uboot, kernel, 使用nfs加载文件系统. 其参数设置可参考:<ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
+</ul>
+</li>
+</ol>
+<p>整个环境的搭建思路基于尽可能少的文件传输, 系统切换操作, 以便提高效率. 可以选择的方案有NFS方案, windows文件共享方案.<br>细化下去有:</p>
+<ul>
+<li>windows做NFS服务器</li>
+<li>ubuntu做NFS服务器</li>
+<li>ubuntu使用samba来支持windows文件共享</li>
+<li>交叉使用上述方案.</li>
+</ul>
+<p>一些列折腾之后, 最后顺利基于hanewin, win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享.<br>而且使用这个方案还有一个好处, 开发文件都存放在熟悉的windows环境下, 修改/维护/备份都很方便.</p>
+<h2 id="PC-windows-win10"><a href="#PC-windows-win10" class="headerlink" title="PC windows, win10"></a><del>PC windows, win10</del></h2><p>ip addr: <code>10.0.0.98</code><br>gateway: <code>10.0.0.138</code></p>
+<ol>
+<li>配置为静态IP. <code>10.0.0.98</code></li>
+<li>当NFS服务器, 向PC linux和Embedded linux, u-boot提供NFS服务.<br>使用了hanewin, 注意使能 nfs version2 以及权限设置 (-mapall:0:0)</li>
+<li>虚拟机安装 PC linux</li>
+<li>烧录工具, jlink, OpenJtag, dnw, 网络传输.<br>早期需要使用. 开发到应用层就可以不用了.<br>用基于nfs的网络传输, 放弃使用dnw.</li>
+<li>使用putty, 远程登录控制 PC linux.<br>文本编辑器建议用vim</li>
+<li>使用串口, 可用putty 或 TeraTerm, 远程登录控制 Embedded linux,<br>文本编辑器只能用vi</li>
+<li>PC windows的环境搭建可参考:<br>设置IP, 安装虚拟机属于常规内容, 按下不表.<br>NFS服务器 HaneWIN 的配置见 <strong><a href="https://draapho.github.io/2016/10/03/1606-WinSoft-cloud/">Windows 软件系列-基于NFS的家庭网</a></strong><br>其中 <code>Exports</code> 内容如下:</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># for linux</span></div><div class="line">E:\My_Study\linux -name:study -mapall:0:0 10.0.0.100</div><div class="line">E:\My_Work\linux -name:work -mapall:0:0 10.0.0.100</div><div class="line"></div><div class="line"><span class="comment"># for embedded linux.</span></div><div class="line">E:\My_Study\linux\jz2440\ -name:jz2440 -mapall:0:0 -range 10.0.0.1 10.0.0.111</div><div class="line"></div><div class="line"><span class="comment"># for loading file system, should be no limit, root account</span></div><div class="line"><span class="comment"># E:\My_Study\linux\jz2440\nfs\fs_qtopia -name:fs -mapall:0:0 10.0.0.111</span></div><div class="line"><span class="comment"># E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 10.0.0.111</span></div><div class="line"><span class="comment"># E:\My_Study\linux\jz2440\nfs\fs_mini -name:fs -mapall:0:0 10.0.0.111</span></div><div class="line"><span class="comment"># please choose one:</span></div><div class="line"></div><div class="line">E:\My_Study\linux\jz2440\nfs\fs_mini_mdev -name:fs -mapall:0:0 10.0.0.111</div></pre></td></tr></table></figure>
+<h2 id="PC-linux-ubuntu-serve-16-04-32bit"><a href="#PC-linux-ubuntu-serve-16-04-32bit" class="headerlink" title="PC linux ubuntu serve 16.04 32bit"></a>PC linux ubuntu serve 16.04 32bit</h2><p>ip addr: <code>10.0.0.100</code><br>gateway: <code>10.0.0.138</code></p>
+<ol>
+<li>配置为静态IP. (弄不好就是无法上外网. 这里折腾半天)</li>
+<li>安装NFS客户端. 开机mount NFS文件</li>
+<li>安装SSH服务, 以便在windows下使用putty</li>
+<li>安装交叉编译工具并测试<br>arm-linux-gcc 3.4.5 (对于2440系列, 别用新版本, 不停的有坑)<br>u-boot-tools<br>mkyaffs2image</li>
+<li>PC linux的环境搭建可参考:<ul>
+<li>第一次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/18/1706-linux-ubuntu14/">嵌入式linux环境搭建1-Ubuntu14</a></del></li>
+<li>第二次尝试, 失败告终, <del><a href="https://draapho.github.io/2017/02/19/1706-linux-centos7/">嵌入式linux环境搭建2-CentOS7</a></del></li>
+<li>第三次尝试, 成功! <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建1-Ubuntu16</a></li>
+</ul>
+</li>
+</ol>
+<h2 id="Embedded-Linux-jz2440v3"><a href="#Embedded-Linux-jz2440v3" class="headerlink" title="Embedded Linux jz2440v3"></a>Embedded Linux jz2440v3</h2><p>ip addr: <code>10.0.0.111</code><br>gateway: <code>10.0.0.138</code></p>
+<ol>
+<li><p>用 jlink 或 openJtag <strong>烧录u-boot</strong></p>
+<ul>
+<li>u-boot的编译</li>
+<li>需要工具jlink或OpenJtag, 一般开发板都会事先烧录好</li>
+</ul>
+</li>
+<li><p>基于u-boot, 用dnw或网络传输 <strong>烧录内核文件</strong></p>
+<ul>
+<li>最后成功使用nfs, 在u-boot下烧录内核文件. 彻底放弃dnw, 接线也更简洁.</li>
+<li>注意hanewin不支持多层文件夹!!!</li>
+<li><del>dnw 需要在window下安装驱动, win7/win10下支持不好. win10 有数字签名问题 (重启即失效)</del></li>
+<li><del>dnw 在虚拟机下的linux没有尝试成功, 因为我用的hyper-v虚拟机, 要连接到物理usb太麻烦.</del></li>
+<li><del>网络传输我这边表现很不稳定, 而且操作上也比dnw繁琐.</del></li>
+<li><del>我最终使用的是 windows 下的dnw. 因为只是烧录内核的时候需要使用.</del></li>
+</ul>
+</li>
+<li><p>基于u-boot, 更改 <strong>file system</strong> 的加载方式为nfs系统, 并自动加载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 以jz2440的u-boot为例, 进入u-boot命令行模式, 将其设置为nfs加载file system</span></div><div class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</div><div class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></div><div class="line"><span class="comment"># (默认值: 'set bootargs noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0')</span></div><div class="line">save        <span class="comment"># 保存修改</span></div><div class="line">reset       <span class="comment"># 重启.</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>jz2440的环境搭建可参考:</p>
+<ul>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux-jz2440环境搭建</a></li>
+</ul>
+</li>
+</ol>
+<h1 id="折腾记"><a href="#折腾记" class="headerlink" title="折腾记"></a>折腾记</h1><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><ol>
+<li>之前玩过NAS, 所以有现成的hanewin让windows做NFS服务器.</li>
+<li>Ubuntu上安装 nfs-common, 顺利加载NFS文件. 编译了u-boot和kernel, 一切正常</li>
+<li>开发板手动挂载nfs, 也成功了</li>
+<li>开发板开机通过nfs挂载文件系统时, 各种permssion deny.</li>
+<li>明显权限问题, 退回到ubuntu下, 尝试在ubuntu下也做个NFS服务器, 然后windows再倒过来加载.</li>
+<li>发现在ubuntu下, 不能把加载过来的NFS文件再次通过NFS分享出去, 应该是出于安全考虑, 没有深入追究.</li>
+<li>被第五条思路折腾了挺久, 最后是因为win10专业版下没有找到能做NFS客户端的软件而放弃.</li>
+<li>折腾一圈后, 又想到windows共享文件方法, 结果Ubuntu 14.04安装Samba提示依赖错误, 搜索半天网络, 没有解决. 按下不表.</li>
+<li>返璞归真, 在ubuntu下老老实实修改权限为777, 编译文件系统, 烧录测试… 结果开发板开机依旧提示错误…</li>
+<li>一天后, 理了理思路, 再分析. 应该还是权限问题没跑, 要么chmod, 要么uid, gid问题. 毕竟是windows下NFS传过来的文件.</li>
+<li>开始研究hanewin的权限问题, 翻到官网的说明, 确实有几个参数可以设置用户和权限.</li>
+<li>一通假设加穷举后, 顺利解决用户和权限问题. 再回到开发板开机通过nfs挂载文件系统, 终于成功了, 而且还是最理想的只需要windows当NFS服务器即可.</li>
+<li>期间还因为使用的arm-linux-gcc 4.3.2 版本, 编译成功, 加载部分fs可以运行, 部分fs有问题.一度以为是有些fs源码有问题, 多个问题交织在一起, 所以排错过程就显得异常痛苦迷茫了.</li>
+<li>嵌入式开发的起步阶段, 基本就是想打主线游戏, 但不停的有分支任务, 分支任务的分支打断你, 让人直直的想骂这tmd是谁设计的鬼游戏, 还让不让人玩下去…</li>
+<li>我想说, 只有保持着对主线好奇, 不忘要打败大boss的初心, 并在分支任务中寻求一点满足感, 才能坚持下去.</li>
+</ol>
+<h2 id="编译器的巨坑"><a href="#编译器的巨坑" class="headerlink" title="编译器的巨坑"></a><del>编译器的巨坑</del></h2><p>刚开始用了 arm-linux-gcc 4.3.2, 编译u-boot时遇到了第一个坑, 还给解决了.<br>于是”顺利”使用 arm-linux-gcc 4.3.2 编译了u-boot, kernel, led驱动程序.<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
+<p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法 (<strong>巨坑的开始</strong>):</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></div><div class="line"><span class="comment"># 解决方法如下:</span></div><div class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</div><div class="line"></div><div class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</div><div class="line"><span class="comment"># 修改成:</span></div><div class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</div><div class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</div><div class="line"></div><div class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></div></pre></td></tr></table></figure>
+<p>最后, 对于 arm-linux-gcc 版本问题, 又研究了一下. 应该说不是新版本不能用, 而是需要设置.<br>对应编译原理之类的基本不懂, 暂时也没有时间去验证, 此处写出来提供一个思路, 感觉是可行的.<br>关键点有这么几个.</p>
+<ul>
+<li>要使用 arm-none-linux-gnueabi</li>
+<li>要指定arm架构 -</li>
+<li>指定使用的库</li>
+</ul>
+<p>这个在上面uboot的例子也能看出一二了. 在网上还有人提到:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 编译 hello.c 时, 需要用如下命令</span></div><div class="line">arm-none-linux-gnueabi-gcc -o hello hello.c -static <span class="comment"># 特别指明了 static不能省略!</span></div><div class="line"><span class="comment"># 配置Makefile时, 需要指明arm架构</span></div><div class="line">CC=<span class="string">"arm-none-linux-gnueabi-gcc -march=armv4t"</span></div><div class="line"><span class="comment"># 指定交叉编译工具</span></div><div class="line"><span class="built_in">export</span> CROSS_COMPILE=/usr/<span class="built_in">local</span>/arm-2008q3/bin/arm-none-linux-gnueabi-</div><div class="line"><span class="comment"># 最后, 还是没明白 arm-linux-gcc 和 arm-none-linux-gnueabi-gcc的区别.</span></div><div class="line"><span class="comment"># 因为打开 arm-linux-gcc 4.3.2 bin下的 arm-linux-gcc 可以看到如下内容:</span></div><div class="line"><span class="built_in">exec</span> arm-none-linux-gnueabi-gcc -march=armv4t $*</div></pre></td></tr></table></figure></p>
+<p>找到二篇详细说明的, 放上链接<br><a href="http://www.veryarm.com/296.html" target="_blank" rel="external">arm交叉编译器gnueabi、none-eabi、arm-eabi、gnueabihf、gnueabi区别</a><br><a href="http://blog.csdn.net/u013467442/article/details/44197725" target="_blank" rel="external">arm-none-linux-gnueabi交叉工具链安装,介绍，区别总结</a></p>
+<h1 id="新技术-Docker"><a href="#新技术-Docker" class="headerlink" title="新技术 Docker"></a>新技术 <a href="https://docs.docker.com/" target="_blank" rel="external">Docker</a></h1><p>Linux下的环境搭建一直让人比较痛苦, 这也直接使得 <code>Docker</code> 优势尽显.<br>简单研究了一下Docker, 这个方案是可行的!<br>可参考 <a href="https://draapho.github.io/2017/02/23/1708-docker/">Docker 初学笔记</a></p>
+<p>基于Docker的ARM交叉编译环境, 已经有人在做了.</p>
+<ul>
+<li><a href="https://github.com/dockcross/dockcross" target="_blank" rel="external">dockcross/dockcross</a>, 但S3C2440是ARM9, 采用的ARMv4架构</li>
+<li><a href="http://hackaday.com/2016/09/01/how-to-use-docker-to-cross-compile-for-raspberry-pi-and-more/" target="_blank" rel="external">HOW TO USE DOCKER TO CROSS COMPILE FOR RASPBERRY PI</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/15/1704-linux-source6/" itemprop="url">
                   Linux 0.11 源码阅读笔记-内存管理
                 </a>
@@ -1067,320 +1472,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/26/1704-linux-source1/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-内存的基础概念
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-26T00:00:00+11:00" content="2017-01-26">
-              2017-01-26
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h1 id="Linux-内存的基础概念"><a href="#Linux-内存的基础概念" class="headerlink" title="Linux 内存的基础概念"></a>Linux 内存的基础概念</h1><h2 id="内存条的分配"><a href="#内存条的分配" class="headerlink" title="内存条的分配"></a>内存条的分配</h2><p><em>Linux0.11 对物理内存条的分配</em><br><img src="https://draapho.github.io/images/1704/1-memory.jpg" alt="memory"></p>
-<ul>
-<li><code>内核模块</code>, Linux Kernel的代码</li>
-<li><code>高速缓冲 Buffer</code>, 缓存内核对硬盘的读写操作. 仅部分内核函数可用</li>
-<li><code>主内存 Memory</code>, 应用程序可用的内存区. 虚拟内存也是针对这一块区域而言的.</li>
-</ul>
-<h2 id="内存的几个概念"><a href="#内存的几个概念" class="headerlink" title="内存的几个概念"></a>内存的几个概念</h2><ul>
-<li>Virtual Memory<br>linux 0.11内核中, 每个程序都划分了总容量为64Mb的虚拟内存空间</li>
-<li>Logical Address<br>程序在虚拟内存空间的偏移量就是逻辑地址, 范围是0x0000000-0x4000000</li>
-<li>Linear Address<br>在内存分段机制中, 把相应的段基址加上逻辑地址就是线性地址. 若没有开启分页功能, 直接就是物理地址.<br>分段机制虽然保证了程序内存的相互隔离, 但是对内存的使用效率是非常低的!<br>80x86 实时模式下, 寻址采用的是段和偏移值. 无分页机制.<br>80x86 保护模式下, 会启用分页机制, 需要使用描述表(Descriptor Table)</li>
-<li>Physical Address<br>真正的内存物理地址, 从逻辑地址到物理地址, 需要经过分段和分页两次转换.</li>
-<li>分段机制<ul>
-<li>相关概念有, GDT(全局描述符表), LDT(局部描述符表)</li>
-<li>Linux基本忽略了分段机制, 通过”欺骗”, 使得逻辑地址与线性地址是一致的! (用GDT, 基地址为0)</li>
-</ul>
-</li>
-<li>分页机制<ul>
-<li>相关概念有 Page Directory(页目录), Page Table(页表)</li>
-<li>新版的linux, 为了提高兼容性, 直接采用了4级分页机制:</li>
-<li>页全局目录, Page Global Directory, 对应80x86的 Page Directory</li>
-<li>页上级目录, Page Upper Directory,  长度设为0即可</li>
-<li>页中间目录, Page Middle Directory, 长度设为0即可</li>
-<li>页表, Page Table, 对应80x86的 Page Table</li>
-</ul>
-</li>
-<li>任务状态段<ul>
-<li>TSS (Task State Segment)</li>
-<li>TSS包含了所有硬件切换任务时, 需要保存的寄存器信息.</li>
-<li>TSS存放于GDT内</li>
-</ul>
-</li>
-</ul>
-<h2 id="内存地址的转换"><a href="#内存地址的转换" class="headerlink" title="内存地址的转换"></a>内存地址的转换</h2><p><em>从逻辑地址变换为物理地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-address-convert.jpg" alt="address-convert"></p>
-<p><em>从逻辑地址变化为物理地址的框图</em><br><img src="https://draapho.github.io/images/1704/1-address-convert-detail.jpg" alt="address-convert-detail"></p>
-<p><em>逻辑地址转换为线性地址的过程</em><br><img src="https://draapho.github.io/images/1704/1-logical2linear.jpg" alt="logical2linear"></p>
-<p><em>线性地址(页目录项, 页表项)在内存中位置</em><br><img src="https://draapho.github.io/images/1704/1-linear2physical.jpg" alt="linear2physical"></p>
-<p><em>页目录(Page Directory), 页表(Page Table)和物理内存的关系图</em><br><img src="https://draapho.github.io/images/1704/1-address-pdpt.jpg" alt="address-pdpt"></p>
-<p><em>进程代码和数据在其逻辑地址空间中的分布 (在物理地址中的分布是随机)</em><br><img src="https://draapho.github.io/images/1704/1-code-address.jpg" alt="code-address"></p>
-<p><em>linux 使用描述符表的示意图</em><br><img src="https://draapho.github.io/images/1704/1-gdt-ldt-memory.jpg" alt="gdt-ldt-memory"></p>
-<p><em>任务1在三种地址空间中的关系</em><br><img src="https://draapho.github.io/images/1704/1-address-relationship.jpg" alt="address-relationship"></p>
-<h2 id="80x86-多任务"><a href="#80x86-多任务" class="headerlink" title="80x86 多任务"></a>80x86 多任务</h2><ul>
-<li>Intel 80x86分为4个保护级别, Linux 0.11只使用了0和3两个保护级别.</li>
-<li>0为最高优先级, 对应于Linux内核态</li>
-<li>3为最低优先级, 对应于Linux用户态</li>
-<li>这样划分主要是为了安全考虑进行的系统级别的隔离.</li>
-<li>用户态无权直接使用硬件资源, 必须通过调用内核函数.</li>
-<li>多任务间, 内存是完全隔离的, 因此任务之间不会相互影响.</li>
-</ul>
-<p><em>linux 的多任务及保护方式</em><br><img src="https://draapho.github.io/images/1704/1-mulit-process.jpg" alt="mulit-process"></p>
-<p><em>linux 任务切换操作示意图</em><br><img src="https://draapho.github.io/images/1704/1-switch-process.jpg" alt="switch-process"></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/23/1704-linux-source/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-总览
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-23T00:00:00+11:00" content="2017-01-23">
-              2017-01-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h2 id="Linux-发展背景"><a href="#Linux-发展背景" class="headerlink" title="Linux 发展背景"></a>Linux 发展背景</h2><p>Linux操作系统的诞生(1991年),发展和成长过程依赖于以下五个重要支柱</p>
-<ol>
-<li>UNIX操作系统 (诞生于1969年, 版权和专利问题不断, 大公司不愿公开操作系统原理和源码)</li>
-<li>MINIX操作系统 (诞生于1987年, 意为 Mini UNIX. 教学使用是开源免费的! linus从中学习了操作系统的工作原理)</li>
-<li>GNU计划 (诞生于1984年, 意为 GNU’s Not Unix 递归缩写. 宗旨是开发一个类Unix的自由软件操作系统)<br>有名的免费软件有: emacs, bash shell, gcc 编译程序, gdb 调试程序<br>因此, 目前许多人将Linux操作系统称之为 <a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU/Linux 操作系统</a>.</li>
-<li>POSIX标准 (V1诞生于1988年, Portable Operating System Interface for Computing Systems)<br>描述了操作系统的调用服务接口标准, 便于应用程序在不同操作系统上的移植.<br>这为linux系统对应用程序的兼容提供了一套标准. 也是linux能流行起来的基础条件之一.</li>
-<li>Internet网络 (确保了linux系统由众人开发维护, 其发展和推广都离不开Internet!)</li>
-</ol>
-<h2 id="Linux-GNU-POSIX-的关系"><a href="#Linux-GNU-POSIX-的关系" class="headerlink" title="Linux, GNU, POSIX 的关系"></a>Linux, GNU, POSIX 的关系</h2><p><img src="https://draapho.github.io/images/1704/0-Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc"></p>
-<h2 id="内核代码框图"><a href="#内核代码框图" class="headerlink" title="内核代码框图"></a>内核代码框图</h2><p><img src="https://draapho.github.io/images/1704/0-kernal-struct.png" alt="kernal-struct"></p>
-<h2 id="内核函数关系图"><a href="#内核函数关系图" class="headerlink" title="内核函数关系图"></a>内核函数关系图</h2><p><img src="https://draapho.github.io/images/1704/0-linux-kernal-map.png" alt="kernal-fucntion"></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/linux-devel.pdf" target="_blank" rel="external">Linux 诞生和发展的五个重要支柱 - 赵炯</a></li>
-<li><a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="external">GNU Operating System</a>.)</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1426,7 +1517,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">75</span>
+              <span class="site-state-item-count">77</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1443,7 +1534,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">71</span>
+                <span class="site-state-item-count">73</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
