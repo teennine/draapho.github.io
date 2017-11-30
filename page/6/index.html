@@ -260,6 +260,146 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/19/1706-linux-centos7/" itemprop="url">
+                  嵌入式linux环境搭建2-CentOS7
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-19T00:00:00+11:00" content="2017-02-19">
+              2017-02-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
+<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
+<li>gateway ip <code>10.0.0.138</code></li>
+<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
+<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
+<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
+</ul>
+</li>
+<li>目的是尝试不同linux系统下的环境搭建</li>
+<li>使用环境: CentOS7 64bit (安装在win10的虚拟机内)</li>
+<li>kernel make 失败</li>
+<li>彻底死机一次</li>
+<li>没法直接安装 u-boot-tools</li>
+<li>彻底放弃! 转战Ubuntu</li>
+<li>不知是 centos 做 2440 的交叉编译兼容性不好, 还是64bit linux的兼容性不好. 或者两者皆有!</li>
+</ul>
+<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><p>静态ip, 安装向导时, 就设置了.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">yum install net-tools 	<span class="comment"># to use ifconfig  or use ip addr</span></div><div class="line">yum install bzip2		<span class="comment"># bz2压缩格式</span></div><div class="line">yum install patch</div><div class="line">yum install gcc</div><div class="line"></div><div class="line"><span class="comment"># 64位系统要安装了32位程序, 安装如下软件</span></div><div class="line">yum install glibc.i686</div><div class="line">yum install libstdc++.so.6</div></pre></td></tr></table></figure>
+<h1 id="安装nfs客户端"><a href="#安装nfs客户端" class="headerlink" title="安装nfs客户端"></a>安装nfs客户端</h1><p>可以参考: <a href="https://www.howtoforge.com/nfs-server-and-client-on-centos-7" target="_blank" rel="external">NFS server and client installation on CentOS 7</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装nfs工具, 服务器和客户端都装这个</span></div><div class="line">yum install nfs-utils</div><div class="line"></div><div class="line"><span class="comment"># 创建用于mount的节点</span></div><div class="line">mkdir -p /mnt/nfs/study</div><div class="line">mkdir -p /mnt/nfs/work</div><div class="line"></div><div class="line"><span class="comment"># 启动服务</span></div><div class="line">systemctl <span class="built_in">enable</span> rpcbind</div><div class="line">systemctl <span class="built_in">enable</span> nfs-server</div><div class="line">systemctl <span class="built_in">enable</span> nfs-lock       <span class="comment"># No such file or directory, 但没影响</span></div><div class="line">systemctl <span class="built_in">enable</span> nfs-idmap      <span class="comment"># No such file or directory</span></div><div class="line">systemctl start rpcbind</div><div class="line">systemctl start nfs-server</div><div class="line">systemctl start nfs-lock</div><div class="line">systemctl start nfs-idmap</div><div class="line"></div><div class="line"><span class="comment"># 手动mount</span></div><div class="line">mount -t nfs 10.0.0.98:/study /mnt/nfs/study/</div><div class="line">mount -t nfs 10.0.0.98:/work /mnt/nfs/work/</div><div class="line"></div><div class="line"><span class="comment"># 确认结果</span></div><div class="line">df -kh</div><div class="line"></div><div class="line"><span class="comment"># 设置为开机自动加载</span></div><div class="line">vi /etc/fstab</div><div class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></div><div class="line">    10.0.0.98:/study   /mnt/nfs/study  nfs defaults 0 0</div><div class="line">    10.0.0.98:/work    /mnt/nfs/work   nfs defaults 0 0</div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line"></div><div class="line">// 建立软连接(快捷方式)</div><div class="line"><span class="built_in">cd</span> /home/user/</div><div class="line">sudo ln <span class="_">-s</span> /mnt/nfs/study study</div><div class="line">sudo ln <span class="_">-s</span> /mnt/nfs/work work</div></pre></td></tr></table></figure>
+<h1 id="安装-mkyaffs2image"><a href="#安装-mkyaffs2image" class="headerlink" title="安装 mkyaffs2image"></a>安装 mkyaffs2image</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></div><div class="line">chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></div><div class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></div></pre></td></tr></table></figure>
+<h1 id="安装及使用交叉编译工具gcc"><a href="#安装及使用交叉编译工具gcc" class="headerlink" title="安装及使用交叉编译工具gcc"></a>安装及使用交叉编译工具gcc</h1><h2 id="安装-arm-linux-gcc-3-4-5"><a href="#安装-arm-linux-gcc-3-4-5" class="headerlink" title="安装 arm-linux-gcc-3.4.5"></a>安装 arm-linux-gcc-3.4.5</h2><p>使用指定的 <code>arm-linux-gcc-3.4.5-glibc-2.3.6</code>. 不要用新版本, 有坑.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装 gcc</span></div><div class="line">mv arm-linux-gcc-3.4.5-glibc-2.3.6.tar.bz2 /usr/<span class="built_in">local</span>/arm/</div><div class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/arm/</div><div class="line">tar -xjf arm-linux-gcc-3.4.5-glibc-2.3.6.tar.bz2</div><div class="line"></div><div class="line"><span class="comment"># 添加路径到环境变量</span></div><div class="line">vi /etc/bashrc</div><div class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></div><div class="line">    <span class="keyword">if</span> [ <span class="_">-d</span> /usr/<span class="built_in">local</span>/arm/gcc-3.4.5-glibc-2.3.6 ] ; <span class="keyword">then</span></div><div class="line">        PATH=/usr/<span class="built_in">local</span>/arm/gcc-3.4.5-glibc-2.3.6/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></div><div class="line">    <span class="keyword">fi</span></div><div class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></div><div class="line">    </div><div class="line"><span class="comment"># 测试安装结果</span></div><div class="line"><span class="built_in">source</span> /etc/bashrc							<span class="comment"># 不重启更新PATH</span></div><div class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>									<span class="comment"># 查看PATH</span></div><div class="line">arm-linux-gcc -v							<span class="comment"># 测试是否安装成功</span></div></pre></td></tr></table></figure>
+<h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>在centos下, 内核 make clean 会报错: Makefile‘混和的隐含和普通规则’<br>我想还是因为 2440 内核文件使用的makefile太老了. 和centos兼容性不好.<br>按下述方法改了一点后, 最后make还是失败了. 因而放弃 centos 系统.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 修改根目录下的 Makefile</span></div><div class="line">/ %/: prepare scripts FORCE</div><div class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</div><div class="line">    $(build)=$(build-dir)</div><div class="line"><span class="comment"># 改成： -----&gt;</span></div><div class="line">/: prepare scripts FORCE</div><div class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</div><div class="line">    $(build)=$(build-dir)</div><div class="line">%/: prepare scripts FORCE</div><div class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</div><div class="line">    $(build)=$(build-dir)</div><div class="line"></div><div class="line"><span class="comment"># 把：</span></div><div class="line">config %config: scripts_basic outputmakefile FORCE</div><div class="line">    $(Q)mkdir -p include/linux include/config</div><div class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></div><div class="line"><span class="comment"># 改成： -----&gt;</span></div><div class="line">config: scripts_basic outputmakefile FORCE</div><div class="line">    $(Q)mkdir -p include/linux include/config</div><div class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></div><div class="line">%config: scripts_basic outputmakefile FORCE</div><div class="line">    $(Q)mkdir -p include/linux include/config</div><div class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></div></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/18/1706-linux-ubuntu14/" itemprop="url">
                   嵌入式linux环境搭建1-Ubuntu14.04
                 </a>
@@ -1292,191 +1432,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/28/1704-linux-source2/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-启动程序
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-28T00:00:00+11:00" content="2017-01-28">
-              2017-01-28
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><em>启动引导时内核在内存中的位置和移动情况</em><br><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"></p>
-<ol>
-<li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
-<li>bootsect.s 被BIOS读入到内存地址 0x7C00(31Kb) 处开始运行后, 立刻把自己移到 0x90000(576Kb) 处.</li>
-<li>接着, bootsect.s 把 setup.s 读入到 0x90200 处, system模块(即内核)读入到 0x10000 处.<ul>
-<li>此版本内核模块不会超过 0x80000, 即512K大小, 因此不会覆盖掉0x90000处的内容</li>
-<li>setup.s 需要一些 ROM BIOS 保留下来的一些系统参数(如显卡模式, 硬盘参数等), 这些参数被BIOS放在内存起始处, 大小为1Kb.</li>
-<li>因而 bootsect.s 只能先把内核放到 0x10000 处而不是直接放到 0x0000 处!</li>
-</ul>
-</li>
-<li>bootsect.s 把执行权交给 setup.s.</li>
-<li>然后, setup.s 把BIOS预留在内存起始处的参数存储到0x90000处(覆盖了bootsect.s), 再把system模块移到内存起始处 (0x0000)</li>
-<li>setup.s 把执行权交给 head.s, linux系统代码加载过程完成, linux开始启动!</li>
-</ol>
-<p>备注:</p>
-<ul>
-<li>启动过程涉及到很多80x86的硬件知识, 没必要深究, 重点是理解启动过程和思路!</li>
-<li>因为目录linux早已支持arm体系结构, 嵌入式也以arm为主. 涉及到硬件的部分需要时再深入了解即可.</li>
-</ul>
-<h2 id="bootsect-s"><a href="#bootsect-s" class="headerlink" title="bootsect.s"></a>bootsect.s</h2><ul>
-<li>bootsect.s 是磁盘引导块程序, 放在磁盘的一个扇区中(引导扇区).</li>
-<li>PC上电, BIOS自检后, BIOS会把引导扇区bootsect加载到内存地址0x7C00处并执行.</li>
-<li>bootsect 立刻把自己挪到 0x90000 处并继续执行</li>
-<li>利用BISO中断0x13获取启动引导盘参数, 准备读取1.44MB启动磁盘内的后续部分(setup.s + system模块)</li>
-<li>加载 setup.s 到 0x90200 处</li>
-<li>在屏幕上显示 “Loading system…”</li>
-<li>把system模块加载到0x10000处</li>
-<li>长跳到 setup.s, 执行 setup.s</li>
-</ul>
-<h2 id="setup-s"><a href="#setup-s" class="headerlink" title="setup.s"></a>setup.s</h2><ul>
-<li>setup.s 是一个操作系统加载程序. 主要作用读取BIOS保留的系统参数, 移动system模块到内存0x0000处, 并执行head.s代码</li>
-<li>setup.s 首先是把BIOS预留在内存0x0000处的参数保存到内存 0x90000 处, 会覆盖掉已经没有用的 bootsect.s 代码</li>
-<li>主要参数有: 光标位置, 扩展内存数, 显示页面, 显示模式, 字符列数, 显示内存, 显示状态, 显卡特性, 硬盘参数, 根设备号</li>
-<li>接着 setup.s 将system模块从 0x10000-0x8ffff 整体向下移动到 0x0000 处.</li>
-<li>然后 setup.s 加载 idtr 和 gdtr (中断/全局描述符表寄存器), 重设中断号, 设置CPU进入32位保护模式运行</li>
-<li>跳转到 system模块的 head.s 继续运行(运行在32位保护模式下)</li>
-</ul>
-<p><em>setup.s 结束后内中的程序示意图</em><br><img src="https://draapho.github.io/images/1704/2-setup-memory.jpg" alt="setup-memory"></p>
-<h2 id="head-s"><a href="#head-s" class="headerlink" title="head.s"></a>head.s</h2><ul>
-<li>head.s 位于整个linux操作系统最前面, 主要功能就是为linux的执行检测和初始化系统环境</li>
-<li>设置系统堆栈</li>
-<li>设置idt(中断描述符表) 和 gdt(全局表述符表)</li>
-<li>检测A20地址线是否已真的开启 (就是能读取1M以上的内存地址)</li>
-<li>将页目录表放在内存地址0处 (会覆盖自己idt部分的内容)</li>
-<li>最后, heads利用返回指令, 弹出main.c的入口地址, 运行main()程序</li>
-</ul>
-<p><em>head.s 结束后, system模块在内存中的示意图</em><br><img src="https://draapho.github.io/images/1704/2-head-memory.jpg" alt="head-memory"></p>
-<h2 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h2><p><em>main初始化完成后, 内存功能示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-memory.jpg" alt="maim-memory"></p>
-<p><em>内核初始化程序流程示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-flow.jpg" alt="maim-flow"></p>
-<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
-<p><em>进程(process), 进程组(process group) 和 会话期(session) 的关系图</em><br><img src="https://draapho.github.io/images/1704/2-session-process.jpg" alt="session-process"></p>
-<ul>
-<li>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="external">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1517,7 +1477,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">77</span>
+              <span class="site-state-item-count">78</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1534,7 +1494,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">73</span>
+                <span class="site-state-item-count">74</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
