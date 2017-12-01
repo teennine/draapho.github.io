@@ -857,7 +857,7 @@
           
             <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>LinK+ 是一款在linux下基于eclipse开发的免费的Linux内核以及驱动开发软件.<br>这个软件在国外知名度也不高. 国内更是没人介绍过这一款软件.<br>软件的现状是: 开发者似乎已经停止更新, 设想中支持的ARM架构也没有下文. 因此不支持嵌入式的仿真.<br><strong>我主要用它来查看内核源码, 开发驱动, 能快速的搭建好驱动架构, 支持内核函数跳转查看! 自动生成Makefile.</strong></p>
 <p>网址如下: <a href="https://sourceforge.net/projects/linkplustest/" target="_blank" rel="external">Linux Kernel Programming IDE (LinK+)</a></p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>根据用户手册, 有多种安装方法. 使用最简单的 LinK+IDE方式.<br>下载 32bit, 因为我用的是32位的Ubuntu. </p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>根据用户手册, 有多种安装方法. 使用最简单的 LinK+IDE方式.<br>下载 32bit, 因为我用的是32位的Ubuntu.</p>
 <ul>
 <li><a href="https://sourceforge.net/projects/linkplustest/files/installers/" target="_blank" rel="external">点这里, 下载页面</a></li>
 <li><a href="http://sourceforge.net/projects/linkplustest/files/documentation/LinK%2B_UserManual_Rev4.pdf" target="_blank" rel="external">安装和使用手册</a></li>
@@ -866,20 +866,20 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装最新版 openjdk, 向下兼容jdk6即可.</span></div><div class="line">sudo apt-get install openjdk-8-jdk</div><div class="line"></div><div class="line"><span class="comment"># 安装open ssh</span></div><div class="line">sudo apt-get install openssh-client openssh-server</div><div class="line"></div><div class="line"><span class="comment"># 其它依赖的软件</span></div><div class="line">sudo apt-get install libqt4-dev</div><div class="line">sudo apt-get install libncurses5</div><div class="line">sudo apt-get install qemu</div><div class="line">sudo apt-get install bridge-utils iptables dnsmasq</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 安装 LinK+IDE</span></div><div class="line"><span class="comment"># 下载好LinK+IDE的文件, LinK+ IDE-linux.gtk.x86.tar.gz.tar.gz</span></div><div class="line">tar -xzvf L<span class="keyword">in</span>K+\ IDE-linux.gtk.x86.tar.gz.tar.gz</div><div class="line">./linkplus</div><div class="line"><span class="comment"># 安装成功的话, 就能运行了.</span></div></pre></td></tr></table></figure>
 <p>然后, LinK+IDE 的升级和插件不用看了. 很久没更新过了.</p>
 <h1 id="Kernel源码的编译和阅读"><a href="#Kernel源码的编译和阅读" class="headerlink" title="Kernel源码的编译和阅读"></a>Kernel源码的编译和阅读</h1><p>先确定linux内核源码可以在终端下成功编译.</p>
-<p>新建Makefile工程<br><a href="https://draapho.github.io/images/1737/link1.JPG">https://draapho.github.io/images/1737/link1.JPG</a></p>
-<p>选择源码路径, 工具链使用Makefile自己的, 所以选<none><br><a href="https://draapho.github.io/images/1737/link2.JPG">https://draapho.github.io/images/1737/link2.JPG</a></none></p>
-<p>取消自动编译, 然后选择项目属性<br><a href="https://draapho.github.io/images/1737/link3.JPG">https://draapho.github.io/images/1737/link3.JPG</a></p>
-<p>设置宏定义 <code>__KERNEL__</code>, 不影响编译, 只是为了方便查看源码<br><a href="https://draapho.github.io/images/1737/link4.JPG">https://draapho.github.io/images/1737/link4.JPG</a></p>
-<p>设定编译指令, <code>make</code> 即可<br><a href="https://draapho.github.io/images/1737/link5.JPG">https://draapho.github.io/images/1737/link5.JPG</a></p>
+<p>新建Makefile工程<br><img src="https://draapho.github.io/images/1737/link1.JPG" alt="link.JPG"></p>
+<p>选择源码路径, 工具链使用Makefile自己的, 所以选<none><br><img src="https://draapho.github.io/images/1737/link2.JPG" alt="link.JPG"></none></p>
+<p>取消自动编译, 然后选择项目属性<br><img src="https://draapho.github.io/images/1737/link3.JPG" alt="link.JPG"></p>
+<p>设置宏定义 <code>__KERNEL__</code>, 不影响编译, 只是为了方便查看源码<br><img src="https://draapho.github.io/images/1737/link4.JPG" alt="link.JPG"></p>
+<p>设定编译指令, <code>make</code> 即可<br><img src="https://draapho.github.io/images/1737/link5.JPG" alt="link.JPG"></p>
 <p>设定指令目标.</p>
 <ul>
 <li>内核使用的是 <code>make uImage</code></li>
-<li>驱动使用的是 <code>make modules</code><br><a href="https://draapho.github.io/images/1737/link6.JPG">https://draapho.github.io/images/1737/link6.JPG</a></li>
+<li>驱动使用的是 <code>make modules</code><br><img src="https://draapho.github.io/images/1737/link6.JPG" alt="link.JPG"></li>
 </ul>
-<p>如果需要设置更多的指令目标, 用如下方式. Create是设置, Build是执行<br><a href="https://draapho.github.io/images/1737/link7.JPG">https://draapho.github.io/images/1737/link7.JPG</a></p>
-<p>设置自定义目标<br><a href="https://draapho.github.io/images/1737/link8.JPG">https://draapho.github.io/images/1737/link8.JPG</a></p>
+<p>如果需要设置更多的指令目标, 用如下方式. Create是设置, Build是执行<br><img src="https://draapho.github.io/images/1737/link7.JPG" alt="link.JPG"></p>
+<p>设置自定义目标<br><img src="https://draapho.github.io/images/1737/link8.JPG" alt="link.JPG"></p>
 <p>好了, 如果这样直接 <code>Make Targets</code>-&gt;<code>Build...</code>-&gt;<code>uImage</code>, 会编译失败.<br>原因是Eclipse下面无法正确失败Makefile下面的CROSS_COMPILE路径.<br>见 <a href="https://www.crifan.com/ubuntu_eclipse_cross_compile_uboot_based_on_makefile/" target="_blank" rel="external">Ubuntu下基于Eclipse去调用Makefile交叉编译Uboot</a><br>需要将其改为绝对路径. 打开内核源码根目录下的 <code>Makefile</code>, 187行, 修改如下:</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># CROSS_COMPILE	?= arm-linux-</span></div><div class="line">CROSS_COMPILE	?= /usr/local/gcc-3.4.5-glibc-2.3.6/bin/arm-linux-</div></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># CROSS_COMPILE ?= arm-linux-</span></div><div class="line">CROSS_COMPILE   ?= /usr/local/gcc-3.4.5-glibc-2.3.6/bin/arm-linux-</div></pre></td></tr></table></figure>
 <p>再次在eclipse下尝试编译, 就成功了. 看Console的输出, 获得uImage文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Kernel: arch/arm/boot/Image is ready</div><div class="line">Kernel: arch/arm/boot/zImage is ready</div><div class="line">Image arch/arm/boot/uImage is ready</div></pre></td></tr></table></figure></p>
 <p>但Ecilpse依旧会显示很多警告和错误. 原因不明, 查的如下资料:</p>
 <ul>
@@ -894,7 +894,7 @@
 <li>选择 Device Driver Project</li>
 <li>写好驱动名称, 驱动路径, 作者, 开源证书类型</li>
 <li>Kernel Version 要去掉 <code>Use Host Machine Kernel</code>, 选择我们已经编译好的嵌入式内核源码路径</li>
-<li>X86架构 (ARM不支持), </li>
+<li>X86架构 (ARM不支持),</li>
 <li>下面两步可以根据需求自己选择驱动框架, LinK+会自动生成有框架的.c和.h以及Makefile文件.</li>
 <li>驱动下面, 所有的跳转都可用, 可以非常方便的查看函数和宏定义.</li>
 <li>可以使用eclipse去编译, 设置一个 <code>modules</code> 目标就可以了.</li>
