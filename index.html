@@ -865,20 +865,15 @@
 <p><strong>说明一下 LinK+ UserManual 里面的 <code>-</code>横杠都是错误的, 终端无法识别!</strong><br>然后按照说明安装如下依赖的软件.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 安装最新版 openjdk, 向下兼容jdk6即可.</span></div><div class="line">sudo apt-get install openjdk-8-jdk</div><div class="line"></div><div class="line"><span class="comment"># 安装open ssh</span></div><div class="line">sudo apt-get install openssh-client openssh-server</div><div class="line"></div><div class="line"><span class="comment"># 其它依赖的软件</span></div><div class="line">sudo apt-get install libqt4-dev</div><div class="line">sudo apt-get install libncurses5</div><div class="line">sudo apt-get install qemu</div><div class="line">sudo apt-get install bridge-utils iptables dnsmasq</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 安装 LinK+IDE</span></div><div class="line"><span class="comment"># 下载好LinK+IDE的文件, LinK+ IDE-linux.gtk.x86.tar.gz.tar.gz</span></div><div class="line">tar -xzvf L<span class="keyword">in</span>K+\ IDE-linux.gtk.x86.tar.gz.tar.gz</div><div class="line">./linkplus</div><div class="line"><span class="comment"># 安装成功的话, 就能运行了.</span></div></pre></td></tr></table></figure>
 <p>然后, LinK+IDE 的升级和插件不用看了. 很久没更新过了.</p>
-<h1 id="Kernel源码的编译和阅读"><a href="#Kernel源码的编译和阅读" class="headerlink" title="Kernel源码的编译和阅读"></a>Kernel源码的编译和阅读</h1><p>先确定linux内核源码可以在终端下成功编译.</p>
-<p>新建Makefile工程<br><img src="https://draapho.github.io/images/1737/link1.JPG" alt="link.JPG"></p>
-<p>选择源码路径, 工具链使用Makefile自己的, 所以选<none><br><img src="https://draapho.github.io/images/1737/link2.JPG" alt="link.JPG"></none></p>
-<p>取消自动编译, 然后选择项目属性<br><img src="https://draapho.github.io/images/1737/link3.JPG" alt="link.JPG"></p>
+<h1 id="Kernel源码的编译和阅读"><a href="#Kernel源码的编译和阅读" class="headerlink" title="Kernel源码的编译和阅读"></a>Kernel源码的编译和阅读</h1><p>先确定linux内核源码可以在终端下成功编译.<br>新建Makefile工程<br><img src="https://draapho.github.io/images/1737/link1.JPG" alt="link.JPG"></p>
+<p>选择源码路径, 工具链使用Makefile自己的, 所以选<code>&lt;none&gt;</code><br><img src="https://draapho.github.io/images/1737/link2.JPG" alt="link.JPG"></p>
+<p>选中项目, 然后在菜单里取消自动编译, 最后选择项目属性<br><img src="https://draapho.github.io/images/1737/link3.JPG" alt="link.JPG"></p>
 <p>设置宏定义 <code>__KERNEL__</code>, 不影响编译, 只是为了方便查看源码<br><img src="https://draapho.github.io/images/1737/link4.JPG" alt="link.JPG"></p>
 <p>设定编译指令, <code>make</code> 即可<br><img src="https://draapho.github.io/images/1737/link5.JPG" alt="link.JPG"></p>
-<p>设定指令目标.</p>
-<ul>
-<li>内核使用的是 <code>make uImage</code></li>
-<li>驱动使用的是 <code>make modules</code><br><img src="https://draapho.github.io/images/1737/link6.JPG" alt="link.JPG"></li>
-</ul>
+<p>设定指令目标. 内核使用 <code>uImage</code>, 驱动使用 <code>make modules</code><br><img src="https://draapho.github.io/images/1737/link6.JPG" alt="link.JPG"></p>
 <p>如果需要设置更多的指令目标, 用如下方式. Create是设置, Build是执行<br><img src="https://draapho.github.io/images/1737/link7.JPG" alt="link.JPG"></p>
 <p>设置自定义目标<br><img src="https://draapho.github.io/images/1737/link8.JPG" alt="link.JPG"></p>
-<p>好了, 如果这样直接 <code>Make Targets</code>-&gt;<code>Build...</code>-&gt;<code>uImage</code>, 会编译失败.<br>原因是Eclipse下面无法正确失败Makefile下面的CROSS_COMPILE路径.<br>见 <a href="https://www.crifan.com/ubuntu_eclipse_cross_compile_uboot_based_on_makefile/" target="_blank" rel="external">Ubuntu下基于Eclipse去调用Makefile交叉编译Uboot</a><br>需要将其改为绝对路径. 打开内核源码根目录下的 <code>Makefile</code>, 187行, 修改如下:</p>
+<p>好了, 如果这样直接 <code>Make Targets</code>-&gt;<code>Build...</code>-&gt;<code>uImage</code>, 会编译失败.<br>原因是Eclipse下面无法正确识别Makefile下面的CROSS_COMPILE路径.<br>见 <a href="https://www.crifan.com/ubuntu_eclipse_cross_compile_uboot_based_on_makefile/" target="_blank" rel="external">Ubuntu下基于Eclipse去调用Makefile交叉编译Uboot</a><br>需要将其改为绝对路径. 打开内核源码根目录下的 <code>Makefile</code>, 187行, 修改如下:</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># CROSS_COMPILE ?= arm-linux-</span></div><div class="line">CROSS_COMPILE   ?= /usr/local/gcc-3.4.5-glibc-2.3.6/bin/arm-linux-</div></pre></td></tr></table></figure>
 <p>再次在eclipse下尝试编译, 就成功了. 看Console的输出, 获得uImage文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Kernel: arch/arm/boot/Image is ready</div><div class="line">Kernel: arch/arm/boot/zImage is ready</div><div class="line">Image arch/arm/boot/uImage is ready</div></pre></td></tr></table></figure></p>
 <p>但Ecilpse依旧会显示很多警告和错误. 原因不明, 查的如下资料:</p>
@@ -899,8 +894,8 @@
 <li>驱动下面, 所有的跳转都可用, 可以非常方便的查看函数和宏定义.</li>
 <li>可以使用eclipse去编译, 设置一个 <code>modules</code> 目标就可以了.</li>
 </ul>
-<h1 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h1><p>这个方法的核心是不用Eclipse自己的编译工具链. 所有的编译工具都由Makefile内指定了.<br>所以, 这个方法也适用于编译查看u-boot源码.<br>如果是应用层代码, 那么就需要自己写Makefile指定编译工具了.</p>
-<p>另外一个方法是, 另外下载一个 <code>Eclipse IDE for C/C++</code><br>单独为应用层代码配置一个环境. 可参考:</p>
+<h1 id="Eclipse交叉编译说明"><a href="#Eclipse交叉编译说明" class="headerlink" title="Eclipse交叉编译说明"></a>Eclipse交叉编译说明</h1><p>这个方法的核心是不用Eclipse自己的编译工具链. 所有的编译工具都由Makefile内指定了.<br>所以, 这个也适用于编译查看u-boot源码.<br>如果是应用层代码, 那么就需要自己写Makefile指定编译工具了.<br>另外一个方法是, 另外下载一个 <code>Eclipse IDE for C/C++</code>, 单独为应用层代码配置一个环境. </p>
+<p>可参考:</p>
 <ul>
 <li><a href="http://www.linuxidc.com/Linux/2016-09/135062.htm" target="_blank" rel="external">Linux下搭建树莓派交叉编译环境</a></li>
 <li><a href="http://www.cnblogs.com/lazygunner/archive/2011/11/30/2269726.html" target="_blank" rel="external">Linux + Eclipse 配置交叉编译环境</a></li>
