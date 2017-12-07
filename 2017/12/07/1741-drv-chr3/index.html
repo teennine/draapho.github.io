@@ -1,0 +1,870 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linuxembedded linux,drv," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+Linux的中断实现核心流程
+trap_init, 构造异常向量表
+位于 arch/arm/kernel/traps.c, 三个memcpy函数
+
+
+s3c24xx_init_irq 芯片初始化 struct">
+<meta property="og:type" content="article">
+<meta property="og:title" content="驱动之基于中断设计按键驱动">
+<meta property="og:url" content="https://draapho.github.io/2017/12/07/1741-drv-chr3/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+Linux的中断实现核心流程
+trap_init, 构造异常向量表
+位于 arch/arm/kernel/traps.c, 三个memcpy函数
+
+
+s3c24xx_init_irq 芯片初始化 struct">
+<meta property="og:updated_time" content="2017-12-07T07:30:05.315Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="驱动之基于中断设计按键驱动">
+<meta name="twitter:description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+Linux的中断实现核心流程
+trap_init, 构造异常向量表
+位于 arch/arm/kernel/traps.c, 三个memcpy函数
+
+
+s3c24xx_init_irq 芯片初始化 struct">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/12/07/1741-drv-chr3/"/>
+
+
+  <title> 驱动之基于中断设计按键驱动 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                驱动之基于中断设计按键驱动
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-07T00:00:00+11:00" content="2017-12-07">
+              2017-12-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="Linux的中断实现"><a href="#Linux的中断实现" class="headerlink" title="Linux的中断实现"></a>Linux的中断实现</h1><h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><ul>
+<li>trap_init, 构造异常向量表<ul>
+<li>位于 <code>arch/arm/kernel/traps.c</code>, 三个memcpy函数</li>
+</ul>
+</li>
+<li><code>s3c24xx_init_irq</code> 芯片初始化 <code>struct irq_desc</code> 结构体.<ul>
+<li>由 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code> 宏定义加入系统的初始化数据段 <code>&quot;.arch.info.init&quot;</code>.</li>
+<li>位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
+<li><code>s3c24xx_init_irq</code> 会调用函数 <code>set_irq_chip</code>, <code>set_irq_handler</code> 完成irq的初始化</li>
+</ul>
+</li>
+<li>cpu发生中断，跳到异常向量入口执行(<code>b vector_irq + stubs_offset</code>)<ul>
+<li>位于 <code>arch/arm/kernel/entry-armv.S</code></li>
+</ul>
+</li>
+<li><code>vector_irq</code> 用宏实现保存,执行(<code>asm_do_IRQ</code>),恢复.<ul>
+<li><code>vector_irq</code> 由宏定义 <code>vector_stub</code> 而来</li>
+<li>函数调用 <code>__irq_usr</code>-&gt;<code>irq_handler</code>-&gt;<code>asm_do_IRQ</code></li>
+</ul>
+</li>
+<li><code>asm_do_IRQ</code> 根据中断号irq=(EINT4~EINT23)调用irq_desc[irq].handle_irq=(handle_edge_irq)<ul>
+<li>位于 <code>arch/arm/kernel/irq.c</code>, 调用 <code>desc_handle_irq</code> 函数</li>
+<li>handle_irq 的初始化由 <code>s3c24xx_init_irq</code> 完成, 位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
+</ul>
+</li>
+<li><code>handle_edge_irq</code> 使用chip成员中的函数=&amp;s3c_irqext_chip来设置硬件<ul>
+<li>函数 <code>set_irq_chip</code>, 指定 <code>struct irq_chip</code> 结构,</li>
+<li>此结构定义了中断的基本操作, 譬如启动, 关闭, 使能, 禁止, 触发条件, 响应(ack), mask 等等.</li>
+</ul>
+</li>
+<li><code>handle_edge_irq</code> 逐个调用用户在irq_desc[irq].action连表中注册的处理函数<ul>
+<li>函数 <code>set_irq_handler</code>, 实际调用 <code>__set_irq_handler</code></li>
+<li>此函数指定了 <code>struct irq_desc</code> 结构, 其中 <code>action</code> 维护用户回调函数链表.</li>
+</ul>
+</li>
+<li>用户注册中断服务程序 <code>request_irq</code>include/linux/irq.h<ul>
+<li>供内核驱动代码调用</li>
+<li>分配一个 <code>irqaction</code> 结构</li>
+<li>将其加入<code>irq_desc[irq].action</code>中</li>
+<li>设置中断触发方式和引脚状态 <code>desc-&gt;chip-&gt;set_type()</code></li>
+<li>使能中断</li>
+</ul>
+</li>
+<li>卸载中断服务程序 <code>free_irq</code><ul>
+<li>供内核驱动代码调用</li>
+<li>由irq号定位action链表, 然后将其删掉</li>
+<li>关闭中断</li>
+</ul>
+</li>
+</ul>
+<h2 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h2><ul>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77715829" target="_blank" rel="external">字符设备驱动-Linux内核异常处理体系结构</a></li>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77751916" target="_blank" rel="external">字符设备驱动-中断方式操控按键</a></li>
+<li><a href="http://www.wowotech.net/irq_subsystem/irq_handler.html" target="_blank" rel="external">Linux kernel的中断子系统之（六）：ARM中断处理过程</a></li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><h2 id="核心点"><a href="#核心点" class="headerlink" title="核心点"></a>核心点</h2><p>此次为中断的驱动源码, 核心点有2个地方</p>
+<ul>
+<li><code>request_irq</code> <code>free_irq</code><ul>
+<li>这两个函数用于注册和释放中断号, 重点说注册</li>
+<li>调用<code>request_irq</code>后, 对应的中断会自动初始化并使能.</li>
+<li>相应的调用<code>free_irq</code>后, 对应的中断会自动被屏蔽掉.</li>
+<li><code>irq</code>, 中断号. 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
+<li><code>handler</code>, 由驱动编程人员实现的回调函数</li>
+<li><code>irqflags</code>, 中断触发类型, 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
+<li><code>*devname</code>, 自己给中断取个名字, 和驱动的设备名称无关. 会在 <code>cat /proc/interrupts</code> 下面显示出来.</li>
+<li><code>*dev_id</code>, 可以认为是中断设备的ID号, 但此处习惯于导入驱动自用的数据结构指针.</li>
+</ul>
+</li>
+<li><code>wake_up_interruptible</code> <code>wait_event_interruptible</code><ul>
+<li>用了这两个函数, 才会真正提高系统的运行效率.</li>
+<li>其概念是, 中断触发时, 调用 <code>wake_up_interruptible</code>, 告知中断发生, 需要处理</li>
+<li>此时, <code>wait_event_interruptible</code> 就会被唤醒, 判断条件后, 决定是继续执行还是进程睡眠.</li>
+</ul>
+</li>
+</ul>
+<h2 id="drv-key-int-c"><a href="#drv-key-int-c" class="headerlink" title="drv_key_int.c"></a>drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line">===============================================================================</div><div class="line">Driver Name     :       drv_key_int</div><div class="line">Author          :       DRAAPHO</div><div class="line">License         :       GPL</div><div class="line">Description     :       LINUX DEVICE DRIVER PROJECT, 由LinK+生成模板, 部分修改而来.</div><div class="line">===============================================================================</div><div class="line">*/</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_int.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_N_MINORS 1              <span class="comment">// 三个按键, 但作为一个字符设备就可以了.</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_FIRST_MINOR 0</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_int"</span></span></div><div class="line"></div><div class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</div><div class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</div><div class="line"></div><div class="line"><span class="keyword">int</span> drv_key_int_major=<span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="keyword">dev_t</span> drv_key_int_device_num;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> <span class="keyword">class</span> *drv_key_int_class;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> privatedata &#123;                <span class="comment">// 驱动私有结构, 模板生成, 此驱动没用.</span></div><div class="line">    <span class="keyword">int</span> nMinor;</div><div class="line">    <span class="keyword">struct</span> cdev cdev;</div><div class="line">    <span class="keyword">struct</span> device *drv_key_int_device;</div><div class="line">&#125; drv_key_int_private;</div><div class="line"></div><div class="line">drv_key_int_private devices[DRV_KEY_INT_N_MINORS];</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 中断驱动增加的代码 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_WAIT_QUEUE_HEAD</span><span class="params">(key_waitq)</span></span>;  <span class="comment">// 作用类似于信号量, 这里是向系统加入一个等待列表.</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">int</span> ev_press = <span class="number">0</span>;           <span class="comment">// 中断事件标记, 手动值1或者清0</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;              <span class="comment">// 记录按键值</span></div><div class="line"></div><div class="line"><span class="keyword">struct</span> pin_desc &#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pin;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> key_val;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> pin_desc pins_desc[<span class="number">3</span>] = &#123;            <span class="comment">// 设置好按键的引脚和对应的值</span></div><div class="line">    &#123;S3C2410_GPF0, <span class="number">0x01</span>&#125;,</div><div class="line">    &#123;S3C2410_GPF2, <span class="number">0x02</span>&#125;,</div><div class="line">    &#123;S3C2410_GPG3, <span class="number">0x04</span>&#125;,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> pin_desc * pindesc = (<span class="keyword">struct</span> pin_desc *)dev_id;  <span class="comment">// 获取自用的数据指针</span></div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pinval;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"keys_irq, irq=%d\n"</span>, irq);</div><div class="line">    pinval = s3c2410_gpio_getpin(pindesc-&gt;pin);             <span class="comment">// 读取按键电平</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (pinval) &#123;                                           <span class="comment">// 松开</span></div><div class="line">        keys_val &amp;= ~pindesc-&gt;key_val;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;                                                <span class="comment">// 按下</span></div><div class="line">        keys_val |= pindesc-&gt;key_val;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ev_press = <span class="number">1</span>;                                           <span class="comment">// 表示中断发生</span></div><div class="line">    wake_up_interruptible(&amp;key_waitq);                      <span class="comment">// 唤醒休眠的进程</span></div><div class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ===== 部分修改模板代码 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> ret;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv = container_of(inode-&gt;i_cdev ,</div><div class="line">                                    drv_key_int_private ,cdev);</div><div class="line">    filp-&gt;private_data = priv;</div><div class="line">    PINFO(<span class="string">"In char driver open() function\n"</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 注册中断号, 设置中断类型, 设置中断名称(和设备名称无关), 传入自用的数据指针</span></div><div class="line">    ret  = request_irq(IRQ_EINT0, keys_irq, IRQT_BOTHEDGE, <span class="string">"S2"</span>, &amp;pins_desc[<span class="number">0</span>]);</div><div class="line">    ret |= request_irq(IRQ_EINT2, keys_irq, IRQT_BOTHEDGE, <span class="string">"S3"</span>, &amp;pins_desc[<span class="number">1</span>]);</div><div class="line">    ret |= request_irq(IRQ_EINT11, keys_irq, IRQT_BOTHEDGE, <span class="string">"S4"</span>, &amp;pins_desc[<span class="number">2</span>]);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (ret) <span class="keyword">return</span> -EINVAL;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv;</div><div class="line">    priv=filp-&gt;private_data;</div><div class="line">    PINFO(<span class="string">"In char driver release() function\n"</span>);</div><div class="line"></div><div class="line">    free_irq(IRQ_EINT11, &amp;pins_desc[<span class="number">2</span>]);                    <span class="comment">// 注销中断</span></div><div class="line">    free_irq(IRQ_EINT2, &amp;pins_desc[<span class="number">1</span>]);</div><div class="line">    free_irq(IRQ_EINT0, &amp;pins_desc[<span class="number">0</span>]);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_int_read</span><span class="params">(<span class="keyword">struct</span> file *filp,</span></span></div><div class="line">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv;</div><div class="line">    priv = filp-&gt;private_data;</div><div class="line">    PINFO(<span class="string">"In char driver read() function\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> -EINVAL;</div><div class="line"></div><div class="line">    <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></div><div class="line">    wait_event_interruptible(key_waitq, ev_press);</div><div class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></div><div class="line">        <span class="keyword">return</span> -EFAULT;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ===== 模板代码, 没有修改 =====</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct</span> file_operations drv_key_int_fops= &#123;</div><div class="line">    .owner              = THIS_MODULE,</div><div class="line">    .open               = drv_key_int_open,</div><div class="line">    .release            = drv_key_int_release,</div><div class="line">    .read               = drv_key_int_read,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">drv_key_int_init</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></div><div class="line">    <span class="keyword">int</span> i;</div><div class="line">    <span class="keyword">int</span> res;</div><div class="line"></div><div class="line">    res = alloc_chrdev_region(&amp;drv_key_int_device_num,DRV_KEY_INT_FIRST_MINOR,DRV_KEY_INT_N_MINORS ,DRIVER_NAME);</div><div class="line">    <span class="keyword">if</span>(res) &#123;</div><div class="line">        PERR(<span class="string">"register device no failed\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    drv_key_int_major = MAJOR(drv_key_int_device_num);</div><div class="line"></div><div class="line">    drv_key_int_class = class_create(THIS_MODULE , DRIVER_NAME);</div><div class="line">    <span class="keyword">if</span>(!drv_key_int_class) &#123;</div><div class="line">        PERR(<span class="string">"class creation failed\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</div><div class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line">        cdev_init(&amp;devices[i].cdev , &amp;drv_key_int_fops);</div><div class="line">        cdev_add(&amp;devices[i].cdev,drv_key_int_device_num,<span class="number">1</span>);</div><div class="line"></div><div class="line">        devices[i].drv_key_int_device  =</div><div class="line">                device_create(drv_key_int_class , <span class="literal">NULL</span> ,drv_key_int_device_num ,</div><div class="line">                            DRV_KEY_INT_NODE_NAME<span class="string">"%d"</span>,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line">        <span class="keyword">if</span>(!devices[i].drv_key_int_device) &#123;</div><div class="line">            class_destroy(drv_key_int_class);</div><div class="line">            PERR(<span class="string">"device creation failed\n"</span>);</div><div class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        devices[i].nMinor = DRV_KEY_INT_FIRST_MINOR+i;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"INIT\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">drv_key_int_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></div><div class="line"></div><div class="line">    <span class="keyword">int</span> i;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"EXIT\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</div><div class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line"></div><div class="line">        cdev_del(&amp;devices[i].cdev);</div><div class="line"></div><div class="line">        device_destroy(drv_key_int_class ,drv_key_int_device_num);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    class_destroy(drv_key_int_class);</div><div class="line"></div><div class="line">    unregister_chrdev_region(drv_key_int_device_num ,DRV_KEY_INT_N_MINORS);</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">module_init(drv_key_int_init);</div><div class="line">module_exit(drv_key_int_exit);</div></pre></td></tr></table></figure>
+<h2 id="drv-key-int-h"><a href="#drv-key-int-h" class="headerlink" title="drv_key_int.h"></a>drv_key_int.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_int"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></div></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line"></div><div class="line">    fd = open(<span class="string">"/dev/key_int0"</span>, O_RDWR);</div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">        read(fd, &amp;keys_val, <span class="number">1</span>);</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主机端, 编译源码</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line"><span class="comment"># 编译驱动</span></div><div class="line">$ make clean</div><div class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></div><div class="line"></div><div class="line"><span class="comment"># 编译测试代码</span></div><div class="line">$ arm-linux-gcc test_drv_key_int.c -o test_drv_key_int</div></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试模块和中断加载情况</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ insmod drv_key_int.ko             <span class="comment"># 加载模块</span></div><div class="line">drv_key_int:INIT</div><div class="line"></div><div class="line">$ cat /proc/devices                 <span class="comment"># 查看设备, 可以看到 drv_key_int</span></div><div class="line">$ cat /proc/interrupts              <span class="comment"># 查看中断设备, 没有 s2,s3,s4</span></div><div class="line"></div><div class="line">$ <span class="built_in">exec</span> 5&lt;/dev/key_int0              <span class="comment"># 打开设备, 相当于open.</span></div><div class="line">drv_key_int:In char driver open() <span class="keyword">function</span></div><div class="line"><span class="comment"># 5是文件描述符, 其它数字也可以. ls -l /proc/self/fd/ 下可以查看文件描述符</span></div><div class="line"></div><div class="line">$ cat /proc/interrupts              <span class="comment"># 再查看中断设备, 可以看到 s2,s3,s4 了!</span></div><div class="line"><span class="comment"># 此时按下按键的话, 会触发中断, 打印 drv_key_int:keys_irq, irq=16/18/55</span></div><div class="line"></div><div class="line">$ <span class="built_in">exec</span> 5&lt;&amp;-                         <span class="comment"># 关闭设备, 相当于close</span></div><div class="line">drv_key_int:In char driver release() <span class="keyword">function</span></div><div class="line"></div><div class="line">$ rmmod drv_key_int.ko              <span class="comment"># 移除模块</span></div><div class="line">drv_key_int:EXIT</div></pre></td></tr></table></figure>
+<p>下面, 使用测试文件进行测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试驱动功能</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">./test_drv_key_int                  <span class="comment"># 检测按键中断</span></div><div class="line"><span class="comment"># 可以发现, 打印有时候有点乱, 那是因为中断的关系</span></div><div class="line"></div><div class="line"><span class="comment"># 按ctrl+c 终止进程</span></div><div class="line"></div><div class="line">$ ./test_drv_key_int &amp;              <span class="comment"># 后台运行</span></div><div class="line">$ top                               <span class="comment"># 查看系统资源情况</span></div><div class="line"><span class="comment"># 可以看到 ./test_drv_key_int 进程占用很少的资源.</span></div></pre></td></tr></table></figure>
+<p>分析测试代码, 在死循环里面, 会调用到 <code>wait_event_interruptible</code>, 当没有中断发生时, 就会切换用户进程.<br>当中断发生后, 驱动通过 <code>wake_up_interruptible</code> 唤醒用户进程, 继续执行.<br>然后由于, 用户的printf和内核的printk相互独立, 所以最终打印可能会有点乱.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linuxembedded-linux/" rel="tag">#linuxembedded linux</a>
+          
+            <a href="/tags/drv/" rel="tag">#drv</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/30/1740-drv-chr2/" rel="next" title="驱动之基于LinK+设计按键驱动">
+                <i class="fa fa-chevron-left"></i> 驱动之基于LinK+设计按键驱动
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">79</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">74</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux的中断实现"><span class="nav-number">2.</span> <span class="nav-text">Linux的中断实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心流程"><span class="nav-number">2.1.</span> <span class="nav-text">核心流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多资料"><span class="nav-number">2.2.</span> <span class="nav-text">更多资料</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#驱动源码"><span class="nav-number">3.</span> <span class="nav-text">驱动源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心点"><span class="nav-number">3.1.</span> <span class="nav-text">核心点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-key-int-c"><span class="nav-number">3.2.</span> <span class="nav-text">drv_key_int.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-key-int-h"><span class="nav-number">3.3.</span> <span class="nav-text">drv_key_int.h</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试文件-test-drv-key-int-c"><span class="nav-number">3.4.</span> <span class="nav-text">测试文件 test_drv_key_int.c</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译并测试"><span class="nav-number">4.</span> <span class="nav-text">编译并测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ubuntu主机端"><span class="nav-number">4.1.</span> <span class="nav-text">Ubuntu主机端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开发板端"><span class="nav-number">4.2.</span> <span class="nav-text">开发板端</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

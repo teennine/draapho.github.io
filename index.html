@@ -260,6 +260,208 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/07/1741-drv-chr3/" itemprop="url">
+                  驱动之基于中断设计按键驱动
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-07T00:00:00+11:00" content="2017-12-07">
+              2017-12-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="Linux的中断实现"><a href="#Linux的中断实现" class="headerlink" title="Linux的中断实现"></a>Linux的中断实现</h1><h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><ul>
+<li>trap_init, 构造异常向量表<ul>
+<li>位于 <code>arch/arm/kernel/traps.c</code>, 三个memcpy函数</li>
+</ul>
+</li>
+<li><code>s3c24xx_init_irq</code> 芯片初始化 <code>struct irq_desc</code> 结构体.<ul>
+<li>由 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code> 宏定义加入系统的初始化数据段 <code>&quot;.arch.info.init&quot;</code>.</li>
+<li>位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
+<li><code>s3c24xx_init_irq</code> 会调用函数 <code>set_irq_chip</code>, <code>set_irq_handler</code> 完成irq的初始化</li>
+</ul>
+</li>
+<li>cpu发生中断，跳到异常向量入口执行(<code>b vector_irq + stubs_offset</code>)<ul>
+<li>位于 <code>arch/arm/kernel/entry-armv.S</code></li>
+</ul>
+</li>
+<li><code>vector_irq</code> 用宏实现保存,执行(<code>asm_do_IRQ</code>),恢复.<ul>
+<li><code>vector_irq</code> 由宏定义 <code>vector_stub</code> 而来</li>
+<li>函数调用 <code>__irq_usr</code>-&gt;<code>irq_handler</code>-&gt;<code>asm_do_IRQ</code></li>
+</ul>
+</li>
+<li><code>asm_do_IRQ</code> 根据中断号irq=(EINT4~EINT23)调用irq_desc[irq].handle_irq=(handle_edge_irq)<ul>
+<li>位于 <code>arch/arm/kernel/irq.c</code>, 调用 <code>desc_handle_irq</code> 函数</li>
+<li>handle_irq 的初始化由 <code>s3c24xx_init_irq</code> 完成, 位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
+</ul>
+</li>
+<li><code>handle_edge_irq</code> 使用chip成员中的函数=&amp;s3c_irqext_chip来设置硬件<ul>
+<li>函数 <code>set_irq_chip</code>, 指定 <code>struct irq_chip</code> 结构,</li>
+<li>此结构定义了中断的基本操作, 譬如启动, 关闭, 使能, 禁止, 触发条件, 响应(ack), mask 等等.</li>
+</ul>
+</li>
+<li><code>handle_edge_irq</code> 逐个调用用户在irq_desc[irq].action连表中注册的处理函数<ul>
+<li>函数 <code>set_irq_handler</code>, 实际调用 <code>__set_irq_handler</code></li>
+<li>此函数指定了 <code>struct irq_desc</code> 结构, 其中 <code>action</code> 维护用户回调函数链表.</li>
+</ul>
+</li>
+<li>用户注册中断服务程序 <code>request_irq</code>include/linux/irq.h<ul>
+<li>供内核驱动代码调用</li>
+<li>分配一个 <code>irqaction</code> 结构</li>
+<li>将其加入<code>irq_desc[irq].action</code>中</li>
+<li>设置中断触发方式和引脚状态 <code>desc-&gt;chip-&gt;set_type()</code></li>
+<li>使能中断</li>
+</ul>
+</li>
+<li>卸载中断服务程序 <code>free_irq</code><ul>
+<li>供内核驱动代码调用</li>
+<li>由irq号定位action链表, 然后将其删掉</li>
+<li>关闭中断</li>
+</ul>
+</li>
+</ul>
+<h2 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h2><ul>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77715829" target="_blank" rel="external">字符设备驱动-Linux内核异常处理体系结构</a></li>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77751916" target="_blank" rel="external">字符设备驱动-中断方式操控按键</a></li>
+<li><a href="http://www.wowotech.net/irq_subsystem/irq_handler.html" target="_blank" rel="external">Linux kernel的中断子系统之（六）：ARM中断处理过程</a></li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><h2 id="核心点"><a href="#核心点" class="headerlink" title="核心点"></a>核心点</h2><p>此次为中断的驱动源码, 核心点有2个地方</p>
+<ul>
+<li><code>request_irq</code> <code>free_irq</code><ul>
+<li>这两个函数用于注册和释放中断号, 重点说注册</li>
+<li>调用<code>request_irq</code>后, 对应的中断会自动初始化并使能.</li>
+<li>相应的调用<code>free_irq</code>后, 对应的中断会自动被屏蔽掉.</li>
+<li><code>irq</code>, 中断号. 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
+<li><code>handler</code>, 由驱动编程人员实现的回调函数</li>
+<li><code>irqflags</code>, 中断触发类型, 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
+<li><code>*devname</code>, 自己给中断取个名字, 和驱动的设备名称无关. 会在 <code>cat /proc/interrupts</code> 下面显示出来.</li>
+<li><code>*dev_id</code>, 可以认为是中断设备的ID号, 但此处习惯于导入驱动自用的数据结构指针.</li>
+</ul>
+</li>
+<li><code>wake_up_interruptible</code> <code>wait_event_interruptible</code><ul>
+<li>用了这两个函数, 才会真正提高系统的运行效率.</li>
+<li>其概念是, 中断触发时, 调用 <code>wake_up_interruptible</code>, 告知中断发生, 需要处理</li>
+<li>此时, <code>wait_event_interruptible</code> 就会被唤醒, 判断条件后, 决定是继续执行还是进程睡眠.</li>
+</ul>
+</li>
+</ul>
+<h2 id="drv-key-int-c"><a href="#drv-key-int-c" class="headerlink" title="drv_key_int.c"></a>drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line">===============================================================================</div><div class="line">Driver Name     :       drv_key_int</div><div class="line">Author          :       DRAAPHO</div><div class="line">License         :       GPL</div><div class="line">Description     :       LINUX DEVICE DRIVER PROJECT, 由LinK+生成模板, 部分修改而来.</div><div class="line">===============================================================================</div><div class="line">*/</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_int.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_N_MINORS 1              <span class="comment">// 三个按键, 但作为一个字符设备就可以了.</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_FIRST_MINOR 0</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_int"</span></span></div><div class="line"></div><div class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</div><div class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</div><div class="line"></div><div class="line"><span class="keyword">int</span> drv_key_int_major=<span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="keyword">dev_t</span> drv_key_int_device_num;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> <span class="keyword">class</span> *drv_key_int_class;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> privatedata &#123;                <span class="comment">// 驱动私有结构, 模板生成, 此驱动没用.</span></div><div class="line">    <span class="keyword">int</span> nMinor;</div><div class="line">    <span class="keyword">struct</span> cdev cdev;</div><div class="line">    <span class="keyword">struct</span> device *drv_key_int_device;</div><div class="line">&#125; drv_key_int_private;</div><div class="line"></div><div class="line">drv_key_int_private devices[DRV_KEY_INT_N_MINORS];</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 中断驱动增加的代码 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_WAIT_QUEUE_HEAD</span><span class="params">(key_waitq)</span></span>;  <span class="comment">// 作用类似于信号量, 这里是向系统加入一个等待列表.</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">int</span> ev_press = <span class="number">0</span>;           <span class="comment">// 中断事件标记, 手动值1或者清0</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;              <span class="comment">// 记录按键值</span></div><div class="line"></div><div class="line"><span class="keyword">struct</span> pin_desc &#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pin;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> key_val;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> pin_desc pins_desc[<span class="number">3</span>] = &#123;            <span class="comment">// 设置好按键的引脚和对应的值</span></div><div class="line">    &#123;S3C2410_GPF0, <span class="number">0x01</span>&#125;,</div><div class="line">    &#123;S3C2410_GPF2, <span class="number">0x02</span>&#125;,</div><div class="line">    &#123;S3C2410_GPG3, <span class="number">0x04</span>&#125;,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> pin_desc * pindesc = (<span class="keyword">struct</span> pin_desc *)dev_id;  <span class="comment">// 获取自用的数据指针</span></div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pinval;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"keys_irq, irq=%d\n"</span>, irq);</div><div class="line">    pinval = s3c2410_gpio_getpin(pindesc-&gt;pin);             <span class="comment">// 读取按键电平</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (pinval) &#123;                                           <span class="comment">// 松开</span></div><div class="line">        keys_val &amp;= ~pindesc-&gt;key_val;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;                                                <span class="comment">// 按下</span></div><div class="line">        keys_val |= pindesc-&gt;key_val;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ev_press = <span class="number">1</span>;                                           <span class="comment">// 表示中断发生</span></div><div class="line">    wake_up_interruptible(&amp;key_waitq);                      <span class="comment">// 唤醒休眠的进程</span></div><div class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ===== 部分修改模板代码 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> ret;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv = container_of(inode-&gt;i_cdev ,</div><div class="line">                                    drv_key_int_private ,cdev);</div><div class="line">    filp-&gt;private_data = priv;</div><div class="line">    PINFO(<span class="string">"In char driver open() function\n"</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 注册中断号, 设置中断类型, 设置中断名称(和设备名称无关), 传入自用的数据指针</span></div><div class="line">    ret  = request_irq(IRQ_EINT0, keys_irq, IRQT_BOTHEDGE, <span class="string">"S2"</span>, &amp;pins_desc[<span class="number">0</span>]);</div><div class="line">    ret |= request_irq(IRQ_EINT2, keys_irq, IRQT_BOTHEDGE, <span class="string">"S3"</span>, &amp;pins_desc[<span class="number">1</span>]);</div><div class="line">    ret |= request_irq(IRQ_EINT11, keys_irq, IRQT_BOTHEDGE, <span class="string">"S4"</span>, &amp;pins_desc[<span class="number">2</span>]);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (ret) <span class="keyword">return</span> -EINVAL;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv;</div><div class="line">    priv=filp-&gt;private_data;</div><div class="line">    PINFO(<span class="string">"In char driver release() function\n"</span>);</div><div class="line"></div><div class="line">    free_irq(IRQ_EINT11, &amp;pins_desc[<span class="number">2</span>]);                    <span class="comment">// 注销中断</span></div><div class="line">    free_irq(IRQ_EINT2, &amp;pins_desc[<span class="number">1</span>]);</div><div class="line">    free_irq(IRQ_EINT0, &amp;pins_desc[<span class="number">0</span>]);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_int_read</span><span class="params">(<span class="keyword">struct</span> file *filp,</span></span></div><div class="line">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv;</div><div class="line">    priv = filp-&gt;private_data;</div><div class="line">    PINFO(<span class="string">"In char driver read() function\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> -EINVAL;</div><div class="line"></div><div class="line">    <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></div><div class="line">    wait_event_interruptible(key_waitq, ev_press);</div><div class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></div><div class="line">        <span class="keyword">return</span> -EFAULT;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ===== 模板代码, 没有修改 =====</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct</span> file_operations drv_key_int_fops= &#123;</div><div class="line">    .owner              = THIS_MODULE,</div><div class="line">    .open               = drv_key_int_open,</div><div class="line">    .release            = drv_key_int_release,</div><div class="line">    .read               = drv_key_int_read,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">drv_key_int_init</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></div><div class="line">    <span class="keyword">int</span> i;</div><div class="line">    <span class="keyword">int</span> res;</div><div class="line"></div><div class="line">    res = alloc_chrdev_region(&amp;drv_key_int_device_num,DRV_KEY_INT_FIRST_MINOR,DRV_KEY_INT_N_MINORS ,DRIVER_NAME);</div><div class="line">    <span class="keyword">if</span>(res) &#123;</div><div class="line">        PERR(<span class="string">"register device no failed\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    drv_key_int_major = MAJOR(drv_key_int_device_num);</div><div class="line"></div><div class="line">    drv_key_int_class = class_create(THIS_MODULE , DRIVER_NAME);</div><div class="line">    <span class="keyword">if</span>(!drv_key_int_class) &#123;</div><div class="line">        PERR(<span class="string">"class creation failed\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</div><div class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line">        cdev_init(&amp;devices[i].cdev , &amp;drv_key_int_fops);</div><div class="line">        cdev_add(&amp;devices[i].cdev,drv_key_int_device_num,<span class="number">1</span>);</div><div class="line"></div><div class="line">        devices[i].drv_key_int_device  =</div><div class="line">                device_create(drv_key_int_class , <span class="literal">NULL</span> ,drv_key_int_device_num ,</div><div class="line">                            DRV_KEY_INT_NODE_NAME<span class="string">"%d"</span>,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line">        <span class="keyword">if</span>(!devices[i].drv_key_int_device) &#123;</div><div class="line">            class_destroy(drv_key_int_class);</div><div class="line">            PERR(<span class="string">"device creation failed\n"</span>);</div><div class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        devices[i].nMinor = DRV_KEY_INT_FIRST_MINOR+i;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"INIT\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">drv_key_int_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></div><div class="line"></div><div class="line">    <span class="keyword">int</span> i;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"EXIT\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</div><div class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line"></div><div class="line">        cdev_del(&amp;devices[i].cdev);</div><div class="line"></div><div class="line">        device_destroy(drv_key_int_class ,drv_key_int_device_num);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    class_destroy(drv_key_int_class);</div><div class="line"></div><div class="line">    unregister_chrdev_region(drv_key_int_device_num ,DRV_KEY_INT_N_MINORS);</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">module_init(drv_key_int_init);</div><div class="line">module_exit(drv_key_int_exit);</div></pre></td></tr></table></figure>
+<h2 id="drv-key-int-h"><a href="#drv-key-int-h" class="headerlink" title="drv_key_int.h"></a>drv_key_int.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_int"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></div></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line"></div><div class="line">    fd = open(<span class="string">"/dev/key_int0"</span>, O_RDWR);</div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">        read(fd, &amp;keys_val, <span class="number">1</span>);</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主机端, 编译源码</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line"><span class="comment"># 编译驱动</span></div><div class="line">$ make clean</div><div class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></div><div class="line"></div><div class="line"><span class="comment"># 编译测试代码</span></div><div class="line">$ arm-linux-gcc test_drv_key_int.c -o test_drv_key_int</div></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试模块和中断加载情况</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ insmod drv_key_int.ko             <span class="comment"># 加载模块</span></div><div class="line">drv_key_int:INIT</div><div class="line"></div><div class="line">$ cat /proc/devices                 <span class="comment"># 查看设备, 可以看到 drv_key_int</span></div><div class="line">$ cat /proc/interrupts              <span class="comment"># 查看中断设备, 没有 s2,s3,s4</span></div><div class="line"></div><div class="line">$ <span class="built_in">exec</span> 5&lt;/dev/key_int0              <span class="comment"># 打开设备, 相当于open.</span></div><div class="line">drv_key_int:In char driver open() <span class="keyword">function</span></div><div class="line"><span class="comment"># 5是文件描述符, 其它数字也可以. ls -l /proc/self/fd/ 下可以查看文件描述符</span></div><div class="line"></div><div class="line">$ cat /proc/interrupts              <span class="comment"># 再查看中断设备, 可以看到 s2,s3,s4 了!</span></div><div class="line"><span class="comment"># 此时按下按键的话, 会触发中断, 打印 drv_key_int:keys_irq, irq=16/18/55</span></div><div class="line"></div><div class="line">$ <span class="built_in">exec</span> 5&lt;&amp;-                         <span class="comment"># 关闭设备, 相当于close</span></div><div class="line">drv_key_int:In char driver release() <span class="keyword">function</span></div><div class="line"></div><div class="line">$ rmmod drv_key_int.ko              <span class="comment"># 移除模块</span></div><div class="line">drv_key_int:EXIT</div></pre></td></tr></table></figure>
+<p>下面, 使用测试文件进行测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试驱动功能</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">./test_drv_key_int                  <span class="comment"># 检测按键中断</span></div><div class="line"><span class="comment"># 可以发现, 打印有时候有点乱, 那是因为中断的关系</span></div><div class="line"></div><div class="line"><span class="comment"># 按ctrl+c 终止进程</span></div><div class="line"></div><div class="line">$ ./test_drv_key_int &amp;              <span class="comment"># 后台运行</span></div><div class="line">$ top                               <span class="comment"># 查看系统资源情况</span></div><div class="line"><span class="comment"># 可以看到 ./test_drv_key_int 进程占用很少的资源.</span></div></pre></td></tr></table></figure>
+<p>分析测试代码, 在死循环里面, 会调用到 <code>wait_event_interruptible</code>, 当没有中断发生时, 就会切换用户进程.<br>当中断发生后, 驱动通过 <code>wake_up_interruptible</code> 唤醒用户进程, 继续执行.<br>然后由于, 用户的printf和内核的printk相互独立, 所以最终打印可能会有点乱.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/11/30/1740-drv-chr2/" itemprop="url">
                   驱动之基于LinK+设计按键驱动
                 </a>
@@ -327,6 +529,7 @@
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
 <li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
 </ul>
 <p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
 <p>上文<a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a>是根据jz2440教程书写的. 整个过程比较繁杂.<br>在此期间, 搜索了一下Linux内核开发工具, 寻得一款非常好用的 Link+IDE, 安装配置见 <a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a>.<br>这款软件可以自动生成Linux驱动开发的软件模板, 可以大大减少工作量, 提高效率!<br>因此, 此文基于LinK+的生成的驱动框架, 对按键驱动进行开发.</p>
@@ -716,7 +919,7 @@
 <li>加入可执行属性</li>
 <li>启动自动执行udhcpc指令</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = fs_mini_mdev_dhcp/</span></div><div class="line"></div><div class="line">mkdir -p /usr/share/udhcpc/     <span class="comment"># 自动建立多层目录</span></div><div class="line">vim /usr/share/udhcpc/default.script</div><div class="line"></div><div class="line"><span class="comment"># ===== 打开vim, 写入如下内容 =====</span></div><div class="line"><span class="meta">#!/bin/sh</span></div><div class="line">[ -z <span class="string">"<span class="variable">$1</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"Error: should be called from udhcpc"</span> &amp;&amp; <span class="built_in">exit</span> 1</div><div class="line"></div><div class="line">RESOLV_CONF=<span class="string">"/etc/resolv.conf"</span></div><div class="line">[ -n <span class="string">"<span class="variable">$broadcast</span>"</span> ] &amp;&amp; BROADCAST=<span class="string">"broadcast <span class="variable">$broadcast</span>"</span></div><div class="line">[ -n <span class="string">"<span class="variable">$subnet</span>"</span> ] &amp;&amp; NETMASK=<span class="string">"netmask <span class="variable">$subnet</span>"</span></div><div class="line"> </div><div class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$1</span>"</span> <span class="keyword">in</span></div><div class="line">  deconfig)</div><div class="line">    /sbin/ifconfig <span class="variable">$interface</span> 0.0.0.0</div><div class="line">    ;;</div><div class="line"> </div><div class="line">  renew|bound)</div><div class="line">    /sbin/ifconfig <span class="variable">$interface</span> <span class="variable">$ip</span> <span class="variable">$BROADCAST</span> <span class="variable">$NETMASK</span></div><div class="line"> </div><div class="line">    <span class="keyword">if</span> [ -n <span class="string">"<span class="variable">$router</span>"</span> ] ; <span class="keyword">then</span></div><div class="line">      <span class="built_in">echo</span> <span class="string">"deleting routers"</span></div><div class="line">      <span class="keyword">while</span> route del default gw 0.0.0.0 dev <span class="variable">$interface</span> ; <span class="keyword">do</span></div><div class="line">        :</div><div class="line">      <span class="keyword">done</span></div><div class="line"> </div><div class="line">      <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$router</span> ; <span class="keyword">do</span></div><div class="line">        route add default gw <span class="variable">$i</span> dev <span class="variable">$interface</span></div><div class="line">      <span class="keyword">done</span></div><div class="line">    <span class="keyword">fi</span></div><div class="line"> </div><div class="line">    <span class="built_in">echo</span> -n &gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    [ -n <span class="string">"<span class="variable">$domain</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> search <span class="variable">$domain</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$dns</span> ; <span class="keyword">do</span></div><div class="line">      <span class="built_in">echo</span> adding dns <span class="variable">$i</span></div><div class="line">      <span class="built_in">echo</span> nameserver <span class="variable">$i</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    <span class="keyword">done</span></div><div class="line">    ;;</div><div class="line"><span class="keyword">esac</span></div><div class="line"> </div><div class="line"><span class="built_in">exit</span> 0</div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line">chmod +x /usr/share/udhcpc/default.script       <span class="comment"># 加入可执行属性</span></div><div class="line"></div><div class="line">vim /etc/init.d/rcs             <span class="comment"># 开机自动执行udhcpc</span></div><div class="line"><span class="comment"># ===== 打开vim, 修改/增加如下内容 =====</span></div><div class="line"><span class="comment"># ifconfig eth0 192.168.1.17</span></div><div class="line">ifconfig eth0 up</div><div class="line">udhcpc eth0</div><div class="line"><span class="comment"># 上述两行放在最前面. 这样才能成功自动挂载nfs</span></div><div class="line"></div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line"></div><div class="line">vim /etc/fstab</div><div class="line"><span class="comment"># ===== 打开vim, 增加如下内容 =====</span></div><div class="line"></div><div class="line"><span class="comment"># 文件最后加入这样一句nfs模板, 便于日后修改</span></div><div class="line"><span class="comment"># 192.168.1.111:/home/share /mnt/share nfs rsize=1024,wsize=1024,timeo=14,intr,nolock 0 0</span></div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 制作文件系统</span></div><div class="line"><span class="comment"># pwd = fs_mini_mdev_dhcp/..</span></div><div class="line">mkyaffs2image fs_mini_mdev_dhcp fs_mini_mdev_dhcp.yaffs2</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = fs_mini_mdev_dhcp/</span></div><div class="line"></div><div class="line">mkdir -p ./usr/share/udhcpc/     <span class="comment"># 自动建立多层目录</span></div><div class="line">vim ./usr/share/udhcpc/default.script</div><div class="line"></div><div class="line"><span class="comment"># ===== 打开vim, 写入如下内容 =====</span></div><div class="line"><span class="meta">#!/bin/sh</span></div><div class="line">[ -z <span class="string">"<span class="variable">$1</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"Error: should be called from udhcpc"</span> &amp;&amp; <span class="built_in">exit</span> 1</div><div class="line"></div><div class="line">RESOLV_CONF=<span class="string">"/etc/resolv.conf"</span></div><div class="line">[ -n <span class="string">"<span class="variable">$broadcast</span>"</span> ] &amp;&amp; BROADCAST=<span class="string">"broadcast <span class="variable">$broadcast</span>"</span></div><div class="line">[ -n <span class="string">"<span class="variable">$subnet</span>"</span> ] &amp;&amp; NETMASK=<span class="string">"netmask <span class="variable">$subnet</span>"</span></div><div class="line"> </div><div class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$1</span>"</span> <span class="keyword">in</span></div><div class="line">  deconfig)</div><div class="line">    /sbin/ifconfig <span class="variable">$interface</span> 0.0.0.0</div><div class="line">    ;;</div><div class="line"> </div><div class="line">  renew|bound)</div><div class="line">    /sbin/ifconfig <span class="variable">$interface</span> <span class="variable">$ip</span> <span class="variable">$BROADCAST</span> <span class="variable">$NETMASK</span></div><div class="line"> </div><div class="line">    <span class="keyword">if</span> [ -n <span class="string">"<span class="variable">$router</span>"</span> ] ; <span class="keyword">then</span></div><div class="line">      <span class="built_in">echo</span> <span class="string">"deleting routers"</span></div><div class="line">      <span class="keyword">while</span> route del default gw 0.0.0.0 dev <span class="variable">$interface</span> ; <span class="keyword">do</span></div><div class="line">        :</div><div class="line">      <span class="keyword">done</span></div><div class="line"> </div><div class="line">      <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$router</span> ; <span class="keyword">do</span></div><div class="line">        route add default gw <span class="variable">$i</span> dev <span class="variable">$interface</span></div><div class="line">      <span class="keyword">done</span></div><div class="line">    <span class="keyword">fi</span></div><div class="line"> </div><div class="line">    <span class="built_in">echo</span> -n &gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    [ -n <span class="string">"<span class="variable">$domain</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> search <span class="variable">$domain</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$dns</span> ; <span class="keyword">do</span></div><div class="line">      <span class="built_in">echo</span> adding dns <span class="variable">$i</span></div><div class="line">      <span class="built_in">echo</span> nameserver <span class="variable">$i</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></div><div class="line">    <span class="keyword">done</span></div><div class="line">    ;;</div><div class="line"><span class="keyword">esac</span></div><div class="line"> </div><div class="line"><span class="built_in">exit</span> 0</div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line">chmod +x ./usr/share/udhcpc/default.script       <span class="comment"># 加入可执行属性</span></div><div class="line"></div><div class="line">vim ./etc/init.d/rcS             <span class="comment"># 开机自动执行udhcpc. S是大写!</span></div><div class="line"><span class="comment"># ===== 打开vim, 修改/增加如下内容 =====</span></div><div class="line"><span class="comment"># ifconfig eth0 192.168.1.17</span></div><div class="line">ifconfig eth0 up</div><div class="line">udhcpc eth0</div><div class="line"><span class="comment"># 上述两行放在最前面. 这样才能成功自动挂载nfs</span></div><div class="line"></div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line"></div><div class="line">vim ./etc/fstab</div><div class="line"><span class="comment"># ===== 打开vim, 增加如下内容 =====</span></div><div class="line"></div><div class="line"><span class="comment"># 文件最后加入这样一句nfs模板, 便于日后修改</span></div><div class="line"><span class="comment"># 192.168.1.111:/home/share /mnt/share nfs rsize=1024,wsize=1024,timeo=14,intr,nolock 0 0</span></div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 制作文件系统</span></div><div class="line"><span class="comment"># pwd = fs_mini_mdev_dhcp/..</span></div><div class="line">mkyaffs2image fs_mini_mdev_dhcp fs_mini_mdev_dhcp.yaffs2</div></pre></td></tr></table></figure>
 <p>上述工作完成后, 烧录到开发板即可. 详情可参考:<a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></p>
 <h2 id="开发板测试"><a href="#开发板测试" class="headerlink" title="开发板测试"></a>开发板测试</h2><p>烧录好内核和文件系统后, 开机测试一下.<br>注意, udhcpc比较傻, 如果不能联网, 开机就会死在 <code>Sending discover...</code><br>成功启动后, 使用 <code>ifconfig</code> 就可以看到dhcp自动分配的ip地址了.</p>
 <p>所以也有人用别的方式实现dhcp. 我没有尝试, 列在这里供参考</p>
@@ -725,9 +928,9 @@
 <li><a href="https://wenku.baidu.com/view/bca0c470e418964bcf84b9d528ea81c758f52ed1.html" target="_blank" rel="external">jz2440自动获取ip地址</a>, 源码编译udhcpc, 估计里面会有 default.script 文件.</li>
 </ul>
 <h1 id="开发板挂载nfs"><a href="#开发板挂载nfs" class="headerlink" title="开发板挂载nfs"></a>开发板挂载nfs</h1><p>主机端 nfs环境搭建参考: <a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a></p>
-<p>在开发板上挂载服务器共享的目录<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = / </span></div><div class="line">$ mkdir /mnt/share          <span class="comment"># 挂载点</span></div><div class="line">$ ln <span class="_">-s</span> /mnt/share share    <span class="comment"># 创建软连接</span></div><div class="line"></div><div class="line">$ mount -t nfs -o nolock 192.168.1.100:/home/share /mnt/share/</div><div class="line">$ df -h                     <span class="comment"># 查看挂载的文件系统.</span></div><div class="line">$ ls share                  <span class="comment"># 查看一下是否可以看到共享内容了.</span></div></pre></td></tr></table></figure></p>
+<p>在开发板上挂载服务器共享的目录<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = / </span></div><div class="line">$ mkdir mnt/share          <span class="comment"># 挂载点</span></div><div class="line">$ ln <span class="_">-s</span> mnt/share share    <span class="comment"># 创建软连接</span></div><div class="line"></div><div class="line">$ mount -t nfs -o nolock 192.168.1.100:/home/share /mnt/share/</div><div class="line">$ df -h                     <span class="comment"># 查看挂载的文件系统.</span></div><div class="line">$ ls share                  <span class="comment"># 查看一下是否可以看到共享内容了.</span></div></pre></td></tr></table></figure></p>
 <p>每次开机敲一长串 mount 指令也挺麻烦的, 进一步偷懒, 让它开机自启动.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板终端, 修改fstab, 让 mount -a 自动加载nfs</span></div><div class="line">$ vi /etc/fstab</div><div class="line"><span class="comment"># ===== 打开vi, 修改/增加如下内容 =====</span></div><div class="line">192.168.1.111:/home/share /mnt/share nfs rsize=1024,wsize=1024,timeo=14,intr,nolock 0 0</div><div class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></div><div class="line"></div><div class="line">$ mount <span class="_">-a</span>                  <span class="comment"># 重新加载</span></div><div class="line">$ df -h                     <span class="comment"># 查看挂载的文件系统.</span></div><div class="line">$ ls share                  <span class="comment"># 查看一下是否可以看到共享内容了.</span></div></pre></td></tr></table></figure></p>
-<p>下次重启就能自动加载nfs了. <strong>如果加载失败, 看看是不是主机动态IP变掉了</strong>.</p>
+<p>下次重启就能自动加载nfs了. <strong>如果加载失败, 看看是不是主机动态IP变掉了</strong>.<br>jz2440启动后, 加载nfs失败时, 需要等待一段时间才能进入终端界面! </p>
 <h2 id="使用hostname"><a href="#使用hostname" class="headerlink" title="使用hostname"></a>使用hostname</h2><p>这里, 最理想的情况是使用 hostname 而不是IP地址.<br>但网上搜索了一下, 没有找到让jz2440支持hostname的方法.<br>动态IP也不会更换的太频繁, 所以是一个可以忍受的缺点, 就不去深究了.<br>关键点是 <code>/etc/resolv.conf</code>, 应该可以由udhcpc自动生成内容的…<br>找了如下相关信息:</p>
 <ul>
 <li><a href="http://blog.csdn.net/mybelief321/article/details/10049429" target="_blank" rel="external">linux根文件系统 /etc/resolv.conf 文件详解</a></li>
@@ -884,14 +1087,8 @@
 <p>将这个文件放在linux源码根目录下, 配置好<code>.config</code> 文件. 然后在终端运行它<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># pwd = linux内核源码根目录</span></div><div class="line">$ python config2xml.py</div><div class="line">Generate ../eclipse_SYMBOLS.xml successfully...</div></pre></td></tr></table></figure></p>
 <p>成功后, 会在上层目录生成 <code>eclipse_SYMBOLS.xml</code> 这么一个文件.<br>然后回到eclipse里面, 将其导入. 如图:<br><img src="https://draapho.github.io/images/1737/link9.JPG" alt="link.JPG"></p>
 <p>另外, 为方便跳转, 可以在eclipse下面把linux源码下不相关的平台代码排除掉.<br><img src="https://draapho.github.io/images/1737/link4.JPG" alt="link.JPG"></p>
-<p><strong>此时内核源码的C语言部分已经能成功的跳转查看了.汇编部分可以用eclipse的搜索功能.</strong></p>
-<p>如果跳转依旧问题, 试试如下方法, 让eclipse重置索引</p>
-<ul>
-<li>索引文件存储在 <code>&lt;workspace&gt;/.metadata/plugins/org.eclipse.*.core/*.index</code></li>
-<li>如果在ubuntu的UI界面下看不到隐藏文件, 按<code>ctrl+h</code>即可.</li>
-<li>删除 <code>&lt;workspace&gt;/.metadata/plugins/org.eclipse.*.core</code></li>
-<li>重启Eclipse即可</li>
-</ul>
+<p>最后, 需要把项目的index索引重建一下才能正确跳转. 重建耗时较长.<br><img src="https://draapho.github.io/images/1737/link10.JPG" alt="link.JPG"></p>
+<p><strong>至此内核源码的C语言部分已经能成功的跳转查看了.汇编部分可以用eclipse的搜索功能.</strong></p>
 <h1 id="写驱动"><a href="#写驱动" class="headerlink" title="写驱动"></a>写驱动</h1><p>需要先在工程里加载好Kernel源码!<br>然后参考 <strong><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></strong></p>
 <p>大致步骤如下:</p>
 <ul>
@@ -1364,144 +1561,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/23/1734-linux-content/" itemprop="url">
-                  嵌入式Linux学习目录
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-23T00:00:00+11:00" content="2017-11-23">
-              2017-11-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
-<li><a href="https://draapho.github.io/2017/07/06/1718-linux-samba/">Ubuntu下配置支持Windows访问的samba共享</a></li>
-<li><a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a></li>
-<li><a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a></li>
-<li><a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建3-Ubuntu16</a></li>
-</ul>
-</li>
-<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a></li>
-<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></li>
-<li><a href="https://draapho.github.io/2017/04/05/1710-jz2440-led/">jz2440裸板程序的开发</a></li>
-<li><a href="https://draapho.github.io/2017/11/24/1735-jz2440-basic/">jz2440分区及启动的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
-<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
-<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
-<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a></li>
-<li><a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
-<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1547,7 +1606,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">78</span>
+              <span class="site-state-item-count">79</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
