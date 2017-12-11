@@ -260,6 +260,275 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/10/1609-WinSoft-terminal/" itemprop="url">
+                  Windows 软件系列-终端
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-10T00:00:00+11:00" content="2016-10-10">
+              2016-10-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/windows/" itemprop="url" rel="index">
+                    <span itemprop="name">windows</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="ConEmu-简介"><a href="#ConEmu-简介" class="headerlink" title="ConEmu 简介"></a><a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu</a> 简介</h1><ul>
+<li><a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu</a> 即 Console Emulate, 一款终端模拟器, 完全免费, 可以通过他加载多种终端如 cmd, shell, bash, putty 而且便于管理!</li>
+<li>简而言之, 凡是喜欢用命令行方式的, windows就请使用这款软件, 分分钟变身geek或者hacker的感觉…</li>
+<li>右键文件夹打开ConEmu就自动进入此文件夹, <code>ConEmu Inside</code> 甚至能嵌入到文件夹中.</li>
+<li>顺便说一句, cmder就是他的马甲, 核心还是ConEmu.</li>
+</ul>
+<h2 id="我的ConEmu"><a href="#我的ConEmu" class="headerlink" title="我的ConEmu"></a>我的ConEmu</h2><ul>
+<li>我希望的ConEmu, 就是想输命令行, 打开ConEmu就行!</li>
+<li>本文的配置可以在ConEmu中执行:<ul>
+<li><code>cmd</code> <code>shell</code> windows自带终端</li>
+<li><code>git</code> windows下安装好git即可, 包含了<code>git-bash</code></li>
+<li><code>mingw</code> windows下用gnu工具链编译c, c++</li>
+<li><code>putty</code> ssh链接远程linux, 串口链接嵌入式linux</li>
+<li><code>cygwin</code> windows下模拟linux运行环境 (目前尚未使用, 在用传统的虚拟机)</li>
+<li>其它指令如: <code>hexo</code> 博客使用, <code>choco</code> 安装软件使用, <code>apm</code> atom下载插件使用.</li>
+</ul>
+</li>
+<li>快速在指定文件夹下打开ConEmu, 可在 <code>Listary</code> 关联快捷键 <code>ctrl-~</code></li>
+<li>快速在Notepad++下打开ConEmu, 关联快捷键 <code>ctrl-~</code></li>
+</ul>
+<h2 id="自制ConEmu绿色版"><a href="#自制ConEmu绿色版" class="headerlink" title="自制ConEmu绿色版"></a>自制ConEmu绿色版</h2><ul>
+<li>下载 <a href="https://conemu.github.io/" target="_blank" rel="external">ConEmu便携版</a><ul>
+<li>解压后放在理想的文件夹中. 下面以 <code>D:\Green\ConEmu</code> 路径为例.</li>
+</ul>
+</li>
+<li>下载 <a href="https://mridgers.github.io/clink/" target="_blank" rel="external">clink便携版</a>, 用于增强终端操作, 如复制拷贝快捷键等<ul>
+<li>解压后, 所有文件放入 <code>D:\Green\ConEmu\ConEmu\clink</code>, 这里面原来就有个 <code>Readme.txt</code>, 说的非常清楚了</li>
+</ul>
+</li>
+<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="external">git便携版</a>, 版本管理软件<ul>
+<li>解压后命名为 <code>Git</code> 放到 <code>D:\Green\ConEmu\plugins</code>,</li>
+</ul>
+</li>
+<li>下载并使用默认设置安装 <a href="http://www.mingw.org/" target="_blank" rel="external">mingw</a>, 用于在win下使用gnu工具编译<ul>
+<li>只是装了 <code>MinGW Installation Manager</code> (实际上是个绿色软件). 打开后继续安装组件</li>
+<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code>和<code>mingw32-gcc-g++</code>-&gt;左上<code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
+<li>我只需要编译c和c++文件, <code>msys</code>也已经由git软件实现了, 因此无需安装其它组件了.</li>
+<li>然后把整个 <code>MinGW</code> 文件夹放到 <code>D:\Green\ConEmu\plugins</code></li>
+<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 <code>make</code> 指令了</li>
+</ul>
+</li>
+<li>下载 <a href="http://www.putty.org/" target="_blank" rel="external">putty.zip</a>, ssh远程连接软件及串口软件<ul>
+<li>解压后命名为 <code>putty</code> 放到 <code>D:\Green\ConEmu\plugins</code></li>
+</ul>
+</li>
+<li><p>然后需要将上述软件加入环境变量, 这个可以在ConEmu设置中完成!!!</p>
+<ul>
+<li><p>打开ConEmu, <code>Setting</code>-&gt;<code>Startup</code>-&gt;<code>Environment</code>-&gt;<code>set PATH=%ConEmuBaseDir%\Scripts;%PATH%</code> 下面加上如下语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># git PATH</div><div class="line">set PATH=%ConEmuDir%\plugins\Git;%PATH%</div><div class="line">set PATH=%ConEmuDir%\plugins\Git\cmd;%PATH%</div><div class="line"># mingw PATH</div><div class="line">set PATH=%ConEmuDir%\plugins\MinGW\bin;%PATH%</div><div class="line"># putty PATH%</div><div class="line">set PATH=%ConEmuDir%\plugins\putty;%PATH%</div></pre></td></tr></table></figure>
+</li>
+<li><p>这样, ConEmu在启动时, 会自动加入上述软件到PATH中</p>
+</li>
+<li>如果使用 <strong>更通用的做法</strong>, 把上述环境变量删除或注释掉.</li>
+</ul>
+</li>
+<li>自制ConEmu绿色版就初步完成, 下面只需要配置了.</li>
+</ul>
+<h2 id="更通用的做法"><a href="#更通用的做法" class="headerlink" title="更通用的做法"></a>更通用的做法</h2><ul>
+<li>用上述方法有三个缺点<ul>
+<li>git便携版不支持ssh或GPG免密远程同步, 每次都要求输入用户名和密码, 非常麻烦.</li>
+<li>如果不用ConEmu, 那么其它终端, 如atom下的终端就无法使用上述软件.</li>
+<li>发现putty会新打开一个窗口, 而不是嵌入到ConEmu中.</li>
+</ul>
+</li>
+<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="external">git安装版</a>, 使用默认配置安装即可.<ul>
+<li>为了便于使用, 建议把git的根目录也加入环境变量, 这样就能直接调用 <code>git-cmd.exe</code></li>
+</ul>
+</li>
+<li>设置 <code>D:\Green\ConEmu\plugins\MinGW\bin</code> 文件夹到系统环境变量中</li>
+<li>设置 <code>D:\Green\ConEmu\plugins\putty</code> 文件夹到系统环境变量中</li>
+<li>还可以考虑下载安装 <a href="https://www.cygwin.com/" target="_blank" rel="external">cygwin</a> 并加入ConEmu中, 这是一款Windows下的Linux模拟器. 注意安装和卸载都比较麻烦.<h2 id="ConEmu的设置"><a href="#ConEmu的设置" class="headerlink" title="ConEmu的设置"></a>ConEmu的设置</h2></li>
+<li>所有设置都会存放在 <code>conEmu.xml</code> 里, 所以设置的备份很简单</li>
+<li>首次打开会有设置向导 <code>fast configuration</code>, 用于生成 <code>conEmu.xml</code></li>
+<li>可以在设置好环境变量, 安装好git后, 删除<code>conEmu.xml</code>重新运行, 这样ConEmu会自动检测加入<code>Git bash</code> 和 <code>putty</code>, 省心不少. clink放在指定路径后, 其功能也会自动启用.</li>
+<li>配置过程如下, 需要图文版可参考 <a href="https://higoge.github.io/2015/07/22/tools02/" target="_blank" rel="external">工具02：cmd的替代品ConEmu+Clink</a>, 配置上略有区别, 进入 <code>Settings</code> 后<ul>
+<li><code>Main</code>-&gt;<code>Appearance</code>-&gt;<code>Generic</code>-&gt;<code>Single instance mode (...)</code></li>
+<li><code>Main</code>-&gt;<code>Confirm</code>-&gt;<code>CLose confirmations</code>-&gt;<del><code>When running process was detected</code></del></li>
+<li><code>Startup</code>-&gt;<code>Specified named task</code>-&gt;<code>Bash:: Git bash</code> 更改打开时默认使用的终端类型</li>
+<li><code>Startup</code>-&gt;<code>Environment</code> 启动时, 会加载这里的环境变量. 配置好系统环境变量的话, 可以全部删除</li>
+<li>注册鼠标右键 <code>ConEmu Here</code> 和 <code>ConEmu Inside</code>, 并设置为使用 <code>Git bash</code> 启动<ul>
+<li><code>Integration</code>-&gt;<code>ConEmu Here</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
+<li><code>Integration</code>-&gt;<code>ConEmu Inside</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
+</ul>
+</li>
+<li><code>Integration</code>-&gt;<code>Default term</code>-&gt;<code>Force ConEmu as default terminal for console applications</code></li>
+<li>添加 <code>tasks</code>. 选择 <code>Startup</code>-&gt;<code>Tasks</code>, 根据现有例子依样画葫芦即可.<ul>
+<li><code>Bash::Git bash</code>: <code>git-cmd.lnk --no-cd --command=usr/bin/bash.exe -l -i</code> 也可以点击<code>File path...</code>使用绝对路径替代快捷方式.</li>
+<li><code>Bash::Git bash(Admin)</code>: <code>*git-cmd.exe --no-cd --command=usr/bin/bash.exe -l -i</code> 最前面加个<code>*</code>就是管理员权限了.</li>
+<li><code>Putty::default</code>: <code>putty.exe</code> 同样, 可能需要使用绝对路径, 点击<code>File path...</code>选择即可</li>
+<li><code>Putty::Ubuntu</code>: <code>putty.exe -new_console -load &quot;ubuntu&quot;</code> 需要putty设置好名为<code>ubuntu</code>的session</li>
+<li><code>Cygwin</code>: <code>set HOME=d:\cygwin\home\XXX &amp; &quot;d:\cygwin\bin\mintty.exe&quot; -i /Cygwin.ico -</code> 这条指令没有测试过.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Putty"><a href="#Putty" class="headerlink" title="Putty"></a><a href="http://www.putty.org/" target="_blank" rel="external">Putty</a></h1><ul>
+<li><a href="http://www.putty.org/" target="_blank" rel="external">Putty</a> 可用于ssh连接远程主机, 也支持串口. 使用简单, 完全免费</li>
+<li>putty的配置, 一个配置就是一个<code>Session</code>. 可以参考<a href="http://blog.csdn.net/tianlesoftware/article/details/5831605" target="_blank" rel="external">Putty 工具 保存配置的 小技巧</a></li>
+<li>putty免密登录, 没有尝试, 可以参考如下两篇文章.<ul>
+<li><a href="https://segmentfault.com/a/1190000000639516" target="_blank" rel="external">PuTTY的自动登录设置</a></li>
+<li><a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="external">windows 上用程序putty使用 ssh自动登录linux</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="设置Default"><a href="#设置Default" class="headerlink" title="设置Default"></a>设置Default</h2><ul>
+<li><code>Window</code>-&gt;<code>Lines of scrollback</code>-<code>20000</code>  回看更多历史屏幕信息</li>
+<li><code>Window</code>-&gt;<code>Apperance</code>-&gt;<code>Vertical line</code>, <code>Cursor blinks</code> 游标闪烁</li>
+<li><code>Window</code>-&gt;<code>Colours</code>-&gt;<code>Default Backgroud</code>-&gt;<code>R0 G43 B54</code> 使用ConEmu背景色</li>
+<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code>-&gt;<code>None</code> 默认串口不用流控制</li>
+<li><code>Session</code>-&gt;<code>Saved Sessions</code>-&gt;输入 <code>Default Settings</code>-&gt;<code>Save</code> 默认值设置完成</li>
+</ul>
+<h2 id="设置ssh"><a href="#设置ssh" class="headerlink" title="设置ssh"></a>设置ssh</h2><ul>
+<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>SSH</code>-&gt;<code>Host Name (or IP address)</code>-&gt;<code>10.0.0.99</code> 或者  <code>username@10.0.0.99</code> 来指定登录名</li>
+<li><code>Session</code>-&gt;<code>Saved Session</code> <code>Ubuntu</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
+<li>如果需要免密登录, 明文的很简单, 调用 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code> 即可</li>
+<li>如果需要密码加密, 稍微麻烦点. 参考 <a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="external">windows 上用程序putty使用 ssh自动登录linux</a>. 我不需要这个功能, 略过不表.</li>
+</ul>
+<h2 id="设置serial"><a href="#设置serial" class="headerlink" title="设置serial"></a>设置serial</h2><ul>
+<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>Serial</code>-&gt;<code>Serial line</code> <code>COM4</code>-&gt;<code>Speed</code> <code>9600</code> 即串口4, 波特率9600</li>
+<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code> <code>None</code> 这里可以设置其它串口参数, 不支持自动回显.</li>
+<li><code>Session</code>-&gt;<code>Saved Session</code> <code>COM4-9600</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
+</ul>
+<h2 id="配置的导入和导出"><a href="#配置的导入和导出" class="headerlink" title="配置的导入和导出"></a>配置的导入和导出</h2><ul>
+<li>putty直接把配置存放在注册表中. 所以思路就是导入导出注册表</li>
+<li>cmd下-&gt;<code>regedit</code>-&gt;打开注册表</li>
+<li>找到 <code>HKEY_CURRENT_USER\Software\SimonTatham</code></li>
+<li>在 <code>SimonTatham</code> 这个节点上点击右键, 选择导出, 保存为<code>config.reg</code>. 这里不单单是putty的配置</li>
+<li>恢复时, 管理员权限执行 <code>config.reg</code> 即可</li>
+</ul>
+<h2 id="putty的调用"><a href="#putty的调用" class="headerlink" title="putty的调用"></a>putty的调用</h2><ul>
+<li>基本用法 <code>putty.exe -load &quot;session_name&quot;</code></li>
+<li>自动登录 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code></li>
+<li>更多调用方式可查看 <code>PUTTY.CHM 3.8.x</code> 包含于下载的<code>putty.zip</code>中</li>
+</ul>
+<h2 id="对比TeraTerm"><a href="#对比TeraTerm" class="headerlink" title="对比TeraTerm"></a>对比<a href="https://ttssh2.osdn.jp/index.html.en" target="_blank" rel="external">TeraTerm</a></h2><ul>
+<li>TeraTerm相比于putty设置显得更复杂, 至少串口的功能比putty的要多一点</li>
+<li>TeraTerm有自己的脚本语句, 可以实现比较复杂的自动化功能</li>
+<li>TeraTerm在ConEmu字体显示有问题.</li>
+<li>putty完全满足需求, 配置简单, 完美兼容ConEmu, 因此没有考虑TeraTerm</li>
+</ul>
+<h1 id="Cygwin"><a href="#Cygwin" class="headerlink" title="Cygwin"></a><a href="https://www.cygwin.com/" target="_blank" rel="external">Cygwin</a></h1><ul>
+<li>是windows下的unix仿真环境, 可以用来做交叉编译, 因此可替代虚拟机安装linux.</li>
+<li>安装, 可以参考 <a href="http://velep.com/archives/747.html" target="_blank" rel="external">cygwin介绍、安装及其使用</a></li>
+<li>交叉编译, 可以参考<ul>
+<li><a href="http://mazhijing.blog.51cto.com/215535/39539/" target="_blank" rel="external">Cygwin 安装  基本使用 交叉编译vivi kernel</a></li>
+<li><a href="http://www.360doc.com/content/12/0929/14/5013584_238783155.shtml" target="_blank" rel="external">在cygwin中安装gcc编译器</a></li>
+</ul>
+</li>
+<li>卸载, 因为权限问题, Cygwin卸载很麻烦. 可以参考两篇文章, 已经是最简单的方法了<ul>
+<li><a href="http://blog.csdn.net/yelangjueqi/article/details/45199209" target="_blank" rel="external">window 下完全卸载Cygwin最简单方法</a>, 就是在运行一次 <code>setup.exe</code> 来卸载</li>
+<li><a href="http://blog.163.com/zhuandi_h/blog/static/180270288201282204521376/" target="_blank" rel="external">Win7 完全删除cygwin（本人已删除成功）</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/09/1608-WinSoft-path/" itemprop="url">
                   Windows 软件系列-自定义环境变量
                 </a>
@@ -1478,137 +1747,6 @@
             
               
                 
-                <a class="post-title-link" href="/2016/10/01/1605-Stm32Selection/" itemprop="url">
-                  stm32选型及资料搜索指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-01T00:00:00+10:00" content="2016-10-01">
-              2016-10-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2016/10/01/1604-CheatSheet-vim/" itemprop="url">
                   Vim常用快捷键
                 </a>
@@ -2091,6 +2229,137 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/01/1605-Stm32Selection/" itemprop="url">
+                  stm32选型及资料搜索指南
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-01T00:00:00+10:00" content="2016-10-01">
+              2016-10-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
+<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="external">STM32F103RC</a></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="external">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="external">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="external">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="external">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="external">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="external">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
+<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="external">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
+</ul>
+<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
+<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
+<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="external">STM选型</a></li>
+<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
+<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="external">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/30/1603-WinSoft-editor/" itemprop="url">
                   Windows 软件系列-文本编辑
                 </a>
@@ -2386,290 +2655,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/28/1602-WinSoft-efficiency/" itemprop="url">
-                  Windows 软件系列-提高效率
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-09-28T00:00:00+10:00" content="2016-09-28">
-              2016-09-28
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="AutoHotKey"><a href="#AutoHotKey" class="headerlink" title="AutoHotKey"></a><a href="https://autohotkey.com/" target="_blank" rel="external">AutoHotKey</a></h1><h2 id="AHK-简介"><a href="#AHK-简介" class="headerlink" title="AHK 简介"></a>AHK 简介</h2><ul>
-<li><a href="https://autohotkey.com/" target="_blank" rel="external">AutoHotkey</a>是一个windows下的开源, 免费, 自动化软件工具. </li>
-<li>我主要用于绑定快捷键, 便于快速打开应用和文件夹. 以此提高<strong>工作效率</strong></li>
-<li>常用符号含义<blockquote>
-<p><code>#</code> 代表 Win 键<br><code>!</code> 代表 Alt 键<br><code>^</code> 代表 Ctrl 键<br><code>+</code> 代表 shift 键<br><code>::</code> 起分隔作用<br><code>run</code> 非常常用 的 AHK 命令之一<br><code>;</code>  注释后面一行内容</p>
-</blockquote>
-</li>
-<li>举个例子<br>用 <code>Ctrl - Alt - Shift - Win - n</code> 打开记事本的脚本<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">^!+#n::run C:\Windows\notepad.exe</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="AHK懒人用法-ezAHK"><a href="#AHK懒人用法-ezAHK" class="headerlink" title="AHK懒人用法: ezAHK"></a>AHK懒人用法: <a href="https://github.com/draapho/ezAHK" target="_blank" rel="external">ezAHK</a></h2><ul>
-<li>安装 <a href="https://autohotkey.com/download/" target="_blank" rel="external">AutoHotKey</a> V1.1.* 版本</li>
-<li>下载 <a href="https://github.com/draapho/ezAHK" target="_blank" rel="external">ezAHK</a> 放到任意位置</li>
-<li>把文件或目录的<strong>快捷方式放到link目录</strong>里, 改成希望使用的<strong>快捷键名称</strong>即可.<br>譬如, 希望把notepad绑定到 <code>win-n</code>这个快捷键, 只需要:<ol>
-<li>创建<strong>notepad.exe的快捷方式</strong>到<strong>link目录</strong></li>
-<li>重命名该快捷方式为 <code>win-n</code></li>
-<li>注意 <code>-</code> 的左右<strong>没有空格</strong>, <strong>删除后缀</strong> <code>.exe</code></li>
-<li>可以考虑使用 <code>win-r</code> 的方式替代, 毕竟快捷键数量有限, 命令行更灵活.</li>
-</ol>
-</li>
-<li>ezAHK 还包括如下几个实用功能<ul>
-<li><code>鼠标中键</code> 复制</li>
-<li><code>shift-鼠标中键</code> 剪切</li>
-<li><code>ctrl-shift-鼠标中键</code> 复制路径</li>
-<li><code>鼠标右键</code> 使用鼠标中键复制后, 首次黏贴</li>
-<li><code>ctrl-鼠标右键</code> 黏贴</li>
-<li><code>ctrl-~</code> 根据所在目录打开终端</li>
-<li><code>alt-win-鼠标中键</code> 复制颜色</li>
-<li><code>alt-win-↑ ↓ ← →</code> 单像素移动鼠标</li>
-<li><code>alt-win-d</code> 输入当前日期</li>
-</ul>
-</li>
-<li>添加到开机自启动: 创建<code>ezAHK.ahk</code>的快捷方式, 并放到如下 Windows 的 <strong>StartUp目录</strong>.<br>Windows 10 的 StartUp 目录如下:<br><code>C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp</code></li>
-</ul>
-<h2 id="资源和参考"><a href="#资源和参考" class="headerlink" title="资源和参考"></a>资源和参考</h2><ul>
-<li><a href="https://autohotkey.com/boards/viewtopic.php?t=4296" target="_blank" rel="external">实用 AutoHotkey 脚本推荐</a></li>
-<li><a href="https://autohotkey.com/boards/viewtopic.php?t=4267" target="_blank" rel="external">AHK 快餐店系列索引</a></li>
-<li><a href="https://autohotkey.com/docs/scripts/#AutoHotkey_Script_Showcase" target="_blank" rel="external">AutoHotkey_Script_Showcase</a></li>
-<li><a href="https://autohotkey.com/board/topic/60985-get-paths-of-selected-items-in-an-explorer-window/" target="_blank" rel="external">Get paths of selected items in an explorer window</a></li>
-<li>AutoHotKey<a href="https://autohotkey.com/" target="_blank" rel="external">官网</a> 及 <a href="http://ahkcn.sourceforge.net/docs/AutoHotkey.htm" target="_blank" rel="external">中文帮助</a></li>
-<li><a href="http://www.jeffjade.com/2016/03/11/2016-03-11-autohotkey/" target="_blank" rel="external">Win下最爱效率神器:AutoHotKey</a></li>
-</ul>
-<h1 id="快速搜索和定位"><a href="#快速搜索和定位" class="headerlink" title="快速搜索和定位"></a>快速搜索和定位</h1><h2 id="Everything"><a href="#Everything" class="headerlink" title="Everything"></a><a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a></h2><ul>
-<li><a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a>是免费软件, 有<strong>便携版</strong>.</li>
-<li><a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a>是<strong>普通搜索工具</strong>, 便于在搜索结果中慢慢查阅.</li>
-</ul>
-<h2 id="Listary"><a href="#Listary" class="headerlink" title="Listary"></a><a href="http://www.listary.com/" target="_blank" rel="external">Listary</a></h2><ul>
-<li><a href="http://www.listary.com/" target="_blank" rel="external">Listary</a>分为免费版和专业版.</li>
-<li>相比于 <a href="https://www.voidtools.com/" target="_blank" rel="external">Everything</a>, 索引方式相似,但操作体验完全不同.</li>
-<li><a href="http://www.listary.com/" target="_blank" rel="external">Listary</a>是<strong>随时随地的查找定位</strong>, 目标明确时很方便. </li>
-<li>强烈推荐都尝试一下后决定用哪个, 或和我一样同时使用.</li>
-<li>Listary 实用快捷键</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Listary</th>
-<th>助记</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>win-~</code></td>
-<td></td>
-<td>打开Listary</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>打开文件</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>打开路径</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制路径</td>
-</tr>
-<tr>
-<td><code>ctrl+j</code> <code>ctrl+k</code></td>
-<td>vim j,k</td>
-<td>下一个 / 上一个(需设置)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="使用-win-r-快速启动"><a href="#使用-win-r-快速启动" class="headerlink" title="使用 win-r 快速启动"></a>使用 <code>win-r</code> 快速启动</h2><ul>
-<li>基本原理是使用 <code>Run</code> 来直接运行配置在环境变量中的快捷方式 <code>.lnk</code>, </li>
-<li>由于是执行命令行, 比快捷键方式有更好的扩展性和灵活性更好. 也可以在任何终端中直接调用!</li>
-<li>运行环境的搭建可以参考 <a href="https://draapho.github.io/2016/10/09/1608-WinSoft-path/">Windows 软件系列-自定义环境变量</a></li>
-<li>详细介绍可参考 <a href="https://xbeta.info/win-run.htm#h-6" target="_blank" rel="external">最绿色最高效，用win+r启动常用程序和文档</a></li>
-<li>为了更省事, 可以使用AHK设置为<code>win</code>键替代<code>win-r</code>键</li>
-<li>要把win键也省了的话, 专业版 <a href="http://www.listary.com/" target="_blank" rel="external">Listary</a> 可以满足这个需求</li>
-</ul>
-<h1 id="Ditto"><a href="#Ditto" class="headerlink" title="Ditto"></a><a href="http://ditto-cp.sourceforge.net/" target="_blank" rel="external">Ditto</a></h1><ul>
-<li><a href="http://ditto-cp.sourceforge.net/" target="_blank" rel="external">Ditto</a> 一款剪切板增强软件, 免费开源. 有绿色便携版(无法支持部分功能)</li>
-<li>对复制黏贴功能多多支持总是好的, 使用频率太高了! 这个软件的功能非常实用.<ul>
-<li>软件的核心在于 <code>ctrl-~</code> 调用出 Ditto 信息板</li>
-<li><code>shift-enter</code> 忽略格式黏贴纯文本</li>
-<li><code>新建剪辑</code>-&gt;<code>项目标题</code> <code>email</code>-&gt;<code>快速黏贴文本</code> <code>myemail@gmail.com</code>-&gt;设置为<code>禁止自动删除</code>, 也可以归类到组. 以后只需输入email, 就可以直接黏贴具体email地址了</li>
-<li>轻松管理复制历史, 可用作搜索资料, 然后批量黏贴</li>
-</ul>
-</li>
-<li>重新设置 <code>激活Ditto</code> 快捷键为 <code>ctrl-q</code>, 因为 <code>ctrl-~</code>默认用于打开终端</li>
-<li>参考 <a href="https://xbeta.info/ditto.htm" target="_blank" rel="external">Ditto:首选的剪贴板增强软件</a></li>
-</ul>
-<h1 id="Chocolatey"><a href="#Chocolatey" class="headerlink" title="Chocolatey"></a><del><a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a></del></h1><p><strong><a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a>可以作为软件安装的补充, 但不做推荐</strong> </p>
-<h2 id="Chocolatey-简介"><a href="#Chocolatey-简介" class="headerlink" title="Chocolatey 简介"></a>Chocolatey 简介</h2><ul>
-<li><a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a>是windows下的软件管理工具. 软件源由社区成员提交和维护. 基础版免费.</li>
-<li>基于命令行来查找和安装软件,方便快捷,<del>耍酷</del>.</li>
-<li>安装包的类型:<ul>
-<li>无后缀, 如 git</li>
-<li><em>.install, 如 git.install, 这个会出现在系统的 <em>*卸载或更改程序</em></em> 界面里</li>
-<li>*.commandline, 如 git.commandline. 不建议使用</li>
-<li>*.portable, 如 putty.portable, zip包, 我的理解就是绿色便携软件</li>
-</ul>
-</li>
-<li>软件都是自动静默安装, 无法指定安装位置, 无法再安装时配置.</li>
-<li>由于运行在管理员权限且不能保证软件绝对无毒, 所以有安全风险. <a href="https://chocolatey.org/about" target="_blank" rel="external">Chocolatey官网</a>有如下语句:<blockquote>
-<p>If you need better peace of mind, we offer <a href="https://chocolatey.org/docs/features-virus-check" target="_blank" rel="external">runtime malware protection</a> in <a href="https://chocolatey.org/pricing" target="_blank" rel="external">Chocolatey Pro</a> and <a href="https://chocolatey.org/pricing" target="_blank" rel="external">Chocolatey for Business</a></p>
-</blockquote>
-</li>
-<li>搜索和下载指定版本的软件也没有想象中方便.</li>
-<li>综合考虑后, <a href="https://chocolatey.org/" target="_blank" rel="external">Chocolatey</a>可以作为软件安装的补充(如制作安装脚本), 但不做推荐</li>
-</ul>
-<h2 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h2><ul>
-<li><p>windows <a href="https://chocolatey.org/install" target="_blank" rel="external">安装 Chocolatey</a>. 使用管理员权限打开 cmd.exe, 输入:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">@powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;iex ((New-Object System.Net.WebClient).DownloadString(&apos;https://chocolatey.org/install.ps1&apos;))&quot; &amp;&amp; SET &quot;PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin&quot;</div></pre></td></tr></table></figure>
-</li>
-<li><p>几个常用指令</p>
-<ul>
-<li><code>choco -?</code> 帮助指令, 获取choco指令的详细说明</li>
-<li><code>choco search</code> 搜索. 用 <code>-all</code> 可显示所有版本. 也可以查看<a href="https://chocolatey.org/packages/" target="_blank" rel="external">网页版</a></li>
-<li><code>choco install</code> 安装. 用 ‘-version’ 可指定版本</li>
-<li><code>choco upgrade</code> 升级</li>
-<li><code>choco uninstall</code> 删除</li>
-<li><code>choco list -localonly</code> 查看本地已安装的软件</li>
-</ul>
-</li>
-<li>以nodejs为例<ul>
-<li><code>choco search nodejs</code> 加 <code>-all</code> 会显示所有版本!!! </li>
-<li>建议网页端搜索 <a href="https://chocolatey.org/packages/" target="_blank" rel="external"><strong>软件源列表</strong></a></li>
-<li><code>choco install nodejs -version 5.0.0</code>  安装nodejs 5.0.0这个版本, 默认使用安装 <strong>.install</strong></li>
-<li><code>choco upgrade nodejs</code>  升级nodejs到最新版本</li>
-<li><code>choco uninstall nodejs</code>  删除nodejs</li>
-<li><code>choco list -localonly</code> 确认是否已删除</li>
-</ul>
-</li>
-</ul>
-<h2 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h2><ul>
-<li>Chocolatey 官方说明的 <a href="https://chocolatey.org/install" target="_blank" rel="external">安装方式</a></li>
-<li><a href="https://chocolatey.org/packages/" target="_blank" rel="external">Chocolatey 软件源列表</a></li>
-<li><a href="http://ninghao.net/blog/2071" target="_blank" rel="external">更好的安装软件的方法</a></li>
-<li><a href="http://www.jianshu.com/p/831aa4a280e7" target="_blank" rel="external">Windows下的包管理器Chocolatey</a></li>
-<li><a href="https://medium.com/@keivan/why-chocolatey-is-broken-beyond-any-hope-d1a4e33b3d23#.jzmj9o5cd" target="_blank" rel="external">Why Chocolatey is broken beyond any hope</a></li>
-</ul>
-<h1 id="Zeal"><a href="#Zeal" class="headerlink" title="Zeal"></a><a href="https://zealdocs.org/" target="_blank" rel="external">Zeal</a></h1><ul>
-<li><a href="https://zealdocs.org/" target="_blank" rel="external">Zeal</a>是一款在windows和Linux上, 功能类似于Mac上Dash的一款离线文档查看软件.</li>
-<li>免费软件, 有绿色便携版, 支持的手册种类和Dash是一样的. 应该是为了跨平台, 基于Qt5开发, 反应有点慢.</li>
-<li>下载安装完成后, <code>Tool</code>-&gt;<code>Docksets...</code>-&gt;窗口<code>Docsets</code>下-&gt;<code>Available</code>-&gt;选择语言-&gt;<code>Download</code>即可.</li>
-<li><strong>软件开发人员必备</strong>. 还可以在atom直接调用查看API, 省去大量的文档搜索时间.</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2715,7 +2700,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">79</span>
+              <span class="site-state-item-count">80</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

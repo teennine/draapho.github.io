@@ -1,0 +1,825 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linuxembedded linux,drv," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+驱动之poll机制
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+POLL机制分析三种按键驱动的比较
+查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源
+中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上
+poll方式:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="驱动之poll机制">
+<meta property="og:url" content="https://draapho.github.io/2017/12/11/1742-drv-chr4/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+驱动之poll机制
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+POLL机制分析三种按键驱动的比较
+查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源
+中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上
+poll方式:">
+<meta property="og:updated_time" content="2017-12-11T05:14:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="驱动之poll机制">
+<meta name="twitter:description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+驱动之poll机制
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.
+POLL机制分析三种按键驱动的比较
+查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源
+中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上
+poll方式:">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/12/11/1742-drv-chr4/"/>
+
+
+  <title> 驱动之poll机制 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                驱动之poll机制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-11T00:00:00+11:00" content="2017-12-11">
+              2017-12-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="POLL机制分析"><a href="#POLL机制分析" class="headerlink" title="POLL机制分析"></a>POLL机制分析</h1><h2 id="三种按键驱动的比较"><a href="#三种按键驱动的比较" class="headerlink" title="三种按键驱动的比较"></a>三种按键驱动的比较</h2><ul>
+<li>查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源</li>
+<li>中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上</li>
+<li>poll方式: 应用程序上, 实现了非阻塞读取. 先poll判断是否发生事件, 有事件处理, 无事件可以做其它事情.</li>
+</ul>
+<h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><p>基本流程如下:</p>
+<ul>
+<li>应用程序调用poll &gt; sys_poll &gt; <code>do_sys_poll</code> &gt; do_poll &gt; do_pollfd &gt; 驱动程序poll</li>
+<li>从 <code>do_sys_poll</code> 函数深入分析:<ul>
+<li>先调用 <code>poll_initwait</code>, 注册一下 <code>__pollwait</code> 函数.</li>
+<li>再调用 <code>do_poll</code> 判断条件. 这里会调用驱动函数的poll<ul>
+<li>调用 <code>do_pollfd</code> 函数, 实际上就是调用驱动的poll函数</li>
+<li>返回值为1或等待超时或触发信号, 执行 <code>__set_current_state</code> 继续运行当前进程.</li>
+<li>返回值为0, 则执行 <code>schedule_timeout</code> 当前进程睡眠, 切换到其它进程.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>驱动函数里的poll会调用 <code>poll_wait</code>, 只是把当前的进程加入到 button_waitq 队列里去, 并没有立刻切换进程<ul>
+<li><code>poll_wait</code> 调用 <code>p-&gt;qproc(filp, wait_address, p);</code>, 实际就是调用了 <code>__pollwait</code> 函数</li>
+<li>进程并不会阻塞在 <code>poll_wait</code> 函数. (这个函数的命名容易让人误解, 因此特此强调!)</li>
+<li>整个进程会根据驱动的poll返回值确定是休眠还是继续运行.</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">app: poll, 会去调用 sys_poll. 共三个参数</div><div class="line">    <span class="comment">// 1. *ufds, 文件指针. 需要查询的驱动文件列表</span></div><div class="line">    <span class="comment">// 2. nfds, 文件个数.</span></div><div class="line">    <span class="comment">// 3. timeout_msecs, 超时时间.</span></div><div class="line">kernel: sys_poll    <span class="comment">// 位于 /fs/select.c</span></div><div class="line">            do_sys_poll(..., timeout_jiffies)</div><div class="line">                poll_initwait(&amp;table);</div><div class="line">                    init_poll_funcptr(&amp;pwq-&gt;pt, __pollwait);</div><div class="line">                    <span class="comment">// table-&gt;pt-&gt;qproc = __pollwait. 相当于注册一下 __pollwait.</span></div><div class="line">                    <span class="comment">// __pollwait 是系统函数, 用于初始化一个 poll_wqueues 的 table</span></div><div class="line">                    <span class="comment">// 驱动程序的poll函数会调用__pollwait函数.</span></div><div class="line">                do_poll(nfds, head, &amp;table, timeout)</div><div class="line">                    <span class="keyword">for</span> (;;) &#123;</div><div class="line">                        <span class="keyword">if</span> (do_pollfd(ftd, pt)) &#123;</div><div class="line">                            <span class="comment">// 进入函数 do_pollfd, 有如下两句:</span></div><div class="line">                            mask = file-&gt;f_op-&gt;poll(file, pwait);</div><div class="line">                                <span class="comment">// 实际上, 就是调用驱动代码里的poll, 驱动代码里会调用</span></div><div class="line">                                pollwait(filp, &amp;button_waitq, p) &#123;</div><div class="line">                                    <span class="comment">// 把当前的进程挂到button_waitq队列里去</span></div><div class="line">                                    <span class="comment">// 整个进程并不会阻塞在 pollwait 这里!</span></div><div class="line">                                    p-&gt;qproc(filp, wait_address, p);    <span class="comment">// 相当于调用 __pollwait</span></div><div class="line">                                    <span class="comment">// 这里我有过疑惑, 为何不直接指定 __pollwait 这么一个系统函数, 而是用初始化函数指针再调用的晦涩方法.</span></div><div class="line">                                    <span class="comment">// 搜索 init_poll_funcptr 后, 就可以知道, 这也是一个系统架构, 不同的地方会有不同的函数.</span></div><div class="line">                                &#125;</div><div class="line">                                <span class="comment">// 驱动poll函数给出返回值. 赋值给mask</span></div><div class="line">                                <span class="comment">// 因此整个进程会在调用完驱动poll函数后, 根据返回值进行休眠或继续运行.</span></div><div class="line">                            <span class="keyword">return</span> mask;</div><div class="line">                            count++; <span class="comment">// 如果驱动的poll返回非0值, 那么count++</span></div><div class="line">                            pt = <span class="literal">NULL</span>;</div><div class="line">                        &#125;</div><div class="line"></div><div class="line">                        <span class="comment">// break的条件: count非0, 超时, 有信号在等待处理</span></div><div class="line">                        <span class="keyword">if</span> (count || !*timeout || signal_pending(current))</div><div class="line">                            <span class="keyword">break</span>;</div><div class="line"></div><div class="line">                        <span class="comment">// 休眠 __timeout</span></div><div class="line">                        __timeout = schedule_timeout(__timeout);</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                    <span class="comment">// 设置当前进程为运行态</span></div><div class="line">                    __set_current_state(TASK_RUNNING);</div></pre></td></tr></table></figure>
+<h1 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h1><ul>
+<li><a href="http://blog.csdn.net/rockrockwu/article/details/7310518" target="_blank" rel="external">linux poll 和 等待队列休眠的关系</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568964" target="_blank" rel="external">select(poll)系统调用实现解析(一)</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568968" target="_blank" rel="external">select(poll)系统调用实现解析(二)</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568969" target="_blank" rel="external">select(poll)系统调用实现解析(三)</a></li>
+<li><a href="http://www.cnblogs.com/jack204/archive/2011/10/30/2229331.html" target="_blank" rel="external">linux的poll的工作机制</a></li>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77825262" target="_blank" rel="external">字符设备驱动-poll机制</a></li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>驱动源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a> 增加poll函数即可.<br>然后应用层的测试文件改动较大.<br><strong>注意驱动层和应用层的poll函数写法就可以了, 都是固定的结构</strong></p>
+<h2 id="drv-key-poll-c"><a href="#drv-key-poll-c" class="headerlink" title="drv_key_poll.c"></a>drv_key_poll.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 基于 驱动之基于中断设计按键驱动 源码增加而来. 只显示新增和修改的部分. 这样更直观易懂.</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_poll.h"</span>                    <span class="comment">// 头文件改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_poll"</span>    <span class="comment">// 名称改一下</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="title">drv_key_poll</span><span class="params">(<span class="keyword">struct</span> file *file, poll_table *wait)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> mask = <span class="number">0</span>;</div><div class="line">    poll_wait(file, &amp;key_waitq, wait);      <span class="comment">// 这里不会休眠. 进程不阻塞</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (ev_press)</div><div class="line">        mask |= POLLIN | POLLRDNORM;        <span class="comment">// 关键是返回值, 返回值为0, 进程可能休眠.</span></div><div class="line">        <span class="comment">// POLLIN, 是标准的事件值, 测试程序就基于此判断.</span></div><div class="line">        <span class="comment">// POLLRDNORM, Normal data may be read without blocking. 作用应该是告知应用程序类型和后续动作.</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> mask;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct</span> file_operations drv_key_int_fops= &#123;</div><div class="line">    .owner              = THIS_MODULE,</div><div class="line">    .open               = drv_key_int_open,</div><div class="line">    .release            = drv_key_int_release,</div><div class="line">    .read               = drv_key_int_read,</div><div class="line">    .poll               = drv_key_poll,     <span class="comment">// 新增这一行</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h2 id="drv-key-poll-h"><a href="#drv-key-poll-h" class="headerlink" title="drv_key_poll.h"></a>drv_key_poll.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_poll"</span>          <span class="comment">// 名称改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/poll.h&gt;</span>                     <span class="comment">// 新增poll头文件</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></div></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd, ret;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line">    <span class="keyword">struct</span> pollfd fds[<span class="number">1</span>];                   <span class="comment">// poll 关联的文件, 可多个文件</span></div><div class="line"></div><div class="line">    fd = open(<span class="string">"/dev/key_poll0"</span>, O_RDWR);</div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    fds[<span class="number">0</span>].fd     = fd;                     <span class="comment">// 关联的驱动文件</span></div><div class="line">    fds[<span class="number">0</span>].events = POLLIN;                 <span class="comment">// 事件类型</span></div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">        ret = poll(fds, <span class="number">1</span>, <span class="number">5000</span>);           <span class="comment">// 执行poll. 最多阻塞5s (有按键事件会立刻返回)</span></div><div class="line">        <span class="keyword">if</span> (ret == <span class="number">0</span>) &#123;</div><div class="line">            <span class="built_in">printf</span>(<span class="string">"time out\n"</span>);           <span class="comment">// 5s后超时</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            read(fd, &amp;keys_val, <span class="number">1</span>);         <span class="comment">// 有按键, 读取按键值</span></div><div class="line">            <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主机端, 编译源码</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line"><span class="comment"># 编译驱动</span></div><div class="line">$ make clean</div><div class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></div><div class="line"></div><div class="line"><span class="comment"># 编译测试代码</span></div><div class="line">$ arm-linux-gcc test_drv_key_poll.c -o test_drv_key_poll</div></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试驱动功能</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ insmod drv_key_poll.ko            <span class="comment"># 加载模块</span></div><div class="line">drv_key_int:INIT</div><div class="line"></div><div class="line">$ ./test_drv_key_poll               <span class="comment"># 检测按键中断</span></div><div class="line">drv_key_poll:In char driver open() <span class="keyword">function</span></div><div class="line"><span class="comment"># 无按键时, 每5s打印 time out</span></div><div class="line"><span class="comment"># 有按键时, 立刻打印按键值</span></div><div class="line"></div><div class="line"><span class="comment"># 按ctrl+c 终止进程</span></div><div class="line"></div><div class="line">$ ./test_drv_key_poll &amp;             <span class="comment"># 后台运行</span></div><div class="line">$ top                               <span class="comment"># 查看系统资源情况</span></div><div class="line"><span class="comment"># 可以看到 ./test_drv_key_poll 进程占用很少的资源.</span></div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linuxembedded-linux/" rel="tag">#linuxembedded linux</a>
+          
+            <a href="/tags/drv/" rel="tag">#drv</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/07/1741-drv-chr3/" rel="next" title="驱动之基于中断设计按键驱动">
+                <i class="fa fa-chevron-left"></i> 驱动之基于中断设计按键驱动
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">80</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">74</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#POLL机制分析"><span class="nav-number">2.</span> <span class="nav-text">POLL机制分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#三种按键驱动的比较"><span class="nav-number">2.1.</span> <span class="nav-text">三种按键驱动的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心流程"><span class="nav-number">2.2.</span> <span class="nav-text">核心流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更多资料"><span class="nav-number">3.</span> <span class="nav-text">更多资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#驱动源码"><span class="nav-number">4.</span> <span class="nav-text">驱动源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-key-poll-c"><span class="nav-number">4.1.</span> <span class="nav-text">drv_key_poll.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-key-poll-h"><span class="nav-number">4.2.</span> <span class="nav-text">drv_key_poll.h</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试文件-test-drv-key-int-c"><span class="nav-number">4.3.</span> <span class="nav-text">测试文件 test_drv_key_int.c</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译并测试"><span class="nav-number">5.</span> <span class="nav-text">编译并测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ubuntu主机端"><span class="nav-number">5.1.</span> <span class="nav-text">Ubuntu主机端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开发板端"><span class="nav-number">5.2.</span> <span class="nav-text">开发板端</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
