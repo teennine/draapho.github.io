@@ -1,0 +1,816 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linuxembedded linux,drv," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+驱动之poll机制
+驱动之异步通知
+驱动之同步互斥阻塞
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.
+原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的操作底层实现就是 ra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="驱动之同步互斥阻塞">
+<meta property="og:url" content="https://draapho.github.io/2017/12/13/1744-drv-chr6/index.html">
+<meta property="og:site_name" content="DRA&PHO">
+<meta property="og:description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+驱动之poll机制
+驱动之异步通知
+驱动之同步互斥阻塞
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.
+原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的操作底层实现就是 ra">
+<meta property="og:updated_time" content="2017-12-12T08:31:05.578Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="驱动之同步互斥阻塞">
+<meta name="twitter:description" content="总览
+嵌入式linux学习目录
+驱动之字符设备-框架
+驱动之基于LinK+设计按键驱动
+驱动之基于中断设计按键驱动
+驱动之poll机制
+驱动之异步通知
+驱动之同步互斥阻塞
+
+本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.
+原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的操作底层实现就是 ra">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://draapho.github.io/2017/12/13/1744-drv-chr6/"/>
+
+
+  <title> 驱动之同步互斥阻塞 | DRA&PHO </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">DRA&PHO</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">thinking & logging</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                驱动之同步互斥阻塞
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-13T00:00:00+11:00" content="2017-12-13">
+              2017-12-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.<br>硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.</p>
+<h1 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h1><p><strong>原子操作指的是在执行过程中不会被别的进程或中断所打断的操作</strong><br>底层实现就是 <code>raw_local_irq_save</code> <code>raw_local_irq_restore</code>, 保存中断并禁止, 操作完成后, 恢复.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 常用的原子操作函数</span></div><div class="line"><span class="keyword">atomic_t</span> v = ATOMIC_INIT(<span class="number">0</span>);            <span class="comment">// 定义原子变量v并初始化为0</span></div><div class="line">atomic_read(<span class="keyword">atomic_t</span> *v);               <span class="comment">// 返回原子变量的值</span></div><div class="line">atomic_inc(<span class="keyword">atomic_t</span> *v);                <span class="comment">// 原子变量增加1</span></div><div class="line">atomic_dec(<span class="keyword">atomic_t</span> *v);                <span class="comment">// 原子变量减少1</span></div><div class="line">atomic_dec_and_test(<span class="keyword">atomic_t</span> *v);       <span class="comment">// 自减操作后测试其是否为0，为0则返回true，否则返回false</span></div><div class="line"></div><div class="line"><span class="comment">// 更多宏定义可参考 /linux/include/asm/atomic.h</span></div></pre></td></tr></table></figure>
+<h2 id="drv-sem-c"><a href="#drv-sem-c" class="headerlink" title="drv_sem.c"></a>drv_sem.c</h2><p>源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a>, 部分修改而来<br>只显示新增和修改的部分. 这样更直观易懂.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_sem.h"</span>                                 <span class="comment">// 头文件改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"drv_sem"</span>             <span class="comment">// 名称改一下</span></span></div><div class="line"></div><div class="line"><span class="keyword">atomic_t</span> canopen = ATOMIC_INIT(<span class="number">1</span>);                  <span class="comment">// 定义原子变量canopen并初始化为1</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> ret;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> (!atomic_dec_and_test(&amp;canopen)) &#123;           <span class="comment">// 新增的原子操作判断 </span></div><div class="line">        atomic_inc(&amp;canopen);                       <span class="comment">// 打开失败, 恢复到0</span></div><div class="line">        <span class="keyword">return</span> -EBUSY;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    ......</div><div class="line"></div><div class="line">    <span class="comment">// 因为这一句的存在, 就算没有原子操作 应用程序无法调用此驱动多次. 先注释掉.</span></div><div class="line">	<span class="comment">// if (ret) return -EINVAL;                        </span></div><div class="line">	<span class="comment">// else return 0;</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                       <span class="comment">// 为了测试, 直接返回0.</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">	......</div><div class="line">    </div><div class="line">    atomic_inc(&amp;canopen);                           <span class="comment">// 恢复原子操作为1</span></div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="drv-sem-h"><a href="#drv-sem-h" class="headerlink" title="drv_sem.h"></a>drv_sem.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_sem"</span>       <span class="comment">// 名称改一下</span></span></div></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">obj-m		:= drv_sem.o            <span class="comment"># 目标名称改一下</span></div></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-sem-c"><a href="#测试文件-test-drv-sem-c" class="headerlink" title="测试文件 test_drv_sem.c"></a>测试文件 test_drv_sem.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> fd;</div><div class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line"></div><div class="line">	fd = open(<span class="string">"/dev/drv_sem0"</span>, O_RDWR);</div><div class="line">	<span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">		<span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">		read(fd, &amp;keys_val, <span class="number">1</span>);</div><div class="line">		<span class="built_in">printf</span>(<span class="string">"keys_val=0x%x, pid=%d\n"</span>, keys_val, getpid());</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu主机端, 编译驱动和测试文件</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_sem/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ make clean</div><div class="line">$ make modules</div><div class="line">$ arm-linux-gcc test_drv_sem.c -o test_drv_sem</div><div class="line"></div><div class="line"><span class="comment"># jz2440端</span></div><div class="line">$ insmod drv_sem.ko</div><div class="line">drv_sem:INIT</div><div class="line"></div><div class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第一次运行</span></div><div class="line">$ top</div><div class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</div><div class="line"><span class="comment"># 显示当前进程信息.</span></div><div class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第二次运行</span></div><div class="line">can<span class="string">'t open!             # 打开文件失败</span></div><div class="line">$ top</div><div class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</div><div class="line"># 依旧只有一个处于睡眠状态的测试程序.</div></pre></td></tr></table></figure>
+<h1 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h1><p>信号量是用于保护临界区的一种常用方法, 只有得到信号量进程才能执行临界区代码.<br>与原子操作不同的是, 当获取不到信号量是, <strong>进程进入休眠等待状态!</strong><br>一但其他进程释放信号量, 该进程获得信号量后, 会恢复运行.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//定义信号量</span></div><div class="line"><span class="keyword">struct</span> semaphore sem;                       <span class="comment">// 信号量</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(lock)</span></span>;                 <span class="comment">// 定义互斥锁</span></div><div class="line"></div><div class="line"><span class="comment">//初始化信号量</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sema_init</span> <span class="params">(<span class="keyword">struct</span> semaphore *sem, <span class="keyword">int</span> val)</span></span>;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_MUTEX</span><span class="params">(<span class="keyword">struct</span> semaphore *sem)</span></span>;     <span class="comment">// 初始化为0</span></div><div class="line"></div><div class="line"><span class="comment">//获得信号量</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">down</span><span class="params">(<span class="keyword">struct</span> semaphore * sem)</span></span>;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">down_interruptible</span><span class="params">(<span class="keyword">struct</span> semaphore * sem)</span></span>; </div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">down_trylock</span><span class="params">(<span class="keyword">struct</span> semaphore * sem)</span></span>;</div><div class="line"></div><div class="line"><span class="comment">//释放信号量</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">up</span><span class="params">(<span class="keyword">struct</span> semaphore * sem)</span></span>;</div></pre></td></tr></table></figure>
+<h2 id="drv-sem-c-1"><a href="#drv-sem-c-1" class="headerlink" title="drv_sem.c"></a>drv_sem.c</h2><p>源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a>, 部分修改而来<br>只显示新增和修改的部分. 这样更直观易懂.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_sem.h"</span>                                 <span class="comment">// 头文件改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"drv_sem"</span>             <span class="comment">// 名称改一下</span></span></div><div class="line"></div><div class="line"><span class="keyword">atomic_t</span> canopen = ATOMIC_INIT(<span class="number">1</span>);                  <span class="comment">// 定义原子变量canopen并初始化为1</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(key_lock)</span></span>;                     <span class="comment">// 定义互斥锁 </span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> ret;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></div><div class="line">    <span class="keyword">if</span> (!atomic_dec_and_test(&amp;canopen)) &#123;           <span class="comment">// 新增的原子操作判断 </span></div><div class="line">        atomic_inc(&amp;canopen);                       <span class="comment">// 打开失败, 恢复到0</span></div><div class="line">        <span class="keyword">return</span> -EBUSY;</div><div class="line">    &#125;</div><div class="line"><span class="meta">#<span class="meta-keyword">else</span></span></div><div class="line">    down(&amp;key_lock);                                <span class="comment">// 获取信号量</span></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line">    </div><div class="line">    ......</div><div class="line"></div><div class="line">    <span class="comment">// 因为这一句的存在, 就算没有原子操作 应用程序无法调用此驱动多次. 先注释掉.</span></div><div class="line">	<span class="comment">// if (ret) return -EINVAL;                        </span></div><div class="line">	<span class="comment">// else return 0;</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                       <span class="comment">// 为了测试, 直接返回0.</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">	......</div><div class="line">    </div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></div><div class="line">    atomic_inc(&amp;canopen);                           <span class="comment">// 恢复原子操作为1</span></div><div class="line"><span class="meta">#<span class="meta-keyword">else</span></span></div><div class="line">    up(&amp;key_lock);                                  <span class="comment">// 释放信号量</span></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其它文件 <code>drv_sem.h</code> <code>Makefile</code> <code>test_drv_sem.c</code> 和原子操作的部分一样. 不用修改</p>
+<h2 id="编译并测试-1"><a href="#编译并测试-1" class="headerlink" title="编译并测试"></a>编译并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu主机端, 编译驱动和测试文件</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_sem/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ make clean</div><div class="line">$ make modules</div><div class="line">$ arm-linux-gcc test_drv_sem.c -o test_drv_sem</div><div class="line"></div><div class="line"><span class="comment"># jz2440端</span></div><div class="line">$ insmod drv_sem.ko</div><div class="line">drv_sem:INIT</div><div class="line"></div><div class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第一次运行</span></div><div class="line">$ top</div><div class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</div><div class="line"><span class="comment"># 显示当前进程信息.</span></div><div class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第二次运行</span></div><div class="line"><span class="comment"># 并不会显示 can't open!, 此进程实际上在等待获取信号量</span></div><div class="line">$ top</div><div class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</div><div class="line">791   779 0        D     1308   2%   0% ./test_drv_sem</div><div class="line"><span class="comment"># 789 是第一个进程, 处于S, 可中断的睡眠状态, 在等待按键中断</span></div><div class="line"><span class="comment"># 791 是第二个进程, 处于D, 不可中断的睡眠状态, 在等待获取信号量</span></div><div class="line"></div><div class="line">$ <span class="built_in">kill</span> 789</div><div class="line">$ top                   <span class="comment"># 结束第一个进程, 再看进程表</span></div><div class="line">791   779 0        S     1308   2%   0% ./test_drv_sem</div><div class="line"><span class="comment"># 791 是第二进程, 获取信号量成功后开始运行, 处于S状态.</span></div></pre></td></tr></table></figure>
+<h1 id="阻塞和非阻塞"><a href="#阻塞和非阻塞" class="headerlink" title="阻塞和非阻塞"></a>阻塞和非阻塞</h1><ul>
+<li>阻塞操作<ul>
+<li>系统默认就是阻塞操作</li>
+<li>是指在执行设备操作时若不能获得资源则挂起进程，直到满足可操作的条件后再进行操作。</li>
+<li>被挂起的进程进入休眠状态，被从调度器的运行队列移走，直到等待的条件被满足。</li>
+</ul>
+</li>
+<li>非阻塞操作<ul>
+<li>使用宏定义 <code>O_NONBLOCK</code></li>
+<li>进程在不能进行设备操作时并不挂起，它或者放弃，或者不停地查询，直至可以进行操作为止。</li>
+</ul>
+</li>
+</ul>
+<h2 id="drv-sem-c-2"><a href="#drv-sem-c-2" class="headerlink" title="drv_sem.c"></a>drv_sem.c</h2><p>源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a>, 部分修改而来<br>只显示新增和修改的部分. 这样更直观易懂.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_sem.h"</span>                                 <span class="comment">// 头文件改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"drv_sem"</span>             <span class="comment">// 名称改一下</span></span></div><div class="line"></div><div class="line"><span class="keyword">atomic_t</span> canopen = ATOMIC_INIT(<span class="number">1</span>);                  <span class="comment">// 定义原子变量canopen并初始化为1</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(key_lock)</span></span>;                     <span class="comment">// 定义互斥锁 </span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> ret;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></div><div class="line">    <span class="keyword">if</span> (!atomic_dec_and_test(&amp;canopen)) &#123;</div><div class="line">        atomic_inc(&amp;canopen); </div><div class="line">        <span class="keyword">return</span> -EBUSY;</div><div class="line">    &#125;</div><div class="line"><span class="meta">#<span class="meta-keyword">else</span></span></div><div class="line">    <span class="keyword">if</span> (file-&gt;f_flags &amp; O_NONBLOCK) &#123;               <span class="comment">// 非阻塞</span></div><div class="line">        <span class="keyword">if</span> (down_trylock(&amp;key_lock))                <span class="comment">// 尝试获取信号量</span></div><div class="line">            <span class="keyword">return</span> -EBUSY;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        down(&amp;key_lock);                            <span class="comment">// 获取信号量, 阻塞</span></div><div class="line">    &#125;</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line">    </div><div class="line">    ......</div><div class="line"></div><div class="line">    <span class="comment">// 因为这一句的存在, 就算没有原子操作 应用程序无法调用此驱动多次. 先注释掉.</span></div><div class="line">	<span class="comment">// if (ret) return -EINVAL;                        </span></div><div class="line">	<span class="comment">// else return 0;</span></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                       <span class="comment">// 为了测试, 直接返回0.</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_int_read</span><span class="params">(<span class="keyword">struct</span> file *filp,  <span class="comment">// 读取函数也需要修改一下!</span></span></span></div><div class="line">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</div><div class="line">&#123;</div><div class="line">    ......</div><div class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> -EINVAL;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> (file-&gt;f_flags &amp; O_NONBLOCK) &#123;               <span class="comment">// 非阻塞</span></div><div class="line">        <span class="keyword">if</span> (!ev_press)                              <span class="comment">// 无按键, 立刻返回</span></div><div class="line">            <span class="keyword">return</span> -EAGAIN;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></div><div class="line">        wait_event_interruptible(key_waitq, ev_press);      <span class="comment">// 阻塞</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></div><div class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></div><div class="line">        <span class="keyword">return</span> -EFAULT;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">	......</div><div class="line">    </div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></div><div class="line">    atomic_inc(&amp;canopen);                           <span class="comment">// 恢复原子操作为1</span></div><div class="line"><span class="meta">#<span class="meta-keyword">else</span></span></div><div class="line">    up(&amp;key_lock);                                  <span class="comment">// 释放信号量</span></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>文件 <code>drv_sem.h</code> <code>Makefile</code> 和信号量的部分一样. 不用修改<br>阻塞是open函数的默认值, 其测试就不写了, 因为之前写的按键驱动测试都是阻塞的.</p>
+<h2 id="测试文件-unblock-drv-sem-c"><a href="#测试文件-unblock-drv-sem-c" class="headerlink" title="测试文件 unblock_drv_sem.c"></a>测试文件 unblock_drv_sem.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> ret, fd;</div><div class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line"></div><div class="line">	fd = open(<span class="string">"/dev/drv_sem0"</span>, O_RDWR | O_NONBLOCK);    <span class="comment">// O_NONBLOCK 非阻塞</span></div><div class="line">	<span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">		<span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">		ret = read(fd, &amp;keys_val, <span class="number">1</span>);                   <span class="comment">// 读取函数是否阻塞取决于open函数</span></div><div class="line">		<span class="built_in">printf</span>(<span class="string">"key_val=0x%x, ret=%d\n"</span>,key_val,ret);</div><div class="line">        sleep(<span class="number">3</span>);</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="编译并测试-2"><a href="#编译并测试-2" class="headerlink" title="编译并测试"></a>编译并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu主机端, 编译驱动和测试文件</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_sem/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ make clean</div><div class="line">$ make modules</div><div class="line">$ arm-linux-gcc unblock_drv_sem.c -o unblock_drv_sem</div><div class="line"></div><div class="line"><span class="comment"># jz2440端</span></div><div class="line">$ insmod drv_sem.ko</div><div class="line">drv_sem:INIT</div><div class="line"></div><div class="line">$ ./unblock_drv_sem &amp;       <span class="comment"># 第一次运行</span></div><div class="line">key_val=0x0, ret=-1         <span class="comment"># 无按键, 返回值 -EAGAIN</span></div><div class="line">key_val=0x0, ret=-1         <span class="comment"># 无按键, 返回值 -EAGAIN</span></div><div class="line">key_val=0x1, ret=1          <span class="comment"># 有按键, 返回值为1</span></div><div class="line">$ top</div><div class="line">789   779 0        S     1312   2%   0% ./unblock_drv_sem</div><div class="line"><span class="comment"># 显示当前进程信息.</span></div><div class="line">$ ./unblock_drv_sem &amp;      <span class="comment"># 第二次运行</span></div><div class="line"><span class="comment"># 显示 can't open!, 非阻塞进程, 尝试获取信号量失败后, 返回给应用程序 -EBUSY</span></div><div class="line">$ top</div><div class="line">789   779 0        S     1312   2%   0% ./unblock_drv_sem</div><div class="line"><span class="comment"># 依旧只有一个789进程</span></div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linuxembedded-linux/" rel="tag">#linuxembedded linux</a>
+          
+            <a href="/tags/drv/" rel="tag">#drv</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/12/1743-drv-chr5/" rel="next" title="驱动之异步通知">
+                <i class="fa fa-chevron-left"></i> 驱动之异步通知
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="draapho" />
+          <p class="site-author-name" itemprop="name">draapho</p>
+          <p class="site-description motion-element" itemprop="description">Embedded System, IoT, M2M</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">82</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">74</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://au.linkedin.com/in/kim-huanqing-yu-67424638" target="_blank" title="Linkedin">
+                  
+                    <i class="fa fa-fw fa-linkedin-square"></i>
+                  
+                  Linkedin
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原子操作"><span class="nav-number">2.</span> <span class="nav-text">原子操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-sem-c"><span class="nav-number">2.1.</span> <span class="nav-text">drv_sem.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-sem-h"><span class="nav-number">2.2.</span> <span class="nav-text">drv_sem.h</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile"><span class="nav-number">2.3.</span> <span class="nav-text">Makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试文件-test-drv-sem-c"><span class="nav-number">2.4.</span> <span class="nav-text">测试文件 test_drv_sem.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译并测试"><span class="nav-number">2.5.</span> <span class="nav-text">编译并测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#信号量"><span class="nav-number">3.</span> <span class="nav-text">信号量</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-sem-c-1"><span class="nav-number">3.1.</span> <span class="nav-text">drv_sem.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译并测试-1"><span class="nav-number">3.2.</span> <span class="nav-text">编译并测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#阻塞和非阻塞"><span class="nav-number">4.</span> <span class="nav-text">阻塞和非阻塞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#drv-sem-c-2"><span class="nav-number">4.1.</span> <span class="nav-text">drv_sem.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试文件-unblock-drv-sem-c"><span class="nav-number">4.2.</span> <span class="nav-text">测试文件 unblock_drv_sem.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译并测试-2"><span class="nav-number">4.3.</span> <span class="nav-text">编译并测试</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">draapho</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
