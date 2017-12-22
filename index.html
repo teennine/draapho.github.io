@@ -260,8 +260,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/12/20/1747-qqiot-conception/" itemprop="url">
-                  QQ物联基础概念及绑定分析
+                <a class="post-title-link" href="/2017/12/23/1749-qqiot-demo/" itemprop="url">
+                  QQ物联演示项目
                 </a>
               
             
@@ -274,8 +274,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-12-20T00:00:00+11:00" content="2017-12-20">
-              2017-12-20
+            <time itemprop="dateCreated" datetime="2017-12-23T00:00:00+11:00" content="2017-12-23">
+              2017-12-23
             </time>
           </span>
 
@@ -288,8 +288,8 @@
               <span class="post-meta-item-text">In</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
                   </a>
                 </span>
 
@@ -326,7 +326,197 @@
             <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
-<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-conception/">QQ物联基础概念及绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1748-qqiot-demo/">QQ物联演示项目</a></li>
+</ul>
+<p>本文使用 linux-3.4.2 内核, 使用jz2440开发板.</p>
+<h1 id="编译和安装驱动"><a href="#编译和安装驱动" class="headerlink" title="编译和安装驱动"></a>编译和安装驱动</h1><p>先编译安装一下LED, 测试一下LCD功能</p>
+<h2 id="LED驱动"><a href="#LED驱动" class="headerlink" title="LED驱动"></a>LED驱动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu主机端</span></div><div class="line"></div><div class="line">unzip led_driver.zip</div><div class="line"><span class="built_in">cd</span> led_driver/</div><div class="line">ll /work/system/linux-3.4.2/            <span class="comment"># 确定内核目录存在, 编译要用到</span></div><div class="line">make                                    <span class="comment"># 编译LED驱动</span></div><div class="line">arm-linux-gcc jz2440_led_app.c -o jz2440_led_app    <span class="comment"># 编译测试文件</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># jz2440开发板</span></div><div class="line"><span class="comment">#pwd = .../share/.../led_driver/        # 共享文件进入ubuntu下的驱动目录</span></div><div class="line">cp jz2440_led_drv.ko /lib/modules/3.4.2/</div><div class="line">insmod jz2440_led_drv.ko</div><div class="line">./jz2440_led_app</div><div class="line"><span class="comment"># 可以看到打印信息, 并且开发板的LED灯亮灭.</span></div><div class="line">rmmod jz2440_led_drv.ko                 <span class="comment"># 卸载设备模块</span></div></pre></td></tr></table></figure>
+<h2 id="LCD测试"><a href="#LCD测试" class="headerlink" title="LCD测试"></a>LCD测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu主机端</span></div><div class="line"></div><div class="line">unzip lcd_gui_simple.zip</div><div class="line"><span class="built_in">cd</span> lcd_gui_simple/</div><div class="line">make                                    <span class="comment"># 编译LED测试源码</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># jz2440开发板</span></div><div class="line"><span class="comment">#pwd = .../share/.../lcd_gui_simple/    # 共享文件进入ubuntu下的驱动目录</span></div><div class="line">ls /dev/fb0                             <span class="comment"># 确认已存在设备fb0</span></div><div class="line">./lcd_gui_simple                        <span class="comment"># 测试屏幕</span></div></pre></td></tr></table></figure>
+<h1 id="演示项目"><a href="#演示项目" class="headerlink" title="演示项目"></a>演示项目</h1><h2 id="编译和测试"><a href="#编译和测试" class="headerlink" title="编译和测试"></a>编译和测试</h2><p>必须将应用程序需要用到的文件都准备好, 这样才能正常原型.<br>有如下重点:</p>
+<ul>
+<li>密钥文件放到 <code>/etc/qq_iot/demo_bind/</code></li>
+<li>QQ SDK动态库放到 <code>/lib/</code></li>
+<li>应用文件和资源文件放在一起, 譬如 <code>/qqiot/</code></li>
+<li>准备好开发板必要驱动, 这里是led驱动. 其它驱动已经打包进内核.</li>
+<li>确保网络正确, 能ping通外网.</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># ubuntu主机端</span></div><div class="line">unzip net_bind_detector.zip</div><div class="line"><span class="built_in">cd</span> net_bind_detector/</div><div class="line"><span class="comment"># 确认一下./lib/libtxdevicesdk.so的版本. 保证所有代码用的同一个库</span></div><div class="line">make clean</div><div class="line">make                                    <span class="comment"># 生成 net_bind_detector</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># jz2440开发板</span></div><div class="line"><span class="comment">#pwd=.../share/.../密钥文件目录/</span></div><div class="line">mkdir -p /etc/qq_iot/demo_bind/</div><div class="line">tar xzf 1700003137001488.tar.gz         <span class="comment"># 解压密钥文件</span></div><div class="line">mv 1700003137001488/* /etc/qq_iot/demo_bind/</div><div class="line">rm -r 1700003137001488</div><div class="line">ls /etc/qq_iot/demo_bind/               <span class="comment"># 确认一下</span></div><div class="line"></div><div class="line"><span class="comment">#pwd=.../share/.../net_bind_detector/   # 共享文件进入ubuntu下的驱动目录</span></div><div class="line">cp net_bind_detector /qqiot/            <span class="comment"># 拷贝到开发板flash中</span></div><div class="line">cp lib/libtxdevicesdk.so /lib/          <span class="comment"># 拷贝QQ SKD库</span></div><div class="line">cp -rfd res/ /qqiot/                    <span class="comment"># 拷贝测试用资源, d表示忽略软连接</span></div><div class="line">ls /qqiot</div><div class="line">ls /qqiot/res                           <span class="comment"># 确认拷贝结果</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 开始测试</span></div><div class="line"><span class="built_in">cd</span> /qqiot/</div><div class="line">insmod /lib/modules/3.4.2/jz2440_led_drv.ko     <span class="comment"># 加载led模块</span></div><div class="line">./net_bind_detector</div><div class="line"><span class="comment"># 开始演示, 在QQ界面上操作, 开发板屏幕或LED就会有响应</span></div><div class="line"><span class="comment"># 然后测试QQ物联设备给手机QQ发送消息 (需要QQ服务器端正确配置)</span></div><div class="line">sendtextmsg                             <span class="comment"># 测试文本的发送</span></div><div class="line">sendpic                                 <span class="comment"># 测试图片文件的发送</span></div><div class="line">sendaudio                               <span class="comment"># 测试音频文件的发送</span></div><div class="line">sendvideo                               <span class="comment"># 测试视频文件的发送</span></div></pre></td></tr></table></figure>
+<p>如果要实现开机自启动, 把相关命令放在 <code>/etc/init.d/rcS</code> 结尾处即可.<br>注意, 此程序用到了相对路径. 如果直接用 <code>/qqiot/net_bind_detector</code>, 加载相对路径文件时就会失败!</p>
+<h1 id="查看源码"><a href="#查看源码" class="headerlink" title="查看源码"></a>查看源码</h1><p>这里就不分析了, 仅列出其文件结构</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>led</td>
+<td>led的应用程序(很简单)</td>
+</tr>
+<tr>
+<td>framebuffer</td>
+<td>framebuffer底层实现</td>
+</tr>
+<tr>
+<td>gui</td>
+<td>自制gui</td>
+</tr>
+<tr>
+<td>lib</td>
+<td>腾讯QQ物联SDK的库文件存放位置</td>
+</tr>
+<tr>
+<td>include</td>
+<td>头文件</td>
+</tr>
+<tr>
+<td>… qq_dev_sdk</td>
+<td>腾讯QQ物联SDK的头文件存放位置</td>
+</tr>
+<tr>
+<td>initDevice</td>
+<td>设备初始化</td>
+</tr>
+<tr>
+<td>DataPoint</td>
+<td>实现 <code>tx_init_data_point</code> <code>tx_ack_data_point</code> <code>tx_report_data_point</code></td>
+</tr>
+<tr>
+<td>fileTransfer</td>
+<td>实现 <code>tx_init_file_transfer</code></td>
+</tr>
+<tr>
+<td>msg</td>
+<td>实现 <code>tx_send_text_msg</code> <code>tx_send_structuring_msg</code></td>
+</tr>
+<tr>
+<td>res</td>
+<td>存放图片文件, 音频文件, 视频文件</td>
+</tr>
+</tbody>
+</table>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/22/1748-qqiot-procedure/" itemprop="url">
+                  QQ物联开发步骤简介
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+11:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1748-qqiot-demo/">QQ物联演示项目</a></li>
 </ul>
 <p>本文使用 linux-3.4.2 内核, 使用jz2440开发板.</p>
 <h1 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h1><h2 id="硬件设备概念"><a href="#硬件设备概念" class="headerlink" title="硬件设备概念"></a>硬件设备概念</h2><ul>
@@ -418,6 +608,212 @@
 <li>QQLink： SmartLink的弱加密版本, 安全性没有SmartLink方案高.</li>
 <li>QQLinkEx： 额外采用声波通讯技术协同配网. 适合有麦克风的设备</li>
 </ul>
+<h1 id="开发步骤"><a href="#开发步骤" class="headerlink" title="开发步骤"></a>开发步骤</h1><ol>
+<li>建立企业开发账号.<ul>
+<li><a href="http://iot.open.qq.com/wiki/index.html#!FUNC/Register_On_WebSite.md" target="_blank" rel="external">Step1. 申请开发者账号</a>, 申请一个公司用QQ</li>
+<li><a href="http://iot.open.qq.com/wiki/index.html#!FUNC/Register_On_WebSite.md" target="_blank" rel="external">Step2. 申请加入白名单</a>, 需等待审核结果.</li>
+<li><a href="http://iot.open.qq.com/wiki/index.html#!FUNC/Register_On_WebSite.md" target="_blank" rel="external">Step3. 进入配置平台</a>, 成功后, 就有开发配置平台了.</li>
+</ul>
+</li>
+<li>创建新设备.<ul>
+<li>在配置平台里面, 可以创建新设备.</li>
+<li>慎重选择设备类型, 不同的设备类型提供不同的后台功能!</li>
+<li>测试环境不要点击 <code>提交上线</code>, 最多有100台设备任意调试.</li>
+<li>如果提交上线, 设备就会被锁定, 等待QQ审核结果. 此过程无法开发调试!</li>
+<li>开发和测试完成后, 再去 <code>提交上线</code>, 等待审核结果.</li>
+<li>已审核通过的产品如果还要更改配置页面, 则需要再次通过腾讯审核.</li>
+</ul>
+</li>
+<li>配置设备后台<ul>
+<li>新建设备之设备类型: 决定QQ物联设备大致需要的功能(控制/音视频).</li>
+<li>设备信息之公钥上传: 用工具生成<code>public.pem</code>, 然后上传. 用于认证GUID/SN号.</li>
+<li>设备信息之联网方式: 如果设备有界面可以自行入网, 可以选择自行入网. 如果没有输入界面, 则需要选wifi配网方式.</li>
+<li>功能配置之公有功能: 设定手机QQ和QQ物联设备的收发内容</li>
+<li>功能配置之特殊功能: 用来定义手机QQ与QQ物联设备两者之间特殊消息的数据格式<ul>
+<li>显示类型：只能是QQ物联设备向手机QQ发送用于显示的的数据</li>
+<li>控制类型：QQ物联设备与手机QQ可以互传控制消息的数据</li>
+<li>设置好后, 会获得一个ID值! 数据传输格式是腾讯的 datapoint</li>
+<li><strong>功能描述</strong>:  自定义数据的组织格式. 参考 <a href="http://iot.open.qq.com/wiki/index.html#!FUNC/DataPoint_Custom_CMD.md" target="_blank" rel="external">自定义指令</a> 里的说明</li>
+</ul>
+</li>
+<li>控制器设置: 配置手机QQ的控制UI界面<ul>
+<li>自动生成控制器, 就是使用QQ提供的通用模板. 模板里的元素可以自定义</li>
+<li>自定义控制器, 就是自定义模板. 需要HTML5开发并放到自己的服务器端</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>创建设备序列号和密钥<ul>
+<li>整个过程有两组公钥私钥配对.</li>
+<li>服务器生成的公钥私钥, 开发者需下载公钥<code>170000xxxx.pem</code>. 此配对用于加密数据, 保证通讯安全.</li>
+<li>开发者生成的公钥私钥, 开发者需上传公钥<code>public.pem</code>. 保证私钥安全性. 此配对用于认证设备SN没有被盗用.</li>
+<li>设备SN的认证方法是, 开发者用私钥加密SN生成license, 将SN和license传给QQ服务器, QQ服务器会用上传的公钥去检查SN合法性.</li>
+<li>license最好也保存好. 因为如果别人获取license和SN后, 可以仿冒特定的设备.</li>
+<li><code>公钥&amp;证书工具</code>, 在设备信息的公钥上传里提供了下载.</li>
+</ul>
+</li>
+<li>QQ物联设备端功能开发<ul>
+<li><a href="http://iot.open.qq.com/wiki/#!FUNC/DataPoint_Common_CMD.md" target="_blank" rel="external">控制指令</a></li>
+<li><a href="http://iot.open.qq.com/wiki/#!FUNC/DataPoint_Custom_CMD.md" target="_blank" rel="external">自定义指令</a></li>
+<li><a href="http://iot.open.qq.com/wiki/#!FUNC/DataPoint_Sync_Status.md" target="_blank" rel="external">状态同步</a></li>
+</ul>
+</li>
+<li>开发者测试</li>
+<li>交给QQ物联官方审核</li>
+<li>发布产品</li>
+</ol>
+<h1 id="收发消息的过程"><a href="#收发消息的过程" class="headerlink" title="收发消息的过程"></a>收发消息的过程</h1><h2 id="QQ物联设备接收消息"><a href="#QQ物联设备接收消息" class="headerlink" title="QQ物联设备接收消息"></a>QQ物联设备接收消息</h2><p>datapoint的主要函数:</p>
+<ul>
+<li><code>tx_init_data_point</code>: 初始化</li>
+<li><code>tx_report_data_point</code>: 上报</li>
+<li><code>tx_ack_data_point</code>: 回应</li>
+</ul>
+<p>QQ物联设备端, 对消息处理的主要过程如下:</p>
+<ul>
+<li><code>tx_init_data_point</code> 进行初始化后, 并定义回调函数 <code>on_receive_datapoint</code></li>
+<li>手机QQ发送datapoint消息给QQ物联设备</li>
+<li>QQ物联设备接收到后, 使用回调函数处理消息</li>
+<li>处理方式是通过datapoint的ID来分辨消息类型(特殊功能里设置)</li>
+</ul>
+<h2 id="QQ物联设备发送消息"><a href="#QQ物联设备发送消息" class="headerlink" title="QQ物联设备发送消息"></a>QQ物联设备发送消息</h2><ul>
+<li>QQ设备发送消息给QQ服务器<ul>
+<li><code>tx_send_text_msg</code> 发送文本</li>
+<li><code>tx_send_structuring_msg</code> 发送图文和音视频</li>
+</ul>
+</li>
+<li>QQ服务器更具配置情况(触发器-动作-模板), 只转发满足条件的消息给手机QQ</li>
+<li>触发器页面: 设置过滤条件并制定动作<ul>
+<li>该消息由哪个QQ物联设备发送来的</li>
+<li>该消息的ID号</li>
+<li>触发后要执行的动作</li>
+</ul>
+</li>
+<li>动作页面: 动作制定模板(文本/图片/语音/视频)</li>
+<li>QQ服务器根据模板构造发送给手机QQ的消息</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://iot.open.qq.com/wiki/index.html" target="_blank" rel="external">QQ物联资料库</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/20/1747-qqiot-bind/" itemprop="url">
+                  QQ物联绑定分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-20T00:00:00+11:00" content="2017-12-20">
+              2017-12-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1748-qqiot-demo/">QQ物联演示项目</a></li>
+</ul>
+<p>本文使用 linux-3.4.2 内核, 使用jz2440开发板.</p>
 <h1 id="demo-bind-c-的分析与测试"><a href="#demo-bind-c-的分析与测试" class="headerlink" title="demo_bind.c 的分析与测试"></a>demo_bind.c 的分析与测试</h1><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>打开demo_bind.c, 说明很详细, 主要流程如下</p>
 <ul>
 <li>调用 <code>tx_init_device</code> 初始化设备信息. 可理解为将设备在QQ服务器上注册一下</li>
@@ -517,8 +913,8 @@
               <span class="post-meta-item-text">In</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
                   </a>
                 </span>
 
@@ -555,7 +951,9 @@
             <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
-<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-conception/">QQ物联基础概念及绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1748-qqiot-demo/">QQ物联演示项目</a></li>
 </ul>
 <p>为学习QQ物联而搭建的jz2440开发环境.<br>需要升级交叉编译环境, 然后编译和烧录<br>使用如下软件版本:</p>
 <ul>
@@ -1084,375 +1482,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/11/1742-drv-chr4/" itemprop="url">
-                  驱动之poll机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-12-11T00:00:00+11:00" content="2017-12-11">
-              2017-12-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
-<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
-<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
-<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="POLL机制分析"><a href="#POLL机制分析" class="headerlink" title="POLL机制分析"></a>POLL机制分析</h1><h2 id="三种按键驱动的比较"><a href="#三种按键驱动的比较" class="headerlink" title="三种按键驱动的比较"></a>三种按键驱动的比较</h2><ul>
-<li>查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源</li>
-<li>中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上</li>
-<li>poll方式: 应用程序上, 实现了非阻塞读取. 先poll判断是否发生事件, 有事件处理, 无事件可以做其它事情.</li>
-</ul>
-<h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><p>基本流程如下:</p>
-<ul>
-<li>应用程序调用poll &gt; sys_poll &gt; <code>do_sys_poll</code> &gt; do_poll &gt; do_pollfd &gt; 驱动程序poll</li>
-<li>从 <code>do_sys_poll</code> 函数深入分析:<ul>
-<li>先调用 <code>poll_initwait</code>, 注册一下 <code>__pollwait</code> 函数.</li>
-<li>再调用 <code>do_poll</code> 判断条件. 这里会调用驱动函数的poll<ul>
-<li>调用 <code>do_pollfd</code> 函数, 实际上就是调用驱动的poll函数</li>
-<li>返回值为1或等待超时或触发信号, 执行 <code>__set_current_state</code> 继续运行当前进程.</li>
-<li>返回值为0, 则执行 <code>schedule_timeout</code> 当前进程睡眠, 切换到其它进程.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>驱动函数里的poll会调用 <code>poll_wait</code>, 只是把当前的进程加入到 button_waitq 队列里去, 并没有立刻切换进程<ul>
-<li><code>poll_wait</code> 调用 <code>p-&gt;qproc(filp, wait_address, p);</code>, 实际就是调用了 <code>__pollwait</code> 函数</li>
-<li>进程并不会阻塞在 <code>poll_wait</code> 函数. (这个函数的命名容易让人误解, 因此特此强调!)</li>
-<li>整个进程会根据驱动的poll返回值确定是休眠还是继续运行.</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">app: poll, 会去调用 sys_poll. 共三个参数</div><div class="line">    <span class="comment">// 1. *ufds, 文件指针. 需要查询的驱动文件列表</span></div><div class="line">    <span class="comment">// 2. nfds, 文件个数.</span></div><div class="line">    <span class="comment">// 3. timeout_msecs, 超时时间.</span></div><div class="line">kernel: sys_poll    <span class="comment">// 位于 /fs/select.c</span></div><div class="line">            do_sys_poll(..., timeout_jiffies)</div><div class="line">                poll_initwait(&amp;table);</div><div class="line">                    init_poll_funcptr(&amp;pwq-&gt;pt, __pollwait);</div><div class="line">                    <span class="comment">// table-&gt;pt-&gt;qproc = __pollwait. 相当于注册一下 __pollwait.</span></div><div class="line">                    <span class="comment">// __pollwait 是系统函数, 用于初始化一个 poll_wqueues 的 table</span></div><div class="line">                    <span class="comment">// 驱动程序的poll函数会调用__pollwait函数.</span></div><div class="line">                do_poll(nfds, head, &amp;table, timeout)</div><div class="line">                    <span class="keyword">for</span> (;;) &#123;</div><div class="line">                        <span class="keyword">if</span> (do_pollfd(ftd, pt)) &#123;</div><div class="line">                            <span class="comment">// 进入函数 do_pollfd, 有如下两句:</span></div><div class="line">                            mask = file-&gt;f_op-&gt;poll(file, pwait);</div><div class="line">                                <span class="comment">// 实际上, 就是调用驱动代码里的poll, 驱动代码里会调用</span></div><div class="line">                                pollwait(filp, &amp;button_waitq, p) &#123;</div><div class="line">                                    <span class="comment">// 把当前的进程挂到button_waitq队列里去</span></div><div class="line">                                    <span class="comment">// 整个进程并不会阻塞在 pollwait 这里!</span></div><div class="line">                                    p-&gt;qproc(filp, wait_address, p);    <span class="comment">// 相当于调用 __pollwait</span></div><div class="line">                                    <span class="comment">// 这里我有过疑惑, 为何不直接指定 __pollwait 这么一个系统函数, 而是用初始化函数指针再调用的晦涩方法.</span></div><div class="line">                                    <span class="comment">// 搜索 init_poll_funcptr 后, 就可以知道, 这也是一个系统架构, 不同的地方会有不同的函数.</span></div><div class="line">                                &#125;</div><div class="line">                                <span class="comment">// 驱动poll函数给出返回值. 赋值给mask</span></div><div class="line">                                <span class="comment">// 因此整个进程会在调用完驱动poll函数后, 根据返回值进行休眠或继续运行.</span></div><div class="line">                            <span class="keyword">return</span> mask;</div><div class="line">                            count++; <span class="comment">// 如果驱动的poll返回非0值, 那么count++</span></div><div class="line">                            pt = <span class="literal">NULL</span>;</div><div class="line">                        &#125;</div><div class="line"></div><div class="line">                        <span class="comment">// break的条件: count非0, 超时, 有信号在等待处理</span></div><div class="line">                        <span class="keyword">if</span> (count || !*timeout || signal_pending(current))</div><div class="line">                            <span class="keyword">break</span>;</div><div class="line"></div><div class="line">                        <span class="comment">// 休眠 __timeout</span></div><div class="line">                        __timeout = schedule_timeout(__timeout);</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                    <span class="comment">// 设置当前进程为运行态</span></div><div class="line">                    __set_current_state(TASK_RUNNING);</div></pre></td></tr></table></figure>
-<h1 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h1><ul>
-<li><a href="http://blog.csdn.net/rockrockwu/article/details/7310518" target="_blank" rel="external">linux poll 和 等待队列休眠的关系</a></li>
-<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568964" target="_blank" rel="external">select(poll)系统调用实现解析(一)</a></li>
-<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568968" target="_blank" rel="external">select(poll)系统调用实现解析(二)</a></li>
-<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568969" target="_blank" rel="external">select(poll)系统调用实现解析(三)</a></li>
-<li><a href="http://www.cnblogs.com/jack204/archive/2011/10/30/2229331.html" target="_blank" rel="external">linux的poll的工作机制</a></li>
-<li><a href="http://blog.csdn.net/czg13548930186/article/details/77825262" target="_blank" rel="external">字符设备驱动-poll机制</a></li>
-</ul>
-<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>驱动源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a> 增加poll函数即可.<br>然后应用层的测试文件改动较大.<br><strong>注意驱动层和应用层的poll函数写法就可以了, 都是固定的结构</strong></p>
-<h2 id="drv-key-poll-c"><a href="#drv-key-poll-c" class="headerlink" title="drv_key_poll.c"></a>drv_key_poll.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 基于 驱动之基于中断设计按键驱动 源码增加而来. 只显示新增和修改的部分. 这样更直观易懂.</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_poll.h"</span>                    <span class="comment">// 头文件改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_poll"</span>    <span class="comment">// 名称改一下</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="title">drv_key_poll</span><span class="params">(<span class="keyword">struct</span> file *file, poll_table *wait)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> mask = <span class="number">0</span>;</div><div class="line">    poll_wait(file, &amp;key_waitq, wait);      <span class="comment">// 这里不会休眠. 进程不阻塞</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (ev_press)</div><div class="line">        mask |= POLLIN | POLLRDNORM;        <span class="comment">// 关键是返回值, 返回值为0, 进程可能休眠.</span></div><div class="line">        <span class="comment">// POLLIN, 是标准的事件值, 测试程序就基于此判断.</span></div><div class="line">        <span class="comment">// POLLRDNORM, Normal data may be read without blocking. 作用应该是告知应用程序类型和后续动作.</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> mask;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct</span> file_operations drv_key_int_fops= &#123;</div><div class="line">    .owner              = THIS_MODULE,</div><div class="line">    .open               = drv_key_int_open,</div><div class="line">    .release            = drv_key_int_release,</div><div class="line">    .read               = drv_key_int_read,</div><div class="line">    .poll               = drv_key_poll,     <span class="comment">// 新增这一行</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<h2 id="drv-key-poll-h"><a href="#drv-key-poll-h" class="headerlink" title="drv_key_poll.h"></a>drv_key_poll.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_poll"</span>          <span class="comment">// 名称改一下</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/poll.h&gt;</span>                     <span class="comment">// 新增poll头文件</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></div></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">obj-m		:= drv_key_poll.o </div><div class="line">KERN_SRC	:= /home/draapho/share/kernel/linux-2.6.22.6/</div><div class="line">PWD			:= <span class="variable">$(shell pwd)</span></div><div class="line"></div><div class="line"><span class="section">modules:</span></div><div class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</div><div class="line"></div><div class="line"><span class="section">install:</span></div><div class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</div><div class="line">	depmod -a</div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</div></pre></td></tr></table></figure>
-<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd, ret;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line">    <span class="keyword">struct</span> pollfd fds[<span class="number">1</span>];                   <span class="comment">// poll 关联的文件, 可多个文件</span></div><div class="line"></div><div class="line">    fd = open(<span class="string">"/dev/key_poll0"</span>, O_RDWR);</div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    fds[<span class="number">0</span>].fd     = fd;                     <span class="comment">// 关联的驱动文件</span></div><div class="line">    fds[<span class="number">0</span>].events = POLLIN;                 <span class="comment">// 事件类型</span></div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">        ret = poll(fds, <span class="number">1</span>, <span class="number">5000</span>);           <span class="comment">// 执行poll. 最多阻塞5s (有按键事件会立刻返回)</span></div><div class="line">        <span class="keyword">if</span> (ret == <span class="number">0</span>) &#123;</div><div class="line">            <span class="built_in">printf</span>(<span class="string">"time out\n"</span>);           <span class="comment">// 5s后超时</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            read(fd, &amp;keys_val, <span class="number">1</span>);         <span class="comment">// 有按键, 读取按键值</span></div><div class="line">            <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主机端, 编译源码</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line"><span class="comment"># 编译驱动</span></div><div class="line">$ make clean</div><div class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></div><div class="line"></div><div class="line"><span class="comment"># 编译测试代码</span></div><div class="line">$ arm-linux-gcc test_drv_key_poll.c -o test_drv_key_poll</div></pre></td></tr></table></figure>
-<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试驱动功能</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ insmod drv_key_poll.ko            <span class="comment"># 加载模块</span></div><div class="line">drv_key_int:INIT</div><div class="line"></div><div class="line">$ ./test_drv_key_poll               <span class="comment"># 检测按键中断</span></div><div class="line">drv_key_poll:In char driver open() <span class="keyword">function</span></div><div class="line"><span class="comment"># 无按键时, 每5s打印 time out</span></div><div class="line"><span class="comment"># 有按键时, 立刻打印按键值</span></div><div class="line"></div><div class="line"><span class="comment"># 按ctrl+c 终止进程</span></div><div class="line"></div><div class="line">$ ./test_drv_key_poll &amp;             <span class="comment"># 后台运行</span></div><div class="line">$ top                               <span class="comment"># 查看系统资源情况</span></div><div class="line"><span class="comment"># 可以看到 ./test_drv_key_poll 进程占用很少的资源.</span></div></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/07/1741-drv-chr3/" itemprop="url">
-                  驱动之基于中断设计按键驱动
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-12-07T00:00:00+11:00" content="2017-12-07">
-              2017-12-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
-<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
-<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
-<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="Linux的中断实现"><a href="#Linux的中断实现" class="headerlink" title="Linux的中断实现"></a>Linux的中断实现</h1><h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><ul>
-<li><code>trap_init</code>, 构造异常向量表<ul>
-<li>位于 <code>arch/arm/kernel/traps.c</code>, 三个memcpy函数</li>
-</ul>
-</li>
-<li><code>s3c24xx_init_irq</code> 芯片初始化 <code>struct irq_desc</code> 结构体.<ul>
-<li>由 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code> 宏定义加入系统的初始化数据段 <code>&quot;.arch.info.init&quot;</code>.</li>
-<li>位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
-<li><code>s3c24xx_init_irq</code> 会调用函数 <code>set_irq_chip</code>, <code>set_irq_handler</code> 完成irq的初始化</li>
-</ul>
-</li>
-<li>cpu发生中断，跳到异常向量入口执行(<code>b vector_irq + stubs_offset</code>)<ul>
-<li>位于 <code>arch/arm/kernel/entry-armv.S</code></li>
-</ul>
-</li>
-<li><code>vector_irq</code> 用宏实现保存,执行(<code>asm_do_IRQ</code>),恢复.<ul>
-<li><code>vector_irq</code> 由宏定义 <code>vector_stub</code> 而来</li>
-<li>函数调用 <code>__irq_usr</code>-&gt;<code>irq_handler</code>-&gt;<code>asm_do_IRQ</code></li>
-</ul>
-</li>
-<li><code>asm_do_IRQ</code> 根据中断号irq=(EINT4~EINT23)调用irq_desc[irq].handle_irq=(handle_edge_irq)<ul>
-<li>位于 <code>arch/arm/kernel/irq.c</code>, 调用 <code>desc_handle_irq</code> 函数</li>
-<li>handle_irq 的初始化由 <code>s3c24xx_init_irq</code> 完成, 位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
-</ul>
-</li>
-<li><code>handle_edge_irq</code> 使用chip成员中的函数=&amp;s3c_irqext_chip来设置硬件<ul>
-<li>函数 <code>set_irq_chip</code>, 指定 <code>struct irq_chip</code> 结构,</li>
-<li>此结构定义了中断的基本操作, 譬如启动, 关闭, 使能, 禁止, 触发条件, 响应(ack), mask 等等.</li>
-</ul>
-</li>
-<li><code>handle_edge_irq</code> 逐个调用用户在irq_desc[irq].action连表中注册的处理函数<ul>
-<li>函数 <code>set_irq_handler</code>, 实际调用 <code>__set_irq_handler</code></li>
-<li>此函数指定了 <code>struct irq_desc</code> 结构, 其中 <code>action</code> 维护用户回调函数链表.</li>
-</ul>
-</li>
-<li>用户注册中断服务程序 <code>request_irq</code>include/linux/irq.h<ul>
-<li>供内核驱动代码调用</li>
-<li>分配一个 <code>irqaction</code> 结构</li>
-<li>将其加入<code>irq_desc[irq].action</code>中</li>
-<li>设置中断触发方式和引脚状态 <code>desc-&gt;chip-&gt;set_type()</code></li>
-<li>使能中断</li>
-</ul>
-</li>
-<li>卸载中断服务程序 <code>free_irq</code><ul>
-<li>供内核驱动代码调用</li>
-<li>由irq号定位action链表, 然后将其删掉</li>
-<li>关闭中断</li>
-</ul>
-</li>
-</ul>
-<h2 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h2><ul>
-<li><a href="http://blog.csdn.net/czg13548930186/article/details/77715829" target="_blank" rel="external">字符设备驱动-Linux内核异常处理体系结构</a></li>
-<li><a href="http://blog.csdn.net/czg13548930186/article/details/77751916" target="_blank" rel="external">字符设备驱动-中断方式操控按键</a></li>
-<li><a href="http://www.wowotech.net/irq_subsystem/irq_handler.html" target="_blank" rel="external">Linux kernel的中断子系统之（六）：ARM中断处理过程</a></li>
-</ul>
-<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><h2 id="核心点"><a href="#核心点" class="headerlink" title="核心点"></a>核心点</h2><p>此次为中断的驱动源码, 核心点有2个地方</p>
-<ul>
-<li><code>request_irq</code> <code>free_irq</code><ul>
-<li>这两个函数用于注册和释放中断号, 重点说注册</li>
-<li>调用<code>request_irq</code>后, 对应的中断会自动初始化并使能.</li>
-<li>相应的调用<code>free_irq</code>后, 对应的中断会自动被屏蔽掉.</li>
-<li><code>irq</code>, 中断号. 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
-<li><code>handler</code>, 由驱动编程人员实现的回调函数</li>
-<li><code>irqflags</code>, 中断触发类型, 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
-<li><code>*devname</code>, 自己给中断取个名字, 和驱动的设备名称无关. 会在 <code>cat /proc/interrupts</code> 下面显示出来.</li>
-<li><code>*dev_id</code>, 可以认为是中断设备的ID号, 但此处习惯于导入驱动自用的数据结构指针.</li>
-</ul>
-</li>
-<li><code>wake_up_interruptible</code> <code>wait_event_interruptible</code><ul>
-<li>用了这两个函数, 才会真正提高系统的运行效率.</li>
-<li>其概念是, 中断触发时, 调用 <code>wake_up_interruptible</code>, 告知中断发生, 需要处理</li>
-<li>此时, <code>wait_event_interruptible</code> 就会被唤醒, 判断条件后, 决定是继续执行还是进程睡眠.</li>
-</ul>
-</li>
-</ul>
-<h2 id="drv-key-int-c"><a href="#drv-key-int-c" class="headerlink" title="drv_key_int.c"></a>drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line">===============================================================================</div><div class="line">Driver Name     :       drv_key_int</div><div class="line">Author          :       DRAAPHO</div><div class="line">License         :       GPL</div><div class="line">Description     :       LINUX DEVICE DRIVER PROJECT, 由LinK+生成模板, 部分修改而来.</div><div class="line">===============================================================================</div><div class="line">*/</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_int.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_N_MINORS 1              <span class="comment">// 三个按键, 但作为一个字符设备就可以了.</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_FIRST_MINOR 0</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_int"</span></span></div><div class="line"></div><div class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</div><div class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</div><div class="line"></div><div class="line"><span class="keyword">int</span> drv_key_int_major=<span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="keyword">dev_t</span> drv_key_int_device_num;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> <span class="keyword">class</span> *drv_key_int_class;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> privatedata &#123;                <span class="comment">// 驱动私有结构, 模板生成, 此驱动没用.</span></div><div class="line">    <span class="keyword">int</span> nMinor;</div><div class="line">    <span class="keyword">struct</span> cdev cdev;</div><div class="line">    <span class="keyword">struct</span> device *drv_key_int_device;</div><div class="line">&#125; drv_key_int_private;</div><div class="line"></div><div class="line">drv_key_int_private devices[DRV_KEY_INT_N_MINORS];</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// ===== 中断驱动增加的代码 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_WAIT_QUEUE_HEAD</span><span class="params">(key_waitq)</span></span>;  <span class="comment">// 作用类似于信号量, 这里是向系统加入一个等待列表.</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">int</span> ev_press = <span class="number">0</span>;           <span class="comment">// 中断事件标记, 手动值1或者清0</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;              <span class="comment">// 记录按键值</span></div><div class="line"></div><div class="line"><span class="keyword">struct</span> pin_desc &#123;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pin;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> key_val;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> pin_desc pins_desc[<span class="number">3</span>] = &#123;            <span class="comment">// 设置好按键的引脚和对应的值</span></div><div class="line">    &#123;S3C2410_GPF0, <span class="number">0x01</span>&#125;,</div><div class="line">    &#123;S3C2410_GPF2, <span class="number">0x02</span>&#125;,</div><div class="line">    &#123;S3C2410_GPG3, <span class="number">0x04</span>&#125;,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> pin_desc * pindesc = (<span class="keyword">struct</span> pin_desc *)dev_id;  <span class="comment">// 获取自用的数据指针</span></div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pinval;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"keys_irq, irq=%d\n"</span>, irq);</div><div class="line">    pinval = s3c2410_gpio_getpin(pindesc-&gt;pin);             <span class="comment">// 读取按键电平</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (pinval) &#123;                                           <span class="comment">// 松开</span></div><div class="line">        keys_val &amp;= ~pindesc-&gt;key_val;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;                                                <span class="comment">// 按下</span></div><div class="line">        keys_val |= pindesc-&gt;key_val;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ev_press = <span class="number">1</span>;                                           <span class="comment">// 表示中断发生</span></div><div class="line">    wake_up_interruptible(&amp;key_waitq);                      <span class="comment">// 唤醒休眠的进程</span></div><div class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ===== 部分修改模板代码 =====</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> ret;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv = container_of(inode-&gt;i_cdev ,</div><div class="line">                                    drv_key_int_private ,cdev);</div><div class="line">    filp-&gt;private_data = priv;</div><div class="line">    PINFO(<span class="string">"In char driver open() function\n"</span>);</div><div class="line"></div><div class="line">    <span class="comment">// 注册中断号, 设置中断类型, 设置中断名称(和设备名称无关), 传入自用的数据指针</span></div><div class="line">    ret  = request_irq(IRQ_EINT0, keys_irq, IRQT_BOTHEDGE, <span class="string">"S2"</span>, &amp;pins_desc[<span class="number">0</span>]);</div><div class="line">    ret |= request_irq(IRQ_EINT2, keys_irq, IRQT_BOTHEDGE, <span class="string">"S3"</span>, &amp;pins_desc[<span class="number">1</span>]);</div><div class="line">    ret |= request_irq(IRQ_EINT11, keys_irq, IRQT_BOTHEDGE, <span class="string">"S4"</span>, &amp;pins_desc[<span class="number">2</span>]);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (ret) <span class="keyword">return</span> -EINVAL;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(<span class="keyword">struct</span> inode *inode,<span class="keyword">struct</span> file *filp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv;</div><div class="line">    priv=filp-&gt;private_data;</div><div class="line">    PINFO(<span class="string">"In char driver release() function\n"</span>);</div><div class="line"></div><div class="line">    free_irq(IRQ_EINT11, &amp;pins_desc[<span class="number">2</span>]);                    <span class="comment">// 注销中断</span></div><div class="line">    free_irq(IRQ_EINT2, &amp;pins_desc[<span class="number">1</span>]);</div><div class="line">    free_irq(IRQ_EINT0, &amp;pins_desc[<span class="number">0</span>]);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_int_read</span><span class="params">(<span class="keyword">struct</span> file *filp,</span></span></div><div class="line">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function */</span></div><div class="line">    drv_key_int_private *priv;</div><div class="line">    priv = filp-&gt;private_data;</div><div class="line">    PINFO(<span class="string">"In char driver read() function\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> -EINVAL;</div><div class="line"></div><div class="line">    <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></div><div class="line">    wait_event_interruptible(key_waitq, ev_press);</div><div class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></div><div class="line">        <span class="keyword">return</span> -EFAULT;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ===== 模板代码, 没有修改 =====</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct</span> file_operations drv_key_int_fops= &#123;</div><div class="line">    .owner              = THIS_MODULE,</div><div class="line">    .open               = drv_key_int_open,</div><div class="line">    .release            = drv_key_int_release,</div><div class="line">    .read               = drv_key_int_read,</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">drv_key_int_init</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></div><div class="line">    <span class="keyword">int</span> i;</div><div class="line">    <span class="keyword">int</span> res;</div><div class="line"></div><div class="line">    res = alloc_chrdev_region(&amp;drv_key_int_device_num,DRV_KEY_INT_FIRST_MINOR,DRV_KEY_INT_N_MINORS ,DRIVER_NAME);</div><div class="line">    <span class="keyword">if</span>(res) &#123;</div><div class="line">        PERR(<span class="string">"register device no failed\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line">    drv_key_int_major = MAJOR(drv_key_int_device_num);</div><div class="line"></div><div class="line">    drv_key_int_class = class_create(THIS_MODULE , DRIVER_NAME);</div><div class="line">    <span class="keyword">if</span>(!drv_key_int_class) &#123;</div><div class="line">        PERR(<span class="string">"class creation failed\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</div><div class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line">        cdev_init(&amp;devices[i].cdev , &amp;drv_key_int_fops);</div><div class="line">        cdev_add(&amp;devices[i].cdev,drv_key_int_device_num,<span class="number">1</span>);</div><div class="line"></div><div class="line">        devices[i].drv_key_int_device  =</div><div class="line">                device_create(drv_key_int_class , <span class="literal">NULL</span> ,drv_key_int_device_num ,</div><div class="line">                            DRV_KEY_INT_NODE_NAME<span class="string">"%d"</span>,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line">        <span class="keyword">if</span>(!devices[i].drv_key_int_device) &#123;</div><div class="line">            class_destroy(drv_key_int_class);</div><div class="line">            PERR(<span class="string">"device creation failed\n"</span>);</div><div class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        devices[i].nMinor = DRV_KEY_INT_FIRST_MINOR+i;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"INIT\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">drv_key_int_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></div><div class="line"></div><div class="line">    <span class="keyword">int</span> i;</div><div class="line"></div><div class="line">    PINFO(<span class="string">"EXIT\n"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</div><div class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</div><div class="line"></div><div class="line">        cdev_del(&amp;devices[i].cdev);</div><div class="line"></div><div class="line">        device_destroy(drv_key_int_class ,drv_key_int_device_num);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    class_destroy(drv_key_int_class);</div><div class="line"></div><div class="line">    unregister_chrdev_region(drv_key_int_device_num ,DRV_KEY_INT_N_MINORS);</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">module_init(drv_key_int_init);</div><div class="line">module_exit(drv_key_int_exit);</div></pre></td></tr></table></figure>
-<h2 id="drv-key-int-h"><a href="#drv-key-int-h" class="headerlink" title="drv_key_int.h"></a>drv_key_int.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_int"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></div></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">obj-m		:= drv_key_int.o </div><div class="line">KERN_SRC	:= /home/draapho/share/kernel/linux-2.6.22.6/</div><div class="line">PWD			:= <span class="variable">$(shell pwd)</span></div><div class="line"></div><div class="line"><span class="section">modules:</span></div><div class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</div><div class="line"></div><div class="line"><span class="section">install:</span></div><div class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</div><div class="line">	depmod -a</div><div class="line"></div><div class="line"><span class="section">clean:</span></div><div class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</div></pre></td></tr></table></figure>
-<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> fd;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</div><div class="line"></div><div class="line">    fd = open(<span class="string">"/dev/key_int0"</span>, O_RDWR);</div><div class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">        read(fd, &amp;keys_val, <span class="number">1</span>);</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主机端, 编译源码</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line"><span class="comment"># 编译驱动</span></div><div class="line">$ make clean</div><div class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></div><div class="line"></div><div class="line"><span class="comment"># 编译测试代码</span></div><div class="line">$ arm-linux-gcc test_drv_key_int.c -o test_drv_key_int</div></pre></td></tr></table></figure>
-<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试模块和中断加载情况</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ insmod drv_key_int.ko             <span class="comment"># 加载模块</span></div><div class="line">drv_key_int:INIT</div><div class="line"></div><div class="line">$ cat /proc/devices                 <span class="comment"># 查看设备, 可以看到 drv_key_int</span></div><div class="line">$ cat /proc/interrupts              <span class="comment"># 查看中断设备, 没有 s2,s3,s4</span></div><div class="line"></div><div class="line">$ <span class="built_in">exec</span> 5&lt;/dev/key_int0              <span class="comment"># 打开设备, 相当于open.</span></div><div class="line">drv_key_int:In char driver open() <span class="keyword">function</span></div><div class="line"><span class="comment"># 5是文件描述符, 其它数字也可以. ls -l /proc/self/fd/ 下可以查看文件描述符</span></div><div class="line"></div><div class="line">$ cat /proc/interrupts              <span class="comment"># 再查看中断设备, 可以看到 s2,s3,s4 了!</span></div><div class="line"><span class="comment"># 此时按下按键的话, 会触发中断, 打印 drv_key_int:keys_irq, irq=16/18/55</span></div><div class="line"></div><div class="line">$ <span class="built_in">exec</span> 5&lt;&amp;-                         <span class="comment"># 关闭设备, 相当于close</span></div><div class="line">drv_key_int:In char driver release() <span class="keyword">function</span></div><div class="line"></div><div class="line">$ rmmod drv_key_int.ko              <span class="comment"># 移除模块</span></div><div class="line">drv_key_int:EXIT</div></pre></td></tr></table></figure>
-<p>下面, 使用测试文件进行测试</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板端, 测试驱动功能</span></div><div class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></div><div class="line"></div><div class="line">$ insmod drv_key_int.ko             <span class="comment"># 加载模块</span></div><div class="line">drv_key_int:INIT</div><div class="line"></div><div class="line">$ ./test_drv_key_int                <span class="comment"># 检测按键中断</span></div><div class="line"><span class="comment"># 可以发现, 打印有时候有点乱, 那是因为中断的关系</span></div><div class="line"></div><div class="line"><span class="comment"># 按ctrl+c 终止进程</span></div><div class="line"></div><div class="line">$ ./test_drv_key_int &amp;              <span class="comment"># 后台运行</span></div><div class="line">$ top                               <span class="comment"># 查看系统资源情况</span></div><div class="line"><span class="comment"># 可以看到 ./test_drv_key_int 进程占用很少的资源.</span></div></pre></td></tr></table></figure>
-<p>分析测试代码, 在死循环里面, 会调用到 <code>wait_event_interruptible</code>, 当没有中断发生时, 就会切换用户进程.<br>当中断发生后, 驱动通过 <code>wake_up_interruptible</code> 唤醒用户进程, 继续执行.<br>然后由于, 用户的printf和内核的printk相互独立, 所以最终打印可能会有点乱.</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1498,7 +1527,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">85</span>
+              <span class="site-state-item-count">87</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1506,7 +1535,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -1515,7 +1544,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">75</span>
+                <span class="site-state-item-count">76</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

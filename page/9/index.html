@@ -260,6 +260,710 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/03/1701-python-list-dict/" itemprop="url">
+                  Python 列表和字典的常见操作
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-03T00:00:00+11:00" content="2017-01-03">
+              2017-01-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="list"><a href="#list" class="headerlink" title="list []"></a>list <code>[]</code></h1><p>list是一种有序的集合，可以随时添加和删除其中的元素。 形式和特性都像C语言的数组</p>
+<h2 id="赋值修改及取值"><a href="#赋值修改及取值" class="headerlink" title="赋值修改及取值"></a>赋值修改及取值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># list 赋值</span></div><div class="line">l = range(<span class="number">1</span>,<span class="number">9</span>,<span class="number">2</span>)   <span class="comment"># l = [1,3,5,7]      9是不包含在里面的</span></div><div class="line">l = [<span class="number">1</span>,<span class="number">3</span>]*<span class="number">3</span>        <span class="comment"># l = [1,3,1,3,1,3]  *表示重复次数</span></div><div class="line">l = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line"></div><div class="line"><span class="comment"># 使用切片 (同字符串用法)</span></div><div class="line">l[<span class="number">0</span>]        <span class="comment"># 1                 显示第一个元素</span></div><div class="line">l[<span class="number">-1</span>]       <span class="comment"># 5                 显示最后一个元素</span></div><div class="line">l[<span class="number">0</span>:<span class="number">2</span>]      <span class="comment"># [1, 2]            显示0,1两个元素</span></div><div class="line">l[<span class="number">-2</span>:]      <span class="comment"># [4, 5]            显示最后二个元素</span></div><div class="line">l[::<span class="number">-1</span>]     <span class="comment"># [5, 4, 3, 2, 1]   步进-1, 就是倒序了</span></div><div class="line"></div><div class="line"><span class="comment"># 使用切片修改元素</span></div><div class="line">l[<span class="number">0</span>] = <span class="number">3</span>        <span class="comment"># [3, 2, 3, 4, 5]       修改l[0]的值</span></div><div class="line"><span class="comment"># l[1] = [7,8]  # [3, [7, 8], 3, 4, 5]  修改为list表, 存储其指针. 注意和 l[1:2] = [7,8] 的本质区别!</span></div><div class="line">l[<span class="number">1</span>:<span class="number">2</span>] = [<span class="number">7</span>,<span class="number">8</span>]  <span class="comment"># [3, 7, 8, 3, 4, 5]    将l[1]修改为元素[7,8]</span></div><div class="line">l[<span class="number">1</span>:<span class="number">3</span>] = []     <span class="comment"># [3, 2, 3, 4, 5]       删除1-2的元素</span></div><div class="line">l[<span class="number">1</span>:<span class="number">1</span>] = [<span class="number">7</span>,<span class="number">8</span>,<span class="number">2</span>]<span class="comment"># [3, 7, 8, 2, 3, 4, 5] 在l[1]处插入元素[7,8,2]</span></div><div class="line"></div><div class="line"><span class="comment"># 取长度</span></div><div class="line">len(l)      <span class="comment"># 7</span></div><div class="line"></div><div class="line"><span class="comment"># 排序</span></div><div class="line">l.sort()    <span class="comment"># l=[2, 3, 3, 4, 5, 7, 8]</span></div><div class="line"></div><div class="line"><span class="comment"># 获取元素出现的个数</span></div><div class="line">l.count(<span class="number">3</span>)  <span class="comment"># 2</span></div><div class="line"></div><div class="line"><span class="comment"># for循环取索引和值, 使用enumerate</span></div><div class="line"><span class="keyword">for</span> i, x <span class="keyword">in</span> enumerate(l):</div><div class="line">    <span class="keyword">print</span> <span class="string">'&#123;&#125;: &#123;&#125;'</span>.format(i, x)         <span class="comment"># i为index, x为list的值</span></div></pre></td></tr></table></figure>
+<h2 id="增减元素"><a href="#增减元素" class="headerlink" title="增减元素"></a>增减元素</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">l = [<span class="string">'John'</span>, <span class="string">'Bob'</span>, <span class="string">'Tracy'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 增减元素</span></div><div class="line">l.append(<span class="string">'Adam'</span>)    <span class="comment"># 追加元素到末尾,    l=['John', 'Bob', 'Tracy', 'Adam']</span></div><div class="line">l.insert(<span class="number">1</span>, <span class="string">'Jack'</span>) <span class="comment"># 在索引1处插入元素, l=['John', 'Jack', 'Bob', 'Tracy', 'Adam']</span></div><div class="line">l[<span class="number">1</span>:<span class="number">1</span>]=[<span class="string">"Jack"</span>]     <span class="comment"># 在索引1处插入元素, l=['John', 'Jack', 'Jack', 'Bob', 'Tracy', 'Adam']</span></div><div class="line"></div><div class="line"><span class="comment"># 删减元素</span></div><div class="line">l.remove(<span class="string">"Jack"</span>)    <span class="comment"># 删除第一次出现的该元素, l=['John', 'Jack', 'Bob', 'Tracy', 'Adam']</span></div><div class="line">l.pop()             <span class="comment"># 返回并删除末尾的元素,   l=['John', 'Jack', 'Bob', 'Tracy']</span></div><div class="line">l.pop(<span class="number">1</span>)            <span class="comment"># 返回并删除索引1的元素,  l=['John', 'Bob', 'Tracy']</span></div><div class="line"><span class="keyword">del</span> l[<span class="number">0</span>]            <span class="comment"># 删除索引0的元素,       l=['Bob', 'Tracy']</span></div><div class="line"><span class="keyword">del</span> l[<span class="number">0</span>:<span class="number">2</span>]          <span class="comment"># 删除多个元素,          l=[]</span></div><div class="line"></div><div class="line"><span class="comment"># 列表扩展/叠加</span></div><div class="line">l1=[<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>]; l2=[<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]</div><div class="line">l=list(set(l1+l2))  <span class="comment"># l=[1,2,3,4,5], 避免了重复元素, 但会丢失原有的排序!</span></div><div class="line">l=l1+l2             <span class="comment"># l=[3,2,1,3,4,5], 简单的叠加, 非常直观!</span></div></pre></td></tr></table></figure>
+<h2 id="拷贝-浅拷贝-深拷贝"><a href="#拷贝-浅拷贝-深拷贝" class="headerlink" title="拷贝(浅拷贝, 深拷贝)"></a>拷贝(浅拷贝, 深拷贝)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">l = [[<span class="string">'a'</span>], [<span class="string">'b'</span>, <span class="string">'c'</span>], [<span class="string">'d'</span>, <span class="string">'e'</span>, <span class="string">'f'</span>]]</div><div class="line"></div><div class="line"><span class="comment"># 别名及浅拷贝</span></div><div class="line">l1 = l              <span class="comment"># l1为l的别名/指针, 指向相同的地址. (l is l1 = True)</span></div><div class="line">l1 = l[:]           <span class="comment"># 浅拷贝(只拷贝一维的数据). (l is l1 = False. l[0] is l1[0] = True)</span></div><div class="line"><span class="comment"># 在此例中, 由于是浅拷贝, 因此修改元素如 l[0][0]='z' 后, l1显示内容会和l一样.</span></div><div class="line"></div><div class="line"><span class="comment"># 深拷贝</span></div><div class="line"><span class="keyword">import</span> copy</div><div class="line">l1 = copy.deepcopy(l)   <span class="comment"># 深拷贝(遇到指针类型继续深挖). (l is l1 = False. l[0] is l1[0] = False)</span></div><div class="line"><span class="comment"># 在此例中, l1 和 l 再无任何关联</span></div></pre></td></tr></table></figure>
+<h1 id="tuple"><a href="#tuple" class="headerlink" title="tuple ()"></a>tuple <code>()</code></h1><p>理解为list的常量形式即可, 赋值后就不可增减和修改</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 赋值</span></div><div class="line">t = (<span class="number">1</span>,<span class="number">2</span>)   <span class="comment"># 赋值2个元素</span></div><div class="line">t = (<span class="number">1</span>,)    <span class="comment"># 赋值1个元素时, 必须加上逗号, 避免误解</span></div><div class="line">t = (<span class="number">1</span>,<span class="number">3</span>)*<span class="number">3</span>        <span class="comment"># t = (1,3,1,3,1,3)</span></div><div class="line"></div><div class="line"><span class="comment"># 取值, 使用切片即可</span></div><div class="line">t[<span class="number">-1</span>]       <span class="comment"># 取最后一个值, 3</span></div><div class="line">t[<span class="number">0</span>::<span class="number">2</span>]     <span class="comment"># 跳着取值, (1,1,1)</span></div><div class="line"></div><div class="line"><span class="comment"># 取长度</span></div><div class="line">len(t)      <span class="comment"># 6</span></div><div class="line"></div><div class="line"><span class="comment"># 获取元素出现的个数</span></div><div class="line">t.count(<span class="number">1</span>)  <span class="comment"># 3</span></div><div class="line"></div><div class="line"><span class="comment"># list 与 tuple 互相转换</span></div><div class="line">l = list(t) <span class="comment"># 把tuple变为list</span></div><div class="line">t = tuple(l)<span class="comment"># 把list变为tuple</span></div><div class="line"></div><div class="line"><span class="comment"># 拷贝的问题同list</span></div></pre></td></tr></table></figure>
+<h1 id="dict"><a href="#dict" class="headerlink" title="dict {}"></a>dict <code>{}</code></h1><p>dict全称dictionary，在其他语言中也称为map，使用键-值（key-value）存储，具有极快的查找速度。</p>
+<h2 id="赋值及取值"><a href="#赋值及取值" class="headerlink" title="赋值及取值"></a>赋值及取值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dict 赋值</span></div><div class="line">d = &#123;<span class="string">'Michael'</span>: <span class="number">95</span>, <span class="string">'Bob'</span>: <span class="number">75</span>, <span class="string">'Tracy'</span>: <span class="number">85</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># 获取值</span></div><div class="line">d[<span class="string">'Thomas'</span>]             <span class="comment"># 不存在会报错</span></div><div class="line">d.get(<span class="string">'Thomas'</span>, <span class="number">-1</span>)     <span class="comment"># 不存在返回设定的默认值</span></div><div class="line"></div><div class="line"><span class="comment"># 判断键值</span></div><div class="line"><span class="string">'Michael'</span> <span class="keyword">in</span> d          <span class="comment"># in方法即可, 返回True</span></div><div class="line"></div><div class="line"><span class="comment"># 键值个数</span></div><div class="line">len(d)                  <span class="comment"># 3</span></div><div class="line"></div><div class="line"><span class="comment"># 获取key和value</span></div><div class="line">d.keys()                <span class="comment"># 关键字列表, ['Bob', 'Michael', 'Tracy']</span></div><div class="line">d.values()              <span class="comment"># 字典值列表, [75, 95, 85]</span></div><div class="line">d.items()               <span class="comment"># 转换为列表, [('Bob', 75), ('Michael', 95), ('Tracy', 85)]</span></div><div class="line"></div><div class="line"><span class="comment"># for循环取索引和值, 使用iteritems</span></div><div class="line"><span class="keyword">for</span> k, v <span class="keyword">in</span> d.iteritems():</div><div class="line">    <span class="keyword">print</span> <span class="string">'&#123;&#125;: &#123;&#125;'</span>.format(k, v)         <span class="comment"># k为key, v为value值</span></div></pre></td></tr></table></figure>
+<h2 id="增减及修改字典"><a href="#增减及修改字典" class="headerlink" title="增减及修改字典"></a>增减及修改字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">d = &#123;<span class="string">'Michael'</span>: <span class="number">95</span>, <span class="string">'Bob'</span>: <span class="number">75</span>, <span class="string">'Tracy'</span>: <span class="number">85</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># 修改值 (如果key不存在, 变成增加元素)</span></div><div class="line">d[<span class="string">'Michael'</span>] = <span class="number">88</span>       <span class="comment"># d=&#123;'Bob': 75, 'Michael': 88, 'Tracy': 85&#125;</span></div><div class="line"></div><div class="line"><span class="comment"># 增加值</span></div><div class="line">d[<span class="number">0</span>] = <span class="number">0</span>                <span class="comment"># d=&#123;0: 0, 'Bob': 75, 'Michael': 88, 'Tracy': 85&#125;</span></div><div class="line"></div><div class="line"><span class="comment"># 删除一个键值</span></div><div class="line">d.pop(<span class="number">0</span>)                <span class="comment"># 返回value并删除键值    d=&#123;'Bob': 75, 'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line">d.popitem()             <span class="comment"># 返回value并删除首键值  d=&#123;'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line"><span class="keyword">del</span> d[<span class="number">0</span>]                <span class="comment"># 删除键值              d=&#123;'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line"><span class="keyword">if</span> <span class="number">0</span> <span class="keyword">in</span> d: <span class="keyword">del</span> d[<span class="number">0</span>]     <span class="comment"># 避免报错的写法         d=&#123;'Michael': 95, 'Tracy': 85&#125;</span></div><div class="line"></div><div class="line"><span class="comment"># 删除整个字典</span></div><div class="line">d.clear()               <span class="comment"># 清空字典, d变成空字典   d=&#123;&#125;</span></div><div class="line"><span class="keyword">del</span> d                   <span class="comment"># 删除了d这个字典</span></div><div class="line"></div><div class="line"><span class="comment"># 合并字典</span></div><div class="line">x = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;; y = &#123;<span class="string">'b'</span>: <span class="number">3</span>, <span class="string">'c'</span>: <span class="number">4</span>&#125;</div><div class="line">z = x.copy()            <span class="comment"># 字典拷贝              z = &#123;'a': 1, 'b': 2&#125;</span></div><div class="line">z.update(y)             <span class="comment"># 字典合并(新值覆盖旧值)  z = &#123;'a': 1, 'c': 4, 'b': 3&#125;</span></div><div class="line"><span class="comment"># z = &#123;**x, **y&#125;        # python 3.5以上, 可以直接使用</span></div></pre></td></tr></table></figure>
+<h2 id="拷贝-浅拷贝-深拷贝-1"><a href="#拷贝-浅拷贝-深拷贝-1" class="headerlink" title="拷贝(浅拷贝, 深拷贝)"></a>拷贝(浅拷贝, 深拷贝)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">d = &#123;<span class="number">0</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], <span class="number">1</span>:&#123;<span class="string">'k1'</span>: <span class="string">'v1'</span>, <span class="string">'k2'</span>: <span class="string">'v2'</span>&#125;&#125;</div><div class="line"></div><div class="line"><span class="comment"># 注意, d.update(), d.copy() 都是浅拷贝!</span></div><div class="line"></div><div class="line"><span class="comment"># 别名及浅拷贝</span></div><div class="line">d1 = d                  <span class="comment"># l1为l的别名/指针, 指向相同的地址. (d is d1 = True)</span></div><div class="line">d1 = d.copy()           <span class="comment"># 浅拷贝(只拷贝一维的数据). (d is d1 = False. d[0] is d1[0] = True)</span></div><div class="line"><span class="comment"># 设置 d[0][0] = 3; d[1]["k2"]=2 后, 会发现d1的值也跟着变了. 因为浅拷贝值拷贝一维的数据(指针).</span></div><div class="line"></div><div class="line"><span class="comment"># 深拷贝</span></div><div class="line"><span class="keyword">import</span> copy</div><div class="line">d1 = copy.deepcopy(d)   <span class="comment"># 深拷贝(遇到指针类型继续深挖). (d is d1 = False. d[0] is d1[0] = False)</span></div><div class="line"><span class="comment"># d 和 d1 再无任何瓜葛</span></div></pre></td></tr></table></figure>
+<h1 id="set-set"><a href="#set-set" class="headerlink" title="set {} set([])"></a>set <code>{}</code> <code>set([])</code></h1><p>set即集合, 是一组key的集合，但不存储value。由于key不能重复，所以，在set中，没有重复的key。<br>集合不可放入可变对象, 如list(报<code>unhashable type</code>的错)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 赋值</span></div><div class="line">s = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;               <span class="comment"># s = set([1, 2, 3])</span></div><div class="line">s = &#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>&#125;      <span class="comment"># s = set([1, 2, 3]), 重复元素会被过滤掉</span></div><div class="line"></div><div class="line"><span class="comment"># 检查元素是否存在</span></div><div class="line"><span class="number">3</span> <span class="keyword">in</span> s                      <span class="comment"># True</span></div><div class="line"></div><div class="line"><span class="comment"># 增加元素</span></div><div class="line">s.add(<span class="number">4</span>)                    <span class="comment"># s = set([1, 2, 3, 4])</span></div><div class="line">s.add(<span class="number">4</span>)                    <span class="comment"># 重复增加不会报错</span></div><div class="line"></div><div class="line"><span class="comment"># 删除元素</span></div><div class="line">s.remove(<span class="number">4</span>)                 <span class="comment"># s = set([1, 2, 3])</span></div><div class="line"><span class="keyword">if</span> <span class="number">4</span> <span class="keyword">in</span> s: s.remove(<span class="number">4</span>)      <span class="comment"># 避免报错</span></div><div class="line"></div><div class="line"><span class="comment"># 集合的运算符号</span></div><div class="line">s1 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; s2 = &#123;<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</div><div class="line">s1 &amp; s2                     <span class="comment"># 交集    set([2, 3])</span></div><div class="line">s1 | s2                     <span class="comment"># 并集    set([1, 2, 3, 4])</span></div><div class="line">s1 ^ s2                     <span class="comment"># 补集    set([1, 4])</span></div><div class="line">s1 - s2                     <span class="comment"># 减法    set([1])</span></div><div class="line">s2 - s1                     <span class="comment"># 减法    set([4])</span></div></pre></td></tr></table></figure>
+<h1 id="collections模块的使用"><a href="#collections模块的使用" class="headerlink" title="collections模块的使用"></a>collections模块的使用</h1><h2 id="numedtuple-给tuple命名"><a href="#numedtuple-给tuple命名" class="headerlink" title="numedtuple 给tuple命名"></a>numedtuple 给tuple命名</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>Point = collections.namedtuple(<span class="string">'Point'</span>, [<span class="string">'x'</span>, <span class="string">'y'</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p = Point(<span class="number">1.0</span>, <span class="number">2.0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p.x; p.y; p             <span class="comment"># 也可以使用p[0], p[1]</span></div><div class="line"><span class="number">1.0</span></div><div class="line"><span class="number">2.0</span></div><div class="line">Point(x=<span class="number">1.0</span>, y=<span class="number">2.0</span>)</div><div class="line"></div><div class="line"><span class="comment"># 修改值</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p = p._replace(x = <span class="number">1.5</span>, y= <span class="number">1.1</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>p[<span class="number">0</span>]; p[<span class="number">1</span>]              <span class="comment"># 等同于 p.x; p.y</span></div><div class="line"><span class="number">1.5</span></div><div class="line"><span class="number">1.1</span></div></pre></td></tr></table></figure>
+<h2 id="deque-双向队列"><a href="#deque-双向队列" class="headerlink" title="deque 双向队列"></a>deque 双向队列</h2><p>英文全称 <code>Double-ended queue</code>, 特性近似于双向链表, 适用于队列和栈</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q = collections.deque([<span class="string">'a'</span>, <span class="string">'c'</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.append(<span class="number">1</span>)             <span class="comment"># q=deque(['a', 'c', 1])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.appendleft(<span class="number">2</span>)         <span class="comment"># q=deque([2, 'a', 'c', 1])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.extend([<span class="number">3</span>, <span class="number">4</span>])        <span class="comment"># q=deque([2, 'a', 'c', 1, 3, 4])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.extendleft([<span class="number">5</span>, <span class="number">6</span>])    <span class="comment"># q=deque([6, 5, 2, 'a', 'c', 1, 3, 4])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.pop()                 <span class="comment"># q=deque([6, 5, 2, 'a', 'c', 1, 3])</span></div><div class="line"><span class="number">4</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.popleft()             <span class="comment"># q=deque([5, 2, 'a', 'c', 1, 3])</span></div><div class="line"><span class="number">6</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.rotate(<span class="number">1</span>)             <span class="comment"># q=deque([3, 5, 2, 'a', 'c', 1])</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>q.rotate(<span class="number">-2</span>)            <span class="comment"># q=deque([2, 'a', 'c', 1, 3, 5])</span></div><div class="line"></div><div class="line"><span class="comment"># 限长的双向队列</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>last_three = collections.deque([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>], maxlen=<span class="number">3</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>last_three</div><div class="line">que([<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>], maxlen=<span class="number">3</span>)    <span class="comment"># 队列长度最多为3.</span></div></pre></td></tr></table></figure>
+<h2 id="defaultdict-带默认键值的dict"><a href="#defaultdict-带默认键值的dict" class="headerlink" title="defaultdict 带默认键值的dict"></a>defaultdict 带默认键值的dict</h2><p>使用<code>dict</code>时，如果引用的Key不存在，就会抛出<code>KeyError</code>。如果希望key不存在时，返回一个默认值，就可以用<code>defaultdict</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 普通字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = dict()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">KeyError: <span class="string">'a'</span></div><div class="line"></div><div class="line"><span class="comment"># 默认字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(int)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="number">0</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(str)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="string">''</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = collections.defaultdict(<span class="keyword">lambda</span>: <span class="string">'N/A'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m[<span class="string">'a'</span>]</div><div class="line"><span class="string">'N/A'</span></div></pre></td></tr></table></figure>
+<h2 id="OrderedDict-可排序的dict"><a href="#OrderedDict-可排序的dict" class="headerlink" title="OrderedDict 可排序的dict"></a>OrderedDict 可排序的dict</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 普通字典, key是无需的</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>d = dict([(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'c'</span>, <span class="number">3</span>)])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>d</div><div class="line">&#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'b'</span>: <span class="number">2</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># 可排序字典, 按照key插入的顺序排序</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>od = collections.OrderedDict([(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'c'</span>, <span class="number">3</span>)])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>od</div><div class="line">OrderedDict([(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'c'</span>, <span class="number">3</span>)])</div></pre></td></tr></table></figure>
+<p>实现一个FIFO（先进先出）的dict，当容量超出限制时，先删除最早添加的Key</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> OrderedDict</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FifoDict</span><span class="params">(OrderedDict)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, capacity)</span>:</span></div><div class="line">        super(LastUpdatedOrderedDict, self).__init__()</div><div class="line">        self._capacity = capacity</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__setitem__</span><span class="params">(self, key, value)</span>:</span></div><div class="line">        containsKey = <span class="number">1</span> <span class="keyword">if</span> key <span class="keyword">in</span> self <span class="keyword">else</span> <span class="number">0</span></div><div class="line">        <span class="keyword">if</span> len(self) - containsKey &gt;= self._capacity:</div><div class="line">            last = self.popitem(last=<span class="keyword">False</span>)</div><div class="line">            <span class="keyword">print</span> <span class="string">'remove:'</span>, last</div><div class="line">        <span class="keyword">if</span> containsKey:</div><div class="line">            <span class="keyword">del</span> self[key]</div><div class="line">            <span class="keyword">print</span> <span class="string">'set:'</span>, (key, value)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">print</span> <span class="string">'add:'</span>, (key, value)</div><div class="line">        OrderedDict.__setitem__(self, key, value)</div></pre></td></tr></table></figure>
+<h2 id="Counter-计数类"><a href="#Counter-计数类" class="headerlink" title="Counter 计数类"></a>Counter 计数类</h2><p><code>Counter</code>实际上是<code>dict</code>的一个子类, 是一个简单的计数器.</p>
+<h3 id="应用一-多重集合-显示元素个数"><a href="#应用一-多重集合-显示元素个数" class="headerlink" title="应用一: 多重集合(显示元素个数)"></a>应用一: 多重集合(显示元素个数)</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> collections</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = collections.Counter([<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B = collections.Counter([<span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A; B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">1</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A | B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A &amp; B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">2</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A + B</div><div class="line">Counter(&#123;<span class="number">2</span>: <span class="number">4</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A - B</div><div class="line">Counter(&#123;<span class="number">1</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>B - A</div><div class="line">Counter(&#123;<span class="number">3</span>: <span class="number">1</span>&#125;)</div></pre></td></tr></table></figure>
+<h3 id="应用二-统计最常出现的元素"><a href="#应用二-统计最常出现的元素" class="headerlink" title="应用二: 统计最常出现的元素"></a>应用二: 统计最常出现的元素</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>A = collections.Counter(list(<span class="string">"hello"</span>))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A</div><div class="line">Counter(&#123;<span class="string">'l'</span>: <span class="number">2</span>, <span class="string">'h'</span>: <span class="number">1</span>, <span class="string">'e'</span>: <span class="number">1</span>, <span class="string">'o'</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>A.most_common(<span class="number">1</span>)</div><div class="line">[(<span class="string">'l'</span>, <span class="number">2</span>)]</div></pre></td></tr></table></figure>
+<h1 id="高阶应用"><a href="#高阶应用" class="headerlink" title="高阶应用"></a>高阶应用</h1><h2 id="list-加入索引值"><a href="#list-加入索引值" class="headerlink" title="list 加入索引值"></a>list 加入索引值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>seasons = [<span class="string">'Spring'</span>, <span class="string">'Summer'</span>, <span class="string">'Fall'</span>, <span class="string">'Winter'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(enumerate(seasons))</div><div class="line">[(<span class="number">0</span>, <span class="string">'Spring'</span>), (<span class="number">1</span>, <span class="string">'Summer'</span>), (<span class="number">2</span>, <span class="string">'Fall'</span>), (<span class="number">3</span>, <span class="string">'Winter'</span>)]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(enumerate(seasons, start=<span class="number">1</span>))</div><div class="line">[(<span class="number">1</span>, <span class="string">'Spring'</span>), (<span class="number">2</span>, <span class="string">'Summer'</span>), (<span class="number">3</span>, <span class="string">'Fall'</span>), (<span class="number">4</span>, <span class="string">'Winter'</span>)]</div></pre></td></tr></table></figure>
+<h2 id="list的压缩和解压-以及转换为dict"><a href="#list的压缩和解压-以及转换为dict" class="headerlink" title="list的压缩和解压, 以及转换为dict"></a>list的压缩和解压, 以及转换为dict</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]; b = [<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>z = zip(a, b)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>z</div><div class="line">[(<span class="number">1</span>, <span class="string">'a'</span>), (<span class="number">2</span>, <span class="string">'b'</span>), (<span class="number">3</span>, <span class="string">'c'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(z)     <span class="comment"># 转换为dict</span></div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(*z)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)]</div></pre></td></tr></table></figure>
+<h2 id="list相邻元素压缩器-升维"><a href="#list相邻元素压缩器-升维" class="headerlink" title="list相邻元素压缩器, 升维"></a>list相邻元素压缩器, 升维</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Using iterators / 使用迭代器</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent = <span class="keyword">lambda</span> a, k: zip(*([iter(a)] * k))</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">1</span>)</div><div class="line">[(<span class="number">1</span>,), (<span class="number">2</span>,), (<span class="number">3</span>,), (<span class="number">4</span>,), (<span class="number">5</span>,), (<span class="number">6</span>,)]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Using slices / 使用切片</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent = <span class="keyword">lambda</span> a, k: zip(*(islice(a, i, <span class="keyword">None</span>, k) <span class="keyword">for</span> i <span class="keyword">in</span> range(k)))</div><div class="line"><span class="comment"># 该lambda函数展开形式如下:</span></div><div class="line"><span class="comment"># def n_grams(a, n):</span></div><div class="line"><span class="comment">#     z = (islice(a, i, None) for i in range(n))</span></div><div class="line"><span class="comment">#     return zip(*z)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">3</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">2</span>)</div><div class="line">[(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">5</span>, <span class="number">6</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>group_adjacent(a, <span class="number">1</span>)</div><div class="line">[(<span class="number">1</span>,), (<span class="number">2</span>,), (<span class="number">3</span>,), (<span class="number">4</span>,), (<span class="number">5</span>,), (<span class="number">6</span>,)]</div></pre></td></tr></table></figure>
+<h2 id="list展开-降维"><a href="#list展开-降维" class="headerlink" title="list展开, 降维"></a>list展开, 降维</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 推荐使用 itertools.chain.from_iterable</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> itertools</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>], [<span class="number">5</span>, <span class="number">6</span>]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>list(itertools.chain.from_iterable(a))</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="comment"># 不推荐使用 sum</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>sum(a, [])</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"></div><div class="line"><span class="comment"># for 循环</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>[x <span class="keyword">for</span> l <span class="keyword">in</span> a <span class="keyword">for</span> x <span class="keyword">in</span> l]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [[[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>]], [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>]]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>[x <span class="keyword">for</span> l1 <span class="keyword">in</span> a <span class="keyword">for</span> l2 <span class="keyword">in</span> l1 <span class="keyword">for</span> x <span class="keyword">in</span> l2]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>], [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>]]]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>flatten = <span class="keyword">lambda</span> x: [y <span class="keyword">for</span> l <span class="keyword">in</span> x <span class="keyword">for</span> y <span class="keyword">in</span> flatten(l)] <span class="keyword">if</span> type(x) <span class="keyword">is</span> list <span class="keyword">else</span> [x]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>flatten(a)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]</div></pre></td></tr></table></figure>
+<h2 id="快速查找list的若干最值"><a href="#快速查找list的若干最值" class="headerlink" title="快速查找list的若干最值"></a>快速查找list的若干最值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> heapq, random</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>a = [random.randint(<span class="number">0</span>, <span class="number">100</span>) <span class="keyword">for</span> __ <span class="keyword">in</span> xrange(<span class="number">100</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>heapq.nsmallest(<span class="number">5</span>, a)</div><div class="line">[<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">6</span>]             <span class="comment"># a中最小的5个数</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>heapq.nlargest(<span class="number">5</span>, a)</div><div class="line">[<span class="number">100</span>, <span class="number">100</span>, <span class="number">99</span>, <span class="number">98</span>, <span class="number">95</span>]      <span class="comment"># a中最大的5个数</span></div></pre></td></tr></table></figure>
+<h2 id="dict和list互换"><a href="#dict和list互换" class="headerlink" title="dict和list互换"></a>dict和list互换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dict-&gt;list</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.keys()</div><div class="line">[<span class="string">'a'</span>, <span class="string">'c'</span>, <span class="string">'b'</span>, <span class="string">'d'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.values()</div><div class="line">[<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">4</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.items()</div><div class="line">[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"></div><div class="line"><span class="comment"># list-&gt;dict</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>l=[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(l)</div><div class="line">&#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>names = [<span class="string">'Michael'</span>, <span class="string">'Bob'</span>, <span class="string">'Tracy'</span>]; scores = [<span class="number">95</span>, <span class="number">75</span>, <span class="number">85</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(names, scores)</div><div class="line">[(<span class="string">'Michael'</span>, <span class="number">95</span>), (<span class="string">'Bob'</span>, <span class="number">75</span>), (<span class="string">'Tracy'</span>, <span class="number">85</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(zip(names, scores))</div><div class="line">&#123;<span class="string">'Bob'</span>: <span class="number">75</span>, <span class="string">'Michael'</span>: <span class="number">95</span>, <span class="string">'Tracy'</span>: <span class="number">85</span>&#125;</div></pre></td></tr></table></figure>
+<h2 id="dict内key和value互换"><a href="#dict内key和value互换" class="headerlink" title="dict内key和value互换"></a>dict内key和value互换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># using zip</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>zip(m.values(), m.keys())</div><div class="line">[(<span class="number">1</span>, <span class="string">'a'</span>), (<span class="number">3</span>, <span class="string">'c'</span>), (<span class="number">2</span>, <span class="string">'b'</span>), (<span class="number">4</span>, <span class="string">'d'</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>dict(zip(m.values(), m.keys()))</div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>, <span class="number">4</span>: <span class="string">'d'</span>&#125;</div><div class="line"></div><div class="line"><span class="comment"># using a dictionary comprehension</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m = &#123;<span class="string">'a'</span>: <span class="number">1</span>, <span class="string">'b'</span>: <span class="number">2</span>, <span class="string">'c'</span>: <span class="number">3</span>, <span class="string">'d'</span>: <span class="number">4</span>&#125;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>m.items()</div><div class="line">[(<span class="string">'a'</span>, <span class="number">1</span>), (<span class="string">'c'</span>, <span class="number">3</span>), (<span class="string">'b'</span>, <span class="number">2</span>), (<span class="string">'d'</span>, <span class="number">4</span>)]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;v: k <span class="keyword">for</span> k, v <span class="keyword">in</span> m.items()&#125;</div><div class="line">&#123;<span class="number">1</span>: <span class="string">'a'</span>, <span class="number">2</span>: <span class="string">'b'</span>, <span class="number">3</span>: <span class="string">'c'</span>, <span class="number">4</span>: <span class="string">'d'</span>&#125;</div></pre></td></tr></table></figure>
+<h2 id="快速生成规律性字典"><a href="#快速生成规律性字典" class="headerlink" title="快速生成规律性字典"></a>快速生成规律性字典</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;x: x ** <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>)&#125;</div><div class="line">&#123;<span class="number">0</span>: <span class="number">0</span>, <span class="number">1</span>: <span class="number">1</span>, <span class="number">2</span>: <span class="number">4</span>, <span class="number">3</span>: <span class="number">9</span>, <span class="number">4</span>: <span class="number">16</span>&#125;</div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>&#123;x: <span class="string">'A'</span> + str(x) <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)&#125;</div><div class="line">&#123;<span class="number">0</span>: <span class="string">'A0'</span>, <span class="number">1</span>: <span class="string">'A1'</span>, <span class="number">2</span>: <span class="string">'A2'</span>, <span class="number">3</span>: <span class="string">'A3'</span>, <span class="number">4</span>: <span class="string">'A4'</span>, <span class="number">5</span>: <span class="string">'A5'</span>, <span class="number">6</span>: <span class="string">'A6'</span>, <span class="number">7</span>: <span class="string">'A7'</span>, <span class="number">8</span>: <span class="string">'A8'</span>, <span class="number">9</span>: <span class="string">'A9'</span>&#125;</div></pre></td></tr></table></figure>
+<h2 id="字符串与列表字典的互换"><a href="#字符串与列表字典的互换" class="headerlink" title="字符串与列表字典的互换"></a>字符串与列表字典的互换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表 (去掉引号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"[1,2,3]"</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="comment"># 如果输入数据不安全, 使用ast.literal_eval(), eval的替代品, 更安全</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;字典 (去掉引号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"&#123;'one':1, 'two':2&#125;"</span>)</div><div class="line">&#123;<span class="string">'two'</span>: <span class="number">2</span>, <span class="string">'one'</span>: <span class="number">1</span>&#125;</div><div class="line"><span class="comment"># 如果输入数据不安全, 使用ast.literal_eval(), eval的替代品, 更安全</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = list(<span class="string">"hello"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst</div><div class="line">[<span class="string">'h'</span>, <span class="string">'e'</span>, <span class="string">'l'</span>, <span class="string">'l'</span>, <span class="string">'o'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(lst)</div><div class="line"><span class="string">'hello'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表 (指定分隔符, 如空格, 逗号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season = <span class="string">'spring, summer, autumn, winter'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season.split (<span class="string">','</span>)</div><div class="line">[<span class="string">'spring'</span>, <span class="string">' summer'</span>, <span class="string">' autumn'</span>, <span class="string">' winter'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="string">"spring"</span>, <span class="string">"summer"</span>, <span class="string">"autumn"</span>, <span class="string">"winter"</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">', '</span>.join(lst)</div><div class="line"><span class="string">'spring, summer, autumn, winter'</span></div><div class="line"></div><div class="line"><span class="comment"># 整数列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(str(e) <span class="keyword">for</span> e <span class="keyword">in</span> lst)</div><div class="line"><span class="string">'123'</span></div></pre></td></tr></table></figure>
+<h1 id="参考和资料"><a href="#参考和资料" class="headerlink" title="参考和资料"></a>参考和资料</h1><ul>
+<li><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001411031239400f7181f65f33a4623bc42276a605debf6000" target="_blank" rel="external">廖雪峰的官方网站之python教程</a></li>
+<li><a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" target="_blank" rel="external">30 Python Language Features and Tricks You May Not Know About</a></li>
+<li><a href="http://codingpy.com/article/the-idiomatic-way-to-merge-dicts-in-python/" target="_blank" rel="external">怎样合并字典最符合Python语言习惯？</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/18/1628-soft-regular/" itemprop="url">
+                  正则表达式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-18T00:00:00+11:00" content="2016-12-18">
+              2016-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
+<li><a href="https://draapho.github.io/2016/12/18/1628-soft-regular/">正则表达式</a></li>
+<li><a href="https://draapho.github.io/2017/09/19/1726-soft-easyre/">人人都看得懂的正则表达式教程</a></li>
+<li><a href="https://draapho.github.io/2017/10/07/1727-soft-reexample/">最全的常用正则表达式大全</a></li>
+</ul>
+<p>本文详细介绍了正则表达式的基础内容</p>
+<h1 id="正则表达式基础内容"><a href="#正则表达式基础内容" class="headerlink" title="正则表达式基础内容"></a>正则表达式基础内容</h1><table>
+<thead>
+<tr>
+<th>RE 字符/范例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\</code></td>
+<td>跳脱/转义字符</td>
+</tr>
+<tr>
+<td><strong>占位符</strong></td>
+<td>表示一个字符</td>
+</tr>
+<tr>
+<td><code>^word</code></td>
+<td><code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;^#&#39; re.txt</code></td>
+<td>显示行首为 <code>#</code> 的行</td>
+</tr>
+<tr>
+<td><code>word$</code></td>
+<td><code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;!$&#39; re.txt</code></td>
+<td>显示行尾为 <code>!</code> 的行</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>代表<strong>任意一个</strong>字符, 必须有一个字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;e.e&#39; re.txt</code></td>
+<td>结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code></td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>字符集合. <strong>除<code>^</code> <code>\</code> <code>-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
+</tr>
+<tr>
+<td><code>[^]</code></td>
+<td>中括号内的第一个<code>^</code>表示补集, <del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
+<td>匹配 <code>(</code> <code>+</code> <code>*</code> <code>)</code> 中的一个字符.</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;[0-9]&#39; re.txt</code></td>
+<td>搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
+<td>排除结果 <code>oo0-oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
+</tr>
+<tr>
+<td><strong>数量符</strong></td>
+<td>跟在一个字符或组的后面, 重复该RE字符或组若干次</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td><strong>零个或多个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;ess*&#39; re.py</code></td>
+<td>结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code></td>
+</tr>
+<tr>
+<td>…… <code>.*</code></td>
+<td>表示任意字符</td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><strong>连续m到n个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>{m,}</code></td>
+<td><strong>连续m个及以上</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>{m}</code></td>
+<td><strong>连续m个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;go\{2,3\}g&#39; re.txt</code></td>
+<td>结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code></td>
+</tr>
+<tr>
+<td>…… <code>egrep -n &#39;go?d&#39; re.txt</code></td>
+<td>只能匹配<code>gd</code>和<code>god</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code></td>
+</tr>
+<tr>
+<td>…… <code>egrep -n &#39;go+d&#39; re.txt</code></td>
+<td>匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del></td>
+</tr>
+<tr>
+<td><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code></td>
+<td>让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符</td>
+</tr>
+<tr>
+<td>…… <code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td>会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del></td>
+</tr>
+<tr>
+<td>…… <code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td><code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串</td>
+</tr>
+<tr>
+<td><strong>逻辑分组</strong></td>
+<td>对字符进行分组和判断</td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>分组字符串</td>
+</tr>
+<tr>
+<td>…… <code>egrep &#39;A(xyz)+C&#39;</code></td>
+<td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
+</tr>
+<tr>
+<td><code>\number</code></td>
+<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
+</tr>
+<tr>
+<td>…… <code>(\d)abc\1</code></td>
+<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>|</code> 理解为或即可, 用来隔开多个正则表达式.</li>
+<li>譬如 <code>egrep -n &#39;gd|good&#39; re.txt</code>   只能匹配<code>gd</code>和<code>good</code></li>
+<li>譬如 <code>egrep -n &#39;g(la|oo)d&#39; re.txt</code> 只能匹配<code>glad</code>和<code>good</code></li>
+</ul>
+<h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
+<p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>系统字符集</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\d</code></td>
+<td>digital, 数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>\D</code></td>
+<td>非数字字符, <code>[^\d]</code></td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>space, 空白字符, <code>[ \t\r\n\f\v]</code></td>
+</tr>
+<tr>
+<td><code>\S</code></td>
+<td>非空白字符, <code>[^\s]</code></td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>word, 单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>\W</code></td>
+<td>非单词字符, <code>[^\w]</code></td>
+</tr>
+<tr>
+<td><code>\A</code></td>
+<td>仅匹配字符串开头</td>
+</tr>
+<tr>
+<td><code>\Z</code></td>
+<td>仅匹配字符串结尾</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>提取指定的<code>\w</code>串</td>
+</tr>
+<tr>
+<td>… <code>\bfoo\b</code></td>
+<td>匹配 <code>foo</code> <code>foo.</code> <code>(foo)</code> <code>b foo z</code>, <del>不匹配 <code>foobar</code></del></td>
+</tr>
+<tr>
+<td><code>\B</code></td>
+<td><code>[^\b]</code>, 指定部分内容提取<code>\w</code>串</td>
+</tr>
+<tr>
+<td>… <code>py\B</code></td>
+<td>匹配 <code>python</code> <code>py3</code>, <del>不匹配 <code>py</code> <code>py.</code> <code>py!</code></del></td>
+</tr>
+</tbody>
+</table>
+<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>系统字符集</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[:alnum:]</code></td>
+<td>单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>[:alpha:]</code></td>
+<td>字母字符, <code>[A-Za-z]</code></td>
+</tr>
+<tr>
+<td><code>[:ascii:]</code></td>
+<td>ASCII字符, <code>[\x00-\x7F]</code></td>
+</tr>
+<tr>
+<td><code>[:blank:]</code></td>
+<td>空格字符, <code>[ \t]</code></td>
+</tr>
+<tr>
+<td><code>[:cntrl:]</code></td>
+<td>控制键字符, <code>[\x00-\x1F\x7F]</code></td>
+</tr>
+<tr>
+<td><code>[:digit:]</code></td>
+<td>数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>[:graph:]</code></td>
+<td>非空字符, <code>[\x21-\x7E]</code>, <code>[:blank:]</code>的补集</td>
+</tr>
+<tr>
+<td><code>[:lower:]</code></td>
+<td>小写字母, <code>[a-z]</code></td>
+</tr>
+<tr>
+<td><code>[:print:]</code></td>
+<td>可被打印的字符, <code>[\x20-\x7E]</code></td>
+</tr>
+<tr>
+<td><code>[:punct:]</code></td>
+<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\</code>^_{}~-]丨`</td>
+</tr>
+<tr>
+<td><code>[:upper:]</code></td>
+<td>大写字母 <code>[A-Z]</code></td>
+</tr>
+<tr>
+<td><code>[:space:]</code></td>
+<td>空白字符 <code>[ \t\r\n\v\f]</code></td>
+</tr>
+<tr>
+<td><code>[:word:]</code></td>
+<td>字母字符 <code>[A-Za-z_]</code></td>
+</tr>
+<tr>
+<td><code>[:xdigit:]</code></td>
+<td>16进制类型 <code>[0-9A-Fa-f]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="BRE-基础RE"><a href="#BRE-基础RE" class="headerlink" title="BRE, 基础RE"></a>BRE, 基础RE</h2><p>即, Basic Regular Expression<br>BRE只定义了6组元字符：</p>
+<ul>
+<li><code>[]</code>, 用于在多个字符中选定一个字符进行匹配</li>
+<li><code>.</code>,  用于匹配任意字符</li>
+<li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
+<li><code>$</code>,  用于匹配行尾</li>
+<li><code>*</code>,  零个或多个的前一RE字符</li>
+<li><code>\</code>,  跳脱/转义字符</li>
+</ul>
+<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派,<br>为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪. <code>()</code> <code>{}</code> 需要使用 <code>\</code> 转义后才有特殊含义.<br>如果直接使用 <code>a{1,2}</code>, 只能去匹配 <code>a{1,2}</code> 字符串. 只有使用 <code>a\{1,2\}</code> 才能匹配为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code> <code>?</code> <code>(...|...)</code> <code>\number</code></del></p>
+<h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
+<ul>
+<li><code>{}</code> 用于表示重复匹配的次数. BRE中将<code>{}</code>当作普通字符对待，必须加<code>\</code>进行转义, 即<code>\{\}</code></li>
+<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，必须加<code>\</code>进行转义，即<code>\(\)</code></li>
+<li><code>|</code>, 完全为ERE新增的多项匹配能力定义的，BRE无多项匹配能力，只将<code>|</code>作普通字符对待</li>
+<li><code>\number</code>, ERE没有明确规定需要支持反向引用, 但不少工具都支持此功能</li>
+</ul>
+<h2 id="linux-unix下的RE表达式汇总"><a href="#linux-unix下的RE表达式汇总" class="headerlink" title="linux/unix下的RE表达式汇总"></a>linux/unix下的RE表达式汇总</h2><table>
+<thead>
+<tr>
+<th>PCRE记法</th>
+<th>vi/vim</th>
+<th>grep</th>
+<th>egrep</th>
+<th>awk</th>
+<th>sed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+<td><code>\+</code></td>
+<td><code>+</code></td>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><code>\=</code></td>
+<td><code>\?</code></td>
+<td><code>?</code></td>
+<td><code>?</code></td>
+<td><code>\?</code></td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\y</code> <code>\&lt;</code> <code>\&gt;</code></td>
+</tr>
+<tr>
+<td><code>(…)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+</tr>
+<tr>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td>不支持</td>
+<td><code>\1</code> <code>\2</code></td>
+</tr>
+</tbody>
+</table>
+<p>注意:</p>
+<ul>
+<li>PCRE中常用<code>\b</code>来表示<strong>单词的起始或结束位</strong>,</li>
+<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong>, 用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
+<li><code>sed</code>中的<code>\y</code>可以同时匹配这两个位置。</li>
+</ul>
+<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>bash shell中的含义</th>
+<th>RE中的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>零个到多个任意字符</td>
+<td>重复零个或多个前一RE字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>一个任意字符</td>
+<td>重复零个或一个前一RE字符</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>运行代码 <code>source</code></td>
+<td>一个任意字符</td>
+</tr>
+<tr>
+<td><code>[0-9a-z]</code></td>
+<td>list内的一个字符</td>
+<td>list内的一个字符</td>
+</tr>
+<tr>
+<td><code>[0-9]</code>的补集</td>
+<td><code>[!0-9]</code> ()</td>
+<td><code>[^range]</code> (<code>!</code>在RE里是普通字符)</td>
+</tr>
+<tr>
+<td><code>{}</code></td>
+<td><code>{123,abc}</code> 字符串匹配</td>
+<td><code>{m,n}</code> 重复m到n个前一RE字符</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>匹配<code>a</code>开头的任意文件<ul>
+<li>bash下 <code>ls a*</code></li>
+<li>re下 <code>ls | grep &quot;^a.*&quot;</code></li>
+</ul>
+</li>
+<li>匹配string1或string2或更多之一字符串<ul>
+<li>bash下 <code>{string1,string2,string3}</code>. 如 <code>touch a{xyz,123}.txt</code>, 结果为 <code>axyz.txt</code> <code>a123.txt</code></li>
+<li>re下 <code>(string1|string2|string3)</code>. 如 <code>ls | egrep &#39;g(la|oo)d&#39;</code>, 结果为 <code>glad</code> <code>good</code></li>
+</ul>
+</li>
+<li>连续字符匹配<ul>
+<li>bash下, 有两种连续字符表示法 <code>{0..9}</code> 和 <code>[0-9]</code>, 支持<code>[1-3a-z]</code>, <del>不支持<code>{1..3a..z}</code></del>, </li>
+<li>bash下 <code>touch {ex{1..3},ex4}.sh</code>或<code>touch {ex{1..3},ex4}.sh</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code> </li>
+<li>re下 <code>ls | egrep &quot;(ex[1-3]|ex4).sh&quot;</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code></li>
+</ul>
+</li>
+<li>简单总结, RE的功能远比bash自带的匹配符功能强大. 特别容易弄混的也就是 <code>*</code> <code>?</code> <code>[^range]</code></li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://python.usyiyi.cn/documents/python_278/library/re.html" target="_blank" rel="external">python标准库 7.2 re — 正则表达式操作</a></li>
+<li><a href="http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html" target="_blank" rel="external">Python正则表达式指南</a></li>
+<li><a href="http://linux.vbird.org/linux_basic/0330regularex.php" target="_blank" rel="external">鸟哥的私房菜 第十一章、正規表示法與文件格式化處理</a></li>
+<li><a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank" rel="external">Linux/Unix工具与正则表达式的POSIX规范</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/17/1627-linux-cmd-bash/" itemprop="url">
                   Bash Shell及环境变量
                 </a>
@@ -2222,397 +2926,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/28/1622-python-time/" itemprop="url">
-                  python 延时及超时
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-28T00:00:00+11:00" content="2016-11-28">
-              2016-11-28
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="实用的例子"><a href="#实用的例子" class="headerlink" title="实用的例子"></a>实用的例子</h1><h2 id="time-sleep-单线程阻塞延时"><a href="#time-sleep-单线程阻塞延时" class="headerlink" title="time.sleep 单线程阻塞延时"></a><code>time.sleep</code> 单线程阻塞延时</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">time_sleep</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">        <span class="keyword">print</span> i</div><div class="line">        time.sleep(<span class="number">1</span>)       <span class="comment"># delay 1s, not that accurate</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    time_sleep()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h2 id="time-time-单线程非阻塞延时-超时"><a href="#time-time-单线程非阻塞延时-超时" class="headerlink" title="time.time 单线程非阻塞延时/超时"></a><code>time.time</code> 单线程非阻塞延时/超时</h2><p>通过比较时间戳实现, 多用于循环中的延时/超时判断</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">time_compare</span><span class="params">()</span>:</span></div><div class="line">    timeout = time.time() + <span class="number">10</span>  <span class="comment"># 10s delay</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">20</span>):</div><div class="line">        <span class="keyword">print</span> i</div><div class="line">        time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">if</span> timeout &lt; time.time(): <span class="comment"># compare the timestamps</span></div><div class="line">            <span class="keyword">break</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"time out !"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    time_compare()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h2 id="threading-Timer-多线程非阻塞延时"><a href="#threading-Timer-多线程非阻塞延时" class="headerlink" title="threading.Timer 多线程非阻塞延时"></a><code>threading.Timer</code> 多线程非阻塞延时</h2><p>这个例子中, 会先执行完 <code>threading_main</code>. 5s后, 才会执行 <code>threading_sub</code><br>子线程函数可以带参 <code>threading.Timer(interval, function, args=[], kwargs={})</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: start"</span></div><div class="line">    thrd = threading.Timer(<span class="number">5.0</span>, threading_sub, args = [<span class="string">"sub thread"</span>])</div><div class="line">    thrd.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">print</span> name + <span class="string">": hello"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    threading_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h2 id="threading-Timer-threading-join-多线程阻塞延时"><a href="#threading-Timer-threading-join-多线程阻塞延时" class="headerlink" title="threading.Timer + threading.join 多线程阻塞延时"></a><code>threading.Timer</code> + <code>threading.join</code> 多线程阻塞延时</h2><p>使用 <code>join</code> 语句, 让主线程等待子线程完成后才继续执行<br>子线程函数可以带参 <code>threading.Timer(interval, function, args=[], kwargs={})</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: start"</span></div><div class="line">    thrd = threading.Timer(<span class="number">5.0</span>, threading_sub, args = [<span class="string">"sub thread"</span>])</div><div class="line">    thrd.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: wait"</span></div><div class="line">    thrd.join()     <span class="comment"># add this line</span></div><div class="line">    <span class="comment"># thrd.join(timeout=2)  # just wait 2s then continue</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">print</span> name + <span class="string">": hello"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    threading_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><h2 id="装饰器-使用KThread-localtrace结束线程-通用性最好-性能较低"><a href="#装饰器-使用KThread-localtrace结束线程-通用性最好-性能较低" class="headerlink" title="装饰器, 使用KThread,.localtrace结束线程. (通用性最好, 性能较低)"></a>装饰器, 使用<code>KThread,.localtrace</code>结束线程. (通用性最好, 性能较低)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Timeout</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="string">"""function run timeout"""</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">KThread</span><span class="params">(threading.Thread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *args, **kwargs)</span>:</span></div><div class="line">        threading.Thread.__init__(self, *args, **kwargs)</div><div class="line">        self.killed = <span class="keyword">False</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Start the thread."""</span></div><div class="line">        self.__run_backup = self.run</div><div class="line">        <span class="comment"># Force the Thread to install our trace.</span></div><div class="line">        self.run = self.__run</div><div class="line">        threading.Thread.start(self)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Hacked run function, which installs the trace."""</span></div><div class="line">        sys.settrace(self.globaltrace)</div><div class="line">        self.__run_backup()</div><div class="line">        self.run = self.__run_backup</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">globaltrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> why == <span class="string">'call'</span>:</div><div class="line">            <span class="keyword">return</span> self.localtrace</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">localtrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> self.killed:</div><div class="line">            <span class="keyword">if</span> why == <span class="string">'line'</span>:</div><div class="line">                <span class="keyword">raise</span> SystemExit()</div><div class="line">        <span class="keyword">return</span> self.localtrace</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">kill</span><span class="params">(self)</span>:</span></div><div class="line">        self.killed = <span class="keyword">True</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout</span><span class="params">(timeout, default=None, try_except=False)</span>:</span></div><div class="line">    <span class="string">"""Timeout decorator, parameter in timeout."""</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">timeout_decorator</span><span class="params">(func)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">new_func</span><span class="params">(oldfunc, result, oldfunc_args, oldfunc_kwargs)</span>:</span></div><div class="line">            result.append(oldfunc(*oldfunc_args, **oldfunc_kwargs))</div><div class="line"></div><div class="line">        <span class="string">"""Wrap the original function."""</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">func_wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            result = []</div><div class="line">            <span class="comment"># create new args for _new_func, because we want to get the func</span></div><div class="line">            <span class="comment"># return val to result list</span></div><div class="line">            new_kwargs = &#123;</div><div class="line">                <span class="string">'oldfunc'</span>: func,</div><div class="line">                <span class="string">'result'</span>: result,</div><div class="line">                <span class="string">'oldfunc_args'</span>: args,</div><div class="line">                <span class="string">'oldfunc_kwargs'</span>: kwargs</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            thd = KThread(target=new_func, args=(), kwargs=new_kwargs)</div><div class="line">            thd.start()</div><div class="line">            thd.join(timeout)</div><div class="line">            <span class="comment"># timeout or finished?</span></div><div class="line">            isAlive = thd.isAlive()</div><div class="line">            thd.kill()</div><div class="line"></div><div class="line">            <span class="keyword">if</span> isAlive:</div><div class="line">                <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">                    <span class="keyword">raise</span> Timeout(<span class="string">"&#123;&#125; Timeout: &#123;&#125; seconds."</span>.format(func, timeout))</div><div class="line">                <span class="keyword">return</span> default</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                <span class="keyword">return</span> result[<span class="number">0</span>]</div><div class="line"></div><div class="line">        func_wrapper.__name__ = func.__name__</div><div class="line">        func_wrapper.__doc__ = func.__doc__</div><div class="line">        <span class="keyword">return</span> func_wrapper</div><div class="line"></div><div class="line">    <span class="keyword">return</span> timeout_decorator</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="meta">    @timeout(5)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">            print(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">print</span> count(<span class="string">"thread1"</span>)</div><div class="line">        <span class="keyword">print</span> count(<span class="string">"thread2"</span>)</div><div class="line">    <span class="keyword">except</span> Timeout <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">print</span> e</div></pre></td></tr></table></figure>
-<p>将上面的例子, 改为函数调用模式, 这样timeout参数可灵活设置!</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Timeout</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="string">"""function run timeout"""</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">KThread</span><span class="params">(threading.Thread)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *args, **kwargs)</span>:</span></div><div class="line">        threading.Thread.__init__(self, *args, **kwargs)</div><div class="line">        self.killed = <span class="keyword">False</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Start the thread."""</span></div><div class="line">        self.__run_backup = self.run</div><div class="line">        <span class="comment"># Force the Thread to install our trace.</span></div><div class="line">        self.run = self.__run</div><div class="line">        threading.Thread.start(self)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Hacked run function, which installs the trace."""</span></div><div class="line">        sys.settrace(self.globaltrace)</div><div class="line">        self.__run_backup()</div><div class="line">        self.run = self.__run_backup</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">globaltrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> why == <span class="string">'call'</span>:</div><div class="line">            <span class="keyword">return</span> self.localtrace</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">localtrace</span><span class="params">(self, frame, why, arg)</span>:</span></div><div class="line">        <span class="keyword">if</span> self.killed:</div><div class="line">            <span class="keyword">if</span> why == <span class="string">'line'</span>:</div><div class="line">                <span class="keyword">raise</span> SystemExit()</div><div class="line">        <span class="keyword">return</span> self.localtrace</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">kill</span><span class="params">(self)</span>:</span></div><div class="line">        self.killed = <span class="keyword">True</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout_call</span><span class="params">(timeout, func, args=<span class="params">()</span>, kwargs=None, default=None, try_except=False)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">new_func</span><span class="params">(oldfunc, result, oldfunc_args, oldfunc_kwargs)</span>:</span></div><div class="line">            result.append(oldfunc(*oldfunc_args, **oldfunc_kwargs))</div><div class="line"></div><div class="line">    result = []</div><div class="line">    kwargs = &#123;&#125; <span class="keyword">if</span> kwargs <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">else</span> kwargs</div><div class="line">    <span class="comment"># create new args for _new_func, because we want to get the func</span></div><div class="line">    <span class="comment"># return val to result list</span></div><div class="line">    new_kwargs = &#123;</div><div class="line">        <span class="string">'oldfunc'</span>: func,</div><div class="line">        <span class="string">'result'</span>: result,</div><div class="line">        <span class="string">'oldfunc_args'</span>: args,</div><div class="line">        <span class="string">'oldfunc_kwargs'</span>: kwargs</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    thd = KThread(target=new_func, args=(), kwargs=new_kwargs)</div><div class="line">    thd.start()</div><div class="line">    thd.join(timeout)</div><div class="line">    <span class="comment"># timeout or finished?</span></div><div class="line">    isAlive = thd.isAlive()</div><div class="line">    thd.kill()</div><div class="line"></div><div class="line">    <span class="keyword">if</span> isAlive:</div><div class="line">        <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">            <span class="keyword">raise</span> Timeout(<span class="string">"&#123;&#125; Timeout: &#123;&#125; seconds."</span>.format(func, timeout))</div><div class="line">        <span class="keyword">return</span> default</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> result[<span class="number">0</span>]</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">            print(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"thread1"</span>])</div><div class="line">        <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"thread2"</span>])</div><div class="line">    <span class="keyword">except</span> Timeout <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">print</span> e</div></pre></td></tr></table></figure>
-<h2 id="装饰器-使用thread-interrupt-main-结束线程-仅可用于主线程"><a href="#装饰器-使用thread-interrupt-main-结束线程-仅可用于主线程" class="headerlink" title="装饰器, 使用thread.interrupt_main()结束线程. (仅可用于主线程)"></a>装饰器, 使用<code>thread.interrupt_main()</code>结束线程. (仅可用于主线程)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> thread</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout_quit</span><span class="params">(fn_name)</span>:</span></div><div class="line">    thread.interrupt_main()     <span class="comment"># raises KeyboardInterrupt</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout</span><span class="params">(s)</span>:</span></div><div class="line">    <span class="string">'''</span></div><div class="line">    use as decorator to exit process if</div><div class="line">    function takes longer than s seconds</div><div class="line">    '''</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">outer</span><span class="params">(fn)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            timer = threading.Timer(s, timeout_quit, args=[fn.__name__])</div><div class="line">            timer.start()</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                result = fn(*args, **kwargs)</div><div class="line">            <span class="keyword">finally</span>:</div><div class="line">                timer.cancel()</div><div class="line">            <span class="keyword">return</span> result</div><div class="line">        <span class="keyword">return</span> inner</div><div class="line">    <span class="keyword">return</span> outer</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="meta">    @timeout(5)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">processNum</span><span class="params">(num)</span>:</span></div><div class="line">        time.sleep(<span class="number">2</span>)</div><div class="line">        <span class="keyword">return</span> num</div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">print</span> processNum(<span class="number">1</span>)</div><div class="line">    <span class="keyword">except</span> KeyboardInterrupt:</div><div class="line">        <span class="keyword">print</span> <span class="string">"timeout"</span></div></pre></td></tr></table></figure>
-<h1 id="学习过程中的例子"><a href="#学习过程中的例子" class="headerlink" title="学习过程中的例子"></a>学习过程中的例子</h1><h2 id="threading-Timer-threading-join-多线程阻塞延时-1"><a href="#threading-Timer-threading-join-多线程阻塞延时-1" class="headerlink" title="threading.Timer + threading.join 多线程阻塞延时"></a><code>threading.Timer</code> + <code>threading.join</code> 多线程阻塞延时</h2><p>使用 <code>join</code> 语句, 让主线程等待子线程完成后才继续执行<br>子线程函数可以带参 <code>threading.Timer(interval, function, args=[], kwargs={})</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> threading</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: start"</span></div><div class="line">    thrd = threading.Timer(<span class="number">5.0</span>, threading_sub, args = [<span class="string">"sub thread"</span>])</div><div class="line">    thrd.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: wait"</span></div><div class="line">    thrd.join()     <span class="comment"># add this line</span></div><div class="line">    <span class="comment"># thrd.join(timeout=2)  # just wait 2s then continue</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main thread: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">threading_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">print</span> name + <span class="string">": hello"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    threading_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h2 id="join-timeout-10-多进程超时判断"><a href="#join-timeout-10-多进程超时判断" class="headerlink" title="join(timeout=10) 多进程超时判断"></a><code>join(timeout=10)</code> 多进程超时判断</h2><p><code>multiprocessing</code>的本质是进程, 但是提供了类似于<code>threading</code>的一系列方法.<br>使用 <code>multiprocessing.terminate</code> 语句, 让主线程可以杀死子线程<br>子进程函数可以带参 multiprocessing.Process(group=None, target=None, name=None, args=(), kwargs={})<br>multiprocessing 没有 <code>Timer()</code> 方法的, 无法方便的延时执行.</p>
-<p>注意, 这里没有办法使用 threading 类来实现. 因为没有 <code>terminate()</code> 方法,<br>而如果用<code>signal</code>方法来结束线程, 有两个限制. 1, windows不支持. 2, 子线程不支持</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> multiprocessing</div><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">processing_main</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"main process: start"</span></div><div class="line">    prcs = multiprocessing.Process(</div><div class="line">        target=processing_sub, args=[<span class="string">"sub process"</span>])</div><div class="line">    prcs.start()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main process: wait"</span></div><div class="line">    prcs.join(timeout=<span class="number">10</span>)</div><div class="line"></div><div class="line">    <span class="comment"># If thread is still active</span></div><div class="line">    <span class="keyword">if</span> prcs.is_alive():</div><div class="line">        <span class="keyword">print</span> <span class="string">"main process: kill"</span></div><div class="line">        prcs.terminate()</div><div class="line">        prcs.join()</div><div class="line">    <span class="keyword">print</span> <span class="string">"main process: end"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">processing_sub</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">100</span>):</div><div class="line">        <span class="comment"># if use print, can not show immediately in the console.</span></div><div class="line">        logging.error(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">        time.sleep(<span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    start = time.time()</div><div class="line">    processing_main()</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h2 id="multiprocessing-pool-实现超时判断"><a href="#multiprocessing-pool-实现超时判断" class="headerlink" title="multiprocessing.pool 实现超时判断"></a><code>multiprocessing.pool</code> 实现超时判断</h2><p>说说python下的 thread 和 process.<br>thread, 提供了signal结束方式, 但是windows不支持, 仅主线程可用! 换句话说, 终止线程很繁琐<br>process, 提供了terminate结束方式, 但是参数传递限制条件很多, (必须可以是pickle的…)</p>
-<p><strong>下面的代码是有问题的!!!</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> multiprocessing.pool</div><div class="line"><span class="keyword">import</span> functools</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout</span><span class="params">(timeout, default=None, try_except=False)</span>:</span></div><div class="line">    <span class="string">"""Timeout decorator, parameter in seconds."""</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">timeout_decorator</span><span class="params">(item)</span>:</span></div><div class="line">        <span class="string">"""Wrap the original function."""</span></div><div class="line"><span class="meta">        @functools.wraps(item)</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">func_wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            <span class="string">"""Closure for function."""</span></div><div class="line">            pool = multiprocessing.pool.ThreadPool(processes=<span class="number">1</span>)</div><div class="line">            <span class="comment"># pool = multiprocessing.pool.Pool(processes=1) ## raise error about pickle problem!!!</span></div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                async_result = pool.apply_async(item, args, kwargs)</div><div class="line">                val = async_result.get(timeout)</div><div class="line">            <span class="keyword">except</span> multiprocessing.TimeoutError:</div><div class="line">                pool.terminate() <span class="comment">## not work here, because it is acutally thread, not process!!!</span></div><div class="line">                val = default</div><div class="line">                <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">                    <span class="keyword">raise</span> multiprocessing.TimeoutError</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                pool.close()</div><div class="line">                pool.join()</div><div class="line">            <span class="keyword">return</span> val</div><div class="line">        <span class="keyword">return</span> func_wrapper</div><div class="line">    <span class="keyword">return</span> timeout_decorator</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="meta">    @timeout(5)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">            print(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line">    start = time.time()</div><div class="line">    <span class="keyword">print</span> count(<span class="string">"thread1"</span>)</div><div class="line">    <span class="keyword">print</span> count(<span class="string">"thread2"</span>)  <span class="comment">## you can find problem here, thread1 is still running...</span></div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> multiprocessing</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timeout_call</span><span class="params">(timeout, func, args=<span class="params">()</span>, kwargs=None, default=None, try_except=False)</span>:</span></div><div class="line">    kwargs = &#123;&#125; <span class="keyword">if</span> kwargs <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">else</span> kwargs</div><div class="line">    pool = multiprocessing.Pool(processes=<span class="number">1</span>)</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        async_result = pool.apply_async(func, args, kwargs)</div><div class="line">        val = async_result.get(timeout)</div><div class="line">    <span class="keyword">except</span> multiprocessing.TimeoutError:</div><div class="line">        pool.terminate()</div><div class="line">        val = default</div><div class="line">        <span class="keyword">if</span> try_except <span class="keyword">is</span> <span class="keyword">True</span>:</div><div class="line">            <span class="keyword">raise</span> multiprocessing.TimeoutError</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        pool.close()</div><div class="line">        pool.join()</div><div class="line">    <span class="keyword">return</span> val</div><div class="line"></div><div class="line"><span class="comment">################### example ##########</span></div><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(name)</span>:</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</div><div class="line">        logging.error(<span class="string">"&#123;&#125;: &#123;&#125;"</span>.format(name, i))</div><div class="line">        time.sleep(<span class="number">1</span>)</div><div class="line">    <span class="keyword">return</span> <span class="string">"finished"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    <span class="comment">## if count function is here, will raise error!!!</span></div><div class="line"></div><div class="line">    start = time.time()</div><div class="line">    <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"process1"</span>])</div><div class="line">    <span class="keyword">print</span> timeout_call(<span class="number">5</span>, count, [<span class="string">"process2"</span>])</div><div class="line">    end = time.time()</div><div class="line">    <span class="keyword">print</span> <span class="string">"run time: &#123;&#125;"</span>.format(end - start)</div></pre></td></tr></table></figure>
-<h2 id="第三方方案"><a href="#第三方方案" class="headerlink" title="第三方方案"></a>第三方方案</h2><ul>
-<li><a href="https://pypi.python.org/pypi/timeoutcontext/1.1.1" target="_blank" rel="external">timeoutcontext 1.1.1</a><ul>
-<li>基于signal实现, 不支持windows系统, 不支持子线程</li>
-</ul>
-</li>
-<li><a href="https://pypi.python.org/pypi/timeout-decorator/0.3.2" target="_blank" rel="external">timeout-decorator 0.3.2</a><ul>
-<li>signal或Multithreading可选</li>
-<li>使用signal时, 不支持windows, 不支持子线程</li>
-<li>使用Multithreading时, 无法返回不能pickle的数据(因为需要通过pickle来跨进程交换数据)</li>
-</ul>
-</li>
-<li><a href="https://pypi.python.org/pypi/stopit#stopit-threading-timeoutable" target="_blank" rel="external">stopit 1.1.1</a><ul>
-<li>threading或signal可选</li>
-<li>计时误差太大, 不可接受(翻倍的误差)</li>
-</ul>
-</li>
-</ul>
-<h2 id="使用gevent协程"><a href="#使用gevent协程" class="headerlink" title="使用gevent协程"></a>使用gevent协程</h2><p>参考 <a href="http://xlambda.com/gevent-tutorial/#_6" target="_blank" rel="external">gevent程序员指南之超时</a><br>参考 <a href="https://my.oschina.net/1123581321/blog/208671" target="_blank" rel="external">gevent 延时、定时、超时、io等待、动态添加任务</a></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> gevent</div><div class="line"><span class="keyword">from</span> gevent <span class="keyword">import</span> Timeout</div><div class="line"></div><div class="line">time_to_wait = <span class="number">5</span> <span class="comment"># seconds</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">TooLong</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line"><span class="keyword">with</span> Timeout(time_to_wait, TooLong):</div><div class="line">    gevent.sleep(<span class="number">10</span>)</div></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="http://stackoverflow.com/questions/492519/timeout-on-a-function-call" target="_blank" rel="external">Timeout on a function call</a>, 关于此问题的讨论(signal / multiprocessing)</li>
-<li><a href="https://my.oschina.net/leejun2005/blog/607741" target="_blank" rel="external">论 Python 装饰器控制函数 Timeout 的正确姿势</a>, 装饰器方式, 性能较低</li>
-<li><a href="http://xlambda.com/gevent-tutorial/" target="_blank" rel="external">gevent程序员指南</a></li>
-<li><a href="https://my.oschina.net/1123581321/blog/208671" target="_blank" rel="external">gevent 延时、定时、超时、io等待、动态添加任务</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/24/1621-python-string/" itemprop="url">
-                  python 字符串处理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-24T00:00:00+11:00" content="2016-11-24">
-              2016-11-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="进制转换-编码转换"><a href="#进制转换-编码转换" class="headerlink" title="进制转换 / 编码转换"></a>进制转换 / 编码转换</h1><ul>
-<li><a href="https://docs.python.org/2/library/functions.html#hex" target="_blank" rel="external">hex</a>, 十进制-&gt;十六进制字符串</li>
-<li><a href="https://docs.python.org/2/library/functions.html#oct" target="_blank" rel="external">oct</a>, 十进制-&gt;八进制字符串</li>
-<li><a href="https://docs.python.org/2/library/functions.html#oct" target="_blank" rel="external">oct</a>, 十进制-&gt;八进制字符串</li>
-<li><a href="https://docs.python.org/2/library/functions.html#chr" target="_blank" rel="external">chr</a>, 十进制-&gt;ASCII码字符</li>
-<li><a href="https://docs.python.org/2/library/functions.html#unichr" target="_blank" rel="external">unichr</a>,  十进制-&gt;unicode编码</li>
-<li><a href="https://docs.python.org/2/library/functions.html#ord" target="_blank" rel="external">ord</a>,  ascii码/unicode编码-&gt;十进制</li>
-<li><a href="https://docs.python.org/2/library/binascii.html" target="_blank" rel="external">binascii</a>, 字符串&lt;-&gt;字节流</li>
-<li><a href="https://docs.python.org/2/library/struct.html" target="_blank" rel="external">struct</a>, 字符串&lt;-&gt;字节流<ul>
-<li>struct中的 <a href="https://docs.python.org/2/library/struct.html#format-characters" target="_blank" rel="external">fmt</a> 详解</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/stdtypes.html#string-methods" target="_blank" rel="external">str.decode / str.encode</a>, 基于unicode的编码转换</li>
-<li><a href="https://docs.python.org/2/library/codecs.html#standard-encodings" target="_blank" rel="external">Standard Encodings</a>, python支持的编码表<ul>
-<li>常用的有 <code>hex</code>, <code>utf-8</code>, <code>unicode_escape</code></li>
-</ul>
-</li>
-<li><a href="http://blog.csdn.net/pipisorry/article/details/44136297" target="_blank" rel="external">python字符串编码及乱码解决方案</a><ul>
-<li>解释了unicode与str在python2.7 和 python3下的区别. <code>str.decode</code>和<code>str.encode</code>的含义</li>
-<li>python2.7, 默认str编码为ascii, 需要使用<code>s=u&quot;人生苦短&quot;</code>来表示unicode编码字符串(便于跨平台统一)</li>
-<li><strong>终极原则： decode early, unicode everywhere, encode late</strong></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/functions.html" target="_blank" rel="external">更多的python内置函数</a>如下<ul>
-<li>int(x [,base ]), 将x转换为一个整数</li>
-<li>long(x [,base ]), 将x转换为一个长整数</li>
-<li>float(x), 将x转换到一个浮点数</li>
-<li>complex(real [,imag ]), 创建一个复数</li>
-<li>str(x) , 将对象 x 转换为字符串</li>
-<li>repr(x), 将对象 x 转换为表达式字符串</li>
-<li>eval(str), 用来计算在字符串中的有效Python表达式,并返回一个对象</li>
-<li>tuple(s), 将序列 s 转换为一个元组</li>
-<li>list(s), 将序列 s 转换为一个列表</li>
-</ul>
-</li>
-</ul>
-<h2 id="十进制-lt-gt-十六进制字符串"><a href="#十进制-lt-gt-十六进制字符串" class="headerlink" title="十进制&lt;-&gt;十六进制字符串"></a>十进制&lt;-&gt;十六进制字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>hex(<span class="number">255</span>)</div><div class="line"><span class="string">'0xff'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>float.hex(<span class="number">1.0</span>)</div><div class="line"><span class="string">'0x1.0000000000000p+0'</span></div><div class="line"></div><div class="line"><span class="comment"># 可以有前缀 0b/0B(二进制), 0o/0O/0(八进制), or 0x/0X(十六进制),</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'0xff'</span>, <span class="number">16</span>)</div><div class="line"><span class="number">255</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'ff'</span>, <span class="number">16</span>)</div><div class="line"><span class="number">255</span></div></pre></td></tr></table></figure>
-<h2 id="二进制字符串-lt-gt-十六进制字符串"><a href="#二进制字符串-lt-gt-十六进制字符串" class="headerlink" title="二进制字符串&lt;-&gt;十六进制字符串"></a>二进制字符串&lt;-&gt;十六进制字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>bin(int(<span class="string">'0xff'</span>, <span class="number">16</span>))</div><div class="line"><span class="string">'0b11111111'</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>hex(int(<span class="string">'0b1010'</span>,<span class="number">2</span>))</div><div class="line"><span class="string">'0xa'</span></div></pre></td></tr></table></figure>
-<h2 id="十进制-lt-gt-unicode字符串-lt-gt-utf8编码"><a href="#十进制-lt-gt-unicode字符串-lt-gt-utf8编码" class="headerlink" title="十进制&lt;-&gt;unicode字符串&lt;-&gt;utf8编码"></a>十进制&lt;-&gt;unicode字符串&lt;-&gt;utf8编码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>c = <span class="string">u'ñ'</span>            <span class="comment"># u表示使用unicode编码存储.</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>c                   <span class="comment"># 显示c在电脑中的值</span></div><div class="line"><span class="string">u'\xf1'</span>                 <span class="comment"># 即 u'\u00f1', \u需要2byte!</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>ord(c)</div><div class="line"><span class="number">241</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>unichr(<span class="number">241</span>)</div><div class="line"><span class="string">u'\xf1'</span></div><div class="line"></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">u'\u00f1'</span>.encode(<span class="string">'utf-8'</span>)       <span class="comment"># unicode-&gt;utf-8</span></div><div class="line"><span class="string">'\xc3\xb1'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'\xc3\xb1'</span>.decode(<span class="string">'utf-8'</span>)      <span class="comment"># utf-8-&gt;unicode</span></div><div class="line"><span class="string">u'\xf1'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="string">u'\u00f1'</span>                 <span class="comment"># 打印显示</span></div><div class="line">ñ</div></pre></td></tr></table></figure>
-<h2 id="字节流-lt-gt-整数"><a href="#字节流-lt-gt-整数" class="headerlink" title="字节流&lt;-&gt;整数"></a>字节流&lt;-&gt;整数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 使用 struct</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> struct</div><div class="line"></div><div class="line"><span class="comment"># 字节流-&gt;整数</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.unpack(<span class="string">'&lt;hh'</span>, bytes(<span class="string">b'\x01\x00\x00\x00'</span>))    <span class="comment"># 转义为short型整数</span></div><div class="line">(<span class="number">1</span>, <span class="number">0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.unpack(<span class="string">'&lt;L'</span>, bytes(<span class="string">b'\x01\x00\x00\x00'</span>))     <span class="comment"># 转义为long型整数</span></div><div class="line">(<span class="number">1</span>,)</div><div class="line"></div><div class="line"><span class="comment"># 整数-&gt;字节流</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.pack(<span class="string">'&lt;HH'</span>, <span class="number">1</span>,<span class="number">2</span>)</div><div class="line"><span class="string">'\x01\x00\x02\x00'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>struct.pack(<span class="string">'&lt;LL'</span>, <span class="number">1</span>,<span class="number">2</span>)</div><div class="line"><span class="string">'\x01\x00\x00\x00\x02\x00\x00\x00'</span></div></pre></td></tr></table></figure>
-<h2 id="几个实用的例子"><a href="#几个实用的例子" class="headerlink" title="几个实用的例子"></a>几个实用的例子</h2><ul>
-<li>去掉字符串中的跳脱符, 生成标准的unicode字符串</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">u'\\u4f60\\u4f60'</span>.decode(<span class="string">'unicode_escape'</span>)</div><div class="line"><span class="string">u'\u4f60\u4f60'</span></div></pre></td></tr></table></figure>
-<ul>
-<li>解码16进制字符串：也可以直接 print 出来</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>b=<span class="string">'\xd1\xee\xba\xea\xc1\xc1\n'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> unicode(b, <span class="string">'gbk'</span>).encode(<span class="string">'utf8'</span>) <span class="comment"># 等同于 print b.decode('gbk').encode('utf8')</span></div></pre></td></tr></table></figure>
-<ul>
-<li>bin &lt;-&gt; ascii</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;ASCII编码串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'1234'</span>.encode(<span class="string">"hex"</span>)</div><div class="line"><span class="string">'31323334'</span></div><div class="line"><span class="comment"># ASCII编码串-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'3031'</span>.decode(<span class="string">"hex"</span>)</div><div class="line"><span class="string">'01'</span></div><div class="line"></div><div class="line"><span class="comment"># 使用 binascii</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> binascii</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>binascii.hexlify(<span class="string">"1234"</span>)    <span class="comment"># 或者 binascii.b2a_hex("1234")</span></div><div class="line"><span class="string">'31323334'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>binascii.unhexlify(<span class="string">"3031"</span>)  <span class="comment"># 或者 binascii.a2b_hex("3031")</span></div><div class="line"><span class="string">'01'</span></div></pre></td></tr></table></figure>
-<h1 id="字符串-lt-gt-数值-列表-字典"><a href="#字符串-lt-gt-数值-列表-字典" class="headerlink" title="字符串&lt;-&gt;数值/列表/字典"></a>字符串&lt;-&gt;数值/列表/字典</h1><h2 id="字符串-lt-gt-数值"><a href="#字符串-lt-gt-数值" class="headerlink" title="字符串&lt;-&gt;数值"></a>字符串&lt;-&gt;数值</h2><ul>
-<li>int(x [,base ]), 将x转换为一个整数</li>
-<li>long(x [,base ]), 将x转换为一个长整数</li>
-<li>float(x), 将x转换到一个浮点数</li>
-<li><strong>使用re正则表达式, 实用范例</strong></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>str = <span class="string">"test: 12a345 to 325.-123.34"</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># this can get the number from str like "good456sdg78", return ['456', '78']</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">r'\d+'</span>, str)</div><div class="line">[<span class="string">'12'</span>, <span class="string">'345'</span>, <span class="string">'325'</span>, <span class="string">'123'</span>, <span class="string">'34'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># this can get the number seperate in str like "good12sd 45 78 ", return ['45', '78']</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">r'\b\d+\b'</span>, str)</div><div class="line">[<span class="string">'325'</span>, <span class="string">'123'</span>, <span class="string">'34'</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># more complicated, can recognize and return [30, -10, 34.12, -12.34, 67.56E+3, -14.23e-2]</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> re.findall(<span class="string">"[-+]?\d+[\.]?\d+[eE]?[-+]?\d*"</span>, str)</div><div class="line">[<span class="string">'12'</span>, <span class="string">'345'</span>, <span class="string">'325'</span>, <span class="string">'-123.34'</span>]</div></pre></td></tr></table></figure>
-<h2 id="字符串-gt-列表-字典-去掉引号"><a href="#字符串-gt-列表-字典-去掉引号" class="headerlink" title="字符串-&gt;列表/字典 (去掉引号)"></a>字符串-&gt;列表/字典 (去掉引号)</h2><ul>
-<li>eval(), 将str当成有效的表达式来求值并返回计算结果. 在确保str源安全的情况下可用.<ul>
-<li><a href="http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html" target="_blank" rel="external">Eval really is dangerous</a></li>
-<li><a href="http://blog.csdn.net/zhanh1218/article/details/37562167" target="_blank" rel="external">Python:eval的妙用和滥用</a></li>
-</ul>
-</li>
-<li><a href="https://docs.python.org/2/library/ast.html#ast-helpers" target="_blank" rel="external">ast.literal_eval()</a>, eval的替代品, 更安全</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"[1,2,3]"</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;字典</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>eval(<span class="string">"&#123;'one':1, 'two':2&#125;"</span>)</div><div class="line">&#123;<span class="string">'two'</span>: <span class="number">2</span>, <span class="string">'one'</span>: <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
-<h2 id="字符串-lt-gt-列表"><a href="#字符串-lt-gt-列表" class="headerlink" title="字符串&lt;-&gt;列表"></a>字符串&lt;-&gt;列表</h2><ul>
-<li>str.join(), 列表-&gt;字符串</li>
-<li>str.split(), 字符串-&gt;列表</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 字符串-&gt;列表</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = list(<span class="string">"hello"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst</div><div class="line">[<span class="string">'h'</span>, <span class="string">'e'</span>, <span class="string">'l'</span>, <span class="string">'l'</span>, <span class="string">'o'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(lst)</div><div class="line"><span class="string">'hello'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;列表 (指定分隔符, 如空格, 逗号)</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season = <span class="string">'spring, summer, autumn, winter'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>season.split (<span class="string">','</span>)</div><div class="line">[<span class="string">'spring'</span>, <span class="string">' summer'</span>, <span class="string">' autumn'</span>, <span class="string">' winter'</span>]</div><div class="line"></div><div class="line"><span class="comment"># 列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="string">"spring"</span>, <span class="string">"summer"</span>, <span class="string">"autumn"</span>, <span class="string">"winter"</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">', '</span>.join(lst)</div><div class="line"><span class="string">'spring, summer, autumn, winter'</span></div><div class="line"></div><div class="line"><span class="comment"># 整数列表-&gt;字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join(str(e) <span class="keyword">for</span> e <span class="keyword">in</span> lst)</div><div class="line"><span class="string">'123'</span></div><div class="line"></div><div class="line"><span class="comment"># 字符串-&gt;hex格式列表-&gt;hex格式字符串</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>map(ord, <span class="string">"1234"</span>) <span class="comment"># [0x31, 0x32, 0x33 0x34]</span></div><div class="line">[<span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>]</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">''</span>.join([<span class="string">"%02x"</span> % i <span class="keyword">for</span> i <span class="keyword">in</span> map(ord, <span class="string">"1234"</span>)])</div><div class="line"><span class="string">'31323334'</span></div></pre></td></tr></table></figure>
-<h1 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h1><h2 id="操作基础"><a href="#操作基础" class="headerlink" title="操作基础"></a>操作基础</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 去前后空格及特殊符号</span></div><div class="line">s.strip().lstrip().rstrip(<span class="string">','</span>)</div><div class="line"></div><div class="line"><span class="comment"># 查找字符</span></div><div class="line">sStr1.index(sStr2)  <span class="comment"># 返回所在位置, 不存在则报错</span></div><div class="line">sStr2 <span class="keyword">in</span> sStr1      <span class="comment"># 返回 True or False</span></div><div class="line"></div><div class="line"><span class="comment"># 比较字符串</span></div><div class="line">cmp(sStr1,sStr)</div><div class="line"></div><div class="line"><span class="comment"># 字符串长度</span></div><div class="line">len(sStr1)</div><div class="line"></div><div class="line"><span class="comment"># 将字符串中的大小写转换</span></div><div class="line">sStr1.upper().lower()</div><div class="line"></div><div class="line"><span class="comment"># 扩充到指定长度</span></div><div class="line">str(<span class="number">01</span>).zfill(<span class="number">5</span>) <span class="comment"># “00001”</span></div><div class="line"></div><div class="line"><span class="comment"># 翻转字符串</span></div><div class="line">sStr1[::<span class="number">-1</span>]</div><div class="line"></div><div class="line"><span class="comment"># 分割字符串</span></div><div class="line">s.split(<span class="string">','</span>)</div><div class="line"></div><div class="line"><span class="comment"># 字符串切片</span></div><div class="line">str = ’<span class="number">0123456789</span>′</div><div class="line"><span class="keyword">print</span> str[<span class="number">0</span>:<span class="number">3</span>]      <span class="comment"># 截取第一位到第三位的字符</span></div><div class="line"><span class="keyword">print</span> str[:]        <span class="comment"># 截取字符串的全部字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">6</span>:]       <span class="comment"># 截取第七个字符到结尾</span></div><div class="line"><span class="keyword">print</span> str[:<span class="number">-3</span>]      <span class="comment"># 截取从头开始到倒数第三个字符之前</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">2</span>]        <span class="comment"># 截取第三个字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-1</span>]       <span class="comment"># 截取倒数第一个字符</span></div><div class="line"><span class="keyword">print</span> str[::<span class="number">-1</span>]     <span class="comment"># 创造一个与原字符串顺序相反的字符串</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-3</span>:<span class="number">-1</span>]    <span class="comment"># 截取倒数第三位与倒数第一位之前的字符</span></div><div class="line"><span class="keyword">print</span> str[<span class="number">-3</span>:]      <span class="comment"># 截取倒数第三位到结尾</span></div></pre></td></tr></table></figure>
-<h2 id="查看手册及高阶使用"><a href="#查看手册及高阶使用" class="headerlink" title="查看手册及高阶使用"></a>查看手册及高阶使用</h2><ul>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/chapters/p02_strings_and_text.html" target="_blank" rel="external">cookbook-第二章：字符串和文本</a>, 实用范例<ul>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p01_split_string_on_multiple_delimiters.html" target="_blank" rel="external">2.1 使用多个界定符分割字符串</a>, split(), re.split()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p02_match_text_at_start_end.html" target="_blank" rel="external">2.2 字符串开头或结尾匹配</a>, startswith(), endswith()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p03_match_strings_with_shell_wildcard.html" target="_blank" rel="external">2.3 用Shell通配符匹配字符串</a>, fnmatch(), fnmatchcase()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p04_match_and_search_text.html" target="_blank" rel="external">2.4 字符串匹配和搜索</a>, find(), findall(), match(), re.match()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p05_search_and_replace_text.html" target="_blank" rel="external">2.5 字符串搜索和替换</a>, replace(), re.sub()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p06_search_replace_case_insensitive.html" target="_blank" rel="external">2.6 字符串忽略大小写的搜索替换</a>, re.IGNORECASE</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p07_specify_regexp_for_shortest_match.html" target="_blank" rel="external">2.7 最短匹配模式</a>, 解决成对符号的问题, 避免贪婪算法</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p08_regexp_for_multiline_partterns.html" target="_blank" rel="external">2.8 多行匹配模式</a>, 解决回车换行的问题</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p09_normalize_unicode_text_to_regexp.html" target="_blank" rel="external">2.9 将Unicode文本标准化</a></li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p10_work_with_unicode_in_regexp.html" target="_blank" rel="external">2.10 在正则式中使用Unicode</a></li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p11_strip_unwanted_characters.html" target="_blank" rel="external">2.11 删除字符串中不需要的字符</a>, strip(), replace(), re.sub()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p12_sanitizing_clean_up_text.html" target="_blank" rel="external">2.12 审查清理文本字符串</a></li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p13_aligning_text_strings.html" target="_blank" rel="external">2.13 字符串对齐</a>, ljust(), rjust(), center(), format()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p14_combine_and_concatenate_strings.html" target="_blank" rel="external">2.14 合并拼接字符串</a>, join()</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p15_interpolating_variables_in_strings.html" target="_blank" rel="external">2.15 字符串中插入变量</a>, format()的高阶使用</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p16_reformat_text_to_fixed_number_columns.html" target="_blank" rel="external">2.16 以指定列宽格式化字符串</a>, textwrap</li>
-<li><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p17_handle_html_xml_in_text.html" target="_blank" rel="external">2.17 在字符串中处理html和xml</a></li>
-<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p18_tokenizing_text.html" target="_blank" rel="external">2.18 字符串令牌解析</a>, 语法的解析</del></li>
-<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p19_writing_recursive_descent_parser.html" target="_blank" rel="external">2.19 实现一个简单的递归下降分析器</a>, 语法的解析</del></li>
-<li><del><a href="http://python3-cookbook.readthedocs.io/zh_CN/latest/c02/p20_perform_text_operations_on_byte_string.html" target="_blank" rel="external">2.20 字节字符串上的字符串操作</a>, bytearray</del></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/stdtypes.html#string-methods" target="_blank" rel="external">String Methods</a>, string提供的方法/函数<ul>
-<li><a href="https://docs.python.org/2/library/stdtypes.html#string-formatting-operations" target="_blank" rel="external">String Formatting Operations</a>, 格式化显示, 建议使用format替代</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="https://docs.python.org/2/library/string.html" target="_blank" rel="external">string — Common string operations</a>, python官方手册之字符串操作<ul>
-<li><a href="https://docs.python.org/2/library/string.html#string-constants" target="_blank" rel="external">String constants</a>, 字符串常量, 如字母, 数字</li>
-<li><a href="https://docs.python.org/2/library/string.html#format-examples" target="_blank" rel="external">Format examples</a>, 格式化显示</li>
-<li><del><a href="https://docs.python.org/2/library/string.html#template-strings" target="_blank" rel="external">Template strings</a>, 模板显示</del>, 建议使用format代替.</li>
-</ul>
-</li>
-</ul>
-<h2 id="使用正则表达式的一些例子"><a href="#使用正则表达式的一些例子" class="headerlink" title="使用正则表达式的一些例子"></a>使用正则表达式的一些例子</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 去掉所有的空格和tab</span></div><div class="line">re.sub(<span class="string">'[\s+]'</span>, <span class="string">''</span>, str)</div><div class="line"></div><div class="line"><span class="comment"># 转换小写下划线格式变化为驼峰格式</span></div><div class="line">re.sub(<span class="string">'^\w|_\w'</span>, <span class="keyword">lambda</span> x:x.group()[<span class="number">-1</span>].upper(), <span class="string">'blog_view'</span>) <span class="comment"># 输出 'BlogView'。</span></div></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2658,7 +2971,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">85</span>
+              <span class="site-state-item-count">87</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2666,7 +2979,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2675,7 +2988,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">75</span>
+                <span class="site-state-item-count">76</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
