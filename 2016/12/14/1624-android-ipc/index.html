@@ -82,25 +82,18 @@
 
 
 
-<meta name="description" content="转载自Android中Activity、Service和线程之间的通信
-
-我的说明很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.其实 Activity 和 Activity 间也就下面一些通讯方式,只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.
-先转载此文作为备忘, 有">
+<meta name="description" content="转载自Android中Activity、Service和线程之间的通信  我的说明很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.其实 Activity 和 Activity 间也就下面一些通讯方式,只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯. 先转载此文作为备忘, 有">
+<meta name="keywords" content="ipc,android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android中Activity、Service和线程之间的通信">
 <meta property="og:url" content="https://draapho.github.io/2016/12/14/1624-android-ipc/index.html">
-<meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="转载自Android中Activity、Service和线程之间的通信
-
-我的说明很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.其实 Activity 和 Activity 间也就下面一些通讯方式,只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.
-先转载此文作为备忘, 有">
+<meta property="og:site_name" content="DRA&amp;PHO">
+<meta property="og:description" content="转载自Android中Activity、Service和线程之间的通信  我的说明很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.其实 Activity 和 Activity 间也就下面一些通讯方式,只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯. 先转载此文作为备忘, 有">
+<meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2017-01-21T22:13:50.222Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android中Activity、Service和线程之间的通信">
-<meta name="twitter:description" content="转载自Android中Activity、Service和线程之间的通信
-
-我的说明很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.其实 Activity 和 Activity 间也就下面一些通讯方式,只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.
-先转载此文作为备忘, 有">
+<meta name="twitter:description" content="转载自Android中Activity、Service和线程之间的通信  我的说明很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.其实 Activity 和 Activity 间也就下面一些通讯方式,只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯. 先转载此文作为备忘, 有">
 
 
 
@@ -326,21 +319,21 @@
       
 
       
-        <p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="external">Android中Activity、Service和线程之间的通信</a></em></strong></p>
+        <p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
 <hr>
 <h1 id="我的说明"><a href="#我的说明" class="headerlink" title="我的说明"></a>我的说明</h1><p>很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.<br>其实 Activity 和 Activity 间也就下面一些通讯方式,<br>只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.</p>
 <p>先转载此文作为备忘, 有时间自己在总结一下范例.</p>
 <h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>Activity、Service和线程应该是Android编程中最常见的几种类了，几乎大多数应用程序都会涉及到这几个类的编程，<br>自然而然的，也就会涉及到三者之间的相互通信，本文就试图简单地介绍一下这三者通信的方式。</p>
 <p>想写这篇文章的起因是，笔者跟几个同学在做一个Android上的应用，起初代码写得很凌乱，因为我在Activity中直接创建了线程，去执行某些任务。<br>但是我们知道线程可能需要运行的时间比较长，而Android在内存不足的时候，会将一些Activity销毁，<br>这样线程就会失去了管理的对象，从而使程序发生意想不到的结果。<br>此外，在Activity中创建线程，线程跟Activity的通信也比较麻烦，一般借助Handler类来进行通信</p>
 <p>与Activity相比，Service一般“默默”地运行在后台，生命周期比较长，所以它更合适去为主程序提供某些服务，创建线程并管理线程。<br>因此，笔者将原程序改成三层架构，从高到低分别为：Activity层–Service层–Thread层。<br>Activity将需要的服务“告诉”Service层，Service层创建Thread去完成服务。<br>Thread将任务的进度、状态、错误信息反馈给Service，Service将这些消息反馈给相关的Activity，<br>并且还可以利用Notification更新通知栏消息。大体的结构就是这样。</p>
-<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="external">Android在子线程中更新Activity中UI的方法</a></p>
+<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
 <h2 id="Activity调用startService"><a href="#Activity调用startService" class="headerlink" title="Activity调用startService"></a>Activity调用startService</h2><p>Activity调用startService (Intent service)方法，将消息添加到Intent对象中，<br>这样Service对象可以在调用onStartCommand (Intent intent, int flags, int startId)的时候可以得到这些消息。<br>这种方法很简单，但如果有大量的信息要传递的话，就很麻烦了。因为Service端还要判断一下消息是什么，才能作进一步的动作。</p>
-<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="external">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
-<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="external">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
-<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="external">Android在子线程中更新Activity中UI的方法</a></p>
+<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="noopener">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
+<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="noopener">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
+<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
 <h1 id="Activity和Thread之间的通信"><a href="#Activity和Thread之间的通信" class="headerlink" title="Activity和Thread之间的通信"></a>Activity和Thread之间的通信</h1><p>不用多想了，直接使用Handler吧。不推荐Activity直接去创建线程，因为不好管理线程。</p>
 <hr>
-<p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="external">Android中Activity、Service和线程之间的通信</a></em></strong></p>
+<p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
 
       
     </div>
@@ -460,7 +453,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>

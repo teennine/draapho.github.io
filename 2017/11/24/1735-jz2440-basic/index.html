@@ -82,49 +82,21 @@
 
 
 
-<meta name="description" content="前言
-嵌入式linux学习目录
-jz2440分区及启动的基础概念
-uboot之makefile分析
-uboot之源码分析
-uboot之定制指令
-大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.
-
-linux软件层次
-引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的
-PC l">
+<meta name="description" content="前言 嵌入式linux学习目录 jz2440分区及启动的基础概念 uboot之makefile分析 uboot之源码分析 uboot之定制指令 大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.  linux软件层次 引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的 PC l">
+<meta name="keywords" content="embedded linux,environment,jz2440">
 <meta property="og:type" content="article">
 <meta property="og:title" content="jz2440分区及启动的基础概念">
 <meta property="og:url" content="https://draapho.github.io/2017/11/24/1735-jz2440-basic/index.html">
-<meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="前言
-嵌入式linux学习目录
-jz2440分区及启动的基础概念
-uboot之makefile分析
-uboot之源码分析
-uboot之定制指令
-大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.
-
-linux软件层次
-引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的
-PC l">
+<meta property="og:site_name" content="DRA&amp;PHO">
+<meta property="og:description" content="前言 嵌入式linux学习目录 jz2440分区及启动的基础概念 uboot之makefile分析 uboot之源码分析 uboot之定制指令 大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.  linux软件层次 引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的 PC l">
+<meta property="og:locale" content="en">
 <meta property="og:image" content="https://draapho.github.io/images/1707/address-mapping.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1707/nor-flash-boot.png">
 <meta property="og:image" content="https://draapho.github.io/images/1707/nand-flash-boot.png">
 <meta property="og:updated_time" content="2017-11-27T06:55:42.152Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jz2440分区及启动的基础概念">
-<meta name="twitter:description" content="前言
-嵌入式linux学习目录
-jz2440分区及启动的基础概念
-uboot之makefile分析
-uboot之源码分析
-uboot之定制指令
-大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.
-
-linux软件层次
-引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的
-PC l">
+<meta name="twitter:description" content="前言 嵌入式linux学习目录 jz2440分区及启动的基础概念 uboot之makefile分析 uboot之源码分析 uboot之定制指令 大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.  linux软件层次 引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的 PC l">
 <meta name="twitter:image" content="https://draapho.github.io/images/1707/address-mapping.jpg">
 
 
@@ -447,11 +419,11 @@ PC l">
 <li>Nand flash: 使用本地文件系统启动. 也可用于裸跑测试. (Steppingstone 就是 BootSRAM)<br><img src="https://draapho.github.io/images/1707/nand-flash-boot.png" alt="Nand flash boot"></li>
 <li><strong>以下部分初学先忽略! </strong></li>
 <li><p>如果是通过uboot的内核命令行给MTD层传递MTD分区信息, 内核读取到的分区信息始终和u-boot中的保持一致(推荐的做法)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 开发板 uboot</span></div><div class="line">setenv bootargs noinitrd console=ttySAC0 root=/dev/mtdblock3 rootfstype=jffs2 mtdparts=nand_flash:128k(u-boot)ro,64k(u-boot envs),3m(kernel),30m(root.jffs2),30m(root.yaffs)</div><div class="line"></div><div class="line"><span class="comment"># ubuntu shell, 内核配置时使能</span></div><div class="line">Device Drivers -&gt; Memory Technology Device (MTD) support -&gt; Command line partition table parsing</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line">setenv bootargs noinitrd console=ttySAC0 root=/dev/mtdblock3 rootfstype=jffs2 mtdparts=nand_flash:128k(u-boot)ro,64k(u-boot envs),3m(kernel),30m(root.jffs2),30m(root.yaffs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ubuntu shell, 内核配置时使能</span></span><br><span class="line">Device Drivers -&gt; Memory Technology Device (MTD) support -&gt; Command line partition table parsing</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>如果是把分区信息写在内核源代码MTD里定义好的方法, 要保证它和u-boot中的保持一致,即同步修改uboot及内核的相关部分</p>
 </li>
-<li><strong>参考</strong>: <a href="http://laokongzhuang.blog.51cto.com/2404494/858788" target="_blank" rel="external">嵌入式linux flash分区配置</a></li>
+<li><strong>参考</strong>: <a href="http://laokongzhuang.blog.51cto.com/2404494/858788" target="_blank" rel="noopener">嵌入式linux flash分区配置</a></li>
 <li><strong>以上部分初学先忽略! </strong></li>
 </ul>
 <hr>
@@ -577,7 +549,7 @@ PC l">
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>

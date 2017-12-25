@@ -82,37 +82,18 @@
 
 
 
-<meta name="description" content="转载自 Ubuntu 16.04安装配置NFS略有改动和增加
-
-NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。
-NFS服务端安装nfs-kernel-server：
-1$ sudo apt install nfs-kernel-server
-NFS客户端安装 nfs-common：
-1$ sudo apt install nfs-common
-服务端创建共享">
+<meta name="description" content="转载自 Ubuntu 16.04安装配置NFS略有改动和增加  NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。 NFS服务端安装nfs-kernel-server： 1$ sudo apt install nfs-kernel-server NFS客户端安装 nfs-common： 1$ sudo apt install nfs-common 服务端创建共享">
+<meta name="keywords" content="linux,nfs">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ubuntu 16.04安装配置NFS">
 <meta property="og:url" content="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/index.html">
-<meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="转载自 Ubuntu 16.04安装配置NFS略有改动和增加
-
-NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。
-NFS服务端安装nfs-kernel-server：
-1$ sudo apt install nfs-kernel-server
-NFS客户端安装 nfs-common：
-1$ sudo apt install nfs-common
-服务端创建共享">
+<meta property="og:site_name" content="DRA&amp;PHO">
+<meta property="og:description" content="转载自 Ubuntu 16.04安装配置NFS略有改动和增加  NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。 NFS服务端安装nfs-kernel-server： 1$ sudo apt install nfs-kernel-server NFS客户端安装 nfs-common： 1$ sudo apt install nfs-common 服务端创建共享">
+<meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2017-11-28T10:02:31.162Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ubuntu 16.04安装配置NFS">
-<meta name="twitter:description" content="转载自 Ubuntu 16.04安装配置NFS略有改动和增加
-
-NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。
-NFS服务端安装nfs-kernel-server：
-1$ sudo apt install nfs-kernel-server
-NFS客户端安装 nfs-common：
-1$ sudo apt install nfs-common
-服务端创建共享">
+<meta name="twitter:description" content="转载自 Ubuntu 16.04安装配置NFS略有改动和增加  NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。 NFS服务端安装nfs-kernel-server： 1$ sudo apt install nfs-kernel-server NFS客户端安装 nfs-common： 1$ sudo apt install nfs-common 服务端创建共享">
 
 
 
@@ -338,23 +319,23 @@ NFS客户端安装 nfs-common：
       
 
       
-        <p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a><br><strong>略有改动和增加</strong></p>
+        <p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="noopener">Ubuntu 16.04安装配置NFS</a><br><strong>略有改动和增加</strong></p>
 <hr>
 <p>NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。</p>
 <h1 id="NFS服务端"><a href="#NFS服务端" class="headerlink" title="NFS服务端"></a>NFS服务端</h1><p>安装nfs-kernel-server：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt install nfs-kernel-server</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install nfs-kernel-server</span><br></pre></td></tr></table></figure>
 <h1 id="NFS客户端"><a href="#NFS客户端" class="headerlink" title="NFS客户端"></a>NFS客户端</h1><p>安装 nfs-common：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt install nfs-common</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install nfs-common</span><br></pre></td></tr></table></figure>
 <h1 id="服务端创建共享目录"><a href="#服务端创建共享目录" class="headerlink" title="服务端创建共享目录"></a>服务端创建共享目录</h1><p>客户端通过远程挂载的方式访问服务端共享目录，为了说明两种不同的文件权限，我会使用不同的选项创建两个共享目录。</p>
 <ul>
 <li>默认情况下客户端不允许在NFS共享目录上执行root操作，如：更改文件所有权等。</li>
 <li>但是有时用户需要用root权限操作NFS共享目录，这可以通过配置实现。</li>
 </ul>
-<h2 id="创建默认配置的共享目录"><a href="#创建默认配置的共享目录" class="headerlink" title="创建默认配置的共享目录"></a>创建默认配置的共享目录</h2><p>创建一个目录：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /var/nfs/sharedir</div></pre></td></tr></table></figure></p>
-<p>更改目录权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo chown nobody:nogroup /var/nfs/sharedir</div></pre></td></tr></table></figure></p>
+<h2 id="创建默认配置的共享目录"><a href="#创建默认配置的共享目录" class="headerlink" title="创建默认配置的共享目录"></a>创建默认配置的共享目录</h2><p>创建一个目录：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir -p /var/nfs/sharedir</span><br></pre></td></tr></table></figure></p>
+<p>更改目录权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo chown nobody:nogroup /var/nfs/sharedir</span><br></pre></td></tr></table></figure></p>
 <h2 id="以root权限共享home目录"><a href="#以root权限共享home目录" class="headerlink" title="以root权限共享home目录"></a>以root权限共享home目录</h2><p>配置NFS：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/exports</div></pre></td></tr></table></figure>
-<p>如下格式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">/var/nfs/sharedir   *(rw,sync,no_subtree_check)</div><div class="line">/home               *(rw,sync,no_root_squash,no_subtree_check)</div><div class="line"></div><div class="line"># 要限制客户端IP</div><div class="line"># /var/nfs/sharedir 122.111.222.111(rw,sync,no_subtree_check)</div><div class="line"># /home             122.111.222.111(rw,sync,no_root_squash,no_subtree_check)</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/exports</span><br></pre></td></tr></table></figure>
+<p>如下格式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/var/nfs/sharedir   *(rw,sync,no_subtree_check)</span><br><span class="line">/home               *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line"></span><br><span class="line"># 要限制客户端IP</span><br><span class="line"># /var/nfs/sharedir 122.111.222.111(rw,sync,no_subtree_check)</span><br><span class="line"># /home             122.111.222.111(rw,sync,no_root_squash,no_subtree_check)</span><br></pre></td></tr></table></figure></p>
 <p>下面是一些NFS共享的常用参数说明： </p>
 <table>
 <thead>
@@ -406,23 +387,23 @@ NFS客户端安装 nfs-common：
 </tr>
 </tbody>
 </table>
-<p>重启nfs-kernel-server：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo systemctl restart nfs-kernel-server</div></pre></td></tr></table></figure></p>
+<p>重启nfs-kernel-server：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo systemctl restart nfs-kernel-server</span><br></pre></td></tr></table></figure></p>
 <p>如果开启了防火墙，打开NFS的2049端口。</p>
-<p>查看共享文件情况<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ showmount <span class="_">-e</span></div><div class="line">/home *</div></pre></td></tr></table></figure></p>
+<p>查看共享文件情况<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ showmount -e</span><br><span class="line">/home *</span><br></pre></td></tr></table></figure></p>
 <h1 id="客户端挂载共享目录"><a href="#客户端挂载共享目录" class="headerlink" title="客户端挂载共享目录"></a>客户端挂载共享目录</h1><p><strong>此方法不适用于嵌入式Linux!</strong></p>
 <p>创建两个挂载点：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /nfs/sharedir</div><div class="line">$ sudo mkdir -p /nfs/home</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir -p /nfs/sharedir</span><br><span class="line">$ sudo mkdir -p /nfs/home</span><br></pre></td></tr></table></figure>
 <p>挂载远程共享目录：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo mount nfs_server_ip:/var/nfs/sharedir /nfs/sharedir</div><div class="line">$ sudo mount nfs_server_ip:/home /nfs/home</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mount nfs_server_ip:/var/nfs/sharedir /nfs/sharedir</span><br><span class="line">$ sudo mount nfs_server_ip:/home /nfs/home</span><br></pre></td></tr></table></figure>
 <p>查看挂载点：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ df -h</div><div class="line">Filesystem                       Size  Used Avail Use% Mounted on</div><div class="line">udev                             861M     0  861M   0% /dev</div><div class="line">...</div><div class="line">192.168.0.100:/var/nfs/sharedir   29G  4.5G   23G  17% /nfs/sharedir</div><div class="line">192.168.0.100:/home               29G  4.5G   23G  17% /nfs/home</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ df -h</span><br><span class="line">Filesystem                       Size  Used Avail Use% Mounted on</span><br><span class="line">udev                             861M     0  861M   0% /dev</span><br><span class="line">...</span><br><span class="line">192.168.0.100:/var/nfs/sharedir   29G  4.5G   23G  17% /nfs/sharedir</span><br><span class="line">192.168.0.100:/home               29G  4.5G   23G  17% /nfs/home</span><br></pre></td></tr></table></figure>
 <p>现在你可以使用共享目录了。</p>
-<p>使用完之后不要忘了卸载：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo umount /nfs/home</div><div class="line">$ sudo umount /nfs/sharedir</div></pre></td></tr></table></figure></p>
-<h1 id="开机自动挂载NFS共享目录"><a href="#开机自动挂载NFS共享目录" class="headerlink" title="开机自动挂载NFS共享目录"></a>开机自动挂载NFS共享目录</h1><p>编辑fstab文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/fstab</div></pre></td></tr></table></figure></p>
-<p>添加如下两行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">your_nfs_server_Ip:/var/nfs/sharedir    /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div><div class="line">your_nfs_server_Ip:/home                /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div></pre></td></tr></table></figure></p>
-<p>或者使用hostname<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">nfs_server_hostname:/var/nfs/sharedir   /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div><div class="line">nfs_server_hostname:/home               /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</div></pre></td></tr></table></figure></p>
+<p>使用完之后不要忘了卸载：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo umount /nfs/home</span><br><span class="line">$ sudo umount /nfs/sharedir</span><br></pre></td></tr></table></figure></p>
+<h1 id="开机自动挂载NFS共享目录"><a href="#开机自动挂载NFS共享目录" class="headerlink" title="开机自动挂载NFS共享目录"></a>开机自动挂载NFS共享目录</h1><p>编辑fstab文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/fstab</span><br></pre></td></tr></table></figure></p>
+<p>添加如下两行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">your_nfs_server_Ip:/var/nfs/sharedir    /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">your_nfs_server_Ip:/home                /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure></p>
+<p>或者使用hostname<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nfs_server_hostname:/var/nfs/sharedir   /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">nfs_server_hostname:/home               /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure></p>
 <hr>
-<p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="external">Ubuntu 16.04安装配置NFS</a></p>
+<p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="noopener">Ubuntu 16.04安装配置NFS</a></p>
 
       
     </div>
@@ -542,7 +523,7 @@ NFS客户端安装 nfs-common：
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>

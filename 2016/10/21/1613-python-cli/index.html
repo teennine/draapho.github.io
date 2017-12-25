@@ -82,46 +82,18 @@
 
 
 
-<meta name="description" content="python调用CLI
-CLI = Command Line Interface, 即命令行
-方法有很多, 通用性和安全性最好的就是subprocess.Popen这个方法. 见文档
-Subprocess management
-os.popen
-Utilities for running commands
-
-
-example:
-
-1234567891011121314151617181920212">
+<meta name="description" content="python调用CLI CLI = Command Line Interface, 即命令行 方法有很多, 通用性和安全性最好的就是subprocess.Popen这个方法. 见文档 Subprocess management os.popen Utilities for running commands   example:  1234567891011121314151617181920212">
+<meta name="keywords" content="python,cli">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python调用命令行">
 <meta property="og:url" content="https://draapho.github.io/2016/10/21/1613-python-cli/index.html">
-<meta property="og:site_name" content="DRA&PHO">
-<meta property="og:description" content="python调用CLI
-CLI = Command Line Interface, 即命令行
-方法有很多, 通用性和安全性最好的就是subprocess.Popen这个方法. 见文档
-Subprocess management
-os.popen
-Utilities for running commands
-
-
-example:
-
-1234567891011121314151617181920212">
+<meta property="og:site_name" content="DRA&amp;PHO">
+<meta property="og:description" content="python调用CLI CLI = Command Line Interface, 即命令行 方法有很多, 通用性和安全性最好的就是subprocess.Popen这个方法. 见文档 Subprocess management os.popen Utilities for running commands   example:  1234567891011121314151617181920212">
+<meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2017-05-29T11:34:00.426Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python调用命令行">
-<meta name="twitter:description" content="python调用CLI
-CLI = Command Line Interface, 即命令行
-方法有很多, 通用性和安全性最好的就是subprocess.Popen这个方法. 见文档
-Subprocess management
-os.popen
-Utilities for running commands
-
-
-example:
-
-1234567891011121314151617181920212">
+<meta name="twitter:description" content="python调用CLI CLI = Command Line Interface, 即命令行 方法有很多, 通用性和安全性最好的就是subprocess.Popen这个方法. 见文档 Subprocess management os.popen Utilities for running commands   example:  1234567891011121314151617181920212">
 
 
 
@@ -350,14 +322,14 @@ example:
         <h1 id="python调用CLI"><a href="#python调用CLI" class="headerlink" title="python调用CLI"></a>python调用CLI</h1><ul>
 <li>CLI = Command Line Interface, 即命令行</li>
 <li>方法有很多, 通用性和安全性最好的就是<code>subprocess.Popen</code>这个方法. 见文档<ul>
-<li><a href="https://docs.python.org/2.7/library/subprocess.html#popen-constructor" target="_blank" rel="external">Subprocess management</a></li>
-<li><del><a href="https://docs.python.org/2.7/library/os.html#os.popen" target="_blank" rel="external">os.popen</a></del></li>
-<li><del><a href="https://docs.python.org/2/library/commands.html" target="_blank" rel="external">Utilities for running commands</a></del></li>
+<li><a href="https://docs.python.org/2.7/library/subprocess.html#popen-constructor" target="_blank" rel="noopener">Subprocess management</a></li>
+<li><del><a href="https://docs.python.org/2.7/library/os.html#os.popen" target="_blank" rel="noopener">os.popen</a></del></li>
+<li><del><a href="https://docs.python.org/2/library/commands.html" target="_blank" rel="noopener">Utilities for running commands</a></del></li>
 </ul>
 </li>
 <li>example:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># CLI: Command Line Interface</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runCLI</span><span class="params">()</span>:</span></div><div class="line">    <span class="comment"># __cmd_link = self.cur_dir + "\\stlink_cli\\ST-LINK_CLI.exe -c SWD SWJCLK=5 UR"</span></div><div class="line">    __cmd_link = <span class="string">"dir"</span></div><div class="line"></div><div class="line">    <span class="comment"># 多用 shell=True. shell=False只能运行bat文件或直接在终端中执行. 此例中显示的内容也会有区别</span></div><div class="line">    _pp = Popen(__cmd_link, shell=<span class="keyword">True</span>, stdout=PIPE, stderr=PIPE)</div><div class="line">    out, err = _pp.communicate()</div><div class="line"></div><div class="line">    logging.debug(<span class="string">"cmd &gt; "</span> + __cmd_link)</div><div class="line">    logging.debug(<span class="string">"out &gt; "</span> + out.rstrip())</div><div class="line">    logging.debug(<span class="string">"err &gt; "</span> + err.rstrip())</div><div class="line">    <span class="keyword">return</span> _pp.returncode</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    logging.basicConfig(level=logging.DEBUG)</div><div class="line">    logging.debug(runCLI())</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># CLI: Command Line Interface</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">runCLI</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># __cmd_link = self.cur_dir + "\\stlink_cli\\ST-LINK_CLI.exe -c SWD SWJCLK=5 UR"</span></span><br><span class="line">    __cmd_link = <span class="string">"dir"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 多用 shell=True. shell=False只能运行bat文件或直接在终端中执行. 此例中显示的内容也会有区别</span></span><br><span class="line">    _pp = Popen(__cmd_link, shell=<span class="keyword">True</span>, stdout=PIPE, stderr=PIPE)</span><br><span class="line">    out, err = _pp.communicate()</span><br><span class="line"></span><br><span class="line">    logging.debug(<span class="string">"cmd &gt; "</span> + __cmd_link)</span><br><span class="line">    logging.debug(<span class="string">"out &gt; "</span> + out.rstrip())</span><br><span class="line">    logging.debug(<span class="string">"err &gt; "</span> + err.rstrip())</span><br><span class="line">    <span class="keyword">return</span> _pp.returncode</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    logging.basicConfig(level=logging.DEBUG)</span><br><span class="line">    logging.debug(runCLI())</span><br></pre></td></tr></table></figure>
 <hr>
 <p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
 
@@ -479,7 +451,7 @@ example:
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
