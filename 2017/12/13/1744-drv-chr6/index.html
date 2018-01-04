@@ -82,18 +82,18 @@
 
 
 
-<meta name="description" content="总览 嵌入式linux学习目录 驱动之字符设备-框架 驱动之基于LinK+设计按键驱动 驱动之基于中断设计按键驱动 驱动之poll机制 驱动之异步通知 驱动之同步互斥阻塞  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作. 原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的操作底层实现就是 ra">
+<meta name="description" content="总览 嵌入式linux学习目录 驱动之字符设备-框架 驱动之基于LinK+设计按键驱动 驱动之基于中断设计按键驱动 驱动之poll机制 驱动之异步通知 驱动之同步互斥阻塞 驱动之定时器按键防抖  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作. 原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的">
 <meta name="keywords" content="linuxembedded linux,drv">
 <meta property="og:type" content="article">
 <meta property="og:title" content="驱动之同步互斥阻塞">
 <meta property="og:url" content="https://draapho.github.io/2017/12/13/1744-drv-chr6/index.html">
 <meta property="og:site_name" content="DRA&amp;PHO">
-<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之字符设备-框架 驱动之基于LinK+设计按键驱动 驱动之基于中断设计按键驱动 驱动之poll机制 驱动之异步通知 驱动之同步互斥阻塞  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作. 原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的操作底层实现就是 ra">
+<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之字符设备-框架 驱动之基于LinK+设计按键驱动 驱动之基于中断设计按键驱动 驱动之poll机制 驱动之异步通知 驱动之同步互斥阻塞 驱动之定时器按键防抖  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作. 原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2017-12-13T06:59:02.407Z">
+<meta property="og:updated_time" content="2018-01-04T07:43:47.051Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="驱动之同步互斥阻塞">
-<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之字符设备-框架 驱动之基于LinK+设计按键驱动 驱动之基于中断设计按键驱动 驱动之poll机制 驱动之异步通知 驱动之同步互斥阻塞  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作. 原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的操作底层实现就是 ra">
+<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之字符设备-框架 驱动之基于LinK+设计按键驱动 驱动之基于中断设计按键驱动 驱动之poll机制 驱动之异步通知 驱动之同步互斥阻塞 驱动之定时器按键防抖  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作. 原子操作原子操作指的是在执行过程中不会被别的进程或中断所打断的">
 
 
 
@@ -327,6 +327,7 @@
 <li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
 <li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
 <li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
 </ul>
 <p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.<br>硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.</p>
 <h1 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h1><p><strong>原子操作指的是在执行过程中不会被别的进程或中断所打断的操作</strong><br>底层实现就是 <code>raw_local_irq_save</code> <code>raw_local_irq_restore</code>, 保存中断并禁止, 操作完成后, 恢复.</p>
@@ -472,7 +473,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">87</span>
+              <span class="site-state-item-count">88</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -548,7 +549,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
