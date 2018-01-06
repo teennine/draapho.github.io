@@ -261,6 +261,156 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/15/1704-linux-source6/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-内存管理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-15T00:00:00+11:00" content="2017-02-15">
+              2017-02-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p>本人手工制作的 <strong>Linux 0.11 内存管理图解</strong><br><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
+<ul>
+<li>虚拟内存的实现, 使用的是页面出错异常处理. 然后调用 <code>do_no_page()</code> 来读取硬盘数据(必要时先回写), 腾出内存空间.</li>
+<li>写时复制 (copy on write) 机制, 新建进程时, linux不会立刻复制进程数据.<br>只有某个进程需要进行数据写操作时, 才真正开始执行复制操作.<br>好处是, 节约内存, 加快创建进程的速度.</li>
+<li>Linux 0.11版本的内存管理的主要文件 <code>/mm/memory.c</code></li>
+<li>内存的一些基础概念请参考 <a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+</ul>
+<h1 id="进程的内存空间"><a href="#进程的内存空间" class="headerlink" title="进程的内存空间"></a>进程的内存空间</h1><p>进程代码和数据在其逻辑地址空间中的分布<br><img src="https://draapho.github.io/images/1704/6-mm-process.jpg" alt="mm"></p>
+<ul>
+<li>Linux 0.11 每个进程只能有64M byte的逻辑内存.</li>
+<li>环境参数块最多128K</li>
+<li>堆栈指针是在逻辑地址的高位, 向下增长</li>
+<li>bss是进程未初始化的数据段, 第一页会被初始化为0</li>
+<li>使用需求加载机制 (Load on demand), 因此在加载运行文件时, 只是分配64M的线性地址空间, 没有分配任何真正的物理内存.</li>
+<li>此时, 内核在执行代码或加载数据时, 会触发缺页异常中断, 此时才调用 <code>do_no_page</code> 加载内容到物理内存.</li>
+</ul>
+<h1 id="内存的分配-malloc"><a href="#内存的分配-malloc" class="headerlink" title="内存的分配 malloc"></a>内存的分配 <code>malloc</code></h1><p>使用存储桶原理进行内存的分配管理<br><img src="https://draapho.github.io/images/1704/6-mm-malloc.jpg" alt="mm"></p>
+<ul>
+<li>实现很巧妙. 指针应用的出神入化</li>
+<li>仅内核代码可以调用.</li>
+<li>基本思想: 对申请的不同的内存块大小, 使用存储桶分别进行处理.</li>
+<li>提高内存利用率, 可有效避免内存碎片化.</li>
+<li>源码文件 <code>/lib/malloc.c</code></li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/13/1704-linux-source5/" itemprop="url">
                   Linux 0.11 源码阅读笔记-文件系统
                 </a>
@@ -1232,454 +1382,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/19/1703-linux-command/" itemprop="url">
-                  Unix/Linux 命令参考
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-19T00:00:00+11:00" content="2017-01-19">
-              2017-01-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="noopener">Unix/Linux 命令速查表</a></em></strong></p>
-<hr>
-<h1 id="搜索指令-find-grep"><a href="#搜索指令-find-grep" class="headerlink" title="搜索指令 find grep"></a>搜索指令 <code>find</code> <code>grep</code></h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">find -name april*                   <span class="comment"># 当前目录下查找以april开始的文件</span></span><br><span class="line">find -iname april*                  <span class="comment"># 忽略大小写</span></span><br><span class="line">find /home -size +512k              <span class="comment"># 查大于512k的文件</span></span><br><span class="line">find /home -size -512k              <span class="comment"># 查小于512k的文件</span></span><br><span class="line">find /home -links +2                <span class="comment"># 查硬连接数大于2的文件或目录</span></span><br><span class="line">find /home -perm 0700               <span class="comment"># 查权限为700的文件或目录</span></span><br><span class="line"></span><br><span class="line">find -name tom.txt -user kim        <span class="comment"># 查找名称为tom.txt且用户为kim的文件</span></span><br><span class="line">find -name ap* -or -name may*       <span class="comment"># 查找以ap或may开头的文件</span></span><br><span class="line">find -name wa* -not -<span class="built_in">type</span> l         <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></span><br><span class="line">find -name wa* ! -<span class="built_in">type</span> l            <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></span><br><span class="line"><span class="comment"># 对于 -type, 有 b=block, d=dictory, c=character, p=pipe, l=link, f=file</span></span><br><span class="line"></span><br><span class="line">find / -iname <span class="string">"MyCProgram.c"</span> -<span class="built_in">exec</span> md5sum &#123;&#125; \; <span class="comment"># 对所有找到的文件进行MD5验证</span></span><br><span class="line">find / -name filename -ok rm -rf &#123;&#125; \;          <span class="comment"># 确认删除找到的文件</span></span><br><span class="line">find . -mtime +3 | xargs rm -rf                 <span class="comment"># 删除3天以前的文件</span></span><br><span class="line">find . -size +3000k -<span class="built_in">exec</span> ls -ld &#123;&#125; \;          <span class="comment"># 查找大于3M的文件</span></span><br><span class="line">find . -size -3000k | xargs <span class="built_in">echo</span> <span class="string">""</span> &gt;./file.log <span class="comment"># 查找小于3M的文件并写入file.log</span></span><br><span class="line">find . -<span class="built_in">type</span> f | xargs grep <span class="string">"hostname"</span>          <span class="comment"># 在普通文件中搜索hostname这个词</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ls -l | grep <span class="string">'^a'</span>                   <span class="comment"># 只显示以a开头的文件名。</span></span><br><span class="line">grep <span class="string">'test'</span> d*                      <span class="comment"># 显示所有以d开头的文件中包含test的行。</span></span><br><span class="line">grep <span class="string">'test'</span> aa bb cc                <span class="comment"># 显示在aa，bb，cc文件中匹配test的行。</span></span><br><span class="line">grep -i pattern files               <span class="comment"># 不区分大小写地搜索。默认情况区分大小写</span></span><br><span class="line">grep -l pattern files               <span class="comment"># 只列出匹配的文件名，</span></span><br><span class="line">grep -L pattern files               <span class="comment"># 列出不匹配的文件名，</span></span><br><span class="line">grep -w pattern files               <span class="comment"># 只匹配整个单词(如匹配‘magic’，而不是‘magical’)</span></span><br><span class="line">grep -C number pattern files        <span class="comment"># 匹配的上下文分别显示[number]行，</span></span><br><span class="line">grep pattern1 | pattern2 files      <span class="comment"># 显示匹配 pattern1 或 pattern2 的行，</span></span><br><span class="line">grep pattern1 files | grep pattern2 <span class="comment"># 显示既匹配 pattern1 又匹配 pattern2的行</span></span><br></pre></td></tr></table></figure>
-<h1 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h1><table>
-<thead>
-<tr>
-<th>文件命令</th>
-<th>指令说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ls</code></td>
-<td>列出目录</td>
-</tr>
-<tr>
-<td><code>ls -al</code></td>
-<td>使用格式化列出隐藏文件</td>
-</tr>
-<tr>
-<td><code>cd dir</code></td>
-<td>更改目录到 dir</td>
-</tr>
-<tr>
-<td><code>cd</code></td>
-<td>更改到 home 目录</td>
-</tr>
-<tr>
-<td><code>pwd</code></td>
-<td>显示当前目录</td>
-</tr>
-<tr>
-<td><code>mkdir dir</code></td>
-<td>创建目录 dir</td>
-</tr>
-<tr>
-<td><code>rm file</code></td>
-<td>删除 file</td>
-</tr>
-<tr>
-<td><code>rm -r dir</code></td>
-<td>删除目录 dir</td>
-</tr>
-<tr>
-<td><code>rm -f file</code></td>
-<td>强制删除 file</td>
-</tr>
-<tr>
-<td><code>rm -rf dir</code></td>
-<td>强制删除整个目录 dir (小心使用)</td>
-</tr>
-<tr>
-<td><code>cp file1 file2</code></td>
-<td>将 file1 复制到 file2</td>
-</tr>
-<tr>
-<td><code>cp -r dir1 dir2</code></td>
-<td>将 dir1 复制到 dir2; 如果 dir2 不存在则创建它</td>
-</tr>
-<tr>
-<td><code>mv file1 file2</code></td>
-<td>将 file1 重命名或移动到 file2;</td>
-</tr>
-<tr>
-<td><code>ln -s file link</code></td>
-<td>创建 file 的符号连接 link</td>
-</tr>
-<tr>
-<td><code>touch file</code></td>
-<td>创建 file</td>
-</tr>
-<tr>
-<td><code>cat &gt; file</code></td>
-<td>将标准输入添加到 file</td>
-</tr>
-<tr>
-<td><code>more file</code></td>
-<td>查看 file 的内容</td>
-</tr>
-<tr>
-<td><code>head file</code></td>
-<td>查看 file 的前 10 行</td>
-</tr>
-<tr>
-<td><code>tail file</code></td>
-<td>查看 file 的后 10 行</td>
-</tr>
-<tr>
-<td><code>tail -f file</code></td>
-<td>从后 10 行开始查看 file 的内容</td>
-</tr>
-<tr>
-<td><strong>进程管理</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>ps</code></td>
-<td>显示当前的活动进程</td>
-</tr>
-<tr>
-<td><code>top</code></td>
-<td>显示所有正在运行的进程</td>
-</tr>
-<tr>
-<td><code>kill pid</code></td>
-<td>杀掉进程 id pid</td>
-</tr>
-<tr>
-<td><code>killall proc</code></td>
-<td>杀掉所有名为 proc 的进程 (小心使用)</td>
-</tr>
-<tr>
-<td><code>bg</code></td>
-<td>列出已停止或后台的作业</td>
-</tr>
-<tr>
-<td><code>fg</code></td>
-<td>将最近的作业带到前台</td>
-</tr>
-<tr>
-<td><code>fg n</code></td>
-<td>将作业 n 带到前台</td>
-</tr>
-<tr>
-<td><strong>文件权限</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>chmod rwxrwxrwx file</code></td>
-<td>更改 file 的权限</td>
-</tr>
-<tr>
-<td><code>chmod 777</code></td>
-<td>为所有用户添加 rwx 权限</td>
-</tr>
-<tr>
-<td><code>chmod 755</code></td>
-<td>为所有者添加 rwx 权限, 为组和其他用户添加 rx 权限</td>
-</tr>
-<tr>
-<td><strong>SSH</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>ssh user@host</code></td>
-<td>以 user 用户身份连接到 host</td>
-</tr>
-<tr>
-<td><code>ssh -p port user@host</code></td>
-<td>在端口 port 以 user 用户身份连接到 host</td>
-</tr>
-<tr>
-<td><code>ssh-copy-id user@host</code></td>
-<td>将密钥添加到 host 以实现无密码登录</td>
-</tr>
-<tr>
-<td><strong>系统信息</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>date</code></td>
-<td>显示当前日期和时间</td>
-</tr>
-<tr>
-<td><code>cal</code></td>
-<td>显示当月的日历</td>
-</tr>
-<tr>
-<td><code>uptime</code></td>
-<td>显示系统从开机到现在所运行的时间</td>
-</tr>
-<tr>
-<td><code>w</code></td>
-<td>显示登录的用户</td>
-</tr>
-<tr>
-<td><code>whoami</code></td>
-<td>查看你的当前用户名</td>
-</tr>
-<tr>
-<td><code>finger user</code></td>
-<td>显示 user 的相关信息</td>
-</tr>
-<tr>
-<td><code>uname -a</code></td>
-<td>显示内核信息</td>
-</tr>
-<tr>
-<td><code>cat /proc/cpuinfo</code></td>
-<td>查看 cpu 信息</td>
-</tr>
-<tr>
-<td><code>cat /proc/meminfo</code></td>
-<td>查看内存信息</td>
-</tr>
-<tr>
-<td><code>man command</code></td>
-<td>显示 command 的说明手册</td>
-</tr>
-<tr>
-<td><code>df</code></td>
-<td>显示磁盘占用情况</td>
-</tr>
-<tr>
-<td><code>du</code></td>
-<td>显示目录空间占用情况</td>
-</tr>
-<tr>
-<td><code>free</code></td>
-<td>显示内存及交换区占用情况</td>
-</tr>
-<tr>
-<td><strong>压缩</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>tar cf file.tar files</code></td>
-<td>创建包含 files 的 tar 文件 file.tar</td>
-</tr>
-<tr>
-<td><code>tar xf file.tar</code></td>
-<td>从 file.tar 提取文件</td>
-</tr>
-<tr>
-<td><code>tar czf file.tar.gz files</code></td>
-<td>使用 Gzip 压缩创建 tar 文件</td>
-</tr>
-<tr>
-<td><code>tar xzf file.tar.gz</code></td>
-<td>使用 Gzip 提取 tar 文件</td>
-</tr>
-<tr>
-<td><code>tar cjf file.tar.bz2</code></td>
-<td>使用 Bzip2 压缩创建 tar 文件</td>
-</tr>
-<tr>
-<td><code>tar xjf file.tar.bz2</code></td>
-<td>使用 Bzip2 提取 tar 文件</td>
-</tr>
-<tr>
-<td><code>gzip file</code></td>
-<td>压缩 file 并重命名为 file.gz</td>
-</tr>
-<tr>
-<td><code>gzip -d file.gz</code></td>
-<td>将 file.gz 解压缩为 file</td>
-</tr>
-<tr>
-<td><strong>网络</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>ping host</code></td>
-<td>ping host 并输出结果</td>
-</tr>
-<tr>
-<td><code>whois domain</code></td>
-<td>获取 domain 的 whois 信息</td>
-</tr>
-<tr>
-<td><code>dig domain</code></td>
-<td>获取 domain 的 DNS 信息</td>
-</tr>
-<tr>
-<td><code>dig -x host</code></td>
-<td>逆向查询 host</td>
-</tr>
-<tr>
-<td><code>wget file</code></td>
-<td>下载 file</td>
-</tr>
-<tr>
-<td><code>wget -c file</code></td>
-<td>断点续传</td>
-</tr>
-<tr>
-<td><strong>安装</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>./configure</code> <code>make</code> <code>make install</code></td>
-<td>从源码安装</td>
-</tr>
-<tr>
-<td><code>dpkg -i pkg.deb</code></td>
-<td>安装包 (Debian)</td>
-</tr>
-<tr>
-<td><code>rpm -Uvh pkg.rpm</code></td>
-<td>安装包 (RPM)</td>
-</tr>
-<tr>
-<td><code>yum install package</code></td>
-<td>安装包 (CentOS)</td>
-</tr>
-<tr>
-<td><code>sudo apt-get install package</code></td>
-<td>安装包 (Ubuntu)</td>
-</tr>
-<tr>
-<td><strong>快捷键</strong></td>
-<td><strong>指令说明</strong></td>
-</tr>
-<tr>
-<td><code>Ctrl+C</code></td>
-<td>停止当前命令</td>
-</tr>
-<tr>
-<td><code>Ctrl+Z</code></td>
-<td>停止当前命令，并使用 fg 恢复</td>
-</tr>
-<tr>
-<td><code>Ctrl+D</code></td>
-<td>注销当前会话，与 exit 相似</td>
-</tr>
-<tr>
-<td><code>Ctrl+W</code></td>
-<td>删除当前行中的字</td>
-</tr>
-<tr>
-<td><code>Ctrl+U</code></td>
-<td>删除整行</td>
-</tr>
-<tr>
-<td><code>!!</code></td>
-<td>重复上次的命令</td>
-</tr>
-<tr>
-<td><code>exit</code></td>
-<td>注销当前会话</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="noopener">Unix/Linux 命令速查表</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1725,7 +1427,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">88</span>
+              <span class="site-state-item-count">89</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

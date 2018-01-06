@@ -261,6 +261,454 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/19/1703-linux-command/" itemprop="url">
+                  Unix/Linux 命令参考
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-19T00:00:00+11:00" content="2017-01-19">
+              2017-01-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="noopener">Unix/Linux 命令速查表</a></em></strong></p>
+<hr>
+<h1 id="搜索指令-find-grep"><a href="#搜索指令-find-grep" class="headerlink" title="搜索指令 find grep"></a>搜索指令 <code>find</code> <code>grep</code></h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">find -name april*                   <span class="comment"># 当前目录下查找以april开始的文件</span></span><br><span class="line">find -iname april*                  <span class="comment"># 忽略大小写</span></span><br><span class="line">find /home -size +512k              <span class="comment"># 查大于512k的文件</span></span><br><span class="line">find /home -size -512k              <span class="comment"># 查小于512k的文件</span></span><br><span class="line">find /home -links +2                <span class="comment"># 查硬连接数大于2的文件或目录</span></span><br><span class="line">find /home -perm 0700               <span class="comment"># 查权限为700的文件或目录</span></span><br><span class="line"></span><br><span class="line">find -name tom.txt -user kim        <span class="comment"># 查找名称为tom.txt且用户为kim的文件</span></span><br><span class="line">find -name ap* -or -name may*       <span class="comment"># 查找以ap或may开头的文件</span></span><br><span class="line">find -name wa* -not -<span class="built_in">type</span> l         <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></span><br><span class="line">find -name wa* ! -<span class="built_in">type</span> l            <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></span><br><span class="line"><span class="comment"># 对于 -type, 有 b=block, d=dictory, c=character, p=pipe, l=link, f=file</span></span><br><span class="line"></span><br><span class="line">find / -iname <span class="string">"MyCProgram.c"</span> -<span class="built_in">exec</span> md5sum &#123;&#125; \; <span class="comment"># 对所有找到的文件进行MD5验证</span></span><br><span class="line">find / -name filename -ok rm -rf &#123;&#125; \;          <span class="comment"># 确认删除找到的文件</span></span><br><span class="line">find . -mtime +3 | xargs rm -rf                 <span class="comment"># 删除3天以前的文件</span></span><br><span class="line">find . -size +3000k -<span class="built_in">exec</span> ls -ld &#123;&#125; \;          <span class="comment"># 查找大于3M的文件</span></span><br><span class="line">find . -size -3000k | xargs <span class="built_in">echo</span> <span class="string">""</span> &gt;./file.log <span class="comment"># 查找小于3M的文件并写入file.log</span></span><br><span class="line">find . -<span class="built_in">type</span> f | xargs grep <span class="string">"hostname"</span>          <span class="comment"># 在普通文件中搜索hostname这个词</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ls -l | grep <span class="string">'^a'</span>                   <span class="comment"># 只显示以a开头的文件名。</span></span><br><span class="line">grep <span class="string">'test'</span> d*                      <span class="comment"># 显示所有以d开头的文件中包含test的行。</span></span><br><span class="line">grep <span class="string">'test'</span> aa bb cc                <span class="comment"># 显示在aa，bb，cc文件中匹配test的行。</span></span><br><span class="line">grep -i pattern files               <span class="comment"># 不区分大小写地搜索。默认情况区分大小写</span></span><br><span class="line">grep -l pattern files               <span class="comment"># 只列出匹配的文件名，</span></span><br><span class="line">grep -L pattern files               <span class="comment"># 列出不匹配的文件名，</span></span><br><span class="line">grep -w pattern files               <span class="comment"># 只匹配整个单词(如匹配‘magic’，而不是‘magical’)</span></span><br><span class="line">grep -C number pattern files        <span class="comment"># 匹配的上下文分别显示[number]行，</span></span><br><span class="line">grep pattern1 | pattern2 files      <span class="comment"># 显示匹配 pattern1 或 pattern2 的行，</span></span><br><span class="line">grep pattern1 files | grep pattern2 <span class="comment"># 显示既匹配 pattern1 又匹配 pattern2的行</span></span><br></pre></td></tr></table></figure>
+<h1 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h1><table>
+<thead>
+<tr>
+<th>文件命令</th>
+<th>指令说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ls</code></td>
+<td>列出目录</td>
+</tr>
+<tr>
+<td><code>ls -al</code></td>
+<td>使用格式化列出隐藏文件</td>
+</tr>
+<tr>
+<td><code>cd dir</code></td>
+<td>更改目录到 dir</td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>更改到 home 目录</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>显示当前目录</td>
+</tr>
+<tr>
+<td><code>mkdir dir</code></td>
+<td>创建目录 dir</td>
+</tr>
+<tr>
+<td><code>rm file</code></td>
+<td>删除 file</td>
+</tr>
+<tr>
+<td><code>rm -r dir</code></td>
+<td>删除目录 dir</td>
+</tr>
+<tr>
+<td><code>rm -f file</code></td>
+<td>强制删除 file</td>
+</tr>
+<tr>
+<td><code>rm -rf dir</code></td>
+<td>强制删除整个目录 dir (小心使用)</td>
+</tr>
+<tr>
+<td><code>cp file1 file2</code></td>
+<td>将 file1 复制到 file2</td>
+</tr>
+<tr>
+<td><code>cp -r dir1 dir2</code></td>
+<td>将 dir1 复制到 dir2; 如果 dir2 不存在则创建它</td>
+</tr>
+<tr>
+<td><code>mv file1 file2</code></td>
+<td>将 file1 重命名或移动到 file2;</td>
+</tr>
+<tr>
+<td><code>ln -s file link</code></td>
+<td>创建 file 的符号连接 link</td>
+</tr>
+<tr>
+<td><code>touch file</code></td>
+<td>创建 file</td>
+</tr>
+<tr>
+<td><code>cat &gt; file</code></td>
+<td>将标准输入添加到 file</td>
+</tr>
+<tr>
+<td><code>more file</code></td>
+<td>查看 file 的内容</td>
+</tr>
+<tr>
+<td><code>head file</code></td>
+<td>查看 file 的前 10 行</td>
+</tr>
+<tr>
+<td><code>tail file</code></td>
+<td>查看 file 的后 10 行</td>
+</tr>
+<tr>
+<td><code>tail -f file</code></td>
+<td>从后 10 行开始查看 file 的内容</td>
+</tr>
+<tr>
+<td><strong>进程管理</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>ps</code></td>
+<td>显示当前的活动进程</td>
+</tr>
+<tr>
+<td><code>top</code></td>
+<td>显示所有正在运行的进程</td>
+</tr>
+<tr>
+<td><code>kill pid</code></td>
+<td>杀掉进程 id pid</td>
+</tr>
+<tr>
+<td><code>killall proc</code></td>
+<td>杀掉所有名为 proc 的进程 (小心使用)</td>
+</tr>
+<tr>
+<td><code>bg</code></td>
+<td>列出已停止或后台的作业</td>
+</tr>
+<tr>
+<td><code>fg</code></td>
+<td>将最近的作业带到前台</td>
+</tr>
+<tr>
+<td><code>fg n</code></td>
+<td>将作业 n 带到前台</td>
+</tr>
+<tr>
+<td><strong>文件权限</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>chmod rwxrwxrwx file</code></td>
+<td>更改 file 的权限</td>
+</tr>
+<tr>
+<td><code>chmod 777</code></td>
+<td>为所有用户添加 rwx 权限</td>
+</tr>
+<tr>
+<td><code>chmod 755</code></td>
+<td>为所有者添加 rwx 权限, 为组和其他用户添加 rx 权限</td>
+</tr>
+<tr>
+<td><strong>SSH</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>ssh user@host</code></td>
+<td>以 user 用户身份连接到 host</td>
+</tr>
+<tr>
+<td><code>ssh -p port user@host</code></td>
+<td>在端口 port 以 user 用户身份连接到 host</td>
+</tr>
+<tr>
+<td><code>ssh-copy-id user@host</code></td>
+<td>将密钥添加到 host 以实现无密码登录</td>
+</tr>
+<tr>
+<td><strong>系统信息</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>显示当前日期和时间</td>
+</tr>
+<tr>
+<td><code>cal</code></td>
+<td>显示当月的日历</td>
+</tr>
+<tr>
+<td><code>uptime</code></td>
+<td>显示系统从开机到现在所运行的时间</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>显示登录的用户</td>
+</tr>
+<tr>
+<td><code>whoami</code></td>
+<td>查看你的当前用户名</td>
+</tr>
+<tr>
+<td><code>finger user</code></td>
+<td>显示 user 的相关信息</td>
+</tr>
+<tr>
+<td><code>uname -a</code></td>
+<td>显示内核信息</td>
+</tr>
+<tr>
+<td><code>cat /proc/cpuinfo</code></td>
+<td>查看 cpu 信息</td>
+</tr>
+<tr>
+<td><code>cat /proc/meminfo</code></td>
+<td>查看内存信息</td>
+</tr>
+<tr>
+<td><code>man command</code></td>
+<td>显示 command 的说明手册</td>
+</tr>
+<tr>
+<td><code>df</code></td>
+<td>显示磁盘占用情况</td>
+</tr>
+<tr>
+<td><code>du</code></td>
+<td>显示目录空间占用情况</td>
+</tr>
+<tr>
+<td><code>free</code></td>
+<td>显示内存及交换区占用情况</td>
+</tr>
+<tr>
+<td><strong>压缩</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>tar cf file.tar files</code></td>
+<td>创建包含 files 的 tar 文件 file.tar</td>
+</tr>
+<tr>
+<td><code>tar xf file.tar</code></td>
+<td>从 file.tar 提取文件</td>
+</tr>
+<tr>
+<td><code>tar czf file.tar.gz files</code></td>
+<td>使用 Gzip 压缩创建 tar 文件</td>
+</tr>
+<tr>
+<td><code>tar xzf file.tar.gz</code></td>
+<td>使用 Gzip 提取 tar 文件</td>
+</tr>
+<tr>
+<td><code>tar cjf file.tar.bz2</code></td>
+<td>使用 Bzip2 压缩创建 tar 文件</td>
+</tr>
+<tr>
+<td><code>tar xjf file.tar.bz2</code></td>
+<td>使用 Bzip2 提取 tar 文件</td>
+</tr>
+<tr>
+<td><code>gzip file</code></td>
+<td>压缩 file 并重命名为 file.gz</td>
+</tr>
+<tr>
+<td><code>gzip -d file.gz</code></td>
+<td>将 file.gz 解压缩为 file</td>
+</tr>
+<tr>
+<td><strong>网络</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>ping host</code></td>
+<td>ping host 并输出结果</td>
+</tr>
+<tr>
+<td><code>whois domain</code></td>
+<td>获取 domain 的 whois 信息</td>
+</tr>
+<tr>
+<td><code>dig domain</code></td>
+<td>获取 domain 的 DNS 信息</td>
+</tr>
+<tr>
+<td><code>dig -x host</code></td>
+<td>逆向查询 host</td>
+</tr>
+<tr>
+<td><code>wget file</code></td>
+<td>下载 file</td>
+</tr>
+<tr>
+<td><code>wget -c file</code></td>
+<td>断点续传</td>
+</tr>
+<tr>
+<td><strong>安装</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>./configure</code> <code>make</code> <code>make install</code></td>
+<td>从源码安装</td>
+</tr>
+<tr>
+<td><code>dpkg -i pkg.deb</code></td>
+<td>安装包 (Debian)</td>
+</tr>
+<tr>
+<td><code>rpm -Uvh pkg.rpm</code></td>
+<td>安装包 (RPM)</td>
+</tr>
+<tr>
+<td><code>yum install package</code></td>
+<td>安装包 (CentOS)</td>
+</tr>
+<tr>
+<td><code>sudo apt-get install package</code></td>
+<td>安装包 (Ubuntu)</td>
+</tr>
+<tr>
+<td><strong>快捷键</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>Ctrl+C</code></td>
+<td>停止当前命令</td>
+</tr>
+<tr>
+<td><code>Ctrl+Z</code></td>
+<td>停止当前命令，并使用 fg 恢复</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>注销当前会话，与 exit 相似</td>
+</tr>
+<tr>
+<td><code>Ctrl+W</code></td>
+<td>删除当前行中的字</td>
+</tr>
+<tr>
+<td><code>Ctrl+U</code></td>
+<td>删除整行</td>
+</tr>
+<tr>
+<td><code>!!</code></td>
+<td>重复上次的命令</td>
+</tr>
+<tr>
+<td><code>exit</code></td>
+<td>注销当前会话</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="noopener">Unix/Linux 命令速查表</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/01/18/1702-linux-hard/" itemprop="url">
                   Embedded Linux 入门有感
                 </a>
@@ -2785,133 +3233,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/14/1624-android-ipc/" itemprop="url">
-                  Android中Activity、Service和线程之间的通信
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-14T00:00:00+11:00" content="2016-12-14">
-              2016-12-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/android/" itemprop="url" rel="index">
-                    <span itemprop="name">android</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
-<hr>
-<h1 id="我的说明"><a href="#我的说明" class="headerlink" title="我的说明"></a>我的说明</h1><p>很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.<br>其实 Activity 和 Activity 间也就下面一些通讯方式,<br>只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.</p>
-<p>先转载此文作为备忘, 有时间自己在总结一下范例.</p>
-<h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>Activity、Service和线程应该是Android编程中最常见的几种类了，几乎大多数应用程序都会涉及到这几个类的编程，<br>自然而然的，也就会涉及到三者之间的相互通信，本文就试图简单地介绍一下这三者通信的方式。</p>
-<p>想写这篇文章的起因是，笔者跟几个同学在做一个Android上的应用，起初代码写得很凌乱，因为我在Activity中直接创建了线程，去执行某些任务。<br>但是我们知道线程可能需要运行的时间比较长，而Android在内存不足的时候，会将一些Activity销毁，<br>这样线程就会失去了管理的对象，从而使程序发生意想不到的结果。<br>此外，在Activity中创建线程，线程跟Activity的通信也比较麻烦，一般借助Handler类来进行通信</p>
-<p>与Activity相比，Service一般“默默”地运行在后台，生命周期比较长，所以它更合适去为主程序提供某些服务，创建线程并管理线程。<br>因此，笔者将原程序改成三层架构，从高到低分别为：Activity层–Service层–Thread层。<br>Activity将需要的服务“告诉”Service层，Service层创建Thread去完成服务。<br>Thread将任务的进度、状态、错误信息反馈给Service，Service将这些消息反馈给相关的Activity，<br>并且还可以利用Notification更新通知栏消息。大体的结构就是这样。</p>
-<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
-<h2 id="Activity调用startService"><a href="#Activity调用startService" class="headerlink" title="Activity调用startService"></a>Activity调用startService</h2><p>Activity调用startService (Intent service)方法，将消息添加到Intent对象中，<br>这样Service对象可以在调用onStartCommand (Intent intent, int flags, int startId)的时候可以得到这些消息。<br>这种方法很简单，但如果有大量的信息要传递的话，就很麻烦了。因为Service端还要判断一下消息是什么，才能作进一步的动作。</p>
-<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="noopener">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
-<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="noopener">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
-<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
-<h1 id="Activity和Thread之间的通信"><a href="#Activity和Thread之间的通信" class="headerlink" title="Activity和Thread之间的通信"></a>Activity和Thread之间的通信</h1><p>不用多想了，直接使用Handler吧。不推荐Activity直接去创建线程，因为不好管理线程。</p>
-<hr>
-<p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2957,7 +3278,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">88</span>
+              <span class="site-state-item-count">89</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
