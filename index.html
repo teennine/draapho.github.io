@@ -589,7 +589,7 @@
 <li><strong>这里没有注册设备, 因为视频控制器和具体硬件相关</strong></li>
 </ul>
 </li>
-<li><code>registered_fb</code> 是具体设备给ffmem.c提供信息的关键!<ul>
+<li><code>registered_fb</code> 是具体设备给fbmem.c提供信息的关键!<ul>
 <li><code>fb_read</code> <code>fb_write</code> 里都可以看到 <code>struct fb_info *info = registered_fb[fbidx];</code></li>
 <li>然后, 函数根据 info 信息, 决定是进一步调用具体设备的 read write等函数, 还是使用默认代码.</li>
 </ul>
@@ -604,8 +604,8 @@
 <li><code>/drviers/video/s3c2410fb.c</code> 具体硬件的LCD驱动.<ul>
 <li>这里用到了platform框架. <code>s3c2410fb.c</code> 是硬件相关的通用操作, 属于 <code>platform_driver</code></li>
 <li><code>module_init</code> 里, 直接就是 <code>platform_driver_register</code>.</li>
-<li>我们知道platform框架里, probe函数是很关键的, 在drive和device匹配时, 就会调用它.</li>
-<li>一长串操作后, 看到 <code>register_framebuffer(fbinfo);</code> 将LCD设备信息提交给fbmem.c, 并注册设备.</li>
+<li>我们知道platform框架里, <code>probe</code>函数是很关键的, 在drive和device匹配时, 就会调用它.</li>
+<li><code>probe</code>函数里, 初始化后, 可看到 <code>register_framebuffer(fbinfo);</code> 将LCD设备信息提交给fbmem.c, 并注册设备.</li>
 </ul>
 </li>
 <li><code>/arch/arm/mach-s3c2440/mach-smdk2440.c</code> 配置硬件参数的地方.<ul>
@@ -623,7 +623,7 @@
 <p>补充说明 <code>fbmem.c</code> 的上层:</p>
 <ul>
 <li><code>/drivers/video/console/fbcon.c</code> 在lcd上显示终端, 此文件和tty1关联.<ul>
-<li><code>class_device_create(fb_class, NULL, MKDEV(0, 0), NULL, &quot;fbcon&quot;);</code> 注册了 <code>//sys/class/graphics/fbcon</code> 设备</li>
+<li><code>class_device_create(fb_class, NULL, MKDEV(0, 0), NULL, &quot;fbcon&quot;);</code> 注册 <code>fbcon</code> 设备</li>
 <li><code>fbcon_start</code>  和 fb设备对接, 开始显示.</li>
 </ul>
 </li>
