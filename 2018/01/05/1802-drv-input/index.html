@@ -82,20 +82,20 @@
 
 
 
-<meta name="description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 输入子系统输入子系统是Linux对硬件设备进一步的抽象.将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.中间还有个连接层, 用于实现软件抽象层和硬件设备层的多对多关联">
+<meta name="description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之LCD驱动框架和实现  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 输入子系统输入子系统是Linux对硬件设备进一步的抽象.将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.中间还有个连接层, 用于实现软件抽">
 <meta name="keywords" content="linuxembedded linux,drv">
 <meta property="og:type" content="article">
 <meta property="og:title" content="驱动之input子系统">
 <meta property="og:url" content="https://draapho.github.io/2018/01/05/1802-drv-input/index.html">
 <meta property="og:site_name" content="DRA&amp;PHO">
-<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 输入子系统输入子系统是Linux对硬件设备进一步的抽象.将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.中间还有个连接层, 用于实现软件抽象层和硬件设备层的多对多关联">
+<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之LCD驱动框架和实现  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 输入子系统输入子系统是Linux对硬件设备进一步的抽象.将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.中间还有个连接层, 用于实现软件抽">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://draapho.github.io/images/1802/input_struct_relation.png">
 <meta property="og:image" content="https://draapho.github.io/images/1802/link+input.JPG">
-<meta property="og:updated_time" content="2018-01-08T06:13:52.000Z">
+<meta property="og:updated_time" content="2018-01-10T08:29:38.275Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="驱动之input子系统">
-<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 输入子系统输入子系统是Linux对硬件设备进一步的抽象.将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.中间还有个连接层, 用于实现软件抽象层和硬件设备层的多对多关联">
+<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之LCD驱动框架和实现  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 输入子系统输入子系统是Linux对硬件设备进一步的抽象.将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.中间还有个连接层, 用于实现软件抽">
 <meta name="twitter:image" content="https://draapho.github.io/images/1802/input_struct_relation.png">
 
 
@@ -326,6 +326,7 @@
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
 <li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
+<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
 </ul>
 <p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
 <h1 id="输入子系统"><a href="#输入子系统" class="headerlink" title="输入子系统"></a>输入子系统</h1><p>输入子系统是Linux对硬件设备进一步的抽象.<br>将输入系统的逻辑概念统一写好, 我们称之为软件抽象层.<br>而硬件部分的底层工作需要由开发人员具体实现, 我们称之为硬件设备层.<br>中间还有个连接层, 用于实现软件抽象层和硬件设备层的多对多关联.</p>
@@ -495,7 +496,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-count">92</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -503,7 +504,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -512,7 +513,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">76</span>
+                <span class="site-state-item-count">77</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

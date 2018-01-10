@@ -261,6 +261,307 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/20/1747-qqiot-bind/" itemprop="url">
+                  QQ物联绑定分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-20T00:00:00+11:00" content="2017-12-20">
+              2017-12-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1749-qqiot-demo/">QQ物联演示项目</a></li>
+</ul>
+<p>本文使用 linux-3.4.2 内核, 使用jz2440开发板.</p>
+<h1 id="demo-bind-c-的分析与测试"><a href="#demo-bind-c-的分析与测试" class="headerlink" title="demo_bind.c 的分析与测试"></a>demo_bind.c 的分析与测试</h1><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>打开demo_bind.c, 说明很详细, 主要流程如下</p>
+<ul>
+<li>调用 <code>tx_init_device</code> 初始化设备信息. 可理解为将设备在QQ服务器上注册一下</li>
+<li>打开QQ, 保证和设备连在同一个路由器上且能上网.</li>
+<li>然后就可以在QQ我的设备中, 点击搜索新设备.</li>
+<li>扫描设备并绑定成功后, 即触发设备的登录逻辑. 调用指定的回调函数.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">initDevice</span><span class="params">()</span> </span>&#123;                 <span class="comment">// bind的核心函数, 初始化设备</span></span><br><span class="line">    <span class="comment">// 先读取三个重要文件</span></span><br><span class="line">    <span class="comment">// license, 认证文件. 文件名 ./licence.sign.file.txt</span></span><br><span class="line">    <span class="comment">// guid, 即SN设备序列号. 文件名 ./GUID_file.txt</span></span><br><span class="line">    <span class="comment">// svrPubkey变量中, 公钥. 文件名 ./1000000004.pem</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置设备的基本信息</span></span><br><span class="line">    tx_device_info info = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    info.os_platform            = <span class="string">"Linux"</span>;              <span class="comment">// os平台</span></span><br><span class="line"></span><br><span class="line">    info.device_name            = <span class="string">"demo1"</span>;              <span class="comment">// 设备名称</span></span><br><span class="line">    info.device_serial_number   = guid;                 <span class="comment">// 设备SN</span></span><br><span class="line">    info.device_license         = license;              <span class="comment">// 由SN生成的LICENSE</span></span><br><span class="line">    info.product_version        = <span class="number">1</span>;</span><br><span class="line">    info.network_type           = network_type_wifi;    <span class="comment">// 入网方式</span></span><br><span class="line">    info.product_id             = <span class="number">1000000004</span>;           <span class="comment">// PID, QQ分配</span></span><br><span class="line">    info.server_pub_key         = svrPubkey;            <span class="comment">// 公钥</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置回调函数</span></span><br><span class="line">    tx_device_notify notify      = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    notify.on_login_complete     = on_login_complete;   <span class="comment">// 登录完成</span></span><br><span class="line">    notify.on_online_status      = on_online_status;    <span class="comment">// 状态改变</span></span><br><span class="line">    notify.on_binder_list_change = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置目录和文件大小</span></span><br><span class="line">    tx_init_path init_path = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 核心语句, 向QQ服务器注册此设备.</span></span><br><span class="line">    <span class="keyword">int</span> ret = tx_init_device(&amp;info, &amp;notify, &amp;init_path);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h2><p>示例里面的 <code>readBufferFromFile</code> 已经对license和SN进行文件化管理了.<br>为了以后的批量生产, 这里将必要的配置信息再打包一层, 统一放入一个配置文件.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立一个分支, 用来修改和测试bind</span></span><br><span class="line">sudo cp -rf Tencent_iot_SDK/ bind_test/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压获得的QQ物联相关文件, 包括 licence, sn和公钥</span></span><br><span class="line">sudo tar xzf 1700003137001488.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 改名后放到测试目录</span></span><br><span class="line">sudo mv 1700003137001488/ conf/</span><br><span class="line">sudo mv conf/ bind_test/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 改下权限</span></span><br><span class="line">sudo chmod -R 777 bind_test/</span><br></pre></td></tr></table></figure>
+<p>然后打开 <code>./bind_test/demo_bind.c</code> 文件, 仿照readBufferFromFile进行修改</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新增如下内容</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">conf_info</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span>  pid;</span><br><span class="line">    <span class="keyword">char</span> name[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">char</span> pubkey_file[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">char</span> guid_file[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">char</span> license_file[<span class="number">128</span>];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">conf_info</span> <span class="title">configInfo</span> = &#123;</span><span class="number">0</span>, &#123;<span class="number">0</span>&#125;, &#123;<span class="number">0</span>&#125;, &#123;<span class="number">0</span>&#125;, &#123;<span class="number">0</span>&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">readConfigFromFile</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">128</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">char</span> *line = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">size_t</span> len = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">ssize_t</span> read;</span><br><span class="line">    <span class="keyword">bool</span> ret = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">char</span> *pconf[] = &#123;configInfo.pubkey_file, configInfo.guid_file,  configInfo.license_file&#125;;</span><br><span class="line">    <span class="comment">// 尝试打开目录下的配置文件</span></span><br><span class="line">    FILE * file = fopen(<span class="string">"./conf/config"</span>, <span class="string">"rb"</span>);</span><br><span class="line">    <span class="keyword">if</span> (!file) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"open ./conf/config failed...\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 读取第一行的数据, PID信息</span></span><br><span class="line">    read = getline(&amp;line, &amp;len, file);</span><br><span class="line">    <span class="keyword">if</span> (read &gt; <span class="keyword">sizeof</span>(buf)) &#123;</span><br><span class="line">        ret = <span class="literal">false</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"read PID failed...\n"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">strncpy</span>(buf,line,read<span class="number">-1</span>);</span><br><span class="line">        buf[read]=<span class="string">'\0'</span>;</span><br><span class="line">        configInfo.pid = atoi(buf);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"PID=%d\n"</span>,configInfo.pid);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 读取第二行的数据, Name信息</span></span><br><span class="line">    read = getline(&amp;line, &amp;len, file);</span><br><span class="line">    <span class="keyword">if</span> (read &gt; <span class="keyword">sizeof</span>(buf)) &#123;</span><br><span class="line">        ret = <span class="literal">false</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"read Name failed...\n"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">strncpy</span>(buf,line,read<span class="number">-1</span>);</span><br><span class="line">        buf[read]=<span class="string">'\0'</span>;</span><br><span class="line">        <span class="built_in">sprintf</span>(configInfo.name, buf);</span><br><span class="line">        <span class="comment">// printf("Name=%s\n",configInfo.name);</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 读取剩下的行, 都是文件数据</span></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;<span class="keyword">sizeof</span>(pconf)/<span class="keyword">sizeof</span>(<span class="keyword">char</span> *); i++) &#123;</span><br><span class="line">        read = getline(&amp;line, &amp;len, file);</span><br><span class="line">        <span class="keyword">if</span> (read &gt; <span class="keyword">sizeof</span>(buf)) &#123;</span><br><span class="line">            ret = <span class="literal">false</span>;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"read line%d failed...\n"</span>, i+<span class="number">2</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">strncpy</span>(buf,line,read<span class="number">-1</span>);</span><br><span class="line">            buf[read]=<span class="string">'\0'</span>;</span><br><span class="line">            <span class="keyword">if</span> (access(buf, R_OK)) &#123;</span><br><span class="line">                ret = <span class="literal">false</span>;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"fail to read %s\n"</span>,buf);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">sprintf</span>(pconf[i], buf);</span><br><span class="line">                <span class="comment">// printf("line%d: %s\n", i+2, pconf[i]);</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;                                  <span class="comment">// 调试检查</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"NAME=%s\n"</span>,configInfo.name);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"PEM =%s\n"</span>,configInfo.pubkey_file);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"GUID=%s\n"</span>,configInfo.guid_file);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"LICENSE=%s\n"</span>,configInfo.license_file);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (line) <span class="built_in">free</span>(line);</span><br><span class="line">    fclose(file);</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改如下内容, -为原内容, +为修改后的内容</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">initDevice</span><span class="params">()</span> </span>&#123;</span><br><span class="line">+   <span class="keyword">if</span>(readConfigFromFile() == <span class="literal">false</span>)&#123;</span><br><span class="line">+       <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">+   &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 读取 license</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> license[<span class="number">256</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">int</span> nLicenseSize = <span class="number">0</span>;</span><br><span class="line">-   <span class="keyword">if</span> (!readBufferFromFile(<span class="string">"./licence.sign.file.txt"</span>, license, <span class="keyword">sizeof</span>(license), &amp;nLicenseSize)) &#123;</span><br><span class="line">+   <span class="keyword">if</span> (!readBufferFromFile(configInfo.license_file, license, <span class="keyword">sizeof</span>(license), &amp;nLicenseSize)) &#123;</span><br><span class="line"></span><br><span class="line">-   <span class="keyword">if</span>(!readBufferFromFile(<span class="string">"./GUID_file.txt"</span>, guid, <span class="keyword">sizeof</span>(guid), &amp;nGUIDSize)) &#123;</span><br><span class="line">+   <span class="keyword">if</span> (!readBufferFromFile(configInfo.guid_file, guid, <span class="keyword">sizeof</span>(guid), &amp;nGUIDSize)) &#123;</span><br><span class="line"></span><br><span class="line">-   <span class="keyword">if</span> (!readBufferFromFile(<span class="string">"./1000000004.pem"</span>, svrPubkey, <span class="keyword">sizeof</span>(svrPubkey), &amp;nPubkeySize))</span><br><span class="line">+   <span class="keyword">if</span> (!readBufferFromFile(configInfo.pubkey_file, svrPubkey, <span class="keyword">sizeof</span>(svrPubkey), &amp;nPubkeySize))</span><br><span class="line"></span><br><span class="line">-   info.device_name            = <span class="string">"demo1"</span>;</span><br><span class="line">+   info.device_name            = configInfo.name;</span><br><span class="line">    info.device_serial_number   = guid;</span><br><span class="line">    info.device_license         = license;</span><br><span class="line">    info.product_version        = <span class="number">1</span>;</span><br><span class="line">    info.network_type           = network_type_wifi;</span><br><span class="line">-   info.product_id             = <span class="number">1000000004</span>;</span><br><span class="line">+   info.product_id             = configInfo.pid;</span><br><span class="line">    info.server_pub_key         = svrPubkey;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后, 需要修改makefile文件, 用的交叉编译. (注意空格改为TAB)</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 改为交叉编译!</span></span><br><span class="line">CROSS_COMPILE = arm-linux-</span><br><span class="line">CC  = <span class="variable">$(CROSS_COMPILE)</span>gcc</span><br><span class="line"></span><br><span class="line"><span class="section">all:app1</span></span><br><span class="line">    @echo build complete</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    -rm SDKDemo_bind</span><br><span class="line"></span><br><span class="line"><span class="section">app1:demo_bind.c</span></span><br><span class="line">    <span class="variable">$(CC)</span> demo_bind.c -o SDKDemo_bind -O0 -g3 -I<span class="string">"./include"</span> -L<span class="string">"./lib"</span> -ltxdevicesdk -lpthread -ldl -lstdc++</span><br></pre></td></tr></table></figure>
+<p>最后, 设置conf文件.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1700003137</span><br><span class="line">jz2440_bind_demo</span><br><span class="line">./conf/1700003137.pem</span><br><span class="line">./conf/GUID_file[1700003137001488].txt</span><br><span class="line">./conf/licence.sign.file[1700003137001488].txt</span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu端</span></span><br><span class="line"><span class="comment"># pwd = share/.../bind_test         # 共享文件夹下的bind_test目录</span></span><br><span class="line">$ make                              <span class="comment"># 编译</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440端</span></span><br><span class="line"><span class="comment"># pwd = mnt/share/.../bind_test     # 共享文件夹下的bind_test目录</span></span><br><span class="line">$ cp ./lib/libtxdevicesdk.so /lib   <span class="comment"># 拷贝动态库到开发板本地lib</span></span><br><span class="line">$ ls -l /lib/libtxdevicesdk.so      <span class="comment"># 检查一下</span></span><br><span class="line"></span><br><span class="line">$ mkdir /qqiot</span><br><span class="line">$ cp SDKDemo_bind /qqiot            <span class="comment"># 拷贝执行文件</span></span><br><span class="line">$ cp -rf conf/ /qqiot               <span class="comment"># 拷贝配置文件</span></span><br><span class="line">$ <span class="built_in">cd</span> /qqiot                         <span class="comment"># 切换目录</span></span><br><span class="line">$ ls                                <span class="comment"># 查看结果</span></span><br><span class="line"></span><br><span class="line">$ ./SDKDemo_bind                    <span class="comment"># 运行范例</span></span><br><span class="line"><span class="comment"># 会打印很多信息. 查看是否有如下类似信息</span></span><br><span class="line">WLAN connection with tencent iot server ... is setting up</span><br><span class="line">xpnet_gethostbyname: Begin gethostbyname device msf.3g.qq.com</span><br></pre></td></tr></table></figure>
+<p><strong>注意</strong>:<br>必须正确设置开发板的网络. 我已设置开发板为dhcp, 因此没有遇到网络方面的问题.<br>如果使用的是静态IP, 记得设置一下网关等信息.<br>可以用 <code>route</code> 指令查看网络路由表</p>
+<p>然后, 打开手机端QQ, 保证手机和开发板在同一局域网下.<br>联系人-&gt;设备-&gt;发现新设备-&gt;绑定设备…就能看到jz2440_demo设备的界面了.</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://iot.open.qq.com/wiki/index.html" target="_blank" rel="noopener">QQ物联资料库</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/18/1746-qqiot-env/" itemprop="url">
+                  嵌入式linux环境搭建-QQ物联
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-18T00:00:00+11:00" content="2017-12-18">
+              2017-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1749-qqiot-demo/">QQ物联演示项目</a></li>
+</ul>
+<p>为学习QQ物联而搭建的jz2440开发环境.<br>需要升级交叉编译环境, 然后编译和烧录<br>使用如下软件版本:</p>
+<ul>
+<li>u-boot-1.1.6</li>
+<li>linux-3.4.2</li>
+<li>arm-linux-gcc-4.3.2</li>
+</ul>
+<p>另可参考:</p>
+<ul>
+<li><a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a>, 搭建Ubuntu开发环境</li>
+<li><a href="https://draapho.github.io/2017/02/21/1707-jz2440-env/">嵌入式linux环境搭建-jz2440开发板</a>, 基于2.6.22内核的编译和烧录</li>
+<li><a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a>, 修改jz2440的内核和文件系统以支持DHCP</li>
+</ul>
+<h1 id="安装交叉编译工具链"><a href="#安装交叉编译工具链" class="headerlink" title="安装交叉编译工具链"></a>安装交叉编译工具链</h1><p>新的linux内核需要用 arm-linux-gcc-4.3.2 这个版本的交叉编译.<br>对已安装的arm-linux-gcc-3.4.5, 无需删除, 但需要从环境变量中去除.<br>因此整个过程需要安装新软件, 重新设置一下Ubuntu的环境变量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu shell</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 直接拷贝解压 arm-linux-gcc-4.3.2.tar.bz2, 提供的压缩包包含了路径 /usr/local/arm/4.3.2</span></span><br><span class="line">$ sudo tar xjf arm-linux-gcc-4.3.2.tar.bz2 -C /</span><br><span class="line"><span class="comment"># 添加路径到环境变量, 记得去掉 gcc-3.4.5-glibc-2.3.6</span></span><br><span class="line">$ sudo vim /etc/bash.bashrc</span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="comment"># if [ -d /usr/local/gcc-3.4.5-glibc-2.3.6 ] ; then</span></span><br><span class="line">    <span class="comment">#   PATH=/usr/local/gcc-3.4.5-glibc-2.3.6/bin:"$&#123;PATH&#125;"</span></span><br><span class="line">    <span class="comment"># fi</span></span><br><span class="line">    <span class="keyword">if</span> [ -d /usr/<span class="built_in">local</span>/arm/4.3.2 ] ; <span class="keyword">then</span></span><br><span class="line">        PATH=/usr/<span class="built_in">local</span>/arm/4.3.2/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"><span class="comment"># 如果直接修改 /etc/environment 文件也可以.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试安装结果</span></span><br><span class="line">$ <span class="built_in">source</span> /etc/bash.bashrc                           <span class="comment"># 不重启更新PATH</span></span><br><span class="line">$ <span class="built_in">echo</span> <span class="variable">$PATH</span>                                        <span class="comment"># 查看PATH</span></span><br><span class="line">$ arm-linux-gcc -v                                  <span class="comment"># 测试是否安装成功</span></span><br><span class="line">gcc version 4.3.2</span><br></pre></td></tr></table></figure>
+<h1 id="uboot的编译和烧录"><a href="#uboot的编译和烧录" class="headerlink" title="uboot的编译和烧录"></a>uboot的编译和烧录</h1><h2 id="编译uboot"><a href="#编译uboot" class="headerlink" title="编译uboot"></a>编译uboot</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu shell</span></span><br><span class="line"></span><br><span class="line">tar xjvf u-boot-1.1.6.tar.bz2               <span class="comment"># 解压uboot源码</span></span><br><span class="line"><span class="built_in">cd</span> u-boot-1.1.6                             <span class="comment"># 进入uboot源码目录</span></span><br><span class="line">patch -p1 &lt; ../u-boot-1.1.6_20161226_all.patch </span><br><span class="line">make clean</span><br><span class="line">make 100ask24x0_config                      <span class="comment"># uboot config文件</span></span><br><span class="line">make                                        <span class="comment"># uboot 编译, 得到u-boot.bin文件</span></span><br></pre></td></tr></table></figure>
+<h2 id="烧录uboot"><a href="#烧录uboot" class="headerlink" title="烧录uboot"></a>烧录uboot</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line"><span class="comment"># 打开 jz2440 开发板串口终端, 启动时输入空格键, 进入如下菜单</span></span><br><span class="line"><span class="comment">##### 100ask Bootloader for OpenJTAG #####</span></span><br><span class="line">[n] Download u-boot to Nand Flash</span><br><span class="line">...</span><br><span class="line">Enter your selection: n / o                 <span class="comment"># 输入n 或者 o, 烧录uboot</span></span><br><span class="line">USB host is connected. Waiting a download.  <span class="comment"># 提示连接成功</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 Ubuntu 终端, 输入</span></span><br><span class="line"><span class="comment"># pwd = ./u-boot-1.1.6                      # 确保在 uboot 源码路径下</span></span><br><span class="line">sudo dnw u-boot.bin                         <span class="comment"># 使用dnw烧录uboot</span></span><br></pre></td></tr></table></figure>
+<h2 id="设置uboot"><a href="#设置uboot" class="headerlink" title="设置uboot"></a>设置uboot</h2><p>如果希望通过uboot直接加载nfs文件系统, 还需进行如下设置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line"><span class="comment"># 设置ip地址, 在OpenJTAG&gt; 提示符下</span></span><br><span class="line"><span class="built_in">set</span> ipaddr 10.0.0.111           <span class="comment"># 设置开发板的ip地址</span></span><br><span class="line"><span class="built_in">set</span> serverip 10.0.0.138</span><br><span class="line">save                            <span class="comment"># 保存</span></span><br><span class="line">printenv                        <span class="comment"># 打印环境变量, 查看设置结果</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</span><br><span class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></span><br><span class="line">save        <span class="comment"># 保存修改</span></span><br><span class="line">reset       <span class="comment"># 重启. (稍后再重启, 先修改好 filesystem 内的初始化文件)</span></span><br><span class="line"><span class="comment"># 参数简要说明:</span></span><br><span class="line"><span class="comment"># 'root=/dev/nfs' 加载nfs文件系统</span></span><br><span class="line"><span class="comment"># 'nfsroot=10.0.0.98:/fs' nfs文件系统的来源, 此处是由win10当nfs服务器, 共享出/fs文件夹</span></span><br><span class="line"><span class="comment"># 'ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off' 分别表示:</span></span><br><span class="line"><span class="comment">#  ip= 开发板ip : nfs服务器ip: 网关ip : 子网掩码 :: 开发板网口 : off</span></span><br></pre></td></tr></table></figure>
+<h1 id="kernel的编译和烧录"><a href="#kernel的编译和烧录" class="headerlink" title="kernel的编译和烧录"></a>kernel的编译和烧录</h1><h2 id="编译kernel"><a href="#编译kernel" class="headerlink" title="编译kernel"></a>编译kernel</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu shell</span></span><br><span class="line"></span><br><span class="line">tar xjvf linux-3.4.2.tar.bz2                <span class="comment"># 解压kernel源码</span></span><br><span class="line"><span class="built_in">cd</span> linux-3.4.2                              <span class="comment"># 进入kernel源码目录</span></span><br><span class="line">patch -p1 &lt; ../linux-3.4.2_20161226_all.patch  <span class="comment"># 打补丁文件, p1表忽略patch文件内的1层目录</span></span><br><span class="line"></span><br><span class="line">make clean                                  <span class="comment"># 清空 (先清空再在SI内查看)</span></span><br><span class="line">cp config_jz2440 .config                    <span class="comment"># 设置config文件, 此配置文件已支持dhcp</span></span><br><span class="line">make uImage                                 <span class="comment"># 编译获得内核image</span></span><br></pre></td></tr></table></figure>
+<p>编译时, 遇到一个错误: <code>Can&#39;t use &#39;defined(@array)&#39; (Maybe you should just omit the defined()?) at kernel/timeconst.pl line 373.</code><br>参考 <a href="http://sunyongfeng.com/201701/programmer/linux/kernel_compile_fail.html" target="_blank" rel="noopener">Linux kernel 编译问题记录</a>. 原因是perl版本升级了.<br>将 <code>if (!defined(@val))</code> 改为 <code>if (!@val)</code> 再次编译就可以了.</p>
+<h2 id="烧录kernel"><a href="#烧录kernel" class="headerlink" title="烧录kernel"></a>烧录kernel</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line"><span class="comment"># 打开 jz2440 开发板串口终端, 启动时输入空格键, 进入如下菜单</span></span><br><span class="line"><span class="comment">##### 100ask Bootloader for OpenJTAG #####</span></span><br><span class="line">[k] Download Linux kernel uImage</span><br><span class="line">...</span><br><span class="line">Enter your selection: k                     <span class="comment"># 输入k, 烧录 kernel</span></span><br><span class="line">USB host is connected. Waiting a download.  <span class="comment"># 提示连接成功</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 Ubuntu 终端, 输入</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6                    # 确保在 kernel 源码路径下</span></span><br><span class="line">sudo dnw ./arch/arm/boot/uImage             <span class="comment"># 输入dnw指令, 指明烧录文件</span></span><br><span class="line"><span class="comment"># DNW usb device found!                     # 开始烧录</span></span><br></pre></td></tr></table></figure>
+<h1 id="filesystem的制作和烧录"><a href="#filesystem的制作和烧录" class="headerlink" title="filesystem的制作和烧录"></a>filesystem的制作和烧录</h1><p><strong>注意</strong>, QQ物联的应用, 文件系统必须烧录到nand flash中, 而不能采用NFS的方式加载.</p>
+<h2 id="制作-filesystem"><a href="#制作-filesystem" class="headerlink" title="制作 filesystem"></a>制作 filesystem</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu shell</span></span><br><span class="line">sudo tar xjvf fs_mini_mdev_new_auto_wifi.tar.bz2        <span class="comment"># 解压缩</span></span><br><span class="line">mkyaffs2image fs_mini_mdev_new fs_mini_mdev_new.yaffs2  <span class="comment"># 生成文件系统</span></span><br></pre></td></tr></table></figure>
+<h2 id="烧录-filesystem"><a href="#烧录-filesystem" class="headerlink" title="烧录 filesystem"></a>烧录 filesystem</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line"><span class="comment"># 打开 jz2440 开发板串口终端, 启动时输入空格键, 进入如下菜单</span></span><br><span class="line"><span class="comment">##### 100ask Bootloader for OpenJTAG #####</span></span><br><span class="line">[y] Download root_yaffs image</span><br><span class="line">...</span><br><span class="line">Enter your selection: y                     <span class="comment"># 输入k, 烧录 root_yaffs</span></span><br><span class="line">USB host is connected. Waiting a download.  <span class="comment"># 提示连接成功</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 Ubuntu 终端, 输入</span></span><br><span class="line">sudo dnw fs_mini_mdev_new.yaffs2            <span class="comment"># 输入dnw指令, 指明烧录文件</span></span><br><span class="line"><span class="comment"># DNW usb device found!                     # 开始烧录</span></span><br><span class="line"><span class="comment"># 这样就成功把文件系统烧录到 jz2440 开发板中了.</span></span><br></pre></td></tr></table></figure>
+<h1 id="查看分区"><a href="#查看分区" class="headerlink" title="查看分区"></a><del>查看分区</del></h1><ul>
+<li>bootloader, 512k</li>
+<li>params, 128k</li>
+<li>kernel, 4m</li>
+<li>rootfs, 剩下的空间</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot, 进入命令行模式</span></span><br><span class="line">&gt; printenv</span><br><span class="line">mtdparts=mtdparts=nandflash0:512k@0(bootloader),128k(params),4m(kernel),-(root)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># ubuntu端, kernel 源码下</span></span><br><span class="line">$ vim arch/arm/mach-s3c24xx/common-smdk.c</span><br><span class="line"><span class="comment"># 查看 smdk_default_nand_part 可知分区情况</span></span><br><span class="line">static struct mtd_partition smdk_default_nand_part[] = &#123;</span><br><span class="line">        [0] = &#123;</span><br><span class="line">                .name   = <span class="string">"bootloader"</span>,</span><br><span class="line">                .size   = SZ_512K,</span><br><span class="line">                .offset = 0,</span><br><span class="line">        &#125;,</span><br><span class="line">        [1] = &#123;</span><br><span class="line">                .name   = <span class="string">"params"</span>,</span><br><span class="line">                .offset = MTDPART_OFS_APPEND,</span><br><span class="line">                .size   = SZ_128K,</span><br><span class="line">        &#125;,</span><br><span class="line">        [2] = &#123;</span><br><span class="line">                .name   = <span class="string">"kernel"</span>,</span><br><span class="line">                .offset = MTDPART_OFS_APPEND,</span><br><span class="line">                .size   = SZ_4M,</span><br><span class="line">        &#125;,</span><br><span class="line">        [3] = &#123;</span><br><span class="line">                .name   = <span class="string">"rootfs"</span>,</span><br><span class="line">                .offset = MTDPART_OFS_APPEND,</span><br><span class="line">                .size   = MTDPART_SIZ_FULL,</span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1 id="配置网络-支持nfs"><a href="#配置网络-支持nfs" class="headerlink" title="配置网络, 支持nfs"></a>配置网络, 支持nfs</h1><h2 id="实现dhcp功能"><a href="#实现dhcp功能" class="headerlink" title="实现dhcp功能"></a>实现dhcp功能</h2><p>为了正常使用udhcpc, 还需要对文件系统稍加修改. 如下工作即可以在开发板端做, 也可以先在文件系统上做好, 然后编译烧录进开发板</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># udhcpc需要一个脚本文件, 否则无法完整实现dhcp功能. (测试了一下, 这个版本没有脚本也不报错, 但无法正常使用!)</span></span><br><span class="line">mkdir -p /usr/share/udhcpc/     <span class="comment"># 自动建立多层目录</span></span><br><span class="line">vi /usr/share/udhcpc/default.script</span><br><span class="line"><span class="comment"># ===== 打开vim, 写入如下内容 =====</span></span><br><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">[ -z <span class="string">"<span class="variable">$1</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"Error: should be called from udhcpc"</span> &amp;&amp; <span class="built_in">exit</span> 1</span><br><span class="line">RESOLV_CONF=<span class="string">"/etc/resolv.conf"</span></span><br><span class="line">[ -n <span class="string">"<span class="variable">$broadcast</span>"</span> ] &amp;&amp; BROADCAST=<span class="string">"broadcast <span class="variable">$broadcast</span>"</span></span><br><span class="line">[ -n <span class="string">"<span class="variable">$subnet</span>"</span> ] &amp;&amp; NETMASK=<span class="string">"netmask <span class="variable">$subnet</span>"</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$1</span>"</span> <span class="keyword">in</span></span><br><span class="line">  deconfig)</span><br><span class="line">    /sbin/ifconfig <span class="variable">$interface</span> 0.0.0.0</span><br><span class="line">    ;;</span><br><span class="line"> </span><br><span class="line">  renew|bound)</span><br><span class="line">    /sbin/ifconfig <span class="variable">$interface</span> <span class="variable">$ip</span> <span class="variable">$BROADCAST</span> <span class="variable">$NETMASK</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span> [ -n <span class="string">"<span class="variable">$router</span>"</span> ] ; <span class="keyword">then</span></span><br><span class="line">      <span class="built_in">echo</span> <span class="string">"deleting routers"</span></span><br><span class="line">      <span class="keyword">while</span> route del default gw 0.0.0.0 dev <span class="variable">$interface</span> ; <span class="keyword">do</span></span><br><span class="line">        :</span><br><span class="line">      <span class="keyword">done</span></span><br><span class="line"> </span><br><span class="line">      <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$router</span> ; <span class="keyword">do</span></span><br><span class="line">        route add default gw <span class="variable">$i</span> dev <span class="variable">$interface</span></span><br><span class="line">      <span class="keyword">done</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"> </span><br><span class="line">    <span class="built_in">echo</span> -n &gt; <span class="variable">$RESOLV_CONF</span></span><br><span class="line">    [ -n <span class="string">"<span class="variable">$domain</span>"</span> ] &amp;&amp; <span class="built_in">echo</span> search <span class="variable">$domain</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$dns</span> ; <span class="keyword">do</span></span><br><span class="line">      <span class="built_in">echo</span> adding dns <span class="variable">$i</span></span><br><span class="line">      <span class="built_in">echo</span> nameserver <span class="variable">$i</span> &gt;&gt; <span class="variable">$RESOLV_CONF</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">exit</span> 0</span><br><span class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></span><br><span class="line">chmod +x /usr/share/udhcpc/default.script       <span class="comment"># 加入可执行属性</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后测试一下</span></span><br><span class="line">ifconfig eth0 up</span><br><span class="line">udhcpc eth0</span><br><span class="line"><span class="comment"># 如果没有脚本文件, 只能获得IP地址, 没有dns的信息!</span></span><br><span class="line">ifconfig</span><br><span class="line"><span class="comment"># 能看到IP地址, 广播地址, 子网掩码信息</span></span><br><span class="line">ping 192.168.1.100</span><br><span class="line"><span class="comment"># 能ping通ubuntu主机</span></span><br></pre></td></tr></table></figure>
+<h2 id="开机自动挂载nfs"><a href="#开机自动挂载nfs" class="headerlink" title="开机自动挂载nfs"></a>开机自动挂载nfs</h2><p>要使用nfs, Ubuntu主机首先必须支持nfs. 主机端配置详情见 <a href="https://draapho.github.io/2017/11/29/1739-ubuntu-nfs/">Ubuntu 16.04安装配置NFS</a><br>使用 <code>ifconfig</code> 查看主机IP地址, <code>vim /etc/exports</code> 查看共享目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line">vi /etc/init.d/rcS             <span class="comment"># 开机自动执行udhcpc. S是大写!</span></span><br><span class="line"><span class="comment"># ===== 打开vim, 修改/增加如下内容 =====</span></span><br><span class="line"><span class="comment">#ifconfig eth0 192.168.1.17</span></span><br><span class="line"></span><br><span class="line">ifconfig eth0 up</span><br><span class="line">udhcpc eth0</span><br><span class="line"><span class="comment"># 上述两行放在最前面. 这样才能成功自动挂载nfs</span></span><br><span class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></span><br><span class="line"></span><br><span class="line">vi /etc/fstab</span><br><span class="line"><span class="comment"># ===== 打开vim, 增加如下内容 =====</span></span><br><span class="line"><span class="comment"># 文件最后加入这样一句nfs模板, 便于日后修改</span></span><br><span class="line"><span class="comment"># 192.168.1.100:/home/draapho/share /mnt/share nfs rsize=1024,wsize=1024,timeo=14,intr,nolock 0 0</span></span><br><span class="line"><span class="comment"># ===== wq保存文件, 退出 =====</span></span><br><span class="line"></span><br><span class="line">mkdir /mnt/share                <span class="comment"># 创建挂载点</span></span><br><span class="line">mount -a                        <span class="comment"># 不重启挂载, 测试一下</span></span><br></pre></td></tr></table></figure>
+<h1 id="编译并测试驱动模块"><a href="#编译并测试驱动模块" class="headerlink" title="编译并测试驱动模块"></a>编译并测试驱动模块</h1><p>默认提供的驱动关联了 <code>/work/system/linux-3.4.2</code>作为内核关联.<br>另外, 可以把编译好的驱动拷贝到jz2440 flash中, 统一放在 <code>/lib/modules/3.4.2</code> 目录下面.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line">mkdir -p /lib/modules/3.4.2</span><br><span class="line"></span><br><span class="line"><span class="comment"># Ubuntu端firstdrvtest.c </span></span><br><span class="line">sudo mkdir -p /work/system/</span><br><span class="line">firstdrvtest.c</span><br></pre></td></tr></table></figure>
+<h2 id="LED驱动"><a href="#LED驱动" class="headerlink" title="LED驱动"></a>LED驱动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu端</span></span><br><span class="line"><span class="comment"># pwd = ./jz2440/first_drv                  # nfs共享文件</span></span><br><span class="line">make</span><br><span class="line">arm-linux-gcc firstdrvtest.c -o firstdrvtest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line"><span class="comment"># pwd = /mnt/share/.../jz2440/first_drv     # nfs共享文件</span></span><br><span class="line">cp first_drv.ko /lib/modules/3.4.2/</span><br><span class="line">ls /lib/modules/3.4.2/                      <span class="comment"># 查看拷贝结果</span></span><br><span class="line">insmod first_drv.ko</span><br><span class="line">lsmod                                       <span class="comment"># 列出已加载模块</span></span><br><span class="line">./firstdrvtest on                           <span class="comment"># 测试</span></span><br><span class="line">./firstdrvtest off</span><br></pre></td></tr></table></figure>
+<h2 id="按键驱动"><a href="#按键驱动" class="headerlink" title="按键驱动"></a>按键驱动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu端</span></span><br><span class="line"><span class="comment"># pwd = ./jz2440/7th_buttons_all                # nfs共享文件</span></span><br><span class="line">make</span><br><span class="line">arm-linux-gcc buttons_test.c -o buttons_test</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line"><span class="comment"># pwd = /mnt/share/.../jz2440/7th_buttons_all   # nfs共享文件</span></span><br><span class="line">cp buttons.ko /lib/modules/3.4.2/</span><br><span class="line">ls /lib/modules/3.4.2/                          <span class="comment"># 查看拷贝结果</span></span><br><span class="line">insmod buttons.ko</span><br><span class="line">lsmod                                           <span class="comment"># 列出已加载模块</span></span><br><span class="line">./buttons_test                                  <span class="comment"># 测试</span></span><br></pre></td></tr></table></figure>
+<h2 id="LCD驱动"><a href="#LCD驱动" class="headerlink" title="LCD驱动"></a>LCD驱动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu端</span></span><br><span class="line"><span class="comment"># pwd = ./jz2440/10th_lcd                       # nfs共享文件, 屏幕驱动</span></span><br><span class="line">cp lcd_4.3.c lcd.c                              <span class="comment"># jz2440, 用的4.3寸屏</span></span><br><span class="line">make</span><br><span class="line"><span class="comment"># pwd = ./jz2440/fb_test                        # nfs共享文件, 屏幕测试</span></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line"><span class="comment"># pwd = /mnt/share/.../jz2440/10th_lcd          # nfs共享文件, 屏幕驱动</span></span><br><span class="line">cp lcd.ko /lib/modules/3.4.2/</span><br><span class="line">ls /lib/modules/3.4.2/                          <span class="comment"># 查看拷贝结果</span></span><br><span class="line">insmod lcd.ko</span><br><span class="line">lsmod                                           <span class="comment"># 列出已加载模块</span></span><br><span class="line"><span class="comment"># pwd = /mnt/share/.../jz2440/fb_test           # nfs共享文件, 屏幕测试</span></span><br><span class="line">./fb_test                                       <span class="comment"># 测试, 显示用法</span></span><br><span class="line">ls /dev/fb*                                     <span class="comment"># 显示设备</span></span><br><span class="line">./fb_test /dev/fb0                              <span class="comment"># 测试指定设备</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/15/1745-yocto-install/" itemprop="url">
                   Yocto 的安装与体验
                 </a>
@@ -1072,389 +1373,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/30/1740-drv-chr2/" itemprop="url">
-                  驱动之基于LinK+设计按键驱动
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-30T00:00:00+11:00" content="2017-11-30">
-              2017-11-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
-<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
-<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
-<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
-<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<p>上文<a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a>是根据jz2440教程书写的. 整个过程比较繁杂.<br>在此期间, 搜索了一下Linux内核开发工具, 寻得一款非常好用的 Link+IDE, 安装配置见 <a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a>.<br>这款软件可以自动生成Linux驱动开发的软件模板, 可以大大减少工作量, 提高效率!<br>因此, 此文基于LinK+的生成的驱动框架, 对按键驱动进行开发.</p>
-<h1 id="使用LinK-生成驱动模板"><a href="#使用LinK-生成驱动模板" class="headerlink" title="使用LinK+生成驱动模板"></a>使用LinK+生成驱动模板</h1><p>打开 LinK+IDE, 新建工程, 选择 <code>Linux Kernel Development(LinK+)</code> 下面的 <code>Device Driver Project</code><br>然后如图配置即可.</p>
-<p><img src="https://draapho.github.io/images/1740/LinKDriverWizard1.JPG" alt="LinKDriverWizard1.JPG"></p>
-<p><img src="https://draapho.github.io/images/1740/LinKDriverWizard2.JPG" alt="LinKDriverWizard2.JPG"></p>
-<p>确定后, LinK+IDE会自动生成代码, 基于这个代码模板, 去实现按键功能函数即可.</p>
-<p><strong>注意</strong> 自动生成的模板中, 函数<code>device_create</code>和linux-2.6.22.6不兼容, 需要去掉最后一个NULL!<br>不修改的话, 编译时有个警告, 尝试加载模块时会报错:<br><code>Unable to handle kernel NULL pointer dereference at virtual address 00000000</code></p>
-<h2 id="加载已有工程"><a href="#加载已有工程" class="headerlink" title="加载已有工程"></a>加载已有工程</h2><p>如果已有驱动工程, 需要加入 LinK+. 核心思路就是基于Makefile编译, 而不是用Eclipse自带的工具链编译.<br>基本过程可以参考<a href="https://draapho.github.io/2017/11/27/1737-linux-ide/">LinK+, 一款Linux内核开发IDE</a>, 但比内核的设置要简单的多.</p>
-<ul>
-<li><code>New Project...</code> -&gt; <code>C/C++</code>下<code>Makefile Project with Existing Code</code> -&gt; 选好项目路径, <code>Finish</code> 打开</li>
-<li>右键工程 <code>Properties</code><ul>
-<li>选中<code>C/C++ Build</code>-&gt;右边<code>Builder Settings</code>标签:<ul>
-<li>取消 <del><code>Use default build command</code></del>, 编译命令就是 <code>make</code></li>
-<li>确定 <code>Build directory</code> 路径是makefile所在的路径, 如 <code>${workspace_loc:/drv_key/KERN_SRC}</code></li>
-</ul>
-</li>
-<li>选中<code>C/C++ Build</code>-&gt;右边<code>Behaviour</code>标签:<ul>
-<li><code>Build(incremental build)</code>, 改为 <code>modules</code>. 组成编译指令 <code>make modules</code></li>
-</ul>
-</li>
-<li>展开<code>C/C++ General</code>-&gt;选中<code>Paths and Symbols</code>-&gt;右边<code>Includes</code>标签<ul>
-<li><code>Add...</code>, 新增 <code>/linux-2.6.22.6/include</code> 路径到所有配置, 所有语言.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>右键工程 <code>Clean Project</code>, 相当于执行 <code>make clean</code></li>
-<li>右键工程 <code>Build Project</code>, 相当于执行 <code>make modules</code>, 编译完成.</li>
-</ul>
-<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><h2 id="drv-key-c"><a href="#drv-key-c" class="headerlink" title="drv_key.c"></a>drv_key.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">Driver Name		:		drv_key</span></span><br><span class="line"><span class="comment">Author			:		DRAAPHO</span></span><br><span class="line"><span class="comment">License			:		GPL</span></span><br><span class="line"><span class="comment">Description		:		LINUX DEVICE DRIVER PROJECT</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_N_MINORS 4</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_FIRST_MINOR 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_NODE_NAME <span class="meta-string">"key"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_BUFF_SIZE 1</span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> drv_key_major=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">dev_t</span> drv_key_device_num;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">drv_key_class</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">privatedata</span> &#123;</span></span><br><span class="line">	<span class="keyword">int</span> nMinor;</span><br><span class="line">	<span class="keyword">char</span> buff[DRV_KEY_BUFF_SIZE];</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cdev</span> <span class="title">cdev</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">drv_key_device</span>;</span></span><br><span class="line">&#125; drv_key_private;</span><br><span class="line"></span><br><span class="line">drv_key_private devices[DRV_KEY_N_MINORS];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_open</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">/* TODO Auto-generated Function */</span></span><br><span class="line">	drv_key_private *priv = container_of(inode-&gt;i_cdev ,</span><br><span class="line">									drv_key_private ,cdev);</span><br><span class="line">	filp-&gt;private_data = priv;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ((priv-&gt;nMinor == <span class="number">0</span>) || (priv-&gt;nMinor == <span class="number">1</span>))</span><br><span class="line">		s3c2410_gpio_cfgpin(S3C2410_GPF0, S3C2410_GPF0_INP);</span><br><span class="line">	<span class="keyword">if</span> ((priv-&gt;nMinor == <span class="number">0</span>) || (priv-&gt;nMinor == <span class="number">2</span>))</span><br><span class="line">		s3c2410_gpio_cfgpin(S3C2410_GPF2, S3C2410_GPF2_INP);</span><br><span class="line">	<span class="keyword">if</span> ((priv-&gt;nMinor == <span class="number">0</span>) || (priv-&gt;nMinor == <span class="number">3</span>))</span><br><span class="line">		s3c2410_gpio_cfgpin(S3C2410_GPG3, S3C2410_GPG3_INP);</span><br><span class="line"></span><br><span class="line">	PINFO(<span class="string">"minor=%d\n"</span>, priv-&gt;nMinor);</span><br><span class="line">	PINFO(<span class="string">"In char driver open() function\n"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;					</span><br><span class="line"></span><br><span class="line"><span class="comment">//static int drv_key_release(struct inode *inode,struct file *filp)</span></span><br><span class="line"><span class="comment">//&#123;</span></span><br><span class="line"><span class="comment">//	/* TODO Auto-generated Function */</span></span><br><span class="line"><span class="comment">//	drv_key_private *priv;</span></span><br><span class="line"><span class="comment">//	priv=filp-&gt;private_data;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//	PINFO("In char driver release() function\n");</span></span><br><span class="line"><span class="comment">//	return 0;</span></span><br><span class="line"><span class="comment">//&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_read</span><span class="params">(struct file *filp, </span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">/* TODO Auto-generated Function */</span></span><br><span class="line">	<span class="keyword">int</span> n=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">char</span> key_vals[<span class="number">3</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">	drv_key_private *priv;</span><br><span class="line">	priv = filp-&gt;private_data;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ((priv-&gt;nMinor == <span class="number">0</span>) || (priv-&gt;nMinor == <span class="number">1</span>))</span><br><span class="line">		key_vals[<span class="number">0</span>] = !s3c2410_gpio_getpin(S3C2410_GPF0);</span><br><span class="line">	<span class="keyword">if</span> ((priv-&gt;nMinor == <span class="number">0</span>) || (priv-&gt;nMinor == <span class="number">2</span>))</span><br><span class="line">		key_vals[<span class="number">1</span>] = !s3c2410_gpio_getpin(S3C2410_GPF2);</span><br><span class="line">	<span class="keyword">if</span> ((priv-&gt;nMinor == <span class="number">0</span>) || (priv-&gt;nMinor == <span class="number">3</span>))</span><br><span class="line">		key_vals[<span class="number">2</span>] = !s3c2410_gpio_getpin(S3C2410_GPG3);</span><br><span class="line">	copy_to_user(ubuff, key_vals, <span class="keyword">sizeof</span>(key_vals));</span><br><span class="line"></span><br><span class="line"><span class="comment">//	PINFO("In char driver read() function\n");</span></span><br><span class="line">	<span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_key_fops</span>= &#123;</span></span><br><span class="line">	.owner				= THIS_MODULE,</span><br><span class="line">	.open				= drv_key_open,</span><br><span class="line"><span class="comment">//	.release			= drv_key_release,</span></span><br><span class="line">	.read				= drv_key_read,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">drv_key_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">int</span> res;</span><br><span class="line"></span><br><span class="line">	res = alloc_chrdev_region(&amp;drv_key_device_num,DRV_KEY_FIRST_MINOR,DRV_KEY_N_MINORS ,DRIVER_NAME);</span><br><span class="line">	<span class="keyword">if</span>(res) &#123;</span><br><span class="line">		PERR(<span class="string">"register device no failed\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	drv_key_major = MAJOR(drv_key_device_num);</span><br><span class="line">	drv_key_class = class_create(THIS_MODULE , DRIVER_NAME);</span><br><span class="line">	<span class="keyword">if</span>(!drv_key_class) &#123;</span><br><span class="line">		PERR(<span class="string">"class creation failed\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_N_MINORS;i++) &#123;</span><br><span class="line">		drv_key_device_num= MKDEV(drv_key_major ,DRV_KEY_FIRST_MINOR+i);</span><br><span class="line">		cdev_init(&amp;devices[i].cdev , &amp;drv_key_fops);</span><br><span class="line">		cdev_add(&amp;devices[i].cdev,drv_key_device_num,<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">		devices[i].drv_key_device  = </span><br><span class="line">				<span class="comment">// BE CARE, device_create has different parameters...</span></span><br><span class="line"><span class="comment">//				device_create(drv_key_class , NULL ,drv_key_device_num ,</span></span><br><span class="line"><span class="comment">//							NULL ,DRV_KEY_NODE_NAME"%d",DRV_KEY_FIRST_MINOR+i);</span></span><br><span class="line">				device_create(drv_key_class , <span class="literal">NULL</span> ,drv_key_device_num ,</span><br><span class="line">							DRV_KEY_NODE_NAME<span class="string">"%d"</span>,DRV_KEY_FIRST_MINOR+i);</span><br><span class="line">		<span class="keyword">if</span>(!devices[i].drv_key_device) &#123;</span><br><span class="line">			class_destroy(drv_key_class);</span><br><span class="line">			PERR(<span class="string">"device creation failed\n"</span>);</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		devices[i].nMinor = DRV_KEY_FIRST_MINOR+i;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	PINFO(<span class="string">"INIT\n"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">drv_key_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;	</span><br><span class="line">	<span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	PINFO(<span class="string">"EXIT\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_N_MINORS;i++) &#123;</span><br><span class="line">		drv_key_device_num= MKDEV(drv_key_major ,DRV_KEY_FIRST_MINOR+i);</span><br><span class="line"></span><br><span class="line">		cdev_del(&amp;devices[i].cdev);</span><br><span class="line"></span><br><span class="line">		device_destroy(drv_key_class ,drv_key_device_num);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	class_destroy(drv_key_class);</span><br><span class="line">	unregister_chrdev_region(drv_key_device_num ,DRV_KEY_N_MINORS);	</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_key_init);</span><br><span class="line">module_exit(drv_key_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="drv-key-h"><a href="#drv-key-h" class="headerlink" title="drv_key.h"></a>drv_key.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_key.o </span><br><span class="line">KERN_SRC	:= /home/draapho/share/kernel/linux-2.6.22.6/</span><br><span class="line">PWD			:= <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">	depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
-<h2 id="测试文件-drv-key-test-c"><a href="#测试文件-drv-key-test-c" class="headerlink" title="测试文件 drv_key_test.c"></a>测试文件 drv_key_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_usage</span><span class="params">(<span class="keyword">char</span> *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Usage:\n"</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s &lt;dev&gt;\n"</span>,file);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"eg. \n"</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/key0\n"</span>, file);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/key1\n"</span>, file);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">char</span>* filename;</span><br><span class="line">    <span class="keyword">char</span> val;</span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;                        <span class="comment">// 输入错误, 打印帮助信息</span></span><br><span class="line">        print_usage(argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    filename = argv[<span class="number">1</span>];</span><br><span class="line">    fd = open(filename, O_RDWR);            <span class="comment">// 打开设备</span></span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"error, can't open %s\n"</span>, filename);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    	<span class="keyword">char</span> key_vals[<span class="number">3</span>];</span><br><span class="line">    	<span class="keyword">int</span> cnt = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    	<span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        	read(fd, key_vals, <span class="keyword">sizeof</span>(key_vals));</span><br><span class="line">    		<span class="keyword">if</span> (key_vals[<span class="number">0</span>] || key_vals[<span class="number">1</span>] || key_vals[<span class="number">2</span>]) &#123;</span><br><span class="line">    			<span class="built_in">printf</span>(<span class="string">"%04d key pressed: %d %d %d\n"</span>, cnt++, key_vals[<span class="number">0</span>], key_vals[<span class="number">1</span>], key_vals[<span class="number">2</span>]);</span><br><span class="line">    		&#125;</span><br><span class="line">    		usleep(<span class="number">100</span>);</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                  <span class="comment"># LinK+的Makefile使用的是 make modules 而不是 make all</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译测试代码</span></span><br><span class="line">$ arm-linux-gcc drv_key_test.c -o drv_key_test</span><br></pre></td></tr></table></figure>
-<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><p>开发环境上, 开发板烧录好内核, 使用nfs挂载共享文件. 所以无需任何文件传输的步骤.<br>开发环境的具体配置可参考: <a href="https://draapho.github.io/2017/11/28/1738-dhcp-env/">基于DHCP建立嵌入式Linux开发环境</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试模块加载情况</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key.ko     <span class="comment"># 加载模块</span></span><br><span class="line">drv_key:INIT</span><br><span class="line"></span><br><span class="line">$ cat /proc/devices     <span class="comment"># 查看设备</span></span><br><span class="line">249 drv_key</span><br><span class="line">250 drv_key</span><br><span class="line">251 drv_key</span><br><span class="line">252 drv_key</span><br><span class="line"></span><br><span class="line">$ ls /dev/key*          <span class="comment"># 查看设备节点               </span></span><br><span class="line">/dev/key0  /dev/key1  /dev/key2  /dev/key3</span><br><span class="line"></span><br><span class="line">$ ls /sys/class/drv_key/            <span class="comment"># 查看设备的类</span></span><br><span class="line">key0  key1  key2  key3</span><br><span class="line">$ cat /sys/class/drv_key/key3/dev   <span class="comment"># 查看设备号</span></span><br><span class="line">249:3</span><br><span class="line"></span><br><span class="line">$ rmmod drv_key.ko      <span class="comment"># 移除模块</span></span><br><span class="line">drv_key:EXIT</span><br></pre></td></tr></table></figure>
-<p>下面进行按键测试</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key.ko     <span class="comment"># 加载模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># key0-&gt;all, key1-&gt;s2, key2-&gt;s3, key3-&gt;s4</span></span><br><span class="line">$ ./drv_key_test /dev/key0          <span class="comment"># 检测所有按键 </span></span><br><span class="line">drv_key:minor=0                     <span class="comment"># 打印信息</span></span><br><span class="line">drv_key:In char driver open() <span class="keyword">function</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板按下按键, 就会打印按键信息. 1表示按下. 0表示松开.</span></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br><span class="line"></span><br><span class="line">$ ./drv_key_test /dev/key0 &amp;        <span class="comment"># 后台运行</span></span><br><span class="line">$ top                               <span class="comment"># 查看系统资源情况</span></span><br><span class="line"><span class="comment"># 可以看到 ./drv_key_test /dev/key0 进程表现还不错. %MEM=2% %CPU=0%</span></span><br><span class="line"></span><br><span class="line">$ <span class="built_in">kill</span> &lt;PID&gt;                        <span class="comment"># 杀掉指定进程</span></span><br><span class="line"><span class="comment"># 这是因为我在测试代码的死循环里加了100ms的延时, 去掉usleep这行, 再测的话会变成:</span></span><br><span class="line"><span class="comment"># %CPU=99%</span></span><br></pre></td></tr></table></figure>
-<p>结论: 这种方式的按键驱动是有巨大风险的, 因为其性能取决于应用层怎么写, 这是不可接受的!<br>实际开发中, 按键多半采用中断或poll方式.</p>
-<h1 id="驱动框架的比较"><a href="#驱动框架的比较" class="headerlink" title="驱动框架的比较"></a>驱动框架的比较</h1><p>LinK+自动生成的框架和jz2440教程的框架主要有如下区别:</p>
-<ul>
-<li><code>alloc_chrdev_region</code> or <code>register_chrdev_region</code> vs <code>register_chrdev</code><ul>
-<li>本质上没啥区别, 都会调用 <code>__register_chrdev_region()</code></li>
-<li><a href="http://blog.csdn.net/freenaut/article/details/4298174" target="_blank" rel="noopener">字符设备 register_chrdev_region()、alloc_chrdev_region() 和 register_chrdev()</a></li>
-</ul>
-</li>
-<li><code>device_create</code> vs <code>class_device_create</code><ul>
-<li>似乎是历史遗留问题, <code>device_create</code> 函数用于替换 <code>class_device_create</code>.</li>
-<li><a href="http://blog.csdn.net/yuzaipiaofei/article/details/6790689" target="_blank" rel="noopener">class_create(),class_device_create()或device_create()自动创建设备文件结点</a></li>
-</ul>
-</li>
-<li>子设备号Minor获取上的区别.<ul>
-<li>使用 private_data 更符合linux的规范</li>
-</ul>
-</li>
-</ul>
-<p>总体而言, jz2440的教程使用的框架比较老, LinK+使用的框架更合适高版本的linux内核.</p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/29/1739-ubuntu-nfs/" itemprop="url">
-                  Ubuntu 16.04安装配置NFS
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-29T00:00:00+11:00" content="2017-11-29">
-              2017-11-29
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="noopener">Ubuntu 16.04安装配置NFS</a><br><strong>略有改动和增加</strong></p>
-<hr>
-<p>NFS允许用户通过网络分享目录和文件，客户端用户可以像操作本地文件一样操作服务端文件。</p>
-<h1 id="NFS服务端"><a href="#NFS服务端" class="headerlink" title="NFS服务端"></a>NFS服务端</h1><p>安装nfs-kernel-server：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install nfs-kernel-server</span><br></pre></td></tr></table></figure>
-<h1 id="NFS客户端"><a href="#NFS客户端" class="headerlink" title="NFS客户端"></a>NFS客户端</h1><p>安装 nfs-common：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install nfs-common</span><br></pre></td></tr></table></figure>
-<h1 id="服务端创建共享目录"><a href="#服务端创建共享目录" class="headerlink" title="服务端创建共享目录"></a>服务端创建共享目录</h1><p>客户端通过远程挂载的方式访问服务端共享目录，为了说明两种不同的文件权限，我会使用不同的选项创建两个共享目录。</p>
-<ul>
-<li>默认情况下客户端不允许在NFS共享目录上执行root操作，如：更改文件所有权等。</li>
-<li>但是有时用户需要用root权限操作NFS共享目录，这可以通过配置实现。</li>
-</ul>
-<h2 id="创建默认配置的共享目录"><a href="#创建默认配置的共享目录" class="headerlink" title="创建默认配置的共享目录"></a>创建默认配置的共享目录</h2><p>创建一个目录：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir -p /var/nfs/sharedir</span><br></pre></td></tr></table></figure></p>
-<p>更改目录权限：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo chown nobody:nogroup /var/nfs/sharedir</span><br></pre></td></tr></table></figure></p>
-<h2 id="以root权限共享home目录"><a href="#以root权限共享home目录" class="headerlink" title="以root权限共享home目录"></a>以root权限共享home目录</h2><p>配置NFS：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/exports</span><br></pre></td></tr></table></figure>
-<p>如下格式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/var/nfs/sharedir   *(rw,sync,no_subtree_check)</span><br><span class="line">/home               *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line"></span><br><span class="line"># 要限制客户端IP</span><br><span class="line"># /var/nfs/sharedir 122.111.222.111(rw,sync,no_subtree_check)</span><br><span class="line"># /home             122.111.222.111(rw,sync,no_root_squash,no_subtree_check)</span><br></pre></td></tr></table></figure></p>
-<p>下面是一些NFS共享的常用参数说明： </p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>rw</td>
-<td>可读写的权限 </td>
-</tr>
-<tr>
-<td>ro</td>
-<td>只读的权限 </td>
-</tr>
-<tr>
-<td>no_root_squash</td>
-<td>权限不压缩, 远程客户端拥有root权限. (不安全, 但嵌入式要用!)</td>
-</tr>
-<tr>
-<td>root_squash</td>
-<td>权限压缩, 远程客户端root权限压缩成为匿名使用者(默认)</td>
-</tr>
-<tr>
-<td>sync</td>
-<td>资料同步写入到内存与硬盘当中 </td>
-</tr>
-<tr>
-<td>async</td>
-<td>资料会先暂存于内存当中，而非直接写入硬盘 </td>
-</tr>
-<tr>
-<td>hide</td>
-<td>不共享子目录</td>
-</tr>
-<tr>
-<td>no_hide</td>
-<td>共享子目录</td>
-</tr>
-<tr>
-<td>subtree_check</td>
-<td>共享子目录时, 检查父目录的权限(默认)</td>
-</tr>
-<tr>
-<td>no_subtree_check</td>
-<td>共享子目录时, 不检查父目录的权限</td>
-</tr>
-</tbody>
-</table>
-<p>重启nfs-kernel-server：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo systemctl restart nfs-kernel-server</span><br></pre></td></tr></table></figure></p>
-<p>如果开启了防火墙，打开NFS的2049端口。</p>
-<p>查看共享文件情况<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ showmount -e</span><br><span class="line">/home *</span><br></pre></td></tr></table></figure></p>
-<h1 id="客户端挂载共享目录"><a href="#客户端挂载共享目录" class="headerlink" title="客户端挂载共享目录"></a>客户端挂载共享目录</h1><p><strong>此方法不适用于嵌入式Linux!</strong></p>
-<p>创建两个挂载点：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir -p /nfs/sharedir</span><br><span class="line">$ sudo mkdir -p /nfs/home</span><br></pre></td></tr></table></figure>
-<p>挂载远程共享目录：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mount nfs_server_ip:/var/nfs/sharedir /nfs/sharedir</span><br><span class="line">$ sudo mount nfs_server_ip:/home /nfs/home</span><br></pre></td></tr></table></figure>
-<p>查看挂载点：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ df -h</span><br><span class="line">Filesystem                       Size  Used Avail Use% Mounted on</span><br><span class="line">udev                             861M     0  861M   0% /dev</span><br><span class="line">...</span><br><span class="line">192.168.0.100:/var/nfs/sharedir   29G  4.5G   23G  17% /nfs/sharedir</span><br><span class="line">192.168.0.100:/home               29G  4.5G   23G  17% /nfs/home</span><br></pre></td></tr></table></figure>
-<p>现在你可以使用共享目录了。</p>
-<p>使用完之后不要忘了卸载：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo umount /nfs/home</span><br><span class="line">$ sudo umount /nfs/sharedir</span><br></pre></td></tr></table></figure></p>
-<h1 id="开机自动挂载NFS共享目录"><a href="#开机自动挂载NFS共享目录" class="headerlink" title="开机自动挂载NFS共享目录"></a>开机自动挂载NFS共享目录</h1><p>编辑fstab文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/fstab</span><br></pre></td></tr></table></figure></p>
-<p>添加如下两行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">your_nfs_server_Ip:/var/nfs/sharedir    /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">your_nfs_server_Ip:/home                /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure></p>
-<p>或者使用hostname<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nfs_server_hostname:/var/nfs/sharedir   /nfs/sharedir   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">nfs_server_hostname:/home               /nfs/home       nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p>转载自 <a href="http://blog.topspeedsnail.com/archives/908" target="_blank" rel="noopener">Ubuntu 16.04安装配置NFS</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1495,7 +1418,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-count">92</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1503,7 +1426,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -1512,7 +1435,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">76</span>
+                <span class="site-state-item-count">77</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
