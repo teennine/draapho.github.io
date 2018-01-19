@@ -261,6 +261,330 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/14/1615-software-thread/" itemprop="url">
+                  协程/进程/线程资料收集
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-14T00:00:00+11:00" content="2016-11-14">
+              2016-11-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>协程(Coroutine), 多线程(Thread), 多进程(Multiprocessing)资料繁多, 学无止境, 就集中在这一篇收集贴中. 便于查阅学习</p>
+<h1 id="自己的理解"><a href="#自己的理解" class="headerlink" title="自己的理解"></a>自己的理解</h1><ul>
+<li>协程, 任务之间不是竞争关系, 而是协作关系, 需要每个任务都需要有一颗舍己为公的心!<ul>
+<li>大家排队喝水, 喝到差不多就自己让给下一个人, 自己再去排队! 可按照优先级来插队的.</li>
+<li>遇到不讲道理的人, 那这个机制就失效了. 因为没有抢占, 大家都只会默默等待…</li>
+<li>优点, 任务切换的代价非常小. 由于没有抢占, 也就没有复杂的临界区问题. 锁的问题也变得简单.</li>
+<li>缺点, 这个世界上总有不讲理的人, 所以, 大型任务和系统不敢这么用…</li>
+<li>单片机开发是非常适合使用协程的! (资源有限, 需要减小任务切换的开销. 任务可控, 意味着易于协作)</li>
+<li>python 下可用 gevent. </li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多线程, 任务之间是竞争关系, 高优先级优先执行, 同时又有时间片限制, 避免高优先级任务霸占CPU<ul>
+<li>谁强谁喝水, 不过旁边有个管理员, 哪个家伙喝水时间太久了, 就会把他给跩一边去, 大家重新来抢.</li>
+<li>线程是共享内存的, 理解为这些水来自于同一个自来水厂(这个水厂有毒的话, 谁了逃不了),</li>
+<li>多核就是多个水龙头, 同一时刻可以有多个人在喝水.</li>
+<li>优点, 任务的开销比进程小(因为共享内存), 通讯方式多样. 加个水龙头和造个水厂的区别!!!</li>
+<li>缺点, 一大帮自私又不讲理的人在一起总是很难管理的… 需要各种锁机制来维持和谐共处…</li>
+<li>python的多线程, 由于GIL机制的存在, 是无法利用多核的. (意味着不适用于CPU密集型任务)</li>
+<li>python有一个类进程版本的线程池 <code>multiprocessing.pool.ThreadPool</code>, 可以获取返回值<br>由于本质是线程, Windows下terminate方法是没有用的.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>多进程, 任务之间是竞争关系, 任务之间的数据全部隔离, 没有共享.<ul>
+<li>进程是资源分配的基本单位. 进程包含线程, 线程共用进程的资源.</li>
+<li>进程比线程安全性更高, 因为拥有独立的内存块(独立水厂供水)</li>
+<li>进程的建立和调度比线程更费时间和资源</li>
+<li>进程间的数据共享和交换很麻烦. (python例子中, 进程内 print 不会打印, 参数传递需要可以pickle)</li>
+<li>python 下推荐使用 <code>multiprocessing.pool.Pool</code>. 可以获取返回值.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>进程和线程以及多核<ul>
+<li>操作系统必须有一个进程, 创建进程时, 会分配好供这个进程使用的内存和上下文环境.</li>
+<li>线程依赖于进程, 多线程运行于同一个进程下面, 会共享同一个进程的内存.</li>
+<li>事实上, 线程是最难写好的一种多任务方式(因为共享内存).</li>
+<li>以android为例,<ul>
+<li>android的每一个应用就是一个linux进程, 所以写的再烂的应用也不会导致整个android系统崩溃.</li>
+<li>应用内支持多线程, 也事实上都对应到linux的线程, 这些线程运行在分配好的linux进程中.</li>
+</ul>
+</li>
+<li>进程和线程的概念和单核还是多核一点关系都没有! 先理解好单核再说, 真正涉及到CPU密集型任务时, 再考虑多核优化…</li>
+</ul>
+</li>
+</ul>
+<h1 id="优缺点比较"><a href="#优缺点比较" class="headerlink" title="优缺点比较"></a>优缺点比较</h1><ul>
+<li>协程具有进程和线程各自的优点. 但其缺点是需要任务间自己来协作调度(很容易写成阻塞等待), 这一点直接导致了通用性很差.</li>
+<li><a href="http://blog.csdn.net/lishenglong666/article/details/8557215" target="_blank" rel="noopener">多线程还是多进程的选择及区别</a>, 比较全面的一篇文章!<ul>
+<li>本文也有一个转字, 应该是综合了多种搜素结果写出来的一篇博文. 有结论, 有实验代码和过程</li>
+<li>鱼还是熊掌：浅谈多进程多线程的选择</li>
+<li>1.进程与线程</li>
+<li>一、重复周丽论文实验步骤</li>
+<li>二、增加并发数量的实验</li>
+<li>三、增加每进程/线程的工作强度的实验</li>
+<li>四、多进程和多线程在创建和销毁上的效率比较</li>
+<li>五、双核系统重复周丽论文实验步骤</li>
+<li>六、并发服务的不可测性</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>多进程</th>
+<th>多线程</th>
+<th>总结</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据共享、同步</td>
+<td>数据共享复杂，需要用IPC；数据是分开的，<strong>同步简单</strong></td>
+<td>因为共享进程数据，<strong>数据共享简单</strong>，但也是因为这个原因导致同步复杂</td>
+<td>各有优势</td>
+</tr>
+<tr>
+<td>内存、CPU</td>
+<td>占用内存多，切换复杂，CPU利用率低</td>
+<td><strong>占用内存少，切换简单，CPU利用率高</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>创建销毁、切换</td>
+<td>创建销毁、切换复杂，速度慢</td>
+<td><strong>创建销毁、切换简单，速度很快</strong></td>
+<td>线程占优</td>
+</tr>
+<tr>
+<td>编程、调试</td>
+<td><strong>编程简单，调试简单</strong></td>
+<td>编程复杂，调试复杂</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>可靠性</td>
+<td><strong>进程间不会互相影响</strong></td>
+<td>一个线程挂掉将导致整个进程挂掉</td>
+<td>进程占优</td>
+</tr>
+<tr>
+<td>分布式</td>
+<td><strong>适应于多核、多机分布式</strong>；如果一台机器不够，扩展到多台机器比较简单</td>
+<td>适应于多核分布式</td>
+<td>进程占优</td>
+</tr>
+</tbody>
+</table>
+<h1 id="资料集"><a href="#资料集" class="headerlink" title="资料集"></a>资料集</h1><ul>
+<li><p><a href="https://www.tutorialspoint.com/python/python_multithreading.htm" target="_blank" rel="noopener">Python Multithreaded Programming</a></p>
+<ul>
+<li>Python多线程入门教程, 有详细的说明, 源代码及运行结果.</li>
+<li>主要有3个示例, 多线程, 多线程同步, 使用Queue来通讯</li>
+</ul>
+</li>
+<li><p><a href="http://www.jianshu.com/p/0e4ff7c856d3" target="_blank" rel="noopener">Python 多线程</a></p>
+<ul>
+<li>介绍了Python多线程的状态, 类型</li>
+<li>线程的创建, 合并(join), 同步, 锁(Lock, 死锁, RLock), 其它IPC</li>
+<li>将子线程设置<strong>后台线程</strong>(setDaemon), 让子线程随主线程一起结束.</li>
+<li>提了一下Python的GIL, 参考资料中的一篇对此做了很好的说明: <a href="http://zhuoqiang.me/python-thread-gil-and-ctypes.html" target="_blank" rel="noopener">python 线程，GIL 和 ctypes</a></li>
+</ul>
+</li>
+<li><p><a href="https://draapho.github.io/2016/11/03/1615-python-ipc/">Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></p>
+<ul>
+<li>线程（Threading）</li>
+<li>锁（Lock）</li>
+<li>可重入锁（RLock）</li>
+<li>条件（Condition）</li>
+<li>信号量（Semaphore）</li>
+<li>事件（Event）</li>
+<li>队列（Queue）, 重点推荐</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/179265" target="_blank" rel="noopener">理解 Python 中的多线程</a></p>
+<ul>
+<li>示例1, 请求五个不同的url. 比较了单线程和多线程性能上的差别</li>
+<li>示例2, 全局变量的线程安全问题（race condition）. BUG版和修改版</li>
+<li>示例3, 多线程环境下的原子操作. BUG版和修改版</li>
+<li>示例4, Python多线程简易版：线程池 threadpool</li>
+<li>附上了很多参考和推荐阅读的资料!</li>
+</ul>
+</li>
+<li><p>线程池 threadpool (需安装)</p>
+<ul>
+<li><a href="http://www.zhidaow.com/post/python-threadpool" target="_blank" rel="noopener">Python多线程简易版 - 线程池threadpool</a>, 新手上路版</li>
+<li><a href="http://chriskiehl.com/article/parallelism-in-one-line/" target="_blank" rel="noopener">Parallelism in one line</a>, 比较了传统方案和线程池方案, 并给出了范例</li>
+<li>这是<code>Parallelism in one line</code>的中文翻译版本, 并有遇到小坑和补充说明. <a href="https://my.oschina.net/leejun2005/blog/194270" target="_blank" rel="noopener">Python 并行任务技巧</a></li>
+<li><strong>注意： threadpool 是非线程安全的</strong>。<ul>
+<li>关于线程安全, 可参考<a href="http://blog.csdn.net/xiao__gui/article/details/8934832" target="_blank" rel="noopener">Java线程安全和非线程安全</a></li>
+<li>个人理解, 对于python的非线程安全, 编程时需要特别注意 <code>可变对象</code> 和 <code>不可变对象</code>, 弄清楚Python到底是在<code>赋值</code>还是<code>引用</code>(相当于指针)</li>
+<li>可以参考此文 <a href="https://my.oschina.net/leejun2005/blog/145911" target="_blank" rel="noopener">python基础（5）：深入理解 python 中的赋值、引用、拷贝、作用域</a></li>
+</ul>
+</li>
+<li>初步结论, 还是比较推崇线程池的: 比起经典的方式来说简单很多，效率高，易懂，而且没什么死锁的陷阱。</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/398826" target="_blank" rel="noopener">Python 多线程教程：并发与并行</a></p>
+<ul>
+<li>讲了多线程, 多进程, 以及分布式任务.</li>
+<li>原作者已下载网络图片来说明问题, 转发者为了便于测试和理解, 简化了代码.</li>
+<li>1, 单线程执行. 花了19.4秒去下载91张图片</li>
+<li>2, 多线程. 下载时间变成了4.1秒. 并说明了为何有GIL的情况下, 多线程仍然是有效的(因为是IO密集型的任务)</li>
+<li>3, 多进程. 优点, 避免了GIL, 适用于CPU密集型任务. 缺点, 耗内存!</li>
+<li>4, 分布式任务. 提了一下<code>RQ</code>和<code>Celery</code></li>
+<li>5, 总结: IO密集型，多线程或多进程. CPU密集型, 多进程. 网络应用, 分布式任务</li>
+<li>6, 并发、并行区别与联系. 并发, 一个人按优先级处理多件事情(任一时刻只能做一件事情). 并行, 有多个人各自做事(多核多任务).</li>
+</ul>
+</li>
+<li><p><strong>进程池 multiprocessing.Pool 以及 multiprocessing.pool.ThreadPool</strong></p>
+<ul>
+<li><a href="https://segmentfault.com/a/1190000003044986" target="_blank" rel="noopener">Python 多进程实践</a><ul>
+<li>Python多进程的实现入门级文章</li>
+<li>创建子进程的方法: fork, multiprocessing, Pool 进程池</li>
+<li>IPC(进程间通讯): Queue, Pipe</li>
+</ul>
+</li>
+<li><a href="http://blog.csdn.net/seetheworld518/article/details/49639651" target="_blank" rel="noopener">Python 多进程 multiprocessing.Pool类详解</a></li>
+<li><a href="http://lucasb.eyer.be/snips/python-thread-pool.html" target="_blank" rel="noopener">Python’s undocumented ThreadPool</a>, 提了一下 ThreadPool</li>
+<li><a href="https://draapho.github.io/2016/11/28/1622-python-time/">python 延时及超时</a>, “学习过程中的例子” 中有尝试使用进程池</li>
+<li><a href="http://www.eenot.com/thread-103459-1-1.html" target="_blank" rel="noopener">Python 中 Ctrl+C 不能终止 Multiprocessing Pool 的解决方</a>, ThreadPool有同样的问题. 可以搜索关键字: Keyboard Interrupts multiprocessing Pool.</li>
+<li><a href="http://bugs.python.org/issue17140" target="_blank" rel="noopener">使用 multiprocessing.pool.ThreadPool 可能的潜在风险</a>, 本质是线程, 而且没有文档说明</li>
+</ul>
+</li>
+<li><p><a href="https://my.oschina.net/leejun2005/blog/203148" target="_blank" rel="noopener">浅谈 python multiprocessing（多进程）下如何共享变量</a></p>
+<ul>
+<li>1, 抛出了一个多进程的问题.</li>
+<li>2, python 多进程共享变量的几种方式</li>
+<li>3, 多进程的问题远不止这么多：数据的同步. (需要Lock)</li>
+<li>4, 总结为: 多进程最好还是用IPC(message之类的). 如果一定要用共享变量, 那也是可以的…</li>
+</ul>
+</li>
+<li><p><a href="https://liangxiansen.github.io/2016/08/08/python%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%8D%8F%E7%A8%8B/" target="_blank" rel="noopener">Python之路：(十五）进程、线程和协程</a></p>
+<ul>
+<li>Python线程, 线程锁(Lock, Rlock), 其它IPC, 线程池</li>
+<li>Python进程, 进程数据共享, 进程IPC. (Python Windows下是可以用进程的, 只是不支持fork)</li>
+<li>Python协程, greenlet(主动切换), gevent(遇到IO操作, 自动切换).</li>
+</ul>
+</li>
+<li><p><strong><a href="http://xlambda.com/gevent-tutorial/" target="_blank" rel="noopener">gevent程序员指南</a></strong></p>
+<ul>
+<li>核心部分, 较为详细的介绍了 gevent 的原理和使用方式.</li>
+<li>数据结构, 介绍了协程之间的通讯工具</li>
+<li>真实世界的应用, 几个实际应用的例子</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/03/1615-python-ipc/" itemprop="url">
                   Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues)
                 </a>
@@ -1456,275 +1780,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/10/1609-WinSoft-terminal/" itemprop="url">
-                  Windows 软件系列-终端
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-10T00:00:00+11:00" content="2016-10-10">
-              2016-10-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="ConEmu-简介"><a href="#ConEmu-简介" class="headerlink" title="ConEmu 简介"></a><a href="https://conemu.github.io/" target="_blank" rel="noopener">ConEmu</a> 简介</h1><ul>
-<li><a href="https://conemu.github.io/" target="_blank" rel="noopener">ConEmu</a> 即 Console Emulate, 一款终端模拟器, 完全免费, 可以通过他加载多种终端如 cmd, shell, bash, putty 而且便于管理!</li>
-<li>简而言之, 凡是喜欢用命令行方式的, windows就请使用这款软件, 分分钟变身geek或者hacker的感觉…</li>
-<li>右键文件夹打开ConEmu就自动进入此文件夹, <code>ConEmu Inside</code> 甚至能嵌入到文件夹中.</li>
-<li>顺便说一句, cmder就是他的马甲, 核心还是ConEmu.</li>
-</ul>
-<h2 id="我的ConEmu"><a href="#我的ConEmu" class="headerlink" title="我的ConEmu"></a>我的ConEmu</h2><ul>
-<li>我希望的ConEmu, 就是想输命令行, 打开ConEmu就行!</li>
-<li>本文的配置可以在ConEmu中执行:<ul>
-<li><code>cmd</code> <code>shell</code> windows自带终端</li>
-<li><code>git</code> windows下安装好git即可, 包含了<code>git-bash</code></li>
-<li><code>mingw</code> windows下用gnu工具链编译c, c++</li>
-<li><code>putty</code> ssh链接远程linux, 串口链接嵌入式linux</li>
-<li><code>cygwin</code> windows下模拟linux运行环境 (目前尚未使用, 在用传统的虚拟机)</li>
-<li>其它指令如: <code>hexo</code> 博客使用, <code>choco</code> 安装软件使用, <code>apm</code> atom下载插件使用.</li>
-</ul>
-</li>
-<li>快速在指定文件夹下打开ConEmu, 可在 <code>Listary</code> 关联快捷键 <code>ctrl-~</code></li>
-<li>快速在Notepad++下打开ConEmu, 关联快捷键 <code>ctrl-~</code></li>
-</ul>
-<h2 id="自制ConEmu绿色版"><a href="#自制ConEmu绿色版" class="headerlink" title="自制ConEmu绿色版"></a>自制ConEmu绿色版</h2><ul>
-<li>下载 <a href="https://conemu.github.io/" target="_blank" rel="noopener">ConEmu便携版</a><ul>
-<li>解压后放在理想的文件夹中. 下面以 <code>D:\Green\ConEmu</code> 路径为例.</li>
-</ul>
-</li>
-<li>下载 <a href="https://mridgers.github.io/clink/" target="_blank" rel="noopener">clink便携版</a>, 用于增强终端操作, 如复制拷贝快捷键等<ul>
-<li>解压后, 所有文件放入 <code>D:\Green\ConEmu\ConEmu\clink</code>, 这里面原来就有个 <code>Readme.txt</code>, 说的非常清楚了</li>
-</ul>
-</li>
-<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="noopener">git便携版</a>, 版本管理软件<ul>
-<li>解压后命名为 <code>Git</code> 放到 <code>D:\Green\ConEmu\plugins</code>,</li>
-</ul>
-</li>
-<li>下载并使用默认设置安装 <a href="http://www.mingw.org/" target="_blank" rel="noopener">mingw</a>, 用于在win下使用gnu工具编译<ul>
-<li>只是装了 <code>MinGW Installation Manager</code> (实际上是个绿色软件). 打开后继续安装组件</li>
-<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code>和<code>mingw32-gcc-g++</code>-&gt;左上<code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
-<li>我只需要编译c和c++文件, <code>msys</code>也已经由git软件实现了, 因此无需安装其它组件了.</li>
-<li>然后把整个 <code>MinGW</code> 文件夹放到 <code>D:\Green\ConEmu\plugins</code></li>
-<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 <code>make</code> 指令了</li>
-</ul>
-</li>
-<li>下载 <a href="http://www.putty.org/" target="_blank" rel="noopener">putty.zip</a>, ssh远程连接软件及串口软件<ul>
-<li>解压后命名为 <code>putty</code> 放到 <code>D:\Green\ConEmu\plugins</code></li>
-</ul>
-</li>
-<li><p>然后需要将上述软件加入环境变量, 这个可以在ConEmu设置中完成!!!</p>
-<ul>
-<li><p>打开ConEmu, <code>Setting</code>-&gt;<code>Startup</code>-&gt;<code>Environment</code>-&gt;<code>set PATH=%ConEmuBaseDir%\Scripts;%PATH%</code> 下面加上如下语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># git PATH</span><br><span class="line">set PATH=%ConEmuDir%\plugins\Git;%PATH%</span><br><span class="line">set PATH=%ConEmuDir%\plugins\Git\cmd;%PATH%</span><br><span class="line"># mingw PATH</span><br><span class="line">set PATH=%ConEmuDir%\plugins\MinGW\bin;%PATH%</span><br><span class="line"># putty PATH%</span><br><span class="line">set PATH=%ConEmuDir%\plugins\putty;%PATH%</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>这样, ConEmu在启动时, 会自动加入上述软件到PATH中</p>
-</li>
-<li>如果使用 <strong>更通用的做法</strong>, 把上述环境变量删除或注释掉.</li>
-</ul>
-</li>
-<li>自制ConEmu绿色版就初步完成, 下面只需要配置了.</li>
-</ul>
-<h2 id="更通用的做法"><a href="#更通用的做法" class="headerlink" title="更通用的做法"></a>更通用的做法</h2><ul>
-<li>用上述方法有三个缺点<ul>
-<li>git便携版不支持ssh或GPG免密远程同步, 每次都要求输入用户名和密码, 非常麻烦.</li>
-<li>如果不用ConEmu, 那么其它终端, 如atom下的终端就无法使用上述软件.</li>
-<li>发现putty会新打开一个窗口, 而不是嵌入到ConEmu中.</li>
-</ul>
-</li>
-<li>下载 <a href="https://git-scm.com/download/win" target="_blank" rel="noopener">git安装版</a>, 使用默认配置安装即可.<ul>
-<li>为了便于使用, 建议把git的根目录也加入环境变量, 这样就能直接调用 <code>git-cmd.exe</code></li>
-</ul>
-</li>
-<li>设置 <code>D:\Green\ConEmu\plugins\MinGW\bin</code> 文件夹到系统环境变量中</li>
-<li>设置 <code>D:\Green\ConEmu\plugins\putty</code> 文件夹到系统环境变量中</li>
-<li>还可以考虑下载安装 <a href="https://www.cygwin.com/" target="_blank" rel="noopener">cygwin</a> 并加入ConEmu中, 这是一款Windows下的Linux模拟器. 注意安装和卸载都比较麻烦.<h2 id="ConEmu的设置"><a href="#ConEmu的设置" class="headerlink" title="ConEmu的设置"></a>ConEmu的设置</h2></li>
-<li>所有设置都会存放在 <code>conEmu.xml</code> 里, 所以设置的备份很简单</li>
-<li>首次打开会有设置向导 <code>fast configuration</code>, 用于生成 <code>conEmu.xml</code></li>
-<li>可以在设置好环境变量, 安装好git后, 删除<code>conEmu.xml</code>重新运行, 这样ConEmu会自动检测加入<code>Git bash</code> 和 <code>putty</code>, 省心不少. clink放在指定路径后, 其功能也会自动启用.</li>
-<li>配置过程如下, 需要图文版可参考 <a href="https://higoge.github.io/2015/07/22/tools02/" target="_blank" rel="noopener">工具02：cmd的替代品ConEmu+Clink</a>, 配置上略有区别, 进入 <code>Settings</code> 后<ul>
-<li><code>Main</code>-&gt;<code>Appearance</code>-&gt;<code>Generic</code>-&gt;<code>Single instance mode (...)</code></li>
-<li><code>Main</code>-&gt;<code>Confirm</code>-&gt;<code>CLose confirmations</code>-&gt;<del><code>When running process was detected</code></del></li>
-<li><code>Startup</code>-&gt;<code>Specified named task</code>-&gt;<code>Bash:: Git bash</code> 更改打开时默认使用的终端类型</li>
-<li><code>Startup</code>-&gt;<code>Environment</code> 启动时, 会加载这里的环境变量. 配置好系统环境变量的话, 可以全部删除</li>
-<li>注册鼠标右键 <code>ConEmu Here</code> 和 <code>ConEmu Inside</code>, 并设置为使用 <code>Git bash</code> 启动<ul>
-<li><code>Integration</code>-&gt;<code>ConEmu Here</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
-<li><code>Integration</code>-&gt;<code>ConEmu Inside</code>-&gt;<code>Command:</code>改为<code>{Git Bash} -cur_console:n</code>-&gt;<code>Register</code></li>
-</ul>
-</li>
-<li><code>Integration</code>-&gt;<code>Default term</code>-&gt;<code>Force ConEmu as default terminal for console applications</code></li>
-<li>添加 <code>tasks</code>. 选择 <code>Startup</code>-&gt;<code>Tasks</code>, 根据现有例子依样画葫芦即可.<ul>
-<li><code>Bash::Git bash</code>: <code>git-cmd.lnk --no-cd --command=usr/bin/bash.exe -l -i</code> 也可以点击<code>File path...</code>使用绝对路径替代快捷方式.</li>
-<li><code>Bash::Git bash(Admin)</code>: <code>*git-cmd.exe --no-cd --command=usr/bin/bash.exe -l -i</code> 最前面加个<code>*</code>就是管理员权限了.</li>
-<li><code>Putty::default</code>: <code>putty.exe</code> 同样, 可能需要使用绝对路径, 点击<code>File path...</code>选择即可</li>
-<li><code>Putty::Ubuntu</code>: <code>putty.exe -new_console -load &quot;ubuntu&quot;</code> 需要putty设置好名为<code>ubuntu</code>的session</li>
-<li><code>Cygwin</code>: <code>set HOME=d:\cygwin\home\XXX &amp; &quot;d:\cygwin\bin\mintty.exe&quot; -i /Cygwin.ico -</code> 这条指令没有测试过.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="Putty"><a href="#Putty" class="headerlink" title="Putty"></a><a href="http://www.putty.org/" target="_blank" rel="noopener">Putty</a></h1><ul>
-<li><a href="http://www.putty.org/" target="_blank" rel="noopener">Putty</a> 可用于ssh连接远程主机, 也支持串口. 使用简单, 完全免费</li>
-<li>putty的配置, 一个配置就是一个<code>Session</code>. 可以参考<a href="http://blog.csdn.net/tianlesoftware/article/details/5831605" target="_blank" rel="noopener">Putty 工具 保存配置的 小技巧</a></li>
-<li>putty免密登录, 没有尝试, 可以参考如下两篇文章.<ul>
-<li><a href="https://segmentfault.com/a/1190000000639516" target="_blank" rel="noopener">PuTTY的自动登录设置</a></li>
-<li><a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="noopener">windows 上用程序putty使用 ssh自动登录linux</a></li>
-</ul>
-</li>
-</ul>
-<h2 id="设置Default"><a href="#设置Default" class="headerlink" title="设置Default"></a>设置Default</h2><ul>
-<li><code>Window</code>-&gt;<code>Lines of scrollback</code>-<code>20000</code>  回看更多历史屏幕信息</li>
-<li><code>Window</code>-&gt;<code>Apperance</code>-&gt;<code>Vertical line</code>, <code>Cursor blinks</code> 游标闪烁</li>
-<li><code>Window</code>-&gt;<code>Colours</code>-&gt;<code>Default Backgroud</code>-&gt;<code>R0 G43 B54</code> 使用ConEmu背景色</li>
-<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code>-&gt;<code>None</code> 默认串口不用流控制</li>
-<li><code>Session</code>-&gt;<code>Saved Sessions</code>-&gt;输入 <code>Default Settings</code>-&gt;<code>Save</code> 默认值设置完成</li>
-</ul>
-<h2 id="设置ssh"><a href="#设置ssh" class="headerlink" title="设置ssh"></a>设置ssh</h2><ul>
-<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>SSH</code>-&gt;<code>Host Name (or IP address)</code>-&gt;<code>10.0.0.99</code> 或者  <code>username@10.0.0.99</code> 来指定登录名</li>
-<li><code>Session</code>-&gt;<code>Saved Session</code> <code>Ubuntu</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
-<li>如果需要免密登录, 明文的很简单, 调用 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code> 即可</li>
-<li>如果需要密码加密, 稍微麻烦点. 参考 <a href="http://blog.csdn.net/hxg130435477/article/details/9960187" target="_blank" rel="noopener">windows 上用程序putty使用 ssh自动登录linux</a>. 我不需要这个功能, 略过不表.</li>
-</ul>
-<h2 id="设置serial"><a href="#设置serial" class="headerlink" title="设置serial"></a>设置serial</h2><ul>
-<li><code>Session</code>-&gt;<code>Conncection type</code>选<code>Serial</code>-&gt;<code>Serial line</code> <code>COM4</code>-&gt;<code>Speed</code> <code>9600</code> 即串口4, 波特率9600</li>
-<li><code>Connection</code>-&gt;<code>Serial</code>-&gt;<code>Flow control</code> <code>None</code> 这里可以设置其它串口参数, 不支持自动回显.</li>
-<li><code>Session</code>-&gt;<code>Saved Session</code> <code>COM4-9600</code>-&gt;<code>Save</code> 设置好配置名称, 保存即可.</li>
-</ul>
-<h2 id="配置的导入和导出"><a href="#配置的导入和导出" class="headerlink" title="配置的导入和导出"></a>配置的导入和导出</h2><ul>
-<li>putty直接把配置存放在注册表中. 所以思路就是导入导出注册表</li>
-<li>cmd下-&gt;<code>regedit</code>-&gt;打开注册表</li>
-<li>找到 <code>HKEY_CURRENT_USER\Software\SimonTatham</code></li>
-<li>在 <code>SimonTatham</code> 这个节点上点击右键, 选择导出, 保存为<code>config.reg</code>. 这里不单单是putty的配置</li>
-<li>恢复时, 管理员权限执行 <code>config.reg</code> 即可</li>
-</ul>
-<h2 id="putty的调用"><a href="#putty的调用" class="headerlink" title="putty的调用"></a>putty的调用</h2><ul>
-<li>基本用法 <code>putty.exe -load &quot;session_name&quot;</code></li>
-<li>自动登录 <code>putty.exe -load &quot;session_name&quot; -l &quot;username&quot; -pw &quot;password&quot;</code></li>
-<li>更多调用方式可查看 <code>PUTTY.CHM 3.8.x</code> 包含于下载的<code>putty.zip</code>中</li>
-</ul>
-<h2 id="对比TeraTerm"><a href="#对比TeraTerm" class="headerlink" title="对比TeraTerm"></a>对比<a href="https://ttssh2.osdn.jp/index.html.en" target="_blank" rel="noopener">TeraTerm</a></h2><ul>
-<li>TeraTerm相比于putty设置显得更复杂, 至少串口的功能比putty的要多一点</li>
-<li>TeraTerm有自己的脚本语句, 可以实现比较复杂的自动化功能</li>
-<li>TeraTerm在ConEmu字体显示有问题.</li>
-<li>putty完全满足需求, 配置简单, 完美兼容ConEmu, 因此没有考虑TeraTerm</li>
-</ul>
-<h1 id="Cygwin"><a href="#Cygwin" class="headerlink" title="Cygwin"></a><a href="https://www.cygwin.com/" target="_blank" rel="noopener">Cygwin</a></h1><ul>
-<li>是windows下的unix仿真环境, 可以用来做交叉编译, 因此可替代虚拟机安装linux.</li>
-<li>安装, 可以参考 <a href="http://velep.com/archives/747.html" target="_blank" rel="noopener">cygwin介绍、安装及其使用</a></li>
-<li>交叉编译, 可以参考<ul>
-<li><a href="http://mazhijing.blog.51cto.com/215535/39539/" target="_blank" rel="noopener">Cygwin 安装  基本使用 交叉编译vivi kernel</a></li>
-<li><a href="http://www.360doc.com/content/12/0929/14/5013584_238783155.shtml" target="_blank" rel="noopener">在cygwin中安装gcc编译器</a></li>
-</ul>
-</li>
-<li>卸载, 因为权限问题, Cygwin卸载很麻烦. 可以参考两篇文章, 已经是最简单的方法了<ul>
-<li><a href="http://blog.csdn.net/yelangjueqi/article/details/45199209" target="_blank" rel="noopener">window 下完全卸载Cygwin最简单方法</a>, 就是在运行一次 <code>setup.exe</code> 来卸载</li>
-<li><a href="http://blog.163.com/zhuandi_h/blog/static/180270288201282204521376/" target="_blank" rel="noopener">Win7 完全删除cygwin（本人已删除成功）</a></li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1770,7 +1825,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">93</span>
+              <span class="site-state-item-count">94</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
