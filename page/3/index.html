@@ -261,6 +261,161 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/13/1744-drv-chr6/" itemprop="url">
+                  驱动之同步互斥阻塞
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-13T00:00:00+11:00" content="2017-12-13">
+              2017-12-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.<br>硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.</p>
+<h1 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h1><p><strong>原子操作指的是在执行过程中不会被别的进程或中断所打断的操作</strong><br>底层实现就是 <code>raw_local_irq_save</code> <code>raw_local_irq_restore</code>, 保存中断并禁止, 操作完成后, 恢复.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 常用的原子操作函数</span></span><br><span class="line"><span class="keyword">atomic_t</span> v = ATOMIC_INIT(<span class="number">0</span>);            <span class="comment">// 定义原子变量v并初始化为0</span></span><br><span class="line">atomic_read(<span class="keyword">atomic_t</span> *v);               <span class="comment">// 返回原子变量的值</span></span><br><span class="line">atomic_inc(<span class="keyword">atomic_t</span> *v);                <span class="comment">// 原子变量增加1</span></span><br><span class="line">atomic_dec(<span class="keyword">atomic_t</span> *v);                <span class="comment">// 原子变量减少1</span></span><br><span class="line">atomic_dec_and_test(<span class="keyword">atomic_t</span> *v);       <span class="comment">// 自减操作后测试其是否为0，为0则返回true，否则返回false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 更多宏定义可参考 /linux/include/asm/atomic.h</span></span><br></pre></td></tr></table></figure>
+<h2 id="drv-sem-c"><a href="#drv-sem-c" class="headerlink" title="drv_sem.c"></a>drv_sem.c</h2><p>源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a>, 部分修改而来<br>只显示新增和修改的部分. 这样更直观易懂.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_sem.h"</span>                                 <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"drv_sem"</span>             <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">atomic_t</span> canopen = ATOMIC_INIT(<span class="number">1</span>);                  <span class="comment">// 定义原子变量canopen并初始化为1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!atomic_dec_and_test(&amp;canopen)) &#123;           <span class="comment">// 新增的原子操作判断 </span></span><br><span class="line">        atomic_inc(&amp;canopen);                       <span class="comment">// 打开失败, 恢复到0</span></span><br><span class="line">        <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 因为这一句的存在, 就算没有原子操作 应用程序无法调用此驱动多次. 先注释掉.</span></span><br><span class="line">	<span class="comment">// if (ret) return -EINVAL;                        </span></span><br><span class="line">	<span class="comment">// else return 0;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                       <span class="comment">// 为了测试, 直接返回0.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	......</span><br><span class="line">    </span><br><span class="line">    atomic_inc(&amp;canopen);                           <span class="comment">// 恢复原子操作为1</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="drv-sem-h"><a href="#drv-sem-h" class="headerlink" title="drv_sem.h"></a>drv_sem.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_sem"</span>       <span class="comment">// 名称改一下</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_sem.o            <span class="comment"># 目标名称改一下</span></span><br></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-sem-c"><a href="#测试文件-test-drv-sem-c" class="headerlink" title="测试文件 test_drv_sem.c"></a>测试文件 test_drv_sem.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> fd;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</span><br><span class="line"></span><br><span class="line">	fd = open(<span class="string">"/dev/drv_sem0"</span>, O_RDWR);</span><br><span class="line">	<span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		read(fd, &amp;keys_val, <span class="number">1</span>);</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"keys_val=0x%x, pid=%d\n"</span>, keys_val, getpid());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端, 编译驱动和测试文件</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_sem/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules</span><br><span class="line">$ arm-linux-gcc test_drv_sem.c -o test_drv_sem</span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440端</span></span><br><span class="line">$ insmod drv_sem.ko</span><br><span class="line">drv_sem:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第一次运行</span></span><br><span class="line">$ top</span><br><span class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</span><br><span class="line"><span class="comment"># 显示当前进程信息.</span></span><br><span class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第二次运行</span></span><br><span class="line">can<span class="string">'t open!             # 打开文件失败</span></span><br><span class="line"><span class="string">$ top</span></span><br><span class="line"><span class="string">789   779 0        S     1312   2%   0% ./test_drv_sem</span></span><br><span class="line"><span class="string"># 依旧只有一个处于睡眠状态的测试程序.</span></span><br></pre></td></tr></table></figure>
+<h1 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h1><p>信号量是用于保护临界区的一种常用方法, 只有得到信号量进程才能执行临界区代码.<br>与原子操作不同的是, 当获取不到信号量是, <strong>进程进入休眠等待状态!</strong><br>一但其他进程释放信号量, 该进程获得信号量后, 会恢复运行.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定义信号量</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">semaphore</span> <span class="title">sem</span>;</span>                       <span class="comment">// 信号量</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(lock)</span></span>;                 <span class="comment">// 定义互斥锁</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//初始化信号量</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sema_init</span> <span class="params">(struct semaphore *sem, <span class="keyword">int</span> val)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_MUTEX</span><span class="params">(struct semaphore *sem)</span></span>;     <span class="comment">// 初始化为0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//获得信号量</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">down</span><span class="params">(struct semaphore * sem)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">down_interruptible</span><span class="params">(struct semaphore * sem)</span></span>; </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">down_trylock</span><span class="params">(struct semaphore * sem)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//释放信号量</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">up</span><span class="params">(struct semaphore * sem)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="drv-sem-c-1"><a href="#drv-sem-c-1" class="headerlink" title="drv_sem.c"></a>drv_sem.c</h2><p>源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a>, 部分修改而来<br>只显示新增和修改的部分. 这样更直观易懂.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_sem.h"</span>                                 <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"drv_sem"</span>             <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">atomic_t</span> canopen = ATOMIC_INIT(<span class="number">1</span>);                  <span class="comment">// 定义原子变量canopen并初始化为1</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(key_lock)</span></span>;                     <span class="comment">// 定义互斥锁 </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    <span class="keyword">if</span> (!atomic_dec_and_test(&amp;canopen)) &#123;           <span class="comment">// 新增的原子操作判断 </span></span><br><span class="line">        atomic_inc(&amp;canopen);                       <span class="comment">// 打开失败, 恢复到0</span></span><br><span class="line">        <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    down(&amp;key_lock);                                <span class="comment">// 获取信号量</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    </span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 因为这一句的存在, 就算没有原子操作 应用程序无法调用此驱动多次. 先注释掉.</span></span><br><span class="line">	<span class="comment">// if (ret) return -EINVAL;                        </span></span><br><span class="line">	<span class="comment">// else return 0;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                       <span class="comment">// 为了测试, 直接返回0.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	......</span><br><span class="line">    </span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    atomic_inc(&amp;canopen);                           <span class="comment">// 恢复原子操作为1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    up(&amp;key_lock);                                  <span class="comment">// 释放信号量</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其它文件 <code>drv_sem.h</code> <code>Makefile</code> <code>test_drv_sem.c</code> 和原子操作的部分一样. 不用修改</p>
+<h2 id="编译并测试-1"><a href="#编译并测试-1" class="headerlink" title="编译并测试"></a>编译并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端, 编译驱动和测试文件</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_sem/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules</span><br><span class="line">$ arm-linux-gcc test_drv_sem.c -o test_drv_sem</span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440端</span></span><br><span class="line">$ insmod drv_sem.ko</span><br><span class="line">drv_sem:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第一次运行</span></span><br><span class="line">$ top</span><br><span class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</span><br><span class="line"><span class="comment"># 显示当前进程信息.</span></span><br><span class="line">$ ./test_drv_sem &amp;      <span class="comment"># 第二次运行</span></span><br><span class="line"><span class="comment"># 并不会显示 can't open!, 此进程实际上在等待获取信号量</span></span><br><span class="line">$ top</span><br><span class="line">789   779 0        S     1312   2%   0% ./test_drv_sem</span><br><span class="line">791   779 0        D     1308   2%   0% ./test_drv_sem</span><br><span class="line"><span class="comment"># 789 是第一个进程, 处于S, 可中断的睡眠状态, 在等待按键中断</span></span><br><span class="line"><span class="comment"># 791 是第二个进程, 处于D, 不可中断的睡眠状态, 在等待获取信号量</span></span><br><span class="line"></span><br><span class="line">$ <span class="built_in">kill</span> 789</span><br><span class="line">$ top                   <span class="comment"># 结束第一个进程, 再看进程表</span></span><br><span class="line">791   779 0        S     1308   2%   0% ./test_drv_sem</span><br><span class="line"><span class="comment"># 791 是第二进程, 获取信号量成功后开始运行, 处于S状态.</span></span><br></pre></td></tr></table></figure>
+<h1 id="阻塞和非阻塞"><a href="#阻塞和非阻塞" class="headerlink" title="阻塞和非阻塞"></a>阻塞和非阻塞</h1><ul>
+<li>阻塞操作<ul>
+<li>系统默认就是阻塞操作</li>
+<li>是指在执行设备操作时若不能获得资源则挂起进程，直到满足可操作的条件后再进行操作。</li>
+<li>被挂起的进程进入休眠状态，被从调度器的运行队列移走，直到等待的条件被满足。</li>
+</ul>
+</li>
+<li>非阻塞操作<ul>
+<li>使用宏定义 <code>O_NONBLOCK</code></li>
+<li>进程在不能进行设备操作时并不挂起，它或者放弃，或者不停地查询，直至可以进行操作为止。</li>
+</ul>
+</li>
+</ul>
+<h2 id="drv-sem-c-2"><a href="#drv-sem-c-2" class="headerlink" title="drv_sem.c"></a>drv_sem.c</h2><p>源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a>, 部分修改而来<br>只显示新增和修改的部分. 这样更直观易懂.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_sem.h"</span>                                 <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"drv_sem"</span>             <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">atomic_t</span> canopen = ATOMIC_INIT(<span class="number">1</span>);                  <span class="comment">// 定义原子变量canopen并初始化为1</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(key_lock)</span></span>;                     <span class="comment">// 定义互斥锁 </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    <span class="keyword">if</span> (!atomic_dec_and_test(&amp;canopen)) &#123;</span><br><span class="line">        atomic_inc(&amp;canopen); </span><br><span class="line">        <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">if</span> (filp-&gt;f_flags &amp; O_NONBLOCK) &#123;               <span class="comment">// 非阻塞</span></span><br><span class="line">        <span class="keyword">if</span> (down_trylock(&amp;key_lock))                <span class="comment">// 尝试获取信号量</span></span><br><span class="line">            <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        down(&amp;key_lock);                            <span class="comment">// 获取信号量, 阻塞</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    </span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 因为这一句的存在, 就算没有原子操作 应用程序无法调用此驱动多次. 先注释掉.</span></span><br><span class="line">	<span class="comment">// if (ret) return -EINVAL;                        </span></span><br><span class="line">	<span class="comment">// else return 0;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                       <span class="comment">// 为了测试, 直接返回0.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_int_read</span><span class="params">(struct file *filp,  <span class="comment">// 读取函数也需要修改一下!</span></span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (filp-&gt;f_flags &amp; O_NONBLOCK) &#123;               <span class="comment">// 非阻塞</span></span><br><span class="line">        <span class="keyword">if</span> (!ev_press)                              <span class="comment">// 无按键, 立刻返回</span></span><br><span class="line">            <span class="keyword">return</span> -EAGAIN;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></span><br><span class="line">        wait_event_interruptible(key_waitq, ev_press);      <span class="comment">// 阻塞</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></span><br><span class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	......</span><br><span class="line">    </span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    atomic_inc(&amp;canopen);                           <span class="comment">// 恢复原子操作为1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    up(&amp;key_lock);                                  <span class="comment">// 释放信号量</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件 <code>drv_sem.h</code> <code>Makefile</code> 和信号量的部分一样. 不用修改<br>阻塞是open函数的默认值, 其测试就不写了, 因为之前写的按键驱动测试都是阻塞的.</p>
+<h2 id="测试文件-unblock-drv-sem-c"><a href="#测试文件-unblock-drv-sem-c" class="headerlink" title="测试文件 unblock_drv_sem.c"></a>测试文件 unblock_drv_sem.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret, fd;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</span><br><span class="line"></span><br><span class="line">	fd = open(<span class="string">"/dev/drv_sem0"</span>, O_RDWR | O_NONBLOCK);    <span class="comment">// O_NONBLOCK 非阻塞</span></span><br><span class="line">	<span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		ret = read(fd, &amp;keys_val, <span class="number">1</span>);                   <span class="comment">// 读取函数是否阻塞取决于open函数</span></span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"keys_val=0x%x, ret=%d\n"</span>,keys_val,ret);</span><br><span class="line">        sleep(<span class="number">3</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="编译并测试-2"><a href="#编译并测试-2" class="headerlink" title="编译并测试"></a>编译并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端, 编译驱动和测试文件</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_sem/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules</span><br><span class="line">$ arm-linux-gcc unblock_drv_sem.c -o unblock_drv_sem</span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440端</span></span><br><span class="line">$ insmod drv_sem.ko</span><br><span class="line">drv_sem:INIT</span><br><span class="line"></span><br><span class="line">$ ./unblock_drv_sem &amp;       <span class="comment"># 第一次运行</span></span><br><span class="line">key_val=0x0, ret=-1         <span class="comment"># 无按键, 返回值 -EAGAIN</span></span><br><span class="line">key_val=0x0, ret=-1         <span class="comment"># 无按键, 返回值 -EAGAIN</span></span><br><span class="line">key_val=0x1, ret=1          <span class="comment"># 有按键, 返回值为1</span></span><br><span class="line">$ top</span><br><span class="line">789   779 0        S     1312   2%   0% ./unblock_drv_sem</span><br><span class="line"><span class="comment"># 显示当前进程信息.</span></span><br><span class="line">$ ./unblock_drv_sem &amp;      <span class="comment"># 第二次运行</span></span><br><span class="line"><span class="comment"># 显示 can't open!, 非阻塞进程, 尝试获取信号量失败后, 返回给应用程序 -EBUSY</span></span><br><span class="line">$ top</span><br><span class="line">789   779 0        S     1312   2%   0% ./unblock_drv_sem</span><br><span class="line"><span class="comment"># 依旧只有一个789进程</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/12/1743-drv-chr5/" itemprop="url">
                   驱动之异步通知
                 </a>
@@ -1329,171 +1484,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/27/1737-linux-ide/" itemprop="url">
-                  LinK+, 一款Linux内核开发IDE
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-27T00:00:00+11:00" content="2017-11-27">
-              2017-11-27
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>LinK+ 是一款在linux下基于eclipse开发的免费的Linux内核以及驱动开发软件.<br>这个软件在国外知名度也不高. 国内更是没人介绍过这一款软件.<br>软件的现状是: 开发者似乎已经停止更新, 设想中支持的ARM架构也没有下文. 因此不支持嵌入式的仿真.<br><strong>我主要用它来查看内核源码, 开发驱动, 能快速的搭建好驱动架构, 支持内核函数跳转查看! 自动生成Makefile.</strong></p>
-<p>网址如下: <a href="https://sourceforge.net/projects/linkplustest/" target="_blank" rel="noopener">Linux Kernel Programming IDE (LinK+)</a></p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>根据用户手册, 有多种安装方法. 使用最简单的 LinK+IDE方式.<br>下载 32bit, 因为我用的是32位的Ubuntu.</p>
-<ul>
-<li><a href="https://sourceforge.net/projects/linkplustest/files/installers/" target="_blank" rel="noopener">点这里, 下载页面</a></li>
-<li><a href="http://sourceforge.net/projects/linkplustest/files/documentation/LinK%2B_UserManual_Rev4.pdf" target="_blank" rel="noopener">安装和使用手册</a></li>
-</ul>
-<p><strong>说明一下 LinK+ UserManual 里面的 <code>-</code>横杠都是错误的, 终端无法识别!</strong><br>然后按照说明安装如下依赖的软件.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装最新版 openjdk, 向下兼容jdk6即可.</span></span><br><span class="line">sudo apt-get install openjdk-8-jdk</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装open ssh</span></span><br><span class="line">sudo apt-get install openssh-client openssh-server</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其它依赖的软件</span></span><br><span class="line">sudo apt-get install libqt4-dev</span><br><span class="line">sudo apt-get install libncurses5</span><br><span class="line">sudo apt-get install qemu</span><br><span class="line">sudo apt-get install bridge-utils iptables dnsmasq</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 LinK+IDE</span></span><br><span class="line"><span class="comment"># 下载好LinK+IDE的文件, LinK+ IDE-linux.gtk.x86.tar.gz.tar.gz</span></span><br><span class="line">tar -xzvf LinK+\ IDE-linux.gtk.x86.tar.gz.tar.gz</span><br><span class="line">./linkplus</span><br><span class="line"><span class="comment"># 安装成功的话, 就能运行了.</span></span><br></pre></td></tr></table></figure>
-<p>然后, LinK+IDE 的升级和插件不用看了. 很久没更新过了.</p>
-<h1 id="Kernel源码的编译和阅读"><a href="#Kernel源码的编译和阅读" class="headerlink" title="Kernel源码的编译和阅读"></a>Kernel源码的编译和阅读</h1><p>先确定linux内核源码可以在终端下成功编译.<br>新建Makefile工程<br><img src="https://draapho.github.io/images/1737/link1.JPG" alt="link.JPG"></p>
-<p>选择源码路径, 工具链使用Makefile自己的, 所以选<code>&lt;none&gt;</code><br><img src="https://draapho.github.io/images/1737/link2.JPG" alt="link.JPG"></p>
-<p>选中项目, 然后在菜单里取消自动编译, 最后选择项目属性<br><img src="https://draapho.github.io/images/1737/link3.JPG" alt="link.JPG"></p>
-<p>设定编译指令, <code>make</code> 即可<br><img src="https://draapho.github.io/images/1737/link5.JPG" alt="link.JPG"></p>
-<p>设定指令目标. 内核使用 <code>uImage</code>, 驱动使用 <code>make modules</code><br><img src="https://draapho.github.io/images/1737/link6.JPG" alt="link.JPG"></p>
-<p>如果需要设置更多的指令目标, 用如下方式. Create是设置, Build是执行<br><img src="https://draapho.github.io/images/1737/link7.JPG" alt="link.JPG"></p>
-<p>设置自定义目标<br><img src="https://draapho.github.io/images/1737/link8.JPG" alt="link.JPG"></p>
-<p>好了, 如果这样直接 <code>Make Targets</code>-&gt;<code>Build...</code>-&gt;<code>uImage</code>, 会编译失败.<br>原因是Eclipse下面无法正确识别Makefile下面的CROSS_COMPILE路径.<br>见 <a href="https://www.crifan.com/ubuntu_eclipse_cross_compile_uboot_based_on_makefile/" target="_blank" rel="noopener">Ubuntu下基于Eclipse去调用Makefile交叉编译Uboot</a><br>需要将其改为绝对路径. 打开内核源码根目录下的 <code>Makefile</code>, 187行, 修改如下:</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CROSS_COMPILE ?= arm-linux-</span></span><br><span class="line">CROSS_COMPILE   ?= /usr/local/gcc-3.4.5-glibc-2.3.6/bin/arm-linux-</span><br></pre></td></tr></table></figure>
-<p>再次在eclipse下尝试编译, 就成功了. 看Console的输出, 获得uImage文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Kernel: arch/arm/boot/Image is ready</span><br><span class="line">Kernel: arch/arm/boot/zImage is ready</span><br><span class="line">Image arch/arm/boot/uImage is ready</span><br></pre></td></tr></table></figure></p>
-<p>但Ecilpse依旧会显示很多警告和错误. 原因不明, 查的如下资料:</p>
-<ul>
-<li><a href="https://stackoverflow.com/questions/8563978/what-is-kernel-section-mismatch" target="_blank" rel="noopener">What is kernel section mismatch?</a></li>
-<li><a href="http://www.linuxdiyf.com/linux/24369.html" target="_blank" rel="noopener">解决编译kernel出现WARNING:Section mismatch(es)</a></li>
-</ul>
-<p>先忽略这些错误警告, 但此时, 有些函数依旧不能正常跳转. 原因是 <code>.\include\linux\autoconf.h</code> 没有被其它头文件包含, 里面的宏定义linux源码无法识别. 解决办法是我们自己把这些宏定义加入eclipse的SYMBOLS. 手工一个个加入不现实, 我写了一个python代码, 把linux下的config自动转为eclipse可识别的XML格式:<br><strong><a href="https://github.com/draapho/Blog/tree/master/_blog_stuff/linux/config2xml.py" target="_blank" rel="noopener">下载config2xml</a></strong></p>
-<p>将这个文件放在linux源码根目录下, 配置好<code>.config</code> 文件. 然后在终端运行它<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd = linux内核源码根目录</span></span><br><span class="line">$ python config2xml.py</span><br><span class="line">Generate ../eclipse_SYMBOLS.xml successfully...</span><br></pre></td></tr></table></figure></p>
-<p>成功后, 会在上层目录生成 <code>eclipse_SYMBOLS.xml</code> 这么一个文件.<br>然后回到eclipse里面, 将其导入. 如图:<br><img src="https://draapho.github.io/images/1737/link9.JPG" alt="link.JPG"></p>
-<p>另外, 为方便跳转, 可以在eclipse下面把linux源码下不相关的平台代码排除掉.<br><img src="https://draapho.github.io/images/1737/link4.JPG" alt="link.JPG"></p>
-<p>最后, 需要把项目的index索引重建一下才能正确跳转. 重建耗时较长.<br><img src="https://draapho.github.io/images/1737/link10.JPG" alt="link.JPG"></p>
-<p><strong>至此内核源码的C语言部分已经能成功的跳转查看了.汇编部分可以用eclipse的搜索功能.</strong></p>
-<h1 id="写驱动"><a href="#写驱动" class="headerlink" title="写驱动"></a>写驱动</h1><p>需要先在工程里加载好Kernel源码!<br>然后参考 <strong><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></strong></p>
-<p>大致步骤如下:</p>
-<ul>
-<li>LinK+IDE里, 新建工程-&gt;Linux Kernel Development(LinK+)</li>
-<li>选择 Device Driver Project</li>
-<li>写好驱动名称, 驱动路径, 作者, 开源证书类型</li>
-<li>Kernel Version 要去掉 <code>Use Host Machine Kernel</code>, 选择我们已经编译好的嵌入式内核源码路径</li>
-<li>X86架构 (ARM不支持),</li>
-<li>下面两步可以根据需求自己选择驱动框架, LinK+会自动生成有框架的.c和.h以及Makefile文件.</li>
-<li>驱动下面, 所有的跳转都可用, 可以非常方便的查看函数和宏定义.</li>
-<li>可以使用eclipse去编译, 设置一个 <code>modules</code> 目标就可以了.</li>
-</ul>
-<h1 id="Eclipse交叉编译说明"><a href="#Eclipse交叉编译说明" class="headerlink" title="Eclipse交叉编译说明"></a>Eclipse交叉编译说明</h1><p>这个方法的核心是不用Eclipse自己的编译工具链. 所有的编译工具都由Makefile内指定了.<br>所以, 这个也适用于编译查看u-boot源码.<br>如果是应用层代码, 那么就需要自己写Makefile指定编译工具了.<br>另外一个方法是, 另外下载一个 <code>Eclipse IDE for C/C++</code>, 单独为应用层代码配置一个环境. </p>
-<p>可参考:</p>
-<ul>
-<li><a href="http://www.linuxidc.com/Linux/2016-09/135062.htm" target="_blank" rel="noopener">Linux下搭建树莓派交叉编译环境</a></li>
-<li><a href="http://www.cnblogs.com/lazygunner/archive/2011/11/30/2269726.html" target="_blank" rel="noopener">Linux + Eclipse 配置交叉编译环境</a></li>
-<li><a href="http://blog.csdn.net/tianzhihen_wq/article/details/41872365" target="_blank" rel="noopener">配置eclipse linux嵌入式 集成开发环境（编译部分）详细</a></li>
-<li><a href="http://m.itboth.com/d/BzIRZz/windows-eclipse-arm" target="_blank" rel="noopener">eclipse在windows下的arm交叉编译环境搭建</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1539,7 +1529,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">95</span>
+              <span class="site-state-item-count">96</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

@@ -261,6 +261,133 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/14/1624-android-ipc/" itemprop="url">
+                  Android中Activity、Service和线程之间的通信
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-14T00:00:00+11:00" content="2016-12-14">
+              2016-12-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index">
+                    <span itemprop="name">android</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
+<hr>
+<h1 id="我的说明"><a href="#我的说明" class="headerlink" title="我的说明"></a>我的说明</h1><p>很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.<br>其实 Activity 和 Activity 间也就下面一些通讯方式,<br>只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.</p>
+<p>先转载此文作为备忘, 有时间自己在总结一下范例.</p>
+<h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>Activity、Service和线程应该是Android编程中最常见的几种类了，几乎大多数应用程序都会涉及到这几个类的编程，<br>自然而然的，也就会涉及到三者之间的相互通信，本文就试图简单地介绍一下这三者通信的方式。</p>
+<p>想写这篇文章的起因是，笔者跟几个同学在做一个Android上的应用，起初代码写得很凌乱，因为我在Activity中直接创建了线程，去执行某些任务。<br>但是我们知道线程可能需要运行的时间比较长，而Android在内存不足的时候，会将一些Activity销毁，<br>这样线程就会失去了管理的对象，从而使程序发生意想不到的结果。<br>此外，在Activity中创建线程，线程跟Activity的通信也比较麻烦，一般借助Handler类来进行通信</p>
+<p>与Activity相比，Service一般“默默”地运行在后台，生命周期比较长，所以它更合适去为主程序提供某些服务，创建线程并管理线程。<br>因此，笔者将原程序改成三层架构，从高到低分别为：Activity层–Service层–Thread层。<br>Activity将需要的服务“告诉”Service层，Service层创建Thread去完成服务。<br>Thread将任务的进度、状态、错误信息反馈给Service，Service将这些消息反馈给相关的Activity，<br>并且还可以利用Notification更新通知栏消息。大体的结构就是这样。</p>
+<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
+<h2 id="Activity调用startService"><a href="#Activity调用startService" class="headerlink" title="Activity调用startService"></a>Activity调用startService</h2><p>Activity调用startService (Intent service)方法，将消息添加到Intent对象中，<br>这样Service对象可以在调用onStartCommand (Intent intent, int flags, int startId)的时候可以得到这些消息。<br>这种方法很简单，但如果有大量的信息要传递的话，就很麻烦了。因为Service端还要判断一下消息是什么，才能作进一步的动作。</p>
+<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="noopener">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
+<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="noopener">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
+<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
+<h1 id="Activity和Thread之间的通信"><a href="#Activity和Thread之间的通信" class="headerlink" title="Activity和Thread之间的通信"></a>Activity和Thread之间的通信</h1><p>不用多想了，直接使用Handler吧。不推荐Activity直接去创建线程，因为不好管理线程。</p>
+<hr>
+<p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/13/1623-python-debug/" itemprop="url">
                   Python 调试及测试
                 </a>
@@ -1513,198 +1640,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/11/16/1617-python-terminal/" itemprop="url">
-                  python的第一个小程序, 蓝牙及串口终端
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-16T00:00:00+11:00" content="2016-11-16">
-              2016-11-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
-<li>windows 开发环境</li>
-<li>python 2.7</li>
-<li>pywin32, windows support</li>
-<li>pyserial, serial port, com</li>
-<li>pygatt, ble</li>
-<li>pyinstaller, generate exe file</li>
-<li>qt 4.8 (pyqt 4.11), GUI</li>
-<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="noopener">BLED112 Bluetooth Smart Dongle</a></li>
-</ul>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
-<li>略过 python 的安装++</li>
-<li>实际做项目的话, 建议使用2.7版本, 32位(这样生成的exe文件是32位的, 能兼容所有机器)</li>
-<li>安装 pywin32: <code>pip install pypiwin32</code></li>
-<li>安装 pyserial: <code>pip install pyserial</code></li>
-<li>安装 pygatt: <code>pip install pygatt</code>, 事实上, pygatt依赖于pyserial. 因此直接装pygatt也可以</li>
-<li>安装 pyinstaller: <code>pip install pyinstaller</code></li>
-<li>下载并安装 <a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="noopener">PyQt4-4.11.4-gpl-Py2.7-Qt4.8.7.exe</a><ul>
-<li>注意匹配python版本和32位/64位window</li>
-<li>pyqt5 仅支持 python3 以上版本. 我用 python2.7 是因为需要使用其它的库, 如 <a href="https://labjack.com/" target="_blank" rel="noopener">LabJack</a></li>
-<li><code>Qt Designer</code> 用于设计UI, 文件格式为<code>.ui</code>. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\designer.exe</code>. 最终取决于Python安装路径</li>
-<li><code>pyuic4.bat</code> 用于将 <code>.ui</code> 文件转换为 <code>.py</code> 文件. 它一般位于 <code>C:\Python27\Lib\site-packages\PyQt4\</code></li>
-<li>把 <code>pyuic4.bat</code> 的路径放入系统环境变量, 这样后续就能方便使用这个指令了</li>
-</ul>
-</li>
-<li>windows平台需要借助 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="noopener">BLED112 Bluetooth Smart Dongle</a> 这么一个设备才能实现BLE通讯</li>
-</ul>
-<h1 id="UI设计"><a href="#UI设计" class="headerlink" title="UI设计"></a>UI设计</h1><ul>
-<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
-</ul>
-<h2 id="PyQt-入门"><a href="#PyQt-入门" class="headerlink" title="PyQt 入门"></a>PyQt 入门</h2><ul>
-<li>为什么选择PyQt? (注意, 如果商用, PyQt是需要授权使用的)</li>
-<li><a href="http://ojs.pythonpapers.org/index.php/tpp/article/view/61/57" target="_blank" rel="noopener">PyGTK, PyQT, Tkinter and wxPython comparison</a></li>
-<li>PyQt使用入门:</li>
-<li><a href="https://www.tutorialspoint.com/pyqt/index.htm" target="_blank" rel="noopener">PyQt Tutorial</a>, 新手上路, 建议看到 <code>Using Qt Designer</code> 即可</li>
-<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="noopener">Introduction to GUI development using Qt</a>, 整体理解Qt设计思路</li>
-<li><a href="http://www.qaulau.com/books/PyQt4_Tutorial/" target="_blank" rel="noopener">PyQt4教程</a>, 中文版, 分类很细, 便于查阅范例</li>
-</ul>
-<h2 id="使用-Qt-Designer-设计GUI并生成-gui-py"><a href="#使用-Qt-Designer-设计GUI并生成-gui-py" class="headerlink" title="使用 Qt Designer 设计GUI并生成 gui.py"></a>使用 Qt Designer 设计GUI并生成 gui.py</h2><ul>
-<li>使用 <code>Qt Designer</code> 设计 GUI 框架, 并保存<code>gui.ui</code>到项目路径, 如 <code>D:\ble terminal</code></li>
-<li>打开cmd终端, 并切换到 <code>D:\ble terminal</code></li>
-<li><code>pyuic4.bat -x -o gui.py gui.ui</code> 生成<code>gui.py</code>文件,<ul>
-<li><code>-x</code> 表示可执行, 即包含<code>if __name__ == &quot;__main__&quot;</code>这部分代码</li>
-<li><code>-o</code> 表示目标文件名</li>
-<li>也可以使用命令行 <code>pyuic4.bat demo.ui &gt; demo.py</code>, 效果等同于 <code>pyuic4.bat -o gui.py gui.ui</code></li>
-</ul>
-</li>
-<li>创建 <code>gui_action.py</code> 文件, 用于书写交互操作部分的代码, 基本格式如下<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> gui</span><br><span class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QMainWindow</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(self.__class__, self).__init__()</span><br><span class="line">        self.ui.setupUi(self)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app = QApplication(sys.argv)</span><br><span class="line">    gui_action = GuiAction()</span><br><span class="line">    gui_action.show()</span><br><span class="line">    sys.exit(app.exec_())</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="UI线程通讯"><a href="#UI线程通讯" class="headerlink" title="UI线程通讯"></a>UI线程通讯</h1><ul>
-<li>可以参考我的另一篇文章 <a href="https://draapho.github.io/2016/10/20/1612-python-pyqtui/">PyQt 的交互操作</a></li>
-<li>PyQt的信号和槽, 是一种通讯机制, 可以用于QObject之间的信息交互. 可以参考:<ul>
-<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="noopener">Introduction to GUI development using Qt</a></li>
-<li><a href="https://www.linuxzen.com/pyqt4-xin-hao-he-cao-xiang-jie.html" target="_blank" rel="noopener">PyQt4 信号和槽详解</a></li>
-</ul>
-</li>
-<li>参考 <a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="noopener">PyQt: Threading Basics Tutorial</a></li>
-<li>关于 QThread 高阶应用和注意事项, 可参考 <a href="http://blog.csdn.net/u011012932/article/details/52186626" target="_blank" rel="noopener">Qt之QThread（深入理解）</a></li>
-<li>本程序使用的线程通讯框架如下:</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuiAction</span><span class="params">(QMainWindow, gui.Ui_MainWindow)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="comment"># queue_ble 用于传递数据给ble线程 (这样用不好, 可能有风险)</span></span><br><span class="line">        self.queue_ble = Queue.Queue()</span><br><span class="line">        <span class="comment"># thread_ble 为 ble 处理线程</span></span><br><span class="line">        self.thread_ble = ThreadBleServer(self.queue_ble)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cmd_send</span><span class="params">(self)</span>:</span></span><br><span class="line">        cmd = self.lineEdit.text()</span><br><span class="line">        <span class="comment"># 通过 queue_ble 传递数据给ble线程</span></span><br><span class="line">        self.queue_ble.put(cmd)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_start</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 简单理解, 就是将 self.ble_handle 设置为 thread_ble 信号触发后的处理函数</span></span><br><span class="line">        <span class="comment"># 使用 PyQt_PyObject 作为参数类型具有更好的通用性, 可以传递任何数据.</span></span><br><span class="line">        self.connect(self.thread_ble, SIGNAL(</span><br><span class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</span><br><span class="line">        <span class="comment"># 启动 ble 处理线程</span></span><br><span class="line">        self.thread_ble.start()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ble_stop</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 用于终止 thread_ble 线程</span></span><br><span class="line">        self.thread_ble.stop_ble()</span><br><span class="line">        self.disconnect(self.thread_ble, SIGNAL(</span><br><span class="line">            <span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), self.ble_handle)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadBleServer</span><span class="params">(QThread)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></span><br><span class="line">        QThread.__init__(self)</span><br><span class="line">        self.stop = <span class="keyword">False</span></span><br><span class="line">        self.queue = queue</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop_ble</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.stop = <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.stop:</span><br><span class="line">            <span class="comment"># 这是一个循环任务, 每100ms执行一次</span></span><br><span class="line">            time.sleep(<span class="number">0.1</span>)</span><br><span class="line">            ...</span><br><span class="line">            <span class="comment"># 非阻塞查询queue队列</span></span><br><span class="line">            command = str(self.queue.get(<span class="keyword">False</span>))</span><br><span class="line">            do something after get command ...</span><br><span class="line">            ...</span><br><span class="line">            <span class="comment"># 发送信号给主线程</span></span><br><span class="line">            self.emit(SIGNAL(<span class="string">"ble_handle(PyQt_PyObject, PyQt_PyObject)"</span>), <span class="string">"ble_rx_timeout"</span>, <span class="string">""</span>)</span><br><span class="line">            ...</span><br></pre></td></tr></table></figure>
-<ul>
-<li>上述代码有一个未知风险, 在 QThread 中用了属于 python threading 的 Queque. 更稳妥的方法应该使用 PyQt 的信号和槽解决这个问题, 即<br><code>self.connect(self.cmd_send, SIGNAL(&quot;send_cmd(PyQt_PyObject)&quot;), self.thread_ble)</code></li>
-<li>关于 QThread 和 Threading, 简单而言, 如果需要和PyQt打交道, 那就用 QThread, 否则就用 python 自带的 Threading</li>
-<li><a href="https://github.com/draapho/ble-terminal" target="_blank" rel="noopener">全部源码</a> 在 github, 注意, 作为一个练习用程序, 上述错误我没有修改! 目前为止, 没看到不良影响.</li>
-</ul>
-<h1 id="生成exe文件"><a href="#生成exe文件" class="headerlink" title="生成exe文件"></a>生成exe文件</h1><ul>
-<li>可以创建一个 <code>ble-terminal.bat</code> 文件, 点击即可运行. 但终究是显的不够专业, 没法给老板和客户交代. 内容如下:</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@echo off</span><br><span class="line"></span><br><span class="line">start pythonw gui_action.py</span><br><span class="line">exit</span><br></pre></td></tr></table></figure>
-<ul>
-<li>windows下, 使用起来最简单的就是 <code>PyInstaller</code> 了. 基本一条指令, 然后需要的关联库全自动解决</li>
-<li>其它方案有 <code>Py2Exe</code>, 需要自己配置dll之类的. <code>Py2App</code> 给Mac电脑用的. <code>cx_Freeze</code> 优点是跨平台, 看了下需要先做配置文件.</li>
-<li>用一条指令即可生成 <code>.exe</code> 文件<br><code>pyinstaller.exe --windowed gui_action.py</code></li>
-<li>另外还可以指定图标, 设置版本信息(需要写好<code>version.txt</code>), 将所有内容绑到单文件. 指令为:<br><code>pyinstaller.exe --onefile --windowed --icon=app.ico --version-file=version.txt gui_action.py</code></li>
-<li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="noopener">Creating an Executable from a Python Script</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1750,7 +1685,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">95</span>
+              <span class="site-state-item-count">96</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
