@@ -94,7 +94,7 @@
 <meta property="og:image" content="https://draapho.github.io/images/1809/block_fun.png">
 <meta property="og:image" content="https://draapho.github.io/images/1809/Platter.jpg">
 <meta property="og:image" content="https://draapho.github.io/images/1809/Cylinder.png">
-<meta property="og:updated_time" content="2018-01-23T05:26:46.000Z">
+<meta property="og:updated_time" content="2018-01-23T08:10:51.964Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="驱动之块设备-框架">
 <meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之块设备-框架  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 块设备的驱动框架驱动框架   ll_rw_block: Low Level Read/Write block device submit_bh: submit Buffer Head submit_bio: submit Block IO (Input/Output) e">
@@ -343,17 +343,59 @@
 <ul>
 <li><code>存储容量 = 磁头数 x 柱面数 x 扇区数 x 512(扇区字节数)</code></li>
 <li><code>存储容量 = 柱面大小 x 柱面数</code></li>
-<li><p><code>柱面大小 = 磁头数 x 扇区数 x 512(扇区字节数)</code></p>
-<p>英语 | 中文 | 说明<br>—-|—-|—-<br>Disk | 磁盘 | 就是硬盘<br>Platter | 圆盘 | 硬盘的盘片<br>Head | 磁头 | 盘片有2面: 2磁头/圆盘<br>Track | 磁道 | 圆盘被分割为多个同心圆, 即磁道<br>Sector | 扇区 | 磁道被分割后的扇形区域<br>Cylinder | 柱面 | 由多个圆盘的同一磁道构成<br>Partition  | 分区 | 软件概念, 以柱面为单位</p>
-</li>
+<li><code>柱面大小 = 磁头数 x 扇区数 x 512(扇区字节数)</code></li>
 </ul>
+<table>
+<thead>
+<tr>
+<th>英语</th>
+<th>中文</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Disk</td>
+<td>磁盘</td>
+<td>就是硬盘</td>
+</tr>
+<tr>
+<td>Platter</td>
+<td>圆盘</td>
+<td>硬盘的盘片</td>
+</tr>
+<tr>
+<td>Head</td>
+<td>磁头</td>
+<td>盘片有2面: 2磁头/圆盘</td>
+</tr>
+<tr>
+<td>Track</td>
+<td>磁道</td>
+<td>圆盘被分割为多个同心圆, 即磁道</td>
+</tr>
+<tr>
+<td>Sector</td>
+<td>扇区</td>
+<td>磁道被分割后的扇形区域</td>
+</tr>
+<tr>
+<td>Cylinder</td>
+<td>柱面</td>
+<td>由多个圆盘的同一磁道构成</td>
+</tr>
+<tr>
+<td>Partition</td>
+<td>分区</td>
+<td>软件概念, 以柱面为单位</td>
+</tr>
+</tbody>
+</table>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
 <li><a href="http://blog.csdn.net/zdy0_2004/article/details/78206395" target="_blank" rel="noopener">Linux-块设备驱动之框架详细分析(详解)</a></li>
-<li><p><a href="http://blog.csdn.net/hustfoxy/article/details/8723178" target="_blank" rel="noopener">Linux块设备驱动</a></p>
-</li>
-<li><p><a href="http://blog.chinaunix.net/uid-23069658-id-3413957.html" target="_blank" rel="noopener">硬盘的存储原理和内部架构</a></p>
-</li>
+<li><a href="http://blog.csdn.net/hustfoxy/article/details/8723178" target="_blank" rel="noopener">Linux块设备驱动</a></li>
+<li><a href="http://blog.chinaunix.net/uid-23069658-id-3413957.html" target="_blank" rel="noopener">硬盘的存储原理和内部架构</a></li>
 <li><a href="http://www.bijishequ.com/detail/193530" target="_blank" rel="noopener">计算机机械硬盘的结构和工作原理</a></li>
 <li><a href="http://www.dongcoder.com/detail-473552.html" target="_blank" rel="noopener">磁盘的组成</a></li>
 <li><a href="http://www.cnblogs.com/joydinghappy/articles/2511948.html" target="_blank" rel="noopener">磁盘结构简介</a></li>
