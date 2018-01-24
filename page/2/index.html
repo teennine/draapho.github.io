@@ -261,6 +261,148 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/08/1803-drv-platform/" itemprop="url">
+                  驱动之platform概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-08T00:00:00+11:00" content="2018-01-08">
+              2018-01-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
+<li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
+<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
+<li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
+<li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/19/1808-drv-usb2/">驱动之USB设备驱动程序</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="platform概念"><a href="#platform概念" class="headerlink" title="platform概念"></a>platform概念</h1><p><img src="https://draapho.github.io/images/1803/bus.png" alt="bus.png"></p>
+<p>platform 的主要作用是给开发人员搭好了框架.<br>便于将底层驱动的通用部分放在 <code>driver</code> 端实现, 而硬件高度相关部分放在 <code>device</code> 端实现.<br>由于只是架构, 因此这里 <code>driver</code> 和 <code>device</code> 两个部分都是自己写代码实现的, platform自动完成匹配.</p>
+<p>这种架构特别适用于总线设备! 将总线设备的共性提炼成 driver 文件.<br>而正对支持总线的不同硬件, 分别单独写 device 即可.<br>因此一般情况下, platform的driver对应多个device.<br>linux基于platform的概念, 已经帮我们实现了常用总线的driver如: I2C, SPI, USB等</p>
+<p>要更细致的了解linux platform 分离分层的概念, 建议参考如下博文:</p>
+<ul>
+<li><a href="http://www.wowotech.net/gpio_subsystem/io-port-control.html" target="_blank" rel="noopener">linux内核中的GPIO系统之（1）：软件框架</a></li>
+<li><a href="http://www.wowotech.net/linux_kenrel/platform_device.html" target="_blank" rel="noopener">Linux设备模型(8)_platform设备</a></li>
+</ul>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>LinK+软件也支持配置platform设备, 但是生成的源码放在了同一个文件, 不便于理解.<br>为了便于理解, 采用点led来说明platform概念. 为保持代码简介, 忽略错误判断, 不支持多个device.<br>实际开发中, 自己用到platform的机会不多, 因为linux已经将常用的总线写好了.</p>
+<h2 id="led-driver-c-硬件通用代码"><a href="#led-driver-c-硬件通用代码" class="headerlink" title="led_driver.c (硬件通用代码)"></a>led_driver.c (硬件通用代码)</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"led_platform.h"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> led_major=<span class="number">0</span>;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">led_class</span>=<span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpio_con;</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpio_dat;</span><br><span class="line"><span class="keyword">int</span> pin;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== led driver 通用文件操作 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_open</span><span class="params">(struct inode *inode, struct file *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_driver_open\n"</span>);</span><br><span class="line">    *gpio_con &amp;= ~(<span class="number">0x3</span>&lt;&lt;(pin*<span class="number">2</span>));       <span class="comment">// 配置为输出</span></span><br><span class="line">    *gpio_con |= (<span class="number">0x1</span>&lt;&lt;(pin*<span class="number">2</span>));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">led_driver_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> * ppos)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    PINFO(<span class="string">"led_driver_write\n"</span>);</span><br><span class="line">    copy_from_user(&amp;val, buf, count);</span><br><span class="line">    <span class="keyword">if</span> (val == <span class="number">1</span>)</span><br><span class="line">        *gpio_dat &amp;= ~(<span class="number">1</span>&lt;&lt;pin);         <span class="comment">// 点灯</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        *gpio_dat |= (<span class="number">1</span>&lt;&lt;pin);          <span class="comment">// 灭灯</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_release</span> <span class="params">(struct inode *inode, struct file *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_driver_release\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">led_fops</span>= &#123;</span></span><br><span class="line">    .owner              = THIS_MODULE,</span><br><span class="line">    .open               = led_driver_open,</span><br><span class="line">    .write              = led_driver_write,</span><br><span class="line">    .release            = led_driver_release,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== platform 框架使用的函数 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_probe</span><span class="params">(struct platform_device *pdev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">resource</span> *<span class="title">resource</span>;</span></span><br><span class="line">    PINFO(<span class="string">"led_driver_probe\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据platform_device的资源进行ioremap</span></span><br><span class="line">    resource = platform_get_resource(pdev, IORESOURCE_MEM, <span class="number">0</span>);</span><br><span class="line">    gpio_con = ioremap(resource-&gt;start, resource-&gt;end - resource-&gt;start + <span class="number">1</span>);</span><br><span class="line">    gpio_dat = gpio_con + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    resource = platform_get_resource(pdev, IORESOURCE_IRQ, <span class="number">0</span>);</span><br><span class="line">    pin = resource-&gt;start;              <span class="comment">// 这里只是借用IRQ获取PIN值</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_remove</span><span class="params">(struct platform_device *pdev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    iounmap(gpio_con);</span><br><span class="line">    PINFO(<span class="string">"led_platform_remove\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">platform_driver</span> <span class="title">led_driver</span> = &#123;</span></span><br><span class="line">        .driver = &#123;</span><br><span class="line">            .name   = DRIVER_NAME,</span><br><span class="line">            .owner  = THIS_MODULE,</span><br><span class="line">        &#125;,</span><br><span class="line">        .probe      = led_driver_probe,</span><br><span class="line">        .remove     = led_driver_remove,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">led_driver_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_driver_init\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册字符设备驱动程序.</span></span><br><span class="line">    <span class="comment">// 由于driver和device可以是一对多的关系. 因此注册工作不能放在probe里, 否则会被注册多次.</span></span><br><span class="line">    led_major = register_chrdev(<span class="number">0</span>, DRIVER_NAME, &amp;led_fops);</span><br><span class="line">    led_class = class_create(THIS_MODULE, DRIVER_NAME);</span><br><span class="line">    class_device_create(led_class, <span class="literal">NULL</span>, MKDEV(led_major, <span class="number">0</span>), <span class="literal">NULL</span>, <span class="string">"led"</span>); <span class="comment">// /dev/led</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册platform的driver</span></span><br><span class="line">    platform_driver_register(&amp;led_driver);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">led_driver_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 注销platform的driver</span></span><br><span class="line">    platform_driver_unregister(&amp;led_driver);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 卸载字符设备驱动程序</span></span><br><span class="line">    class_device_destroy(led_class, MKDEV(led_major, <span class="number">0</span>));</span><br><span class="line">    class_destroy(led_class);</span><br><span class="line">    unregister_chrdev(led_major, DRIVER_NAME);</span><br><span class="line">    PINFO(<span class="string">"led_platform_exit\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(led_driver_init);</span><br><span class="line">module_exit(led_driver_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="led-device-c-硬件专用代码"><a href="#led-device-c-硬件专用代码" class="headerlink" title="led_device.c (硬件专用代码)"></a>led_device.c (硬件专用代码)</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"led_platform.h"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">resource</span> <span class="title">led_devs_res1</span>[] = &#123;</span>         <span class="comment">// 硬件专用资源信息</span></span><br><span class="line">    &#123;</span><br><span class="line">        .start  = <span class="number">0x56000050</span>,</span><br><span class="line">        .end    = <span class="number">0x56000050</span> + <span class="number">8</span> - <span class="number">1</span>,</span><br><span class="line">        .flags  = IORESOURCE_MEM,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        .start  = <span class="number">5</span>,                        <span class="comment">// 借用IRQ表示PIN引脚</span></span><br><span class="line">        .flags  = IORESOURCE_IRQ,</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">led_dev_release</span><span class="params">(struct device * dev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_dev_release\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">platform_device</span> <span class="title">led_devs1</span> = &#123;</span></span><br><span class="line">    .name           = DRIVER_NAME,</span><br><span class="line">    .resource       = led_devs_res1,</span><br><span class="line">    .num_resources  = ARRAY_SIZE(led_devs_res1),</span><br><span class="line">    .id             = <span class="number">0</span>,</span><br><span class="line">    .dev = &#123;</span><br><span class="line">        .release = led_dev_release,         <span class="comment">// 必须实现, 否则报错</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_dev_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_dev_init\n"</span>);</span><br><span class="line">    <span class="comment">// 注册device</span></span><br><span class="line">    platform_device_register(&amp;led_devs1);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">led_dev_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 注销device</span></span><br><span class="line">    platform_device_unregister(&amp;led_devs1);</span><br><span class="line">    PINFO(<span class="string">"led_dev_exit\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(led_dev_init);</span><br><span class="line">module_exit(led_dev_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="led-platform-h"><a href="#led-platform-h" class="headerlink" title="led_platform.h"></a>led_platform.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"led_platform"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="led-test-c"><a href="#led-test-c" class="headerlink" title="led_test.c"></a>led_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* led_test on</span></span><br><span class="line"><span class="comment"> * led_test off</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">int</span> val = <span class="number">1</span>;</span><br><span class="line">    fd = open(<span class="string">"/dev/led"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Usage :\n"</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%s &lt;on|off&gt;\n"</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(argv[<span class="number">1</span>], <span class="string">"on"</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        val  = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        val = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    write(fd, &amp;val, <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TEST_FILE   := led_test</span><br><span class="line">obj-m       += led_driver.o</span><br><span class="line">obj-m       += led_device.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">    depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">    rm -f <span class="variable">$(TEST_FILE)</span></span><br><span class="line"></span><br><span class="line"><span class="section">test:</span></span><br><span class="line">    arm-linux-gcc <span class="variable">$(TEST_FILE)</span>.c -o <span class="variable">$(TEST_FILE)</span></span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu主机端, 编译所有源码</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules</span><br><span class="line">$ make <span class="built_in">test</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line">$ insmod led_driver.ko              <span class="comment"># driver和device的调用顺序不重要</span></span><br><span class="line">led_platform:led_driver_init</span><br><span class="line">$ insmod led_device.ko</span><br><span class="line">led_platform:led_dev_init</span><br><span class="line">led_platform:led_driver_probe       <span class="comment"># platform 在匹配driver和device后, 调用probe</span></span><br><span class="line">$ ./led_test on</span><br><span class="line">led_platform:led_driver_open        <span class="comment"># open</span></span><br><span class="line">led_platform:led_driver_write       <span class="comment"># write</span></span><br><span class="line">led_platform:led_driver_release     <span class="comment"># close</span></span><br><span class="line">$ ./led_test off</span><br><span class="line">led_platform:led_driver_open</span><br><span class="line">led_platform:led_driver_write</span><br><span class="line">led_platform:led_driver_release</span><br><span class="line">$ rmmod led_device.ko</span><br><span class="line">led_platform:led_platform_remove    <span class="comment"># 解绑后, 自动调用remove</span></span><br><span class="line">led_platform:led_dev_release</span><br><span class="line">led_platform:led_dev_exit</span><br><span class="line">$ rmmod led_driver.ko</span><br><span class="line">led_platform:led_platform_exit</span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://blog.csdn.net/tianzhihen_wq/article/details/42176467" target="_blank" rel="noopener">linux驱动之分离分层的概念</a></li>
+<li><a href="http://www.wowotech.net/gpio_subsystem/io-port-control.html" target="_blank" rel="noopener">linux内核中的GPIO系统之（1）：软件框架</a></li>
+<li><a href="http://www.wowotech.net/linux_kenrel/platform_device.html" target="_blank" rel="noopener">Linux设备模型(8)_platform设备</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/01/05/1802-drv-input/" itemprop="url">
                   驱动之input子系统
                 </a>
@@ -1396,153 +1538,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/15/1745-yocto-install/" itemprop="url">
-                  Yocto 的安装与体验
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-12-15T00:00:00+11:00" content="2017-12-15">
-              2017-12-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Yocto的简介就不抄写了, 反正我光看介绍并不明白Yocto到底是干吗的.<br>但应该确确实实让定制和开发嵌入式Linux系统变得更方便, 招聘要求里会Yocto都是加分项.<br>所以决定动手实践一下, 先有个感性认识再说.</p>
-<p>下文基本按照官网的 <a href="https://www.yoctoproject.org/docs/current/yocto-project-qs/yocto-project-qs.html" target="_blank" rel="noopener">Yocto Project Quick Start</a> 步骤而来.</p>
-<h1 id="第一步-安装-Yocto-Project"><a href="#第一步-安装-Yocto-Project" class="headerlink" title="第一步, 安装 Yocto Project"></a>第一步, 安装 Yocto Project</h1><p>安装 Yocto Project 有两个方法:</p>
-<ul>
-<li>使用 CROPS (CROss PlatformS), 直观的说, 就是基于Docker平台进行安装<ul>
-<li>我并没有采用这种方法, 因为手头已经有现成的Ubuntu系统了</li>
-<li>Docker相关内容, 可以参考我的笔记 <a href="https://draapho.github.io/2017/02/23/1708-docker/">Docker 初学笔记</a></li>
-</ul>
-</li>
-<li>第二个方法就是基于Linux系统安装<ul>
-<li>此文基于 Ubuntu 16.04 32bit 桌面版</li>
-<li>基本要求: 50G的硬盘空间, 建议预留100G</li>
-<li>支持主流Linux系统, 如 Fedora, CentOS, Debian, Ubuntu</li>
-<li>Git 1.8.3.1或以上版本</li>
-<li>tar 1.27或以上版本</li>
-<li>python 3.4.0或以上版本</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu, 安装软件</span></span><br><span class="line">$ sudo apt-get update</span><br><span class="line">$ sudo apt-get install gawk wget git-core diffstat unzip texinfo gcc-multilib \</span><br><span class="line">    build-essential chrpath socat cpio python python3 python3-pip python3-pexpect \</span><br><span class="line">    xz-utils debianutils iputils-ping libsdl1.2-dev xterm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认一下软件版本</span></span><br><span class="line">$ git --version</span><br><span class="line">git version 2.7.4</span><br><span class="line">$ tar --version</span><br><span class="line">tar (GNU tar) 1.28</span><br><span class="line">$ python3</span><br><span class="line">Python 3.5.2</span><br><span class="line">&gt;&gt;&gt; <span class="built_in">exit</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果没有装好, 可单独安装</span></span><br><span class="line">$ sudo apt install git</span><br><span class="line">$ sudo apt install tar</span><br><span class="line">$ sudo apt install python3</span><br></pre></td></tr></table></figure>
-<p>这样就准备好了安装环境. 然后安装 Yocto Project</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建一下yocto目录, 整个项目就放在此目录下面</span></span><br><span class="line">$ mkdir ~/yocto</span><br><span class="line">$ <span class="built_in">cd</span> ~/yocto</span><br><span class="line"></span><br><span class="line"><span class="comment"># git获取工程</span></span><br><span class="line">$ git <span class="built_in">clone</span> git://git.yoctoproject.org/poky</span><br><span class="line">...</span><br><span class="line">Checking connectivity... <span class="keyword">done</span>.</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载完成后, 有个poky文件夹. </span></span><br><span class="line"><span class="comment"># 如果是从别处下载再拷贝进Ubuntu的, 可能需要改个权限</span></span><br><span class="line"><span class="comment"># 因为后面的bitbake命令不允许已root用户操作.</span></span><br><span class="line">$ sudo chmod -R +777 poky/</span><br></pre></td></tr></table></figure>
-<h1 id="第二步-定制Linux镜像文件"><a href="#第二步-定制Linux镜像文件" class="headerlink" title="第二步, 定制Linux镜像文件"></a>第二步, 定制Linux镜像文件</h1><p>安装好 Yocto Project 后, 就需要体验一把定制Linux镜像</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># pwd = ~/yocto/poky/</span><br><span class="line"></span><br><span class="line"># 创建一个git分支, 基于此分支制作自己的Linux镜像</span><br><span class="line">$ sudo git checkout -b rocko origin/rocko</span><br><span class="line">$ git branch</span><br><span class="line">  master</span><br><span class="line">* rocko</span><br><span class="line"></span><br><span class="line"># 执行脚本, 创建了一些默认配置</span><br><span class="line">$ source oe-init-build-env</span><br><span class="line">You can now run &apos;bitbake &lt;target&gt;&apos;</span><br><span class="line">Common targets are:</span><br><span class="line">    core-image-minimal</span><br><span class="line">    core-image-sato</span><br><span class="line">    meta-toolchain</span><br><span class="line">    meta-ide-support</span><br><span class="line"># 显示后续操作的说明, 并自动进入 build 目录</span><br><span class="line"></span><br><span class="line"># pwd = ~/yocto/poky/build</span><br><span class="line">$ ls conf/</span><br><span class="line"># 三个.conf文件, 教程简单介绍了一下 local.conf 里的 MACHINE 和 PACKAGE_CLASSES</span><br><span class="line">$ vim conf/local.conf</span><br><span class="line"># 看一下配置文件, 有个直观感受. 先用默认值, 不去修改</span><br><span class="line"></span><br><span class="line">$ bitbake core-image-sato</span><br><span class="line"># 第一次的话, 会非常非常慢, 下载源码加编译, 可能花费几个小时...</span><br><span class="line"></span><br><span class="line"># 烘焙(bitbake)好image后, 在虚拟环境QEMU下看看效果</span><br><span class="line">$ runqemu qemux86</span><br></pre></td></tr></table></figure>
-<p>至此, 体验完成. 实际硬件环境的流程基本一致, 就是还要考虑烧录和启动的问题.<br>这是嵌入式Linux开发的基本能力, 略过不表.</p>
-<h1 id="一些弯路"><a href="#一些弯路" class="headerlink" title="一些弯路"></a><del>一些弯路</del></h1><p>第一个弯路是python版本问题, 造成安装软件失败<br>直接运行python, 默认是2.7. 然后想着需要改成3.5版本的.<br>按照网上教程, 修改python软链接, 但会导致apt安装软件失败.<br>原因是有些软件依赖于python2.7, 改为3.5后, 安装过程会发生语法错误.<br>具体可参考 <a href="https://draapho.github.io/2017/11/26/1736-linux-apt/">linux软件的安装和管理</a> 的 <code>X not fully installed or removed</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ ll /usr/bin/python*</span><br><span class="line">lrwxrwxrwx 1 root root       9 Nov 24 07:18 /usr/bin/python -&gt; python2.7*</span><br><span class="line">$ sudo rm /usr/bin/python</span><br><span class="line">$ sudo ln -s /usr/bin/python3.5 /usr/bin/python</span><br><span class="line">$ ll /usr/bin/python*</span><br><span class="line">lrwxrwxrwx 1 root root       9 Nov 24 07:18 /usr/bin/python -&gt; python3.5*</span><br><span class="line">$ python</span><br><span class="line">Python 3.5.2 (default, Nov 23 2017, 16:37:01) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 这样改完以后, 再去安装 libsdl1.2-dev 会报错! 解决方法是改回来...</span></span><br></pre></td></tr></table></figure>
-<p>第二个弯路是安装虚拟机的时候, 只给了20G的空间. 扩盘的方法如下:<br><a href="https://lzw.me/a/vmware-ubuntu-disk-space.html" target="_blank" rel="noopener">扩大Vmware虚拟机中Ubuntu系统磁盘空间的方法</a>, 建议直接用可视化的软件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install gparted</span><br><span class="line">$ sudo gparted</span><br><span class="line"></span><br><span class="line"># 重启后自动挂载, 可以格式化并重命名为 extend</span><br><span class="line"># 自动挂载路径为 /media/user-name/extend, 没有重命名的话, 是一长串ID</span><br><span class="line">$ sudo chmod +777 /media/draapho/extend</span><br><span class="line">$ sudo ln -s /media/draapho/extend ~/share/extend</span><br><span class="line"># 改下权限, 建立软连接方便操作.</span><br><span class="line"># 由于空间要求, yocto项目就放在这个盘里面.</span><br></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="https://www.yoctoproject.org/docs/current/yocto-project-qs/yocto-project-qs.html" target="_blank" rel="noopener">Yocto Project Quick Start</a></li>
-<li><a href="https://www.ibm.com/developerworks/cn/linux/l-yocto-linux/index.html" target="_blank" rel="noopener">使用 Yocto Project 构建自定义嵌入式 Linux 发行版</a></li>
-<li><a href="http://www.sohu.com/a/134506616_468740" target="_blank" rel="noopener">在MIPS平台上如何使用Yocto框架来定制嵌入式Linux发行版</a>, 里面有个视频, 介绍了yocto的好处</li>
-<li><a href="http://www.eeskill.com/article/id/2761" target="_blank" rel="noopener">基于Yocto Project的嵌入式应用设计</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1588,7 +1583,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">96</span>
+              <span class="site-state-item-count">97</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
