@@ -82,20 +82,20 @@
 
 
 
-<meta name="description" content="总览 嵌入式linux学习目录 驱动之块设备-框架 驱动之NAND Flash框架 驱动之NAND Flash源码 驱动之NOR Flash  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. NAND Flash 基础知识NAND 和 NOR Flash的比较   NOR FLASH NAND FLASH     接口时序同SRAM,易使用 地址/数据线复用，数据位较窄">
+<meta name="description" content="总览 嵌入式linux学习目录 驱动之块设备-框架 驱动之NAND Flash框架 驱动之NAND Flash源码 驱动之NOR Flash  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. NOR Flash 基础知识NAND 和 NOR Flash的比较   NOR FLASH NAND FLASH     接口时序同SRAM,易使用 地址/数据线复用，数据位较窄">
 <meta name="keywords" content="embedded linux,driver">
 <meta property="og:type" content="article">
 <meta property="og:title" content="驱动之NOR Flash">
 <meta property="og:url" content="https://draapho.github.io/2018/01/26/1812-drv-nor/index.html">
 <meta property="og:site_name" content="DRA&amp;PHO">
-<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之块设备-框架 驱动之NAND Flash框架 驱动之NAND Flash源码 驱动之NOR Flash  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. NAND Flash 基础知识NAND 和 NOR Flash的比较   NOR FLASH NAND FLASH     接口时序同SRAM,易使用 地址/数据线复用，数据位较窄">
+<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之块设备-框架 驱动之NAND Flash框架 驱动之NAND Flash源码 驱动之NOR Flash  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. NOR Flash 基础知识NAND 和 NOR Flash的比较   NOR FLASH NAND FLASH     接口时序同SRAM,易使用 地址/数据线复用，数据位较窄">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://draapho.github.io/images/1812/nor1.JPG">
 <meta property="og:image" content="https://draapho.github.io/images/1812/nor2.png">
-<meta property="og:updated_time" content="2018-01-25T14:25:11.538Z">
+<meta property="og:updated_time" content="2018-01-25T14:28:20.653Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="驱动之NOR Flash">
-<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之块设备-框架 驱动之NAND Flash框架 驱动之NAND Flash源码 驱动之NOR Flash  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. NAND Flash 基础知识NAND 和 NOR Flash的比较   NOR FLASH NAND FLASH     接口时序同SRAM,易使用 地址/数据线复用，数据位较窄">
+<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之块设备-框架 驱动之NAND Flash框架 驱动之NAND Flash源码 驱动之NOR Flash  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. NOR Flash 基础知识NAND 和 NOR Flash的比较   NOR FLASH NAND FLASH     接口时序同SRAM,易使用 地址/数据线复用，数据位较窄">
 <meta name="twitter:image" content="https://draapho.github.io/images/1812/nor1.JPG">
 
 
@@ -330,7 +330,7 @@
 <li><a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">驱动之NOR Flash</a></li>
 </ul>
 <p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="NAND-Flash-基础知识"><a href="#NAND-Flash-基础知识" class="headerlink" title="NAND Flash 基础知识"></a>NAND Flash 基础知识</h1><h2 id="NAND-和-NOR-Flash的比较"><a href="#NAND-和-NOR-Flash的比较" class="headerlink" title="NAND 和 NOR Flash的比较"></a>NAND 和 NOR Flash的比较</h2><table>
+<h1 id="NOR-Flash-基础知识"><a href="#NOR-Flash-基础知识" class="headerlink" title="NOR Flash 基础知识"></a>NOR Flash 基础知识</h1><h2 id="NAND-和-NOR-Flash的比较"><a href="#NAND-和-NOR-Flash的比较" class="headerlink" title="NAND 和 NOR Flash的比较"></a>NAND 和 NOR Flash的比较</h2><table>
 <thead>
 <tr>
 <th>NOR FLASH</th>
@@ -573,7 +573,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NAND-Flash-基础知识"><span class="nav-number">2.</span> <span class="nav-text">NAND Flash 基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NAND-和-NOR-Flash的比较"><span class="nav-number">2.1.</span> <span class="nav-text">NAND 和 NOR Flash的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件接口"><span class="nav-number">2.2.</span> <span class="nav-text">硬件接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读写实验"><span class="nav-number">2.3.</span> <span class="nav-text">读写实验</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NOR-Flash-系统框架"><span class="nav-number">3.</span> <span class="nav-text">NOR Flash 系统框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#系统自带驱动"><span class="nav-number">3.1.</span> <span class="nav-text">系统自带驱动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#框架分析"><span class="nav-number">3.2.</span> <span class="nav-text">框架分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码"><span class="nav-number">4.</span> <span class="nav-text">源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#s3c-nor-c"><span class="nav-number">4.1.</span> <span class="nav-text">s3c_nor.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile"><span class="nav-number">4.2.</span> <span class="nav-text">Makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">4.3.</span> <span class="nav-text">测试</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总览"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NOR-Flash-基础知识"><span class="nav-number">2.</span> <span class="nav-text">NOR Flash 基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NAND-和-NOR-Flash的比较"><span class="nav-number">2.1.</span> <span class="nav-text">NAND 和 NOR Flash的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件接口"><span class="nav-number">2.2.</span> <span class="nav-text">硬件接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读写实验"><span class="nav-number">2.3.</span> <span class="nav-text">读写实验</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NOR-Flash-系统框架"><span class="nav-number">3.</span> <span class="nav-text">NOR Flash 系统框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#系统自带驱动"><span class="nav-number">3.1.</span> <span class="nav-text">系统自带驱动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#框架分析"><span class="nav-number">3.2.</span> <span class="nav-text">框架分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码"><span class="nav-number">4.</span> <span class="nav-text">源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#s3c-nor-c"><span class="nav-number">4.1.</span> <span class="nav-text">s3c_nor.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile"><span class="nav-number">4.2.</span> <span class="nav-text">Makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">4.3.</span> <span class="nav-text">测试</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
