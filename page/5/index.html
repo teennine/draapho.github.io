@@ -261,6 +261,341 @@
             
               
                 
+                <a class="post-title-link" href="/2017/11/22/1733-drv-chr1/" itemprop="url">
+                  驱动之字符设备-框架
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-11-22T00:00:00+11:00" content="2017-11-22">
+              2017-11-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="linux-架构概念"><a href="#linux-架构概念" class="headerlink" title="linux 架构概念"></a>linux 架构概念</h1><p><img src="https://draapho.github.io/images/1733/Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc.png"></p>
+<p><img src="https://draapho.github.io/images/1733/Linux_kernel_Layer.JPG" alt="Linux_kernel_Layer.JPG"></p>
+<ul>
+<li>一个操作系统需要软硬件分离. 应用端无需关注底层硬件的实现.</li>
+<li>Linux采用的接口就是 GNU C Library 标准, 下面简称C库.<ul>
+<li>譬如 <code>open</code> <code>read</code> <code>write</code></li>
+</ul>
+</li>
+<li>应用程序和C库运行在芯片的用户空间 (权限受限, 保证安全).</li>
+<li>当应用程序调用C库, C库会使用 <code>SWI</code> 汇编指令触发异常, 切换到内核空间.</li>
+<li>内核空间的对外接口是 <strong>System Call Interface</strong>, 下面简称系统调用<ul>
+<li>譬如 <code>sys_open</code> <code>sys_read</code> <code>sys_write</code></li>
+</ul>
+</li>
+<li>触发系统调用后, Linux内核会根据框架结构自动去调用对应的驱动.</li>
+<li>编写驱动时, 需要了解的是Linux各个驱动的实现框架.<ul>
+<li>譬如 <code>led_open</code> <code>led_read</code> <code>led_write</code></li>
+</ul>
+</li>
+<li>最后一点, <strong>Linux下一切皆文件, 文件即节点(inode)</strong>. 所以驱动也是一个个文件节点.</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://www.gnu.org/software/libc/documentation.html" target="_blank" rel="noopener">The GNU C Library (glibc) Documentation</a></li>
+</ul>
+<p><strong>重点推荐</strong></p>
+<ul>
+<li><a href="https://www.kernel.org/doc/man-pages/" target="_blank" rel="noopener">The Linux man-pages project</a> Library部分就是GNUC库的函数说明</li>
+<li><a href="https://www.fsl.cs.sunysb.edu/kernel-api/" target="_blank" rel="noopener">Linux Kernel API</a> Linux内核API函数说明</li>
+</ul>
+<h1 id="字符设备的驱动框架"><a href="#字符设备的驱动框架" class="headerlink" title="字符设备的驱动框架"></a>字符设备的驱动框架</h1><ul>
+<li>实现 <code>led_open</code> <code>led_write</code> <code>led_read</code> 等函数</li>
+<li>定义一个 <code>file_operations</code> 结构体, 设置好对应的函数指针<ul>
+<li><code>/include/linux/fs.h</code> 下包含了此结构</li>
+</ul>
+</li>
+<li>实现一个初始化函数, 并调用 <code>register_chrdev</code> 注册定义好的 <code>file_operations</code><ul>
+<li><code>/include/linux/fs.h</code> 下包含了此函数</li>
+<li>源码位于 <code>/fs/chr_dev.c</code>, 使用 <code>EXPORT_SYMBOL</code> 让内核函数可以调用它.</li>
+</ul>
+</li>
+<li>使用 <code>module_init</code> 指定好初始化函数.</li>
+<li>内核在加载驱动时, 会先自动调用初始化函数. 初始化函数做相关的注册工作</li>
+<li>这样, 系统调用就能找到最终要执行的函数了.</li>
+</ul>
+<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h2><ul>
+<li>主设备号. 可以人工指定, 也可以由系统动态分配. 理解为设备类型的id即可.</li>
+<li>子设备号. 譬如一个led灯的驱动设备, 可以实现多个led的控制. 子设备号可以提供针对特定的led进行控制<ul>
+<li>譬如: 0表示控制所有led, 1表示led1, 2表示led2…</li>
+</ul>
+</li>
+<li>mdev. 根据动态驱动模块的信息自动创建设备节点.</li>
+<li>地址映射. 这是与单片机的区别. 单片机操作寄存器可以直接使用物理地址. 但linux下使用的是虚拟地址!<ul>
+<li>地址转换使用 <code>ioremap</code> <code>iounmap</code> 函数.</li>
+<li>一般的芯片商也会提供操作寄存器的函数, 譬如 <code>s3c2410_gpio_setpin</code></li>
+</ul>
+</li>
+<li>用户空间和内核空间. 两个空间的资源不能直接相互访问.<ul>
+<li>驱动程序内经常要用 <code>copy_to_user</code> 以及 <code>copy_from_user</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="人工绑定设备号"><a href="#人工绑定设备号" class="headerlink" title="人工绑定设备号"></a>人工绑定设备号</h1><h2 id="驱动代码-drv-leds-c"><a href="#驱动代码-drv-leds-c" class="headerlink" title="驱动代码 drv_leds.c"></a>驱动代码 drv_leds.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds.c</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_NAME <span class="meta-string">"drv_leds"</span>      <span class="comment">// 设备类型名称, cat /proc/devices 可以看到</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LED_MAJOR   111             <span class="comment">// 主设备号</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFF_LEN    5               <span class="comment">// 缓存大小. 这里定小一点便于测试      </span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 驱动的硬件实现部分, 和单片机类似 =====</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">drv_leds_open</span><span class="params">(struct inode *inode, struct file *file)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(<span class="string">"drv_leds_open\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ssize_t</span> drv_leds_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *data, <span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *ppos) </span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> buff[BUFF_LEN];</span><br><span class="line">    <span class="keyword">int</span> i, l;</span><br><span class="line">    </span><br><span class="line">    printk(<span class="string">"drv_leds_write: "</span>);</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        l = len&lt;BUFF_LEN? len:BUFF_LEN;</span><br><span class="line">        copy_from_user(buff, data, l);                      <span class="comment">// 一点点拷贝, 避免溢出</span></span><br><span class="line">        data += l;</span><br><span class="line">        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;l; i++)</span><br><span class="line">            printk(<span class="string">"%c"</span>, buff[i]);</span><br><span class="line">        len -= l;</span><br><span class="line">    &#125; <span class="keyword">while</span> (len&gt;<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    printk(<span class="string">"\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此结构体指定了C库的文件操作函数需要调用的底层驱动的函数名.</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_leds_fops</span> = &#123;</span></span><br><span class="line">    .owner  =   THIS_MODULE,        <span class="comment">// 这是一个宏，指向编译模块时自动创建的__this_module变量. 和平台相关</span></span><br><span class="line">    .open   =   drv_leds_open,     </span><br><span class="line">    .write  =   drv_leds_write,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 加载和卸载内核时, 指定要调用的函数 =====</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">drv_leds_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    register_chrdev(LED_MAJOR, DEVICE_NAME, &amp;drv_leds_fops);<span class="comment">// 注册驱动, 包含了函数指针</span></span><br><span class="line">    printk(DEVICE_NAME <span class="string">" initialized\n"</span>);                   <span class="comment">// 调试用</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">drv_leds_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    unregister_chrdev(LED_MAJOR, DEVICE_NAME);</span><br><span class="line">    printk(DEVICE_NAME <span class="string">" deinitialized\n"</span>);     </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_leds_init);</span><br><span class="line">module_exit(drv_leds_exit);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 描述驱动程序的一些信息，不是必须的 =====</span></span><br><span class="line">MODULE_AUTHOR(<span class="string">"draapho"</span>);</span><br><span class="line">MODULE_VERSION(<span class="string">"0.1.0"</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">"First Driver for LED"</span>);</span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ~/jz2440/driver/drv_leds/Makefile</span></span><br><span class="line"></span><br><span class="line">KERN_DIR = ~/jz2440/kernel/linux-2.6.22.6</span><br><span class="line"><span class="comment"># 这是交叉编译, 需要指定嵌入式linux内核地址</span></span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules </span><br><span class="line"><span class="comment"># pwd 表示当前目录, 即驱动代码所在的目录</span></span><br><span class="line"><span class="comment"># 驱动目录并不需要放在内核目录下面.</span></span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules clean</span><br><span class="line">	rm -rf modules.order</span><br><span class="line"></span><br><span class="line">obj-m	+= drv_leds.o</span><br></pre></td></tr></table></figure>
+<h2 id="测试代码-drv-leds-test-c"><a href="#测试代码-drv-leds-test-c" class="headerlink" title="测试代码, drv_leds_test.c"></a>测试代码, drv_leds_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds_test.c</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line"></span><br><span class="line">    fd = open(<span class="string">"/dev/xxx"</span>, O_RDWR);      <span class="comment">// 这里设备名字并不重要, 设备和驱动的关联方式是主设备号!</span></span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (argc &gt;=<span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">int</span> i;</span><br><span class="line">        <span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;argc; i++)</span><br><span class="line">        write(fd, argv[i], <span class="built_in">strlen</span>(argv[i]));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"./drv_led_test &lt;str1&gt; [str2]\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="编译加载并测试"><a href="#编译加载并测试" class="headerlink" title="编译加载并测试"></a>编译加载并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ===== Ubuntu主机端, 编译驱动 =====</span></span><br><span class="line"><span class="comment"># pwd = drv_leds.c所在的目录.</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make                                  <span class="comment"># 编译驱动</span></span><br><span class="line"><span class="comment"># 成功后, 生成 drv_leds.ko 动态库</span></span><br><span class="line"></span><br><span class="line">$ cp drv_leds.ko ~/jz2440/fs_first/     <span class="comment"># 先直接放到文件系统根目录下了.</span></span><br><span class="line"><span class="comment"># 嵌入式端最好用网络的方式加载文件系统, 这样就不用重新烧录文件系统了, 便于调试!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 嵌入式Linux端, 加载驱动 =====</span></span><br><span class="line"><span class="comment"># pwd = /</span></span><br><span class="line">$ insmod drv_leds.ko                    <span class="comment"># 加载模块</span></span><br><span class="line">drv_leds initialized                    <span class="comment"># 打印的调试信息</span></span><br><span class="line">$ cat /proc/devices                     <span class="comment"># 查看设备信息</span></span><br><span class="line">Character devices:</span><br><span class="line">111 drv_leds                            <span class="comment"># 应该能找到这一项</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== Ubuntu主机端, 编译测试源码 =====</span></span><br><span class="line"><span class="comment"># pwd = drv_leds_test.c所在的目录.</span></span><br><span class="line">$ arm-linux-gcc -o drv_leds_test drv_leds_test.c    <span class="comment"># 编译应用程序</span></span><br><span class="line">$ cp drv_leds_test ~/jz2440/fs_first/               <span class="comment"># 先直接放到文件系统根目录下了.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果此时直接在嵌入式端运行 ./drv_leds_test</span></span><br><span class="line"><span class="comment"># 会显示 can't open! 因为不存在文件 /dev/xxx </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== Ubuntu主机端, 创建文件节点 ======</span></span><br><span class="line">$ mknod /dev/xxx c 111 0</span><br><span class="line"><span class="comment"># 创建设备xxx文件, c-字符设备, 111-主设备号(关联到了drv_les驱动设备), 0-子设备号(先随便写)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 嵌入式Linux端, 测试驱动 =====</span></span><br><span class="line">$ ./drv_leds_test 123</span><br><span class="line">drv_leds_open</span><br><span class="line">drv_leds_write: 123</span><br></pre></td></tr></table></figure>
+<h1 id="自动化实现"><a href="#自动化实现" class="headerlink" title="自动化实现"></a>自动化实现</h1><h2 id="驱动代码-drv-leds-c-1"><a href="#驱动代码-drv-leds-c-1" class="headerlink" title="驱动代码 drv_leds.c"></a>驱动代码 drv_leds.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds.c</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_NAME <span class="meta-string">"drv_leds"</span>                      <span class="comment">// 设备类型名称, cat /proc/devices 可以看到</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> major;                                   <span class="comment">// 存储自动分配的主设备号</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">leds_class</span>;</span>                    <span class="comment">// 类, 供mdev用, ls /sys/class/ 可以看到</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">class_device</span>	*<span class="title">leds_class_devs</span>[4];</span>    <span class="comment">// 类下设备, ls /sys/class/class_name 可以看到</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> gpio_base;                     <span class="comment">// gpio 寄存器基础地址</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_OFFSET(addr) ((addr) - 0x56000000)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPFCON  (*(volatile unsigned long *)(gpio_base + GPIO_OFFSET(0x56000050)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPFDAT  (*(volatile unsigned long *)(gpio_base + GPIO_OFFSET(0x56000054)))</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 驱动的硬件实现部分, 和单片机类似 =====</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_open</span><span class="params">(struct inode *inode, struct file *file)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor = MINOR(inode-&gt;i_rdev);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 初始化对应的LED</span></span><br><span class="line">    <span class="keyword">if</span> ((minor == <span class="number">1</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led1 或 leds</span></span><br><span class="line">        GPFCON &amp;= ~(<span class="number">0x3</span>&lt;&lt;(<span class="number">4</span>*<span class="number">2</span>));                    <span class="comment">// GPF4 配置为输出</span></span><br><span class="line">        GPFCON |= (<span class="number">1</span>&lt;&lt;(<span class="number">4</span>*<span class="number">2</span>));</span><br><span class="line">        GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">4</span>);                           <span class="comment">// 关灯</span></span><br><span class="line">    &#125;      </span><br><span class="line">    <span class="keyword">if</span> ((minor == <span class="number">2</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led2 或 leds</span></span><br><span class="line">        GPFCON &amp;= ~(<span class="number">0x3</span>&lt;&lt;(<span class="number">5</span>*<span class="number">2</span>));                    <span class="comment">// GPF5 配置为输出</span></span><br><span class="line">        GPFCON |= (<span class="number">1</span>&lt;&lt;(<span class="number">5</span>*<span class="number">2</span>));</span><br><span class="line">        GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">5</span>);     </span><br><span class="line">    &#125;      </span><br><span class="line">    <span class="keyword">if</span> ((minor == <span class="number">3</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led3 或 leds</span></span><br><span class="line">        <span class="comment">// GPFCON &amp;= ~(0x3&lt;&lt;(6*2));                    // GPF6 配置为输出</span></span><br><span class="line">        <span class="comment">// GPFCON |= (1&lt;&lt;(6*2));</span></span><br><span class="line">        <span class="comment">// GPFDAT |= (1&lt;&lt;6);    </span></span><br><span class="line">        s3c2410_gpio_cfgpin(S3C2410_GPF6, S3C2410_GPF6_OUTP);   </span><br><span class="line">        s3c2410_gpio_setpin(S3C2410_GPF6, <span class="number">1</span>);       <span class="comment">// 另外一种方法</span></span><br><span class="line">    &#125;      </span><br><span class="line">    printk(<span class="string">"drv_leds_open\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_leds_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *data, <span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *ppos)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor = MINOR(file-&gt;f_dentry-&gt;d_inode-&gt;i_rdev);</span><br><span class="line">    <span class="keyword">char</span> val;</span><br><span class="line">    </span><br><span class="line">    copy_from_user(&amp;val, data, <span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 操作对应的LED</span></span><br><span class="line">    <span class="keyword">if</span> ((minor == <span class="number">1</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led1 或 leds</span></span><br><span class="line">        <span class="keyword">if</span> (val)</span><br><span class="line">            GPFDAT &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">4</span>);                      <span class="comment">// 开灯</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">4</span>);                       <span class="comment">// 关灯</span></span><br><span class="line">    &#125;      </span><br><span class="line">    <span class="keyword">if</span> ((minor == <span class="number">2</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led2 或 leds</span></span><br><span class="line">        <span class="keyword">if</span> (val)</span><br><span class="line">            GPFDAT &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">5</span>);   </span><br><span class="line">        <span class="keyword">else</span>   </span><br><span class="line">            GPFDAT |= (<span class="number">1</span>&lt;&lt;<span class="number">5</span>);    </span><br><span class="line">    &#125;      </span><br><span class="line">    <span class="keyword">if</span> ((minor == <span class="number">3</span>) || (minor == <span class="number">0</span>)) &#123;             <span class="comment">// led3 或 leds        </span></span><br><span class="line">        <span class="comment">// if (val)</span></span><br><span class="line">            <span class="comment">// GPFDAT &amp;= ~(1&lt;&lt;6);    </span></span><br><span class="line">        <span class="comment">// else   </span></span><br><span class="line">            <span class="comment">// GPFDAT |= (1&lt;&lt;6);</span></span><br><span class="line">        s3c2410_gpio_setpin(S3C2410_GPF6, !val);     <span class="comment">// 另外一种方法</span></span><br><span class="line">    &#125;</span><br><span class="line">    printk(<span class="string">"drv_leds_write, led%d=%d\n"</span>, minor, val);</span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此结构体指定了C库的文件操作函数需要调用的底层驱动的函数名.</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_leds_fops</span> = &#123;</span></span><br><span class="line">    .owner  =   THIS_MODULE,        <span class="comment">// 这是一个宏，指向编译模块时自动创建的__this_module变量. 和平台相关</span></span><br><span class="line">    .open   =   drv_leds_open,     </span><br><span class="line">    .write  =   drv_leds_write,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 加载和卸载内核时, 指定要调用的函数 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取寄存器起始地址的虚拟地址值. 其它寄存器基于此值再用偏移量.</span></span><br><span class="line">    gpio_base = ioremap(<span class="number">0x56000000</span>, <span class="number">0xD0</span>);</span><br><span class="line">    <span class="keyword">if</span> (!gpio_base) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EIO;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 注册驱动, 指定主设备号</span></span><br><span class="line"><span class="comment">//    minor = register_chrdev(LED_MAJOR, DEVICE_NAME, &amp;s3c24xx_leds_fops);</span></span><br><span class="line"><span class="comment">//    if (minor &lt; 0) &#123;</span></span><br><span class="line"><span class="comment">//        printk(DEVICE_NAME " can't register major number\n");</span></span><br><span class="line"><span class="comment">//        return minor;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册驱动, 0表示动态分配主设备号</span></span><br><span class="line">    major = register_chrdev(<span class="number">0</span>, DEVICE_NAME, &amp;drv_leds_fops);    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 生成系统设备信息, 供mdev自动创建设备节点使用</span></span><br><span class="line">	leds_class = class_create(THIS_MODULE, <span class="string">"leds"</span>);             <span class="comment">// 创建 leds 类</span></span><br><span class="line">	<span class="keyword">if</span> (IS_ERR(leds_class))</span><br><span class="line">		<span class="keyword">return</span> PTR_ERR(leds_class);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 创建 leds 类下面的设备. 0表示所有led, 名称为 leds</span></span><br><span class="line">    leds_class_devs[<span class="number">0</span>] = class_device_create(leds_class, <span class="literal">NULL</span>, MKDEV(major, <span class="number">0</span>), <span class="literal">NULL</span>, <span class="string">"leds"</span>);</span><br><span class="line">	</span><br><span class="line">    <span class="comment">// 1-3 表示3个独立的led, 名称为 led1, led2, led3</span></span><br><span class="line">    <span class="keyword">for</span> (minor = <span class="number">1</span>; minor &lt; <span class="number">4</span>; minor++) &#123;</span><br><span class="line">		leds_class_devs[minor] = class_device_create(leds_class, <span class="literal">NULL</span>, MKDEV(major, minor), <span class="literal">NULL</span>, <span class="string">"led%d"</span>, minor);</span><br><span class="line">		<span class="keyword">if</span> (unlikely(IS_ERR(leds_class_devs[minor])))</span><br><span class="line">			<span class="keyword">return</span> PTR_ERR(leds_class_devs[minor]);</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    printk(DEVICE_NAME <span class="string">" initialized\n"</span>);                       <span class="comment">// 调试用</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">drv_leds_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (minor = <span class="number">0</span>; minor &lt; <span class="number">4</span>; minor++) &#123;                       </span><br><span class="line">		class_device_unregister(leds_class_devs[minor]);        <span class="comment">// 删除设备节点</span></span><br><span class="line">	&#125;</span><br><span class="line">	class_destroy(leds_class);                                  <span class="comment">// 删除设备类</span></span><br><span class="line">    </span><br><span class="line">    unregister_chrdev(major, DEVICE_NAME);                      <span class="comment">// 卸载驱动</span></span><br><span class="line">    iounmap(gpio_base);</span><br><span class="line">    printk(DEVICE_NAME <span class="string">" deinitialized\n"</span>);     </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_leds_init);</span><br><span class="line">module_exit(drv_leds_exit);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 描述驱动程序的一些信息，不是必须的 =====</span></span><br><span class="line">MODULE_AUTHOR(<span class="string">"draapho"</span>);</span><br><span class="line">MODULE_VERSION(<span class="string">"0.1.1"</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">"First Driver for LED"</span>);</span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile-1"><a href="#Makefile-1" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ~/jz2440/driver/drv_leds/Makefile</span></span><br><span class="line"></span><br><span class="line">KERN_DIR = ~/jz2440/kernel/linux-2.6.22.6</span><br><span class="line"><span class="comment"># 这是交叉编译, 需要指定嵌入式linux内核地址</span></span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules </span><br><span class="line"><span class="comment"># pwd 表示当前目录, 即驱动代码所在的目录</span></span><br><span class="line"><span class="comment"># 驱动目录并不需要放在内核目录下面.</span></span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_DIR)</span> M=`pwd` modules clean</span><br><span class="line">	rm -rf modules.order</span><br><span class="line"></span><br><span class="line">obj-m	+= drv_leds.o</span><br></pre></td></tr></table></figure>
+<h2 id="测试代码-drv-leds-test-c-1"><a href="#测试代码-drv-leds-test-c-1" class="headerlink" title="测试代码, drv_leds_test.c"></a>测试代码, drv_leds_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ~/jz2440/driver/drv_leds/drv_leds_test.c</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">  *  ledtest &lt;dev&gt; &lt;on|off&gt;</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_usage</span><span class="params">(<span class="keyword">char</span> *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Usage:\n"</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s &lt;dev&gt; &lt;on|off&gt;\n"</span>,file);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"eg. \n"</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/leds on\n"</span>, file);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/leds off\n"</span>, file);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/led1 on\n"</span>, file);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s /dev/led1 off\n"</span>, file);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">char</span>* filename;</span><br><span class="line">    <span class="keyword">char</span> val;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">3</span>) &#123;                        <span class="comment">// 输入错误, 打印帮助信息</span></span><br><span class="line">        print_usage(argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    filename = argv[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    fd = open(filename, O_RDWR);            <span class="comment">// 打开设备</span></span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"error, can't open %s\n"</span>, filename);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">strcmp</span>(<span class="string">"on"</span>, argv[<span class="number">2</span>])) &#123;    <span class="comment">// 亮灯</span></span><br><span class="line">        val = <span class="number">1</span>;</span><br><span class="line">        write(fd, &amp;val, <span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">strcmp</span>(<span class="string">"off"</span>, argv[<span class="number">2</span>])) &#123;   <span class="comment">// 灭灯</span></span><br><span class="line">        val = <span class="number">0</span>;</span><br><span class="line">        write(fd, &amp;val, <span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        print_usage(argv[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="编译加载并测试-1"><a href="#编译加载并测试-1" class="headerlink" title="编译加载并测试"></a>编译加载并测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ===== Ubuntu主机端, 编译驱动 =====</span></span><br><span class="line"><span class="comment"># pwd = drv_leds.c所在的目录.</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make                                  <span class="comment"># 编译驱动</span></span><br><span class="line"><span class="comment"># 成功后, 生成 drv_leds.ko 动态库</span></span><br><span class="line"></span><br><span class="line">$ cp drv_leds.ko ~/jz2440/fs_first/     <span class="comment"># 先直接放到文件系统根目录下了.</span></span><br><span class="line"><span class="comment"># 嵌入式端最好用网络的方式加载文件系统, 这样就不用重新烧录文件系统了, 便于调试!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 嵌入式Linux端, 加载驱动 =====</span></span><br><span class="line"><span class="comment"># pwd = /</span></span><br><span class="line">$ insmod drv_leds.ko                    <span class="comment"># 加载模块</span></span><br><span class="line">drv_leds initialized                    <span class="comment"># 打印的调试信息</span></span><br><span class="line">$ cat /proc/devices                     <span class="comment"># 查看设备信息</span></span><br><span class="line">Character devices:</span><br><span class="line">252 drv_leds                            <span class="comment"># 应该能找到这一项, 自动分配的主设备号252</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要配置好 mdev. 才支持insmod后自动生成设备节点.</span></span><br><span class="line">$ ls -l /dev/led1                       <span class="comment"># 查看自动加载的设备节点 led1. 其它3个同理查看</span></span><br><span class="line">crw-rw----  1 0     0       252, 1  时间信息    /dev/led1</span><br><span class="line">$ <span class="built_in">cd</span> /sys/class/                        <span class="comment"># 查看设备的类</span></span><br><span class="line">$ ls</span><br><span class="line">leds                                    <span class="comment"># 可以找到这一项</span></span><br><span class="line">$ ls leds/                              <span class="comment"># 查看类下面的设备</span></span><br><span class="line">led1 led2 led3 leds</span><br><span class="line">$ cat leds/led1/dev                     <span class="comment"># 查看设备信息</span></span><br><span class="line">252:1                                   <span class="comment"># 主设备号252(自动分配的), 次设备号为1</span></span><br><span class="line">$ rmmod drv_leds.ko                     <span class="comment"># 移除驱动</span></span><br><span class="line">drv_leds deinitialized                  <span class="comment"># 打印的调试信息</span></span><br><span class="line">$ ls /dev/led1                          <span class="comment"># 会告知文件或目录不存在</span></span><br><span class="line">$ ls /sys/class                         <span class="comment"># leds 已经不见了! 说明mdev把这个设备节点自动卸载掉了.</span></span><br><span class="line">$ insmod drv_leds.ko                    <span class="comment"># 加载一下, 为测试做准备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== Ubuntu主机端, 编译测试源码 =====</span></span><br><span class="line"><span class="comment"># pwd = drv_leds_test.c所在的目录.</span></span><br><span class="line">$ arm-linux-gcc -o drv_leds_test drv_leds_test.c    <span class="comment"># 编译应用程序</span></span><br><span class="line">$ cp drv_leds_test ~/jz2440/fs_first/               <span class="comment"># 先直接放到文件系统根目录下了.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 嵌入式Linux端, 测试驱动 =====</span></span><br><span class="line">$ ./drv_leds_test                       <span class="comment"># 显示使用方法</span></span><br><span class="line">$ ./drv_leds_test /dev/leds on          <span class="comment"># LED全开</span></span><br><span class="line">$ ./drv_leds_test /dev/led2 off         <span class="comment"># 关LED2</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/11/13/1732-python-pip/" itemprop="url">
+                  Python2和Python3共存时, pip的使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-11-13T00:00:00+11:00" content="2017-11-13">
+              2017-11-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="pip的使用"><a href="#pip的使用" class="headerlink" title="pip的使用"></a>pip的使用</h1><p>pip 为python的包管理器. 最新的python2和python3都已经自带pip.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 显示帮助</span></span><br><span class="line">pip</span><br><span class="line">pip --<span class="built_in">help</span></span><br><span class="line">pip install -h                      <span class="comment"># 显示安装的帮助</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装包</span></span><br><span class="line">pip install PackageName             <span class="comment"># latest version</span></span><br><span class="line">pip install PackageName==1.0.4      <span class="comment"># specific version</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 包列表</span></span><br><span class="line">pip list                            <span class="comment"># 显示已安装的包   </span></span><br><span class="line">pip list --outdated                 <span class="comment"># 显示有更新的包</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示包的简介, 以及包的源码文件</span></span><br><span class="line">pip show --files PackageName</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新包</span></span><br><span class="line">pip install --U PackageName</span><br><span class="line">pip install --upgrade PackageName</span><br><span class="line">pip install --upgrade pip           <span class="comment"># pip更新自己</span></span><br><span class="line">python -m pip install --U pip       <span class="comment"># -m 表示调用python模块, 这里就是要调用pip</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载包</span></span><br><span class="line">pip uninstall PackageName</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遇到SSL问题, 下载失败时, 信任下载源即可</span></span><br><span class="line"><span class="comment"># [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:XXX)</span></span><br><span class="line">pip list --outdated --trusted-host pypi.python.org </span><br><span class="line">pip install --trusted-host pypi.python.org PackageName</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果还是不行, 再试试下面这句. index-url 将源指定为http格式, 不用https了, 然后设置为信任.</span></span><br><span class="line">pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.python.org PackageName</span><br></pre></td></tr></table></figure>
+<h1 id="linux下的双版本"><a href="#linux下的双版本" class="headerlink" title="linux下的双版本"></a>linux下的双版本</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sudo python2 hello.py</span><br><span class="line">sudo python3 hello.py</span><br><span class="line"><span class="comment"># 指定版本运行源码</span></span><br><span class="line"></span><br><span class="line">sudo pip2 install PackageName</span><br><span class="line">sudo pip3 install PackageName</span><br><span class="line"><span class="comment"># 直接使用pip+版本</span></span><br><span class="line"></span><br><span class="line">sudo python2 -m pip install PackageName</span><br><span class="line">sudo python3 -m pip install PackageName</span><br><span class="line"><span class="comment"># -m 表示调用python模块, 这里就是要调用pip</span></span><br></pre></td></tr></table></figure>
+<h2 id="源码内指定版本"><a href="#源码内指定版本" class="headerlink" title="源码内指定版本"></a>源码内指定版本</h2><p>将需要指定的python版本放在源码的第一行.<br>支持如下方式:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env</span></span><br><span class="line"><span class="comment"># 使用默认的系统环境</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#!python2</span></span><br><span class="line"><span class="comment">#!python3</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python2</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># 指定python版本</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#!/usr/bin/python2</span></span><br><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="comment">#!/usr/local/bin/python2.7</span></span><br><span class="line"><span class="comment">#!/usr/local/bin/python3.5</span></span><br><span class="line"><span class="comment"># 通过路径指定版本</span></span><br></pre></td></tr></table></figure></p>
+<p>举个python3的例子, 格式如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! python3</span></span><br><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="comment"># ... 源码</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="linux下的双版本-1"><a href="#linux下的双版本-1" class="headerlink" title="linux下的双版本"></a>linux下的双版本</h1><h2 id="windows官解"><a href="#windows官解" class="headerlink" title="windows官解"></a>windows官解</h2><p>Windows下, 官方提供了 <a href="https://www.python.org/dev/peps/pep-0397/" target="_blank" rel="noopener">Python launcher for Windows</a> 的方法.<br>在安装 python3 的时候 (版本&gt;=3.3), 记得勾选 <code>py launcher</code> 选项.<br>这样, 就会python3就会生成一个py.exe命令. 可以指定调用python2或者python3.<br>安装了 <code>py laucher</code> 后, 也支持源码第一行指定版本</p>
+<ul>
+<li><code>#! python2</code></li>
+<li><code>#! python3</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">py -2 hello.py</span><br><span class="line">py -3 hello.py</span><br><span class="line"><span class="comment"># 指定版本运行源码</span></span><br><span class="line"></span><br><span class="line">py -2 -m pip install PackageName</span><br><span class="line">py -3 -m pip install PackageName</span><br><span class="line"><span class="comment"># -m 表示调用python模块, 这里就是要调用pip</span></span><br></pre></td></tr></table></figure>
+<h2 id="windows土法"><a href="#windows土法" class="headerlink" title="windows土法"></a>windows土法</h2><p>但是, 官解真的没有土方法方便. 但不知道是否有潜在风险题<br>土法就是改名, 让windows下的用法和linux一样.</p>
+<ul>
+<li>在python2的根目录, <strong>复制</strong>一份<code>python.exe</code>, 然后改名为 <code>python2.exe</code>. </li>
+<li>进入<code>Scripts</code>目录, <strong>复制</strong>一份<code>pip.exe</code>, 然后改名为 <code>pip2.exe</code>. </li>
+<li>同样python3根目录, <strong>复制</strong>一份<code>python.exe</code>, 然后改名为 <code>python3.exe</code>. </li>
+<li>进入<code>Scripts</code>目录, <strong>复制</strong>一份<code>pip.exe</code>, 然后改名为 <code>pip3.exe</code>. </li>
+<li>注意不是直接改名. 要保留原来的 <code>python.exe</code> 和 <code>pip.exe</code></li>
+<li>可以和linux下一样, 愉快的玩耍了. 如下:</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">python2 hello.py</span><br><span class="line">python3 hello.py</span><br><span class="line"><span class="comment"># 指定版本运行源码</span></span><br><span class="line"></span><br><span class="line">pip2 install PackageName</span><br><span class="line">pip3 install PackageName</span><br><span class="line"><span class="comment"># 直接使用pip+版本</span></span><br><span class="line"></span><br><span class="line">sudo python2 -m pip install PackageName</span><br><span class="line">sudo python3 -m pip install PackageName</span><br><span class="line"><span class="comment"># -m 表示调用python模块, 这里就是要调用pip</span></span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://python.freelycode.com/contribution/detail/139" target="_blank" rel="noopener">Windows上Python2和3如何兼容？</a></li>
+<li><a href="http://www.cnblogs.com/an9wer/p/5564284.html" target="_blank" rel="noopener">python2.X和python3.X在同一平台下的切换技巧</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/11/03/1731-fs-build/" itemprop="url">
                   fs之创建文件系统
                 </a>
@@ -1342,459 +1677,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/19/1726-soft-easyre/" itemprop="url">
-                  人人都看得懂的正则表达式教程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-09-19T00:00:00+10:00" content="2017-09-19">
-              2017-09-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/software/" itemprop="url" rel="index">
-                    <span itemprop="name">software</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自 <a href="https://mp.weixin.qq.com/s?__biz=MzI4MDEwNzAzNg==&amp;mid=2649444384&amp;idx=1&amp;sn=b1650af947842bbafb229eaabef4447e&amp;key=93e82051231712653225010bec76aa3cdd1bb9dfb4cb4676f695a6cba336d79a73a39a9ae825aae8c16f26c0d1e0c67f7d96c8e03161da2c68ed58cc68e7c5818fdc72647bae92df46a1b85a43e276cd&amp;ascene=1&amp;uin=MTUzODYxOTg2MQ%3D%3D&amp;devicetype=Windows-QQBrowser&amp;version=61030006&amp;pass_ticket=X0yVRsvNQron8bDKwr7uv0tD%2FafEwhP8NalG1zmH0siQV8OIDKoyAcobBC8fze13" target="_blank" rel="noopener">人人都看得懂的正则表达式教程</a></em></strong></p>
-<hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
-<li><a href="https://draapho.github.io/2016/12/18/1628-soft-regular/">正则表达式</a></li>
-<li><a href="https://draapho.github.io/2017/09/19/1726-soft-easyre/">人人都看得懂的正则表达式教程</a></li>
-<li><a href="https://draapho.github.io/2017/10/07/1727-soft-reexample/">最全的常用正则表达式大全</a></li>
-</ul>
-<p>本文有助于快速上手正则表达式, 但语法非常不全, 因此写出的表达式不够简练.</p>
-<p>编写验证规则最流行和最简单的方法就是正则表达式了，但唯一的一个问题是正则表达式的语法太隐晦了，让人蛋疼无比。<br>很多开发者为了在项目中应用复杂的验证，经常要使用一些小抄来记住正则式的复杂语法和各种常用命令。<br>在这篇文章中，我将试图让大家明白什么是正则表达式，以及如何更轻松地学习正则表达式。</p>
-<h1 id="3个重要的正则式命令"><a href="#3个重要的正则式命令" class="headerlink" title="3个重要的正则式命令"></a>3个重要的正则式命令</h1><p>记住正则语法最好的办法就是记住这三样东西：BCD</p>
-<ul>
-<li><strong>B</strong>racket, 括号<ul>
-<li>方括号 <code>[需要匹配的字符]</code></li>
-<li>花括号 <code>{指定匹配字符的数量}</code></li>
-<li>圆括号 <code>(字符分组)</code></li>
-</ul>
-</li>
-<li><strong>C</strong>aret, 插入符号<ul>
-<li><code>^</code> 表示字符串开始</li>
-</ul>
-</li>
-<li><strong>D</strong>ollars, 美元符号<ul>
-<li><code>$</code> 表示字符串结束</li>
-</ul>
-</li>
-</ul>
-<h1 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h1><ul>
-<li><code>[a-g]{3}</code><br>  输入的字符在a-g之间并且长度为3</li>
-<li><code>[a-g]{1,3}</code><br>  输入的字符在a-g之间并且最大长度为3最小长度为1</li>
-<li><code>^[0-9]{8}$</code><br>  匹配像91230456, 01237648那样的固定8位数</li>
-<li><code>^[0-9]{3,7}$</code><br>  验证最小长度为3最大长度为7的数字，如：123, 1274667, 87654</li>
-<li><code>^[a-z]{3}[0-9]{7}$</code><br>  验证像LJI1020那样的发票编号，前3个是字母剩余为8位长度的数字</li>
-<li><code>^www[.][a-z]{1,15}[.](com|org)$</code><br>  验证简单的网址URL格式, 域名是长度在1-15的英文字母</li>
-<li><code>^[a-zA-Z0-9]{1,10}@[a-zA-Z]{1,10}.(com|org)$</code><br>  验证email格式</li>
-<li><code>^(([0-9])|([0-1][0-9])|([0-2][0-5]))$</code><br>  验证值在0-25的数字</li>
-<li><code>^([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])[- / .]([1-9]|0[1-9]|1[0-2])[- / .](1[9][0-9][0-9]|2[0][0-9][0-9])$</code><br>  验证DD/MM/YYYY格式的日期<pre><code>- `([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])` DD允许数值为`1-9,01-09,10-19,20-29,30-31`
-- `[- / .]` 允许的日期分隔符
-- `([1-9]|0[1-9]|1[0-2])` MM月份的数值 `1-9,01-09,10-12`
-- `(1[9][0-9][0-9]|2[0][0-9][0-9])` YY年份的数值 `1900-2099`
-</code></pre></li>
-</ul>
-<h1 id="快捷命令"><a href="#快捷命令" class="headerlink" title="快捷命令"></a>快捷命令</h1><table>
-<thead>
-<tr>
-<th>实际命令</th>
-<th>快捷命令</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>[0-9]</code></td>
-<td><code>d</code></td>
-</tr>
-<tr>
-<td><code>[a-z][0-9][_]</code></td>
-<td><code>w</code></td>
-</tr>
-<tr>
-<td>0次或多次发生</td>
-<td><code>*</code></td>
-</tr>
-<tr>
-<td>1次或多次发生</td>
-<td><code>+</code></td>
-</tr>
-<tr>
-<td>0次或1次发生</td>
-<td><code>?</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<p><strong><em>转载自 <a href="https://mp.weixin.qq.com/s?__biz=MzI4MDEwNzAzNg==&amp;mid=2649444384&amp;idx=1&amp;sn=b1650af947842bbafb229eaabef4447e&amp;key=93e82051231712653225010bec76aa3cdd1bb9dfb4cb4676f695a6cba336d79a73a39a9ae825aae8c16f26c0d1e0c67f7d96c8e03161da2c68ed58cc68e7c5818fdc72647bae92df46a1b85a43e276cd&amp;ascene=1&amp;uin=MTUzODYxOTg2MQ%3D%3D&amp;devicetype=Windows-QQBrowser&amp;version=61030006&amp;pass_ticket=X0yVRsvNQron8bDKwr7uv0tD%2FafEwhP8NalG1zmH0siQV8OIDKoyAcobBC8fze13" target="_blank" rel="noopener">人人都看得懂的正则表达式教程</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/15/1725-kernel-launch/" itemprop="url">
-                  kernel之内核启动分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-09-15T00:00:00+10:00" content="2017-09-15">
-              2017-09-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
-<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="内核引导阶段-head-S"><a href="#内核引导阶段-head-S" class="headerlink" title="内核引导阶段 head.S"></a>内核引导阶段 <code>head.S</code></h1><p>由 <a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a> 可知, uboot最后调用的函数是</p>
-<ul>
-<li><code>theKernel (0, bd-&gt;bi_arch_number, bd-&gt;bi_boot_params)</code>, 会把一些板级参数传递给linux内核使用.</li>
-</ul>
-<p>由 <a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a> 可知, 两个重要的文件如下:</p>
-<ul>
-<li>第1个文件: <code>arch/arm/kernel/head.S</code></li>
-<li>链接脚本: <code>arch/arm/kernel/vmlinux.lds</code></li>
-</ul>
-<p><code>head.S</code> 主要完成了如下工作.</p>
-<p><img src="https://draapho.github.io/images/1725/stage1.JPG" alt="内核引导阶段"></p>
-<ul>
-<li><code>__lookup_machine_type</code> 会将 theKernel 传入的单板类型与内核支持的单板类型逐一比较.</li>
-<li><code>.arch.info.init</code> 这一个段存放的就是内核支持的单板类型.<ul>
-<li>定义在 <code>./arch/arm/kernel/vmlinux.lds</code></li>
-<li><code>__lookup_machine_type</code> 会对该段进行轮询</li>
-<li>该段的数据结构为 <code>machine_desc</code>, 定义在 <code>./include/asm-arm/mach/arch.h</code></li>
-<li><code>arch.h</code> 文件还宏定义了 <code>MACHINE_START</code> <code>MACHINE_END</code>,<br>  调用该宏定义, 就会将相关数据放在 <code>.arch.info.init</code> 段内</li>
-</ul>
-</li>
-<li><code>./arch/arm/mach-s3c2440/mach-smdk2440.c:</code> 内调用了 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code><ul>
-<li>kernel下 <code>grep -nr MACH_TYPE_S3C2440</code> 可知 MACH_TYPE_S3C2440 的值为 362</li>
-<li>uboot下 <code>grep -nr bi_arch_number</code> 可知其值为 MACH_TYPE_S3C2440, 即 362</li>
-<li>这样, kernel就能确定是支持当前的开发板的. (当前的开发板信息由uboot提供给kernel)</li>
-</ul>
-</li>
-</ul>
-<h1 id="内核启动第二阶段-init-main-c"><a href="#内核启动第二阶段-init-main-c" class="headerlink" title="内核启动第二阶段 init/main.c"></a>内核启动第二阶段 <code>init/main.c</code></h1><p><code>head-common.S</code> 调用 <code>start_kernel</code> 后, 代码会转到 <code>init/main.c</code>, 使用的是C语言.</p>
-<p><img src="https://draapho.github.io/images/1725/stage2.JPG" alt="内核启动第二阶段"></p>
-<p>从 <code>start_kernel</code> 开始, 函数的基本调用关系如下:</p>
-<ul>
-<li><code>setup_arch(&amp;command_line);</code> 读取uboot传过来的TAG参数<ul>
-<li>位于 <code>./arch/arm/kernel/setup.c</code> 770 行</li>
-<li>uboot 的 <code>setup_memory_tags</code> 存放内存大小</li>
-<li>uboot 的 <code>setup_commandline_tag</code> 告知linux挂载文件系统的命令行</li>
-<li>uboot 的 <code>/board/100ask24x0/100ask24x0.c</code> 中, <code>gd-&gt;bd-&gt;bi_boot_params = 0x30000100</code></li>
-<li>使用了 <code>machine_desc</code> 结构体, <code>.boot_params = S3C2410_SDRAM_PA + 0x100</code>, 其值就是 <code>0x30000100</code></li>
-<li>至此, uboot存放在内存中的TAG参数, 就能被内核读取出来了.</li>
-<li>此函数还会把挂载文件系统的命令赋值给 <code>boot_command_line</code>, 后续会去处理.</li>
-<li><code>parse_cmdline</code> 会去处理放在 <code>early_param.init</code> 段的指令.</li>
-</ul>
-</li>
-<li><code>parse_early_param</code>, 此函数会把 <code>boot_command_line</code>传递给<code>do_early_param</code>让其执行挂载文件系统的指令.<ul>
-<li><code>do_early_param</code><ul>
-<li>搜索 <code>.init.setup</code> 段, 调用有early标记的函数 (大多只是设置一下参数)</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>unknown_bootoption</code> (使用 parse_args 先检查参数后再执行该函数)<ul>
-<li><code>obsolete_checksetup</code><ul>
-<li>搜索 <code>.init.setup</code> 段, 调用非early标记的函数 (大多只是设置一下参数)</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>rest_init</code>, 去做剩余的初始化工作<ul>
-<li><code>kernel_thread(kernel_init, NULL, CLONE_FS | CLONE_SIGHAND);</code> 首先就是创建一个线程来做初始化工作<ul>
-<li><code>kernel_init</code> 会调用 <code>prepare_namespace</code><ul>
-<li>在 <code>do_mounts.c</code> 文件下 <code>prepare_namespace</code> 调用 <code>mount_root</code></li>
-<li>目的就是挂载文件系统.</li>
-</ul>
-</li>
-<li>挂载完文件系统后, 调用 <code>init_post</code>, 尝试执行第一个应用程序(下述应用程序不会再返回)<ul>
-<li><code>run_init_process(execute_command);</code></li>
-<li><code>run_init_process(&quot;/sbin/init&quot;);</code></li>
-<li><code>run_init_process(&quot;/etc/init&quot;);</code></li>
-<li><code>run_init_process(&quot;/bin/init&quot;);</code></li>
-<li><code>run_init_process(&quot;/bin/sh&quot;);</code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>以默认的启动指令为例 <code>&quot;root=/dev/hda1 ro init=/bin/bash console=ttySAC0&quot;</code><pre><code>- `__setup(&quot;root=&quot;, root_dev_setup);` 位于 `./init/do_mounts.c`
-- `__setup(&quot;init=&quot;, init_setup);` 位于 `./init/main.c`
-- `__setup(&quot;console=&quot;, console_setup);` 位于 `./kernel/printk.c`
-- 以上命令对应的函数都会由 `obsolete_checksetup` 函数来调用. 主要是设置好相关参数.
-</code></pre></li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ./init/main.c</span></span><br><span class="line"></span><br><span class="line"><span class="number">497</span> asmlinkage <span class="keyword">void</span> __<span class="function">init <span class="title">start_kernel</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line"><span class="number">520</span>     tick_init();</span><br><span class="line"><span class="number">521</span>     boot_cpu_init();</span><br><span class="line"><span class="number">522</span>     page_address_init();</span><br><span class="line"><span class="number">524</span>     printk(linux_banner);                           <span class="comment">// 打印linux版本信息</span></span><br><span class="line"><span class="number">525</span>     setup_arch(&amp;command_line);                      <span class="comment">// 读取uboot传过来的TAG参数</span></span><br><span class="line">                                                        <span class="comment">// 搜索 "early_param.init" 段, 并调用相关函数</span></span><br><span class="line"><span class="number">526</span>     setup_command_line(command_line);               <span class="comment">// 复制一下 command_line.</span></span><br><span class="line"></span><br><span class="line"><span class="number">544</span>     printk(KERN_NOTICE <span class="string">"Kernel command line: %s\n"</span>, boot_command_line); <span class="comment">// 打印文件系统挂载命令</span></span><br><span class="line"><span class="number">545</span>     parse_early_param();                            <span class="comment">// 最终会搜索 ".init.setup" 段, 调用有early标记的函数</span></span><br><span class="line"><span class="number">546</span>     parse_args(<span class="string">"Booting kernel"</span>, static_command_line, __start___param,</span><br><span class="line"><span class="number">547</span>        __stop___param - __start___param,            <span class="comment">// 搜索 "__param" 段</span></span><br><span class="line"><span class="number">548</span>        &amp;unknown_bootoption);                        <span class="comment">// 最终会搜索 ".init.setup" 段, 调用非early标记的函数</span></span><br><span class="line"></span><br><span class="line"><span class="number">575</span>     console_init();                                 <span class="comment">// 控制终端初始化</span></span><br><span class="line"></span><br><span class="line"><span class="number">636</span>     rest_init();                                    <span class="comment">// 剩余部分的初始化</span></span><br><span class="line"><span class="number">637</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">466</span> <span class="keyword">void</span> __<span class="function">init <span class="title">parse_early_param</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line"><span class="number">475</span>     strlcpy(tmp_cmdline, boot_command_line, COMMAND_LINE_SIZE);</span><br><span class="line">        <span class="comment">// parse_args 会先检查参数, 最后调用函数, 此处是do_early_param,</span></span><br><span class="line">        <span class="comment">// 参数为 boot_command_line 启动命令, 由uboot传递进来. 实际不会在此处执行.</span></span><br><span class="line"><span class="number">476</span>     parse_args(<span class="string">"early options"</span>, tmp_cmdline, <span class="literal">NULL</span>, <span class="number">0</span>, do_early_param);</span><br><span class="line"><span class="number">478</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">450</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">do_early_param</span><span class="params">(<span class="keyword">char</span> *param, <span class="keyword">char</span> *val)</span> </span>&#123;</span><br><span class="line"><span class="number">454</span>     <span class="keyword">for</span> (p = __setup_start; p &lt; __setup_end; p++)   <span class="comment">// 遍历 ".init.setup" 段</span></span><br><span class="line"><span class="number">455</span>         <span class="keyword">if</span> (p-&gt;early &amp;&amp; <span class="built_in">strcmp</span>(param, p-&gt;str) == <span class="number">0</span>) <span class="comment">// 在段内找了匹配boot_command_line的命令, 则执行</span></span><br><span class="line"><span class="number">456</span>             <span class="keyword">if</span> (p-&gt;setup_func(val) != <span class="number">0</span>)</span><br><span class="line"><span class="number">463</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">258</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">unknown_bootoption</span><span class="params">(<span class="keyword">char</span> *param, <span class="keyword">char</span> *val)</span> </span>&#123;</span><br><span class="line"><span class="number">274</span>     <span class="keyword">if</span> (obsolete_checksetup(param))                 <span class="comment">// 调用 obsolete_checksetup</span></span><br><span class="line"><span class="number">313</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">190</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">obsolete_checksetup</span><span class="params">(<span class="keyword">char</span> *line)</span> </span>&#123;</span><br><span class="line"><span class="number">195</span>     p = __setup_start;                              <span class="comment">// 遍历 ".init.setup" 段</span></span><br><span class="line"><span class="number">196</span>     <span class="keyword">do</span> &#123;</span><br><span class="line"><span class="number">199</span>         <span class="keyword">if</span> (p-&gt;early) &#123;                             <span class="comment">// 有early标记, 跳过.</span></span><br><span class="line"><span class="number">210</span>         &#125; <span class="keyword">else</span> <span class="keyword">if</span> (p-&gt;setup_func(line + n))         <span class="comment">// 执行指令对应的函数</span></span><br><span class="line"><span class="number">214</span>     &#125; <span class="keyword">while</span> (p &lt; __setup_end);<span class="number">24</span></span><br><span class="line"><span class="number">217</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">426</span> <span class="keyword">static</span> <span class="keyword">void</span> noinline __<span class="function">init_refok <span class="title">rest_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">        kernel_thread(kernel_init, <span class="literal">NULL</span>, CLONE_FS | CLONE_SIGHAND); <span class="comment">// 创建一个初始化用的线程</span></span><br><span class="line">        schedule();                                     <span class="comment">// 调度</span></span><br><span class="line"><span class="number">447</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">787</span> <span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">kernel_init</span><span class="params">(<span class="keyword">void</span> * unused)</span> </span>&#123;</span><br><span class="line"><span class="number">828</span>         prepare_namespace();                        <span class="comment">// 调用 mount_root, 加载文件系统</span></span><br><span class="line"><span class="number">836</span>     init_post();                                    <span class="comment">// 执行应用程序</span></span><br><span class="line"><span class="number">838</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">748</span> <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> noinline <span class="title">init_post</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;               <span class="comment">// 执行应用程序</span></span><br><span class="line"><span class="number">756</span>     <span class="keyword">if</span> (sys_open((<span class="keyword">const</span> <span class="keyword">char</span> __user *) <span class="string">"/dev/console"</span>, O_RDWR, <span class="number">0</span>) &lt; <span class="number">0</span>)      </span><br><span class="line">                                                        <span class="comment">// 尝试打开终端设备, 文件0-&gt;printf</span></span><br><span class="line"><span class="number">757</span>         printk(KERN_WARNING <span class="string">"Warning: unable to open an initial console.\n"</span>);</span><br><span class="line"><span class="number">759</span>	    (<span class="keyword">void</span>) sys_dup(<span class="number">0</span>);                              <span class="comment">// 赋值文件0, 生成文件1-&gt;scanf</span></span><br><span class="line"><span class="number">760</span>	    (<span class="keyword">void</span>) sys_dup(<span class="number">0</span>);                              <span class="comment">// 赋值文件0, 生成文件2-&gt;err</span></span><br><span class="line">        <span class="comment">// 以上四句作用为设置标准输入输出流, (printf, scanf, err)</span></span><br><span class="line">        </span><br><span class="line"><span class="number">744</span> 	<span class="keyword">if</span> (execute_command) &#123;</span><br><span class="line"><span class="number">745</span>	    	run_init_process(execute_command);</span><br><span class="line"><span class="number">746</span>		    printk(KERN_WARNING <span class="string">"Failed to execute %s.  Attempting "</span></span><br><span class="line"><span class="number">747</span>					<span class="string">"defaults...\n"</span>, execute_command);</span><br><span class="line"><span class="number">748</span>  	&#125;</span><br><span class="line">        <span class="comment">// 传入的启动参数内有 "init=" 启动程序, 则执行! 执行成功的话不会再返回这里!</span></span><br><span class="line"></span><br><span class="line"><span class="number">779</span>     run_init_process(<span class="string">"/sbin/init"</span>);</span><br><span class="line"><span class="number">780</span>     run_init_process(<span class="string">"/etc/init"</span>);</span><br><span class="line"><span class="number">781</span>     run_init_process(<span class="string">"/bin/init"</span>);</span><br><span class="line"><span class="number">782</span>     run_init_process(<span class="string">"/bin/sh"</span>);</span><br><span class="line">        <span class="comment">// 没有配置过启动指令, 依次尝试上述四个默认程序. 某一个执行成功后就不会再返回!</span></span><br><span class="line">        </span><br><span class="line"><span class="number">784</span>     panic(<span class="string">"No init found.  Try passing init= option to kernel."</span>);</span><br><span class="line">        <span class="comment">// 执行首个应用程序失败, 打印内核错误信息!</span></span><br><span class="line"><span class="number">785</span> &#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 我们擦除开发板文件系统后, 来看一下打印出来的启动信息</span></span><br><span class="line"></span><br><span class="line">OpenJTAG&gt; nand erase root           <span class="comment"># uboot 下, 擦除root块</span></span><br><span class="line">OpenJTAG&gt; reset                     <span class="comment"># uboot 下, 重启系统</span></span><br><span class="line"></span><br><span class="line">Booting Linux ...</span><br><span class="line">NAND <span class="built_in">read</span>: device 0 offset 0x60000, size 0x200000</span><br><span class="line"><span class="comment">## Booting image at 30007fc0 ...</span></span><br><span class="line">...</span><br><span class="line">Starting kernel ...</span><br><span class="line">...</span><br><span class="line">Kernel <span class="built_in">command</span> line: noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</span><br><span class="line">loop: module loaded</span><br><span class="line">...</span><br><span class="line">Creating 4 MTD partitions on <span class="string">"NAND 256MiB 3,3V 8-bit"</span>:</span><br><span class="line">0x00000000-0x00040000 : <span class="string">"bootloader"</span></span><br><span class="line">0x00040000-0x00060000 : <span class="string">"params"</span></span><br><span class="line">0x00060000-0x00260000 : <span class="string">"kernel"</span></span><br><span class="line">0x00260000-0x10000000 : <span class="string">"root"</span></span><br><span class="line">...</span><br><span class="line">VFS: Mounted root (yaffs filesystem).</span><br><span class="line">...</span><br><span class="line">Kernel panic - not syncing: No init found.  Try passing init= option to kernel.</span><br><span class="line"><span class="comment"># 此句就是由./init/main.c文件784行打印出来的. 因为没有文件系统, 第一个应用程序执行失败!</span></span><br></pre></td></tr></table></figure>
-<p>如果正常启动, 会打印如下信息, 可知第一个应用程序名字是 <code>BusyBox</code>, 然后启动了 <code>/bin/sh</code>!!!<br><code>init started: BusyBox v1.7.0 (2008-01-22 10:04:09 EST)</code><br><code>starting pid 764, tty &#39;&#39;: &#39;/etc/init.d/rcS&#39;</code><br><code>Please press Enter to activate this console.</code><br><code>starting pid 770, tty &#39;/dev/s3c2410_serial0&#39;: &#39;/bin/sh&#39;</code></p>
-<h1 id="初始化中用到的段-vmlinux-lds"><a href="#初始化中用到的段-vmlinux-lds" class="headerlink" title="初始化中用到的段 vmlinux.lds"></a>初始化中用到的段 <code>vmlinux.lds</code></h1><h2 id="init-setup-段分析"><a href="#init-setup-段分析" class="headerlink" title=".init.setup 段分析"></a><code>.init.setup</code> 段分析</h2><p>在 <code>./arch/arm/kernel/vmlinux.lds</code> 中有这么一个段<br><code>*(.init.setup)</code>, 其头尾为 <code>__setup_start</code> <code>__setup_end</code></p>
-<p>这一个段存放着需要通过读取命令行来执行的初始化工作, 内核称之为 <code>unknow_xxx</code><br>定义在此段的变量通过两个宏定义实现 <code>__setup</code> 以及 <code>early_param</code><br>简单理解的话, <code>early_param</code> 是需要先执行的命令行, <code>__setup</code> 则稍后执行.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># ./include/linux/init.h</span><br><span class="line"></span><br><span class="line"><span class="number">148</span> <span class="class"><span class="keyword">struct</span> <span class="title">obs_kernel_param</span> &#123;</span></span><br><span class="line"><span class="number">149</span>     <span class="keyword">const</span> <span class="keyword">char</span> *str;</span><br><span class="line"><span class="number">150</span>     <span class="keyword">int</span> (*setup_func)(<span class="keyword">char</span> *);</span><br><span class="line"><span class="number">151</span>     <span class="keyword">int</span> early;</span><br><span class="line"><span class="number">152</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="number">160</span> <span class="meta">#<span class="meta-keyword">define</span> __setup_param(str, unique_id, fn, early)            \</span></span><br><span class="line"><span class="number">161</span>     <span class="keyword">static</span> <span class="keyword">char</span> __setup_str_##unique_id[] __initdata = str; \</span><br><span class="line"><span class="number">162</span>     <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">obs_kernel_param</span> __<span class="title">setup_</span>##<span class="title">unique_id</span>  \</span></span><br><span class="line"><span class="class">163         __<span class="title">attribute_used__</span>              \</span></span><br><span class="line"><span class="class">164         __<span class="title">attribute__</span>((__<span class="title">section__</span>(".<span class="title">init</span>.<span class="title">setup</span>"))) \</span></span><br><span class="line"><span class="class">165         __<span class="title">attribute__</span>((<span class="title">aligned</span>((<span class="title">sizeof</span>(<span class="title">long</span>)))))    \</span></span><br><span class="line"><span class="class">166         = &#123;</span> __setup_str_##unique_id, fn, early &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">171</span> <span class="meta">#<span class="meta-keyword">define</span> __setup(str, fn)                    \</span></span><br><span class="line"><span class="number">172</span>     __setup_param(str, fn, fn, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">179</span> <span class="meta">#<span class="meta-keyword">define</span> early_param(str, fn)                    \</span></span><br><span class="line"><span class="number">180</span>     __setup_param(str, fn, fn, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-<p>先来分析 <code>__setup(str, fn)</code> 这么一个宏定义, 它设置的就是命令行队列, 将字符串关联到函数.</p>
-<ul>
-<li><code>unique_id</code> 就是fn的函数地址</li>
-<li>存放在 <code>.init.setup</code> 段内.</li>
-<li>与数据结构 <code>obs_kernel_param</code> 相关. 保存的就是 str, fn, 以及early三个变量.</li>
-<li>通过这样一种结构, 可以很方便的使用字符串来调用指定的函数.</li>
-<li><code>grep -nwr __setup ./arch/arm</code> 可找到 <code>__setup(&quot;tft=&quot;, qt2410_tft_setup);</code>, 很明显就是用来初始化屏幕的.</li>
-<li>在 <code>./init/do_mounts.c</code>里, 还能找到 <code>__setup(&quot;root=&quot;, root_dev_setup)</code>, 是用来挂载文件系统的.</li>
-</ul>
-<p>然后看 <code>early_param(str, fn)</code> 宏定义.</p>
-<ul>
-<li><code>__setup</code> 是一样的.</li>
-<li>只是将标记 <code>early</code> 赋值为1. 表示需要较早执行的初始化工作, 一般为更底层的驱动</li>
-<li>arm 架构几乎没有用到 <code>early_param</code> 的地方, 搜索的话, 可以看到 pci 的初始化就用到了 <code>early_param</code></li>
-</ul>
-<h2 id="early-param-init-段"><a href="#early-param-init-段" class="headerlink" title="early_param.init 段"></a><code>early_param.init</code> 段</h2><p>和 <code>.init.setup</code> 段类似, 其定义在<br><code>./include/asm-arm/setup.h</code>, 220行.<br>关联的宏定义为 <code>__early_param</code>, 初始化如 <code>initrd=</code> <code>mem=</code> 之类的命令<br><code>grep -nwr __early_param</code> 进行查询, 结果不多的.<br>搜索 <code>grep -nwr __early_begin</code>, 可知, 其处理函数为 <code>parse_cmdline</code></p>
-<h2 id="param-段"><a href="#param-段" class="headerlink" title="__param 段"></a><code>__param</code> 段</h2><p>该段主要用于给驱动模块的初始化. 设置参数使用.<br>定义在 <code>./include/linux/moduleparam.h</code>, 72 行<br>其调用位于 <code>./init/main.c</code> 的 <code>parse_args</code> (<code>grep -nwr __start___param</code>)<br>关联的宏定义为 <code>module_param_call</code> <code>module_param_named</code> <code>module_param</code> 以及 <code>module_param_string</code><br>查阅后, 可以发现全部是和驱动模块有关的.</p>
-<h1 id="linux下的分区"><a href="#linux下的分区" class="headerlink" title="linux下的分区"></a>linux下的分区</h1><p>jz2440的启动参数为 <code>root= /dev/mtdblock3</code>,<br>linux下没有分区表的概念, 这里分区是在内核源码里写死的.<br>可见 <code>./arch/arm/plat-s3c24xx/common-smdk.c</code> 的118行, <code>smdk_default_nand_part</code><br>它分配了4个的分区:</p>
-<table>
-<thead>
-<tr>
-<th>分区</th>
-<th>对应mtdblock</th>
-<th>size</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>bootloader</code></td>
-<td>mtdblock0</td>
-<td>0x00040000</td>
-</tr>
-<tr>
-<td><code>params</code></td>
-<td>mtdblock1</td>
-<td>0x00020000</td>
-</tr>
-<tr>
-<td><code>kernel</code></td>
-<td>mtdblock2</td>
-<td>0x00200000</td>
-</tr>
-<tr>
-<td><code>root</code></td>
-<td>mtdblock3</td>
-<td>MTDPART_SIZ_FULL</td>
-</tr>
-</tbody>
-</table>
-<h1 id="更多参考"><a href="#更多参考" class="headerlink" title="更多参考"></a>更多参考</h1><ul>
-<li><a href="http://blog.csdn.net/skyflying2012/article/details/41142801" target="_blank" rel="noopener"> linux kernel的cmdline参数解析原理分析</a></li>
-<li><a href="https://danielmaker.github.io/blog/linux/inside_start_kernel.html" target="_blank" rel="noopener">深入淺出 start_kernel</a></li>
-<li><a href="http://blog.sina.com.cn/s/blog_5d9051c00100ij93.html" target="_blank" rel="noopener">嵌入式Linux中基于MTD的文件系统的结构框架图</a></li>
-<li><a href="http://blog.csdn.net/yusiguyuan/article/details/9471577" target="_blank" rel="noopener">u-boot中分区和内核MTD分区关系</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1835,7 +1722,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-count">99</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
