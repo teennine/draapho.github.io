@@ -261,6 +261,329 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/12/1743-drv-chr5/" itemprop="url">
+                  驱动之异步通知
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-12T00:00:00+11:00" content="2017-12-12">
+              2017-12-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="异步通知范例"><a href="#异步通知范例" class="headerlink" title="异步通知范例"></a>异步通知范例</h1><h2 id="范例源码"><a href="#范例源码" class="headerlink" title="范例源码"></a>范例源码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_signal</span><span class="params">(<span class="keyword">int</span> signum)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> cnt = <span class="number">0</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"signal=%d, %d times\n"</span>, signum, ++cnt);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"main start\n"</span>);</span><br><span class="line">	signal(SIGUSR1, get_signal);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"wait signal\n"</span>);</span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		sleep(<span class="number">1000</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="范例测试"><a href="#范例测试" class="headerlink" title="范例测试"></a>范例测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端</span></span><br><span class="line">$ arm-linux-gcc signal.c -o signal</span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440端</span></span><br><span class="line">$ ./signal &amp;        <span class="comment"># 背景运行</span></span><br><span class="line">main start</span><br><span class="line"><span class="built_in">wait</span> signal         <span class="comment"># 程序顺序执行</span></span><br><span class="line">$ ps                <span class="comment"># 查看进程</span></span><br><span class="line">790 0          1312 S   ./signal</span><br><span class="line">$ <span class="built_in">kill</span> -SIGUSR1 790 <span class="comment"># 发送SIGUSR1信号</span></span><br><span class="line">signal=10, 1 <span class="built_in">times</span>  <span class="comment"># 直接调用的 get_signal, 打印信息</span></span><br><span class="line">$ <span class="built_in">kill</span> -10 790      <span class="comment"># 发送SIGUSR1信号</span></span><br><span class="line">signal=10, 1 <span class="built_in">times</span>  <span class="comment"># 直接调用的 get_signal, 打印信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里说明一下kill指令, 其本意是发送signal给进程, 而不是杀死进程.</span></span><br><span class="line"><span class="comment"># 但如果进程没有对应的signal处理, 其默认方式就是结束进程.</span></span><br><span class="line"><span class="comment"># 可以在ubuntu主机端查看详情:</span></span><br><span class="line">$ man <span class="built_in">kill</span>          <span class="comment"># kill的帮助信息</span></span><br><span class="line">$ <span class="built_in">kill</span> -l           <span class="comment"># 列出所有signal值, 其中:</span></span><br><span class="line">10) SIGUSR1</span><br></pre></td></tr></table></figure>
+<h2 id="异步机制核心点"><a href="#异步机制核心点" class="headerlink" title="异步机制核心点"></a>异步机制核心点</h2><ul>
+<li>异步机制使得应用层代码可以获得有如”中断”处理一般的能力!<ul>
+<li>注册好signal和函数</li>
+<li>主代码始终自己管自己运行</li>
+<li>signal触发后, 系统会自动调用注册好的函数.</li>
+</ul>
+</li>
+<li>异步通知的四个要点:<ul>
+<li>注册处理函数: 应用程序中注册</li>
+<li>谁来发? 驱动来发</li>
+<li>发给谁? 驱动发给应用程序</li>
+<li>怎么发? 驱动调用 <code>kill_fasyn()</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>驱动源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a><br>增加fasync函数, 发送SIGIO信号.<br>然后应用层的测试文件改动较大.</p>
+<h2 id="drv-key-async-c"><a href="#drv-key-async-c" class="headerlink" title="drv_key_async.c"></a>drv_key_async.c</h2><p>为了使设备支持异步通知机制, 驱动程序涉及以下3项工作:</p>
+<ul>
+<li>应用程序调用 <code>fcntl(fd, F_SETOWN, pid)</code> 时. 能在这个控制命令处理中设置 filp-&gt;f_owner为对应进程ID. 此工作已由内核完成</li>
+<li>应用程序调用 <code>fcntl(fd, F_SETFL, oflags | FASYNC)</code> 后, FASYNC标志改变, 会调用驱动的fasync函数. 驱动需要实现fasync. </li>
+<li>在设备资源可获得时, 调用 <code>kill_fasync()</code> 函数触发信号.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于 驱动之基于中断设计按键驱动 源码增加而来. 只显示新增和修改的部分. 这样更直观易懂.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_async.h"</span>                           <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_async"</span>           <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">fasync_struct</span> *<span class="title">keys_async</span>;</span>            <span class="comment">// 新增, kill_fasync使用</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    ev_press = <span class="number">1</span>;                              </span><br><span class="line">    wake_up_interruptible(&amp;key_waitq);     </span><br><span class="line">    kill_fasync(&amp;keys_async, SIGIO, POLL_IN);           <span class="comment">// 新增, 发送SIGIO信号</span></span><br><span class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_fasync</span> <span class="params">(<span class="keyword">int</span> fd, struct file *filp, <span class="keyword">int</span> on)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"drv_key_fasync\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> fasync_helper (fd, filp, on, &amp;keys_async);   <span class="comment">// 初始化keys_async</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_key_int_fops</span>= &#123;</span></span><br><span class="line">	.owner				= THIS_MODULE,</span><br><span class="line">	.open				= drv_key_int_open,</span><br><span class="line">	.release			= drv_key_int_release,</span><br><span class="line">	.read				= drv_key_int_read,</span><br><span class="line">	.fasync             = drv_key_fasync,               <span class="comment">// 新增fasync</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="drv-key-async-h"><a href="#drv-key-async-h" class="headerlink" title="drv_key_async.h"></a>drv_key_async.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_async"</span>     <span class="comment">// 名称改一下</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_key_async.o          <span class="comment"># 目标名称改一下</span></span><br></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-async-c"><a href="#测试文件-test-drv-key-async-c" class="headerlink" title="测试文件 test_drv_key_async.c"></a>测试文件 test_drv_key_async.c</h2><p>为了使设备支持异步通知机制, 应用层程序涉及以下工作:</p>
+<ul>
+<li>调用 <code>fcntl(fd, F_SETOWN, getpid())</code>, 告诉内核, 发给谁 </li>
+<li>调用 <code>fcntl(fd, F_SETFL, oflags | FASYNC)</code>, 改变fasync标记.</li>
+<li>此时, 内核会调用驱动的fasync函数, 通过 <code>fasync_helper</code> 完成初始化.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">keys_signal_handler</span><span class="params">(<span class="keyword">int</span> signum)</span>        <span class="comment">// 信号中断处理函数</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> key_val = <span class="number">0</span>;</span><br><span class="line">    read(fd,&amp;key_val,<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"key_val: 0x%x\n"</span>,key_val);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">int</span> oflags;</span><br><span class="line">    </span><br><span class="line">    fd = open(<span class="string">"/dev/key_async0"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    signal(SIGIO, keys_signal_handler);     <span class="comment">// 注册信号中断处理函数</span></span><br><span class="line">    fcntl(fd,F_SETOWN,getpid());            <span class="comment">// 告诉内核，发给本进程</span></span><br><span class="line">    oflags = fcntl(fd,F_GETFL);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"before fcntl\n"</span>);</span><br><span class="line">    fcntl(fd, F_SETFL, oflags | FASYNC);    <span class="comment">// 改变fasync标记, 内核会调用驱动fasync, 完成初始化</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"after fcntl\n"</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;                              <span class="comment">// 开始主任务</span></span><br><span class="line">        sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_async/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译测试代码</span></span><br><span class="line">$ arm-linux-gcc test_drv_key_async.c -o test_drv_key_async</span><br></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_async/KERN_SRC  # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key_async.ko           <span class="comment"># 加载模块</span></span><br><span class="line">drv_key_async:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_async              <span class="comment"># 运行测试代码</span></span><br><span class="line">drv_key_async:In char driver open() <span class="keyword">function</span></span><br><span class="line">before fcntl</span><br><span class="line">drv_key_async:drv_key_fasync        <span class="comment"># 运行fcntl后, 驱动调用async函数</span></span><br><span class="line">after fcntl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按下按键, 应用程序就会调用 keys_signal_handler 函数.</span></span><br><span class="line"><span class="comment"># 打印出按键信息, 譬如 key_val: 0x1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/11/1742-drv-chr4/" itemprop="url">
+                  驱动之poll机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-11T00:00:00+11:00" content="2017-12-11">
+              2017-12-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="POLL机制分析"><a href="#POLL机制分析" class="headerlink" title="POLL机制分析"></a>POLL机制分析</h1><h2 id="三种按键驱动的比较"><a href="#三种按键驱动的比较" class="headerlink" title="三种按键驱动的比较"></a>三种按键驱动的比较</h2><ul>
+<li>查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源</li>
+<li>中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上</li>
+<li>poll方式: 应用程序上, 实现了非阻塞读取. 先poll判断是否发生事件, 有事件处理, 无事件可以做其它事情.</li>
+</ul>
+<h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><p>基本流程如下:</p>
+<ul>
+<li>应用程序调用poll &gt; sys_poll &gt; <code>do_sys_poll</code> &gt; do_poll &gt; do_pollfd &gt; 驱动程序poll</li>
+<li>从 <code>do_sys_poll</code> 函数深入分析:<ul>
+<li>先调用 <code>poll_initwait</code>, 注册一下 <code>__pollwait</code> 函数.</li>
+<li>再调用 <code>do_poll</code> 判断条件. 这里会调用驱动函数的poll<ul>
+<li>调用 <code>do_pollfd</code> 函数, 实际上就是调用驱动的poll函数</li>
+<li>返回值为1或等待超时或触发信号, 执行 <code>__set_current_state</code> 继续运行当前进程.</li>
+<li>返回值为0, 则执行 <code>schedule_timeout</code> 当前进程睡眠, 切换到其它进程.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>驱动函数里的poll会调用 <code>poll_wait</code>, 只是把当前的进程加入到 button_waitq 队列里去, 并没有立刻切换进程<ul>
+<li><code>poll_wait</code> 调用 <code>p-&gt;qproc(filp, wait_address, p);</code>, 实际就是调用了 <code>__pollwait</code> 函数</li>
+<li>进程并不会阻塞在 <code>poll_wait</code> 函数. (这个函数的命名容易让人误解, 因此特此强调!)</li>
+<li>整个进程会根据驱动的poll返回值确定是休眠还是继续运行.</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">app: poll, 会去调用 sys_poll. 共三个参数</span><br><span class="line">    <span class="comment">// 1. *ufds, 文件指针. 需要查询的驱动文件列表</span></span><br><span class="line">    <span class="comment">// 2. nfds, 文件个数.</span></span><br><span class="line">    <span class="comment">// 3. timeout_msecs, 超时时间.</span></span><br><span class="line">kernel: sys_poll    <span class="comment">// 位于 /fs/select.c</span></span><br><span class="line">            do_sys_poll(..., timeout_jiffies)</span><br><span class="line">                poll_initwait(&amp;table);</span><br><span class="line">                    init_poll_funcptr(&amp;pwq-&gt;pt, __pollwait);</span><br><span class="line">                    <span class="comment">// table-&gt;pt-&gt;qproc = __pollwait. 相当于注册一下 __pollwait.</span></span><br><span class="line">                    <span class="comment">// __pollwait 是系统函数, 用于初始化一个 poll_wqueues 的 table</span></span><br><span class="line">                    <span class="comment">// 驱动程序的poll函数会调用__pollwait函数.</span></span><br><span class="line">                do_poll(nfds, head, &amp;table, timeout)</span><br><span class="line">                    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (do_pollfd(ftd, pt)) &#123;</span><br><span class="line">                            <span class="comment">// 进入函数 do_pollfd, 有如下两句:</span></span><br><span class="line">                            mask = file-&gt;f_op-&gt;poll(file, pwait);</span><br><span class="line">                                <span class="comment">// 实际上, 就是调用驱动代码里的poll, 驱动代码里会调用</span></span><br><span class="line">                                pollwait(filp, &amp;button_waitq, p) &#123;</span><br><span class="line">                                    <span class="comment">// 把当前的进程挂到button_waitq队列里去</span></span><br><span class="line">                                    <span class="comment">// 整个进程并不会阻塞在 pollwait 这里!</span></span><br><span class="line">                                    p-&gt;qproc(filp, wait_address, p);    <span class="comment">// 相当于调用 __pollwait</span></span><br><span class="line">                                    <span class="comment">// 这里我有过疑惑, 为何不直接指定 __pollwait 这么一个系统函数, 而是用初始化函数指针再调用的晦涩方法.</span></span><br><span class="line">                                    <span class="comment">// 搜索 init_poll_funcptr 后, 就可以知道, 这也是一个系统架构, 不同的地方会有不同的函数.</span></span><br><span class="line">                                &#125;</span><br><span class="line">                                <span class="comment">// 驱动poll函数给出返回值. 赋值给mask</span></span><br><span class="line">                                <span class="comment">// 因此整个进程会在调用完驱动poll函数后, 根据返回值进行休眠或继续运行.</span></span><br><span class="line">                            <span class="keyword">return</span> mask;</span><br><span class="line">                            count++; <span class="comment">// 如果驱动的poll返回非0值, 那么count++</span></span><br><span class="line">                            pt = <span class="literal">NULL</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// break的条件: count非0, 超时, 有信号在等待处理</span></span><br><span class="line">                        <span class="keyword">if</span> (count || !*timeout || signal_pending(current))</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 休眠 __timeout</span></span><br><span class="line">                        __timeout = schedule_timeout(__timeout);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 设置当前进程为运行态</span></span><br><span class="line">                    __set_current_state(TASK_RUNNING);</span><br></pre></td></tr></table></figure>
+<h1 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h1><ul>
+<li><a href="http://blog.csdn.net/rockrockwu/article/details/7310518" target="_blank" rel="noopener">linux poll 和 等待队列休眠的关系</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568964" target="_blank" rel="noopener">select(poll)系统调用实现解析(一)</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568968" target="_blank" rel="noopener">select(poll)系统调用实现解析(二)</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568969" target="_blank" rel="noopener">select(poll)系统调用实现解析(三)</a></li>
+<li><a href="http://www.cnblogs.com/jack204/archive/2011/10/30/2229331.html" target="_blank" rel="noopener">linux的poll的工作机制</a></li>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77825262" target="_blank" rel="noopener">字符设备驱动-poll机制</a></li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>驱动源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a> 增加poll函数即可.<br>然后应用层的测试文件改动较大.<br><strong>注意驱动层和应用层的poll函数写法就可以了, 都是固定的结构</strong></p>
+<h2 id="drv-key-poll-c"><a href="#drv-key-poll-c" class="headerlink" title="drv_key_poll.c"></a>drv_key_poll.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于 驱动之基于中断设计按键驱动 源码增加而来. 只显示新增和修改的部分. 这样更直观易懂.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_poll.h"</span>                    <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_poll"</span>    <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="title">drv_key_poll</span><span class="params">(struct file *file, poll_table *wait)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> mask = <span class="number">0</span>;</span><br><span class="line">    poll_wait(file, &amp;key_waitq, wait);      <span class="comment">// 这里不会休眠. 进程不阻塞</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ev_press)</span><br><span class="line">        mask |= POLLIN | POLLRDNORM;        <span class="comment">// 关键是返回值, 返回值为0, 进程可能休眠.</span></span><br><span class="line">        <span class="comment">// POLLIN, 是标准的事件值, 测试程序就基于此判断.</span></span><br><span class="line">        <span class="comment">// POLLRDNORM, Normal data may be read without blocking. 作用应该是告知应用程序类型和后续动作.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mask;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_key_int_fops</span>= &#123;</span></span><br><span class="line">    .owner              = THIS_MODULE,</span><br><span class="line">    .open               = drv_key_int_open,</span><br><span class="line">    .release            = drv_key_int_release,</span><br><span class="line">    .read               = drv_key_int_read,</span><br><span class="line">    .poll               = drv_key_poll,     <span class="comment">// 新增这一行</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="drv-key-poll-h"><a href="#drv-key-poll-h" class="headerlink" title="drv_key_poll.h"></a>drv_key_poll.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_poll"</span>          <span class="comment">// 名称改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/poll.h&gt;                     // 新增poll头文件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_key_poll.o </span><br><span class="line">KERN_SRC	:= /home/draapho/share/kernel/linux-2.6.22.6/</span><br><span class="line">PWD			:= <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">	depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd, ret;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">fds</span>[1];</span>                   <span class="comment">// poll 关联的文件, 可多个文件</span></span><br><span class="line"></span><br><span class="line">    fd = open(<span class="string">"/dev/key_poll0"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fds[<span class="number">0</span>].fd     = fd;                     <span class="comment">// 关联的驱动文件</span></span><br><span class="line">    fds[<span class="number">0</span>].events = POLLIN;                 <span class="comment">// 事件类型</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        ret = poll(fds, <span class="number">1</span>, <span class="number">5000</span>);           <span class="comment">// 执行poll. 最多阻塞5s (有按键事件会立刻返回)</span></span><br><span class="line">        <span class="keyword">if</span> (ret == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"time out\n"</span>);           <span class="comment">// 5s后超时</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            read(fd, &amp;keys_val, <span class="number">1</span>);         <span class="comment">// 有按键, 读取按键值</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译测试代码</span></span><br><span class="line">$ arm-linux-gcc test_drv_key_poll.c -o test_drv_key_poll</span><br></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key_poll.ko            <span class="comment"># 加载模块</span></span><br><span class="line">drv_key_int:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_poll               <span class="comment"># 检测按键中断</span></span><br><span class="line">drv_key_poll:In char driver open() <span class="keyword">function</span></span><br><span class="line"><span class="comment"># 无按键时, 每5s打印 time out</span></span><br><span class="line"><span class="comment"># 有按键时, 立刻打印按键值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_poll &amp;             <span class="comment"># 后台运行</span></span><br><span class="line">$ top                               <span class="comment"># 查看系统资源情况</span></span><br><span class="line"><span class="comment"># 可以看到 ./test_drv_key_poll 进程占用很少的资源.</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/07/1741-drv-chr3/" itemprop="url">
                   驱动之基于中断设计按键驱动
                 </a>
@@ -1171,430 +1494,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/26/1736-linux-apt/" itemprop="url">
-                  linux软件的安装和管理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-26T00:00:00+11:00" content="2017-11-26">
-              2017-11-26
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>接触linux至今, 遇到的最大的坑就是软件的安装!<br>找不到包, 找不到指定版本的包, 包依赖关系出问题, 软件源要更新…<br>因此, 在这里集中整理一下上述问题的解决方式.</p>
-<h1 id="apt-命令"><a href="#apt-命令" class="headerlink" title="apt 命令"></a>apt 命令</h1><p>最新 Ubuntu推荐使用 <code>apt</code> 指令. 其常用功能如下</p>
-<table>
-<thead>
-<tr>
-<th>apt 命令</th>
-<th>功能说明</th>
-<th>对应的旧命令</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>apt list</code></td>
-<td>根据名称列出软件包</td>
-<td><code>dpkg list</code></td>
-</tr>
-<tr>
-<td><code>apt search</code></td>
-<td>搜索软件包描述</td>
-<td><code>apt-cache search</code></td>
-</tr>
-<tr>
-<td><code>apt show</code></td>
-<td>显示软件包细节</td>
-<td><code>apt-cache show</code></td>
-</tr>
-<tr>
-<td><code>apt install</code></td>
-<td>安装软件包</td>
-<td><code>apt-get install</code></td>
-</tr>
-<tr>
-<td><code>apt remove</code></td>
-<td>移除软件包</td>
-<td><code>apt-get remove</code></td>
-</tr>
-<tr>
-<td><code>apt update</code></td>
-<td>更新可用软件包列表</td>
-<td><code>apt-get update</code></td>
-</tr>
-<tr>
-<td><code>apt upgrade</code></td>
-<td>升级指定的软件</td>
-<td><code>apt-get upgrade</code></td>
-</tr>
-<tr>
-<td><code>apt full-upgrade</code></td>
-<td>升级指定的软件并安装或删除其依赖的软件</td>
-<td><code>apt-get dist-upgrade</code></td>
-</tr>
-<tr>
-<td><code>apt edit-sources</code></td>
-<td>编辑软件源信息文件</td>
-<td><code>vim /etc/apt/sources.list</code></td>
-</tr>
-</tbody>
-</table>
-<h1 id="软件源"><a href="#软件源" class="headerlink" title="软件源"></a>软件源</h1><p>就是存放Ubuntu可执行软件的网址. 分为官方软件源和PPA软件源<br>Ubuntu的软件源都记录在了 <code>/etc/apt/sources.list</code> 文件下面.</p>
-<h2 id="Ubuntu-官方软件源"><a href="#Ubuntu-官方软件源" class="headerlink" title="Ubuntu 官方软件源"></a>Ubuntu 官方软件源</h2><p>顾名思义, 就是官方提供的软件下载地址. 格式如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">deb http://us.archive.ubuntu.com/ubuntu/ xenial main restricted</span><br><span class="line"># deb-src http://us.archive.ubuntu.com/ubuntu/ xenial main restricted</span><br></pre></td></tr></table></figure></p>
-<p>由于众所周知的原因, 在国内经常是不能用的. 那么可以替换为如下网址, 是官方软件源的镜像.<br>更多可见 <a href="https://segmentfault.com/a/1190000000375848" target="_blank" rel="noopener">国内开源镜像站点汇总</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.zju.edu.cn/ubuntu/ xenial main restricted</span><br><span class="line"># deb-src http://mirrors.zju.edu.cn/ubuntu/ xenial main restricted</span><br></pre></td></tr></table></figure></p>
-<h2 id="PPA软件源"><a href="#PPA软件源" class="headerlink" title="PPA软件源"></a>PPA软件源</h2><p>PPA软件源, 即”Personal Package Archives”, 个人软件包集.<br>Ubuntu开设了一个开发者平台, 允许开发者建立自己的软件仓库并上传.<br>因此, 用PPA不能保证安全性.</p>
-<p>PPA的格式如下, 网址都是 <code>ppa.launchpad.net</code> 开头的</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">deb http://ppa.launchpad.net/wireshark-dev/stable/ubuntu trusty main</span><br><span class="line"><span class="comment"># deb-src http://ppa.launchpad.net/wireshark-dev/stable/ubuntu trusty main</span></span><br></pre></td></tr></table></figure>
-<h1 id="update-upgrade-dist-upgrade-的区别"><a href="#update-upgrade-dist-upgrade-的区别" class="headerlink" title="update upgrade dist-upgrade 的区别"></a><code>update</code> <code>upgrade</code> <code>dist-upgrade</code> 的区别</h1><p>update 更新的是软件源信息. 因此一般习惯在install之前, 使用update更新一下.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt edit-sources       <span class="comment"># 更改软件源列表</span></span><br><span class="line">sudo apt update             <span class="comment"># 根据软件源列表下载新的版本信息和包信息</span></span><br><span class="line">sudo apt install XXX        <span class="comment"># 可以下载了. 如果还是有问题, 说明这个软件在源列表中不存在或者是网络问题.</span></span><br></pre></td></tr></table></figure>
-<p>upgrade 更新的是指定的软件到最新版本. 但不去考虑依赖关系.<br>dist-upgrade 会判断软件新版本的依赖关系, 如果依赖关系变了, 它能自动升级依赖的软件.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt upgrade XXX        <span class="comment"># 只升级指定的软件, 不考虑其依赖关系</span></span><br><span class="line">sudo apt full-upgrade XXX   <span class="comment"># 字面意思: 全面升级! 就是会去自动安装/删除依赖的软件.</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="build-dep-自动建立编译环境"><a href="#build-dep-自动建立编译环境" class="headerlink" title="build-dep 自动建立编译环境"></a>build-dep 自动建立编译环境</h1><p>譬如要手工编译 apache2, 那么可以用 <code>apt-get build-dep</code> 来快速建立编译环境.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get build-dep apache2</span><br><span class="line"><span class="comment"># 会列出一系列会被安装的软件, 并询问是否要安装.</span></span><br><span class="line"><span class="comment"># 先回答NO.</span></span><br><span class="line"></span><br><span class="line">sudo apt-get build-dep apache2 | tee apache2.log </span><br><span class="line"><span class="comment"># 为了便于日后查看关系包, 建议先做个记录:</span></span><br></pre></td></tr></table></figure>
-<h1 id="查看依赖关系"><a href="#查看依赖关系" class="headerlink" title="查看依赖关系"></a>查看依赖关系</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apt-cache depends XXX</span><br><span class="line"><span class="comment"># 查看正向依赖, XXX依赖的软件</span></span><br><span class="line"></span><br><span class="line">apt-cache rdepends XXX</span><br><span class="line"><span class="comment"># 查看反向依赖, 依赖XXX的软件</span></span><br></pre></td></tr></table></figure>
-<h1 id="遇到错误"><a href="#遇到错误" class="headerlink" title="遇到错误"></a>遇到错误</h1><h2 id="找不到资源"><a href="#找不到资源" class="headerlink" title="找不到资源"></a>找不到资源</h2><ul>
-<li>检查网络, 是否需要翻墙. 必要的话, 更改软件源列表.</li>
-<li>检查网络, 是否安全性太高了. 有些公司网络容易产生这样的情况.</li>
-<li><code>sudo apt update</code>, 更新软件源在试试.</li>
-</ul>
-<h2 id="Java-安装失败"><a href="#Java-安装失败" class="headerlink" title="Java 安装失败"></a>Java 安装失败</h2><p>Java向下兼容, 建议直接安装java最新版<br><code>sudo apt-get install openjdk-8-jdk</code></p>
-<p>更复杂的情况, 参考这篇stackoverflow吧</p>
-<ul>
-<li><a href="https://stackoverflow.com/questions/32942023/ubuntu-openjdk-8-unable-to-locate-package" target="_blank" rel="noopener">Ubuntu: OpenJDK 8 - Unable to locate package</a></li>
-</ul>
-<h2 id="Could-not-get-lock"><a href="#Could-not-get-lock" class="headerlink" title="Could not get lock"></a>Could not get lock</h2><p><code>E:Could not get lock /var/lib/apt/lists/lock - open (11: Resource temporarily unavailable)</code><br>获取资源锁失败, 说明有另外一个apt-get在运行. 这种情况多发生在新装的Ubuntu中, 他会自动运行apt-get<br>解决方法:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 或者去查看进程</span></span><br><span class="line">ps -e | grep apt</span><br><span class="line"><span class="comment"># 看是否有进程在执行</span></span><br><span class="line"><span class="comment"># 6362 ? 00:00:00 apt</span></span><br><span class="line"><span class="comment"># 6934 ? 00:00:00 apt-get</span></span><br><span class="line"><span class="comment"># 7368 ? 00:00:00 synaptic</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 有的话, 直接杀掉</span></span><br><span class="line">sudo killall apt</span><br><span class="line">sudo killall apt-get</span><br><span class="line">sudo killall synaptic</span><br><span class="line"></span><br><span class="line"><span class="comment"># 还是不行的话, 直接移除锁</span></span><br><span class="line">sudo rm /var/cache/apt/archives/lock</span><br><span class="line">sudo rm /var/lib/dpkg/lock</span><br></pre></td></tr></table></figure></p>
-<h2 id="X-not-fully-installed-or-removed"><a href="#X-not-fully-installed-or-removed" class="headerlink" title="X not fully installed or removed"></a>X not fully installed or removed</h2><p>多发生在安装过程中, 发生意外错误, 导致部分软件没有安装好.<br>如果在Ubuntu下面修改过<code>/usr/bin/python</code>软链接, 改2.7版本到3.5的话,<br>安装某些依赖python软件也会发生这个问题!</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 此错误发生在安装 libsdl1.2-dev 过程中. libsdl1.2-dev 依赖另外两个软件</span></span><br><span class="line"><span class="comment"># 原因是, 我修改了  /usr/bin/python -&gt; python3.5*</span></span><br><span class="line"><span class="comment"># 解决方法就是改回来 /usr/bin/python -&gt; python2.7*</span></span><br><span class="line"></span><br><span class="line">$ sudo apt install libsdl1.2-dev</span><br><span class="line">......</span><br><span class="line">3 not fully installed or removed</span><br><span class="line">Do you want to <span class="built_in">continue</span>? [Y/n]</span><br><span class="line">......</span><br><span class="line">Errors were encountered <span class="keyword">while</span> processing:</span><br><span class="line">libglib2.0-dev</span><br><span class="line">libpulse-dev:i386</span><br><span class="line">libsdl1.2-dev</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 先解决没有完全安装或者删除的问题, 方法如下, 按照依赖关系, 倒过来逐一删除:</span></span><br><span class="line">$ sudo dpkg -r libsdl1.2-dev</span><br><span class="line">$ sudo dpkg -r libpulse-dev:i386</span><br><span class="line">$ sudo dpkg -r libglib2.0-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后尝试重新安装. 我这里的问题是python语法错误</span></span><br><span class="line"><span class="comment"># 只能改回来 /usr/bin/python -&gt; python2.7*</span></span><br><span class="line">sudo apt-get -f autoremove</span><br><span class="line">sudo apt-get -f install</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libglib2.0-dev</span><br></pre></td></tr></table></figure>
-<h2 id="软件版本问题"><a href="#软件版本问题" class="headerlink" title="软件版本问题"></a>软件版本问题</h2><p>先试试指定版本号安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">apt-get install package=version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 譬如</span></span><br><span class="line">apt-get install nautilus=2.2.4-1</span><br></pre></td></tr></table></figure>
-<p>如果更复杂的, 譬如依赖的软件需要指定版本, 直接参考stackoverflow吧<br><a href="https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies-after-adding-a-ppa" target="_blank" rel="noopener">How do I resolve unmet dependencies after adding a PPA?</a></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://www.jianshu.com/p/3dad50f452b6" target="_blank" rel="noopener">apt与apt-get的区别</a></li>
-<li><a href="http://www.jianshu.com/p/57a91bc0c594" target="_blank" rel="noopener">详解Ubuntu软件源</a></li>
-<li><a href="http://blog.csdn.net/wangyezi19930928/article/details/54928201" target="_blank" rel="noopener">apt-get update ，upgarde 和dist-upgrade 的区别</a></li>
-<li><a href="http://blog.csdn.net/mifangdebaise/article/details/50553596" target="_blank" rel="noopener">记一条好用的ubuntu命令: apt-get build-dep</a></li>
-<li><a href="http://blog.csdn.net/zwjsatan/article/details/8101712" target="_blank" rel="noopener">sudo apt-get update更新源失败</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/24/1735-jz2440-basic/" itemprop="url">
-                  jz2440分区及启动的基础概念
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-24T00:00:00+11:00" content="2017-11-24">
-              2017-11-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/24/1735-jz2440-basic/">jz2440分区及启动的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
-<li>大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.</li>
-</ul>
-<h1 id="linux软件层次"><a href="#linux软件层次" class="headerlink" title="linux软件层次"></a>linux软件层次</h1><ul>
-<li>引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的<ul>
-<li>PC linux: 分为 BIOS (固件程序) 和 BootLoader(GRUB等程序)</li>
-<li>执行过程: BIOS执行硬件检测 和 资源分配, 之后将BootLoader读取到内存中, 开始执行BootLoader内容</li>
-<li>执行作用: 将内核读取到内存中, 跳转到内核的入口运行, 正式执行操作系统程序</li>
-<li>嵌入式 linux: BootLoader与硬件的依赖性很强, S3C2440 使用的是u-boot</li>
-<li>执行过程: 初始化基本硬件, 加载BootLoader, 读取uboot环境变量, 启动uboot.</li>
-<li>执行作用: 和 pc linux 是一样的. 读取内核并执行.</li>
-</ul>
-</li>
-<li>Linux内核 (kernel): 嵌入式开发板定制的内核 和 其启动参数</li>
-<li>文件系统 (file system): 即Linux中的文件系统</li>
-<li>应用程序: 即用户执行的应用程序</li>
-</ul>
-<h2 id="jz2440的分区和启动"><a href="#jz2440的分区和启动" class="headerlink" title="jz2440的分区和启动"></a>jz2440的分区和启动</h2><p>s3c2440 的线性地址分配:<br><img src="https://draapho.github.io/images/1707/address-mapping.jpg" alt="address mapping"></p>
-<p>jz2440 的分区: (在uboot下, 用 <code>mtdparts</code> 查看分区情况)</p>
-<table>
-<thead>
-<tr>
-<th>jz2440 物理设备</th>
-<th>大小(byte)</th>
-<th>线性地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SFR Area</td>
-<td>寄存器</td>
-<td>0x4800_0000 - 0x5B00_0020</td>
-</tr>
-<tr>
-<td>SDRAM</td>
-<td>64M</td>
-<td>0x3000_0000 - 0x3400_0000</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Nor Flash</td>
-<td>2M</td>
-<td>0x0000_0000 - 0x0020_0000</td>
-</tr>
-<tr>
-<td>- u-boot</td>
-<td>-</td>
-<td>0x0000_0000 开始</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Nand Flash</td>
-<td>256M</td>
-<td>非总线设备, 无法映射地址</td>
-</tr>
-<tr>
-<td>- bootloader</td>
-<td>256K</td>
-<td>0x0000_0000 - 0x0004_0000</td>
-</tr>
-<tr>
-<td>- params</td>
-<td>128K</td>
-<td>0x0004_0000 - 0x0006_0000</td>
-</tr>
-<tr>
-<td>- kernel</td>
-<td>2M</td>
-<td>0x0006_0000 - 0x0026_0000</td>
-</tr>
-<tr>
-<td>- root</td>
-<td>253.6M</td>
-<td>0x0026_0000 - 0x1000_0000</td>
-</tr>
-</tbody>
-</table>
-<p>jz2440开发板启动方式:</p>
-<ul>
-<li>Nor flash: JLink 只能烧录 Nor flash. 默认使用这种方式! 使用nfs文件系统<br><img src="https://draapho.github.io/images/1707/nor-flash-boot.png" alt="Nor flash boot"></li>
-<li>Nand flash: 使用本地文件系统启动. 也可用于裸跑测试. (Steppingstone 就是 BootSRAM)<br><img src="https://draapho.github.io/images/1707/nand-flash-boot.png" alt="Nand flash boot"></li>
-<li><strong>以下部分初学先忽略! </strong></li>
-<li><p>如果是通过uboot的内核命令行给MTD层传递MTD分区信息, 内核读取到的分区信息始终和u-boot中的保持一致(推荐的做法)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line">setenv bootargs noinitrd console=ttySAC0 root=/dev/mtdblock3 rootfstype=jffs2 mtdparts=nand_flash:128k(u-boot)ro,64k(u-boot envs),3m(kernel),30m(root.jffs2),30m(root.yaffs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ubuntu shell, 内核配置时使能</span></span><br><span class="line">Device Drivers -&gt; Memory Technology Device (MTD) support -&gt; Command line partition table parsing</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果是把分区信息写在内核源代码MTD里定义好的方法, 要保证它和u-boot中的保持一致,即同步修改uboot及内核的相关部分</p>
-</li>
-<li><strong>参考</strong>: <a href="http://laokongzhuang.blog.51cto.com/2404494/858788" target="_blank" rel="noopener">嵌入式linux flash分区配置</a></li>
-<li><strong>以上部分初学先忽略! </strong></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1640,7 +1539,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">100</span>
+              <span class="site-state-item-count">102</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

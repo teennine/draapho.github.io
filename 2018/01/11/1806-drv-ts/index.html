@@ -82,19 +82,19 @@
 
 
 
-<meta name="description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之LCD驱动框架和实现 驱动之触摸屏驱动框架和实现 驱动之USB基础概念和框架 驱动之USB设备驱动程序  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 触摸屏驱动框架分析回顾input子系统在 驱动之input子系统 一文里, 已经介绍了input子系统的框架.触摸驱动作为输入设备">
+<meta name="description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之RTC分析 驱动之LCD驱动框架和实现 驱动之触摸屏驱动框架和实现 驱动之USB基础概念和框架 驱动之USB设备驱动程序  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 触摸屏驱动框架分析回顾input子系统在 驱动之input子系统 一文里, 已经介绍了input子系统的框架.触">
 <meta name="keywords" content="embedded linux,driver">
 <meta property="og:type" content="article">
 <meta property="og:title" content="驱动之触摸屏驱动框架和实现">
 <meta property="og:url" content="https://draapho.github.io/2018/01/11/1806-drv-ts/index.html">
 <meta property="og:site_name" content="DRA&amp;PHO">
-<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之LCD驱动框架和实现 驱动之触摸屏驱动框架和实现 驱动之USB基础概念和框架 驱动之USB设备驱动程序  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 触摸屏驱动框架分析回顾input子系统在 驱动之input子系统 一文里, 已经介绍了input子系统的框架.触摸驱动作为输入设备">
+<meta property="og:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之RTC分析 驱动之LCD驱动框架和实现 驱动之触摸屏驱动框架和实现 驱动之USB基础概念和框架 驱动之USB设备驱动程序  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 触摸屏驱动框架分析回顾input子系统在 驱动之input子系统 一文里, 已经介绍了input子系统的框架.触">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://draapho.github.io/images/1806/ts.png">
-<meta property="og:updated_time" content="2018-01-22T08:03:46.657Z">
+<meta property="og:updated_time" content="2018-02-09T12:08:20.653Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="驱动之触摸屏驱动框架和实现">
-<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之LCD驱动框架和实现 驱动之触摸屏驱动框架和实现 驱动之USB基础概念和框架 驱动之USB设备驱动程序  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 触摸屏驱动框架分析回顾input子系统在 驱动之input子系统 一文里, 已经介绍了input子系统的框架.触摸驱动作为输入设备">
+<meta name="twitter:description" content="总览 嵌入式linux学习目录 驱动之input子系统 驱动之platform概念 驱动之RTC分析 驱动之LCD驱动框架和实现 驱动之触摸屏驱动框架和实现 驱动之USB基础概念和框架 驱动之USB设备驱动程序  本文使用 linux-2.6.22.6 内核, 使用jz2440开发板. 触摸屏驱动框架分析回顾input子系统在 驱动之input子系统 一文里, 已经介绍了input子系统的框架.触">
 <meta name="twitter:image" content="https://draapho.github.io/images/1806/ts.png">
 
 
@@ -325,6 +325,7 @@
 <li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
 <li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
 <li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
+<li><a href="https://draapho.github.io/2018/02/08/1814-drv-rtc/">驱动之RTC分析</a></li>
 <li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
 <li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
 <li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
@@ -506,7 +507,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">100</span>
+              <span class="site-state-item-count">102</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
