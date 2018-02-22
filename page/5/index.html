@@ -261,171 +261,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/11/27/1737-linux-ide/" itemprop="url">
-                  LinK+, 一款Linux内核开发IDE
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-27T00:00:00+11:00" content="2017-11-27">
-              2017-11-27
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>LinK+ 是一款在linux下基于eclipse开发的免费的Linux内核以及驱动开发软件.<br>这个软件在国外知名度也不高. 国内更是没人介绍过这一款软件.<br>软件的现状是: 开发者似乎已经停止更新, 设想中支持的ARM架构也没有下文. 因此不支持嵌入式的仿真.<br><strong>我主要用它来查看内核源码, 开发驱动, 能快速的搭建好驱动架构, 支持内核函数跳转查看! 自动生成Makefile.</strong></p>
-<p>网址如下: <a href="https://sourceforge.net/projects/linkplustest/" target="_blank" rel="noopener">Linux Kernel Programming IDE (LinK+)</a></p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>根据用户手册, 有多种安装方法. 使用最简单的 LinK+IDE方式.<br>下载 32bit, 因为我用的是32位的Ubuntu.</p>
-<ul>
-<li><a href="https://sourceforge.net/projects/linkplustest/files/installers/" target="_blank" rel="noopener">点这里, 下载页面</a></li>
-<li><a href="http://sourceforge.net/projects/linkplustest/files/documentation/LinK%2B_UserManual_Rev4.pdf" target="_blank" rel="noopener">安装和使用手册</a></li>
-</ul>
-<p><strong>说明一下 LinK+ UserManual 里面的 <code>-</code>横杠都是错误的, 终端无法识别!</strong><br>然后按照说明安装如下依赖的软件.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装最新版 openjdk, 向下兼容jdk6即可.</span></span><br><span class="line">sudo apt-get install openjdk-8-jdk</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装open ssh</span></span><br><span class="line">sudo apt-get install openssh-client openssh-server</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其它依赖的软件</span></span><br><span class="line">sudo apt-get install libqt4-dev</span><br><span class="line">sudo apt-get install libncurses5</span><br><span class="line">sudo apt-get install qemu</span><br><span class="line">sudo apt-get install bridge-utils iptables dnsmasq</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 LinK+IDE</span></span><br><span class="line"><span class="comment"># 下载好LinK+IDE的文件, LinK+ IDE-linux.gtk.x86.tar.gz.tar.gz</span></span><br><span class="line">tar -xzvf LinK+\ IDE-linux.gtk.x86.tar.gz.tar.gz</span><br><span class="line">./linkplus</span><br><span class="line"><span class="comment"># 安装成功的话, 就能运行了.</span></span><br></pre></td></tr></table></figure>
-<p>然后, LinK+IDE 的升级和插件不用看了. 很久没更新过了.</p>
-<h1 id="Kernel源码的编译和阅读"><a href="#Kernel源码的编译和阅读" class="headerlink" title="Kernel源码的编译和阅读"></a>Kernel源码的编译和阅读</h1><p>先确定linux内核源码可以在终端下成功编译.<br>新建Makefile工程<br><img src="https://draapho.github.io/images/1737/link1.JPG" alt="link.JPG"></p>
-<p>选择源码路径, 工具链使用Makefile自己的, 所以选<code>&lt;none&gt;</code><br><img src="https://draapho.github.io/images/1737/link2.JPG" alt="link.JPG"></p>
-<p>选中项目, 然后在菜单里取消自动编译, 最后选择项目属性<br><img src="https://draapho.github.io/images/1737/link3.JPG" alt="link.JPG"></p>
-<p>设定编译指令, <code>make</code> 即可<br><img src="https://draapho.github.io/images/1737/link5.JPG" alt="link.JPG"></p>
-<p>设定指令目标. 内核使用 <code>uImage</code>, 驱动使用 <code>make modules</code><br><img src="https://draapho.github.io/images/1737/link6.JPG" alt="link.JPG"></p>
-<p>如果需要设置更多的指令目标, 用如下方式. Create是设置, Build是执行<br><img src="https://draapho.github.io/images/1737/link7.JPG" alt="link.JPG"></p>
-<p>设置自定义目标<br><img src="https://draapho.github.io/images/1737/link8.JPG" alt="link.JPG"></p>
-<p>好了, 如果这样直接 <code>Make Targets</code>-&gt;<code>Build...</code>-&gt;<code>uImage</code>, 会编译失败.<br>原因是Eclipse下面无法正确识别Makefile下面的CROSS_COMPILE路径.<br>见 <a href="https://www.crifan.com/ubuntu_eclipse_cross_compile_uboot_based_on_makefile/" target="_blank" rel="noopener">Ubuntu下基于Eclipse去调用Makefile交叉编译Uboot</a><br>需要将其改为绝对路径. 打开内核源码根目录下的 <code>Makefile</code>, 187行, 修改如下:</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CROSS_COMPILE ?= arm-linux-</span></span><br><span class="line">CROSS_COMPILE   ?= /usr/local/gcc-3.4.5-glibc-2.3.6/bin/arm-linux-</span><br></pre></td></tr></table></figure>
-<p>再次在eclipse下尝试编译, 就成功了. 看Console的输出, 获得uImage文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Kernel: arch/arm/boot/Image is ready</span><br><span class="line">Kernel: arch/arm/boot/zImage is ready</span><br><span class="line">Image arch/arm/boot/uImage is ready</span><br></pre></td></tr></table></figure></p>
-<p>但Ecilpse依旧会显示很多警告和错误. 原因不明, 查的如下资料:</p>
-<ul>
-<li><a href="https://stackoverflow.com/questions/8563978/what-is-kernel-section-mismatch" target="_blank" rel="noopener">What is kernel section mismatch?</a></li>
-<li><a href="http://www.linuxdiyf.com/linux/24369.html" target="_blank" rel="noopener">解决编译kernel出现WARNING:Section mismatch(es)</a></li>
-</ul>
-<p>先忽略这些错误警告, 但此时, 有些函数依旧不能正常跳转. 原因是 <code>.\include\linux\autoconf.h</code> 没有被其它头文件包含, 里面的宏定义linux源码无法识别. 解决办法是我们自己把这些宏定义加入eclipse的SYMBOLS. 手工一个个加入不现实, 我写了一个python代码, 把linux下的config自动转为eclipse可识别的XML格式:<br><strong><a href="https://github.com/draapho/Blog/tree/master/_blog_stuff/linux/config2xml.py" target="_blank" rel="noopener">下载config2xml</a></strong></p>
-<p>将这个文件放在linux源码根目录下, 配置好<code>.config</code> 文件. 然后在终端运行它<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd = linux内核源码根目录</span></span><br><span class="line">$ python config2xml.py</span><br><span class="line">Generate ../eclipse_SYMBOLS.xml successfully...</span><br></pre></td></tr></table></figure></p>
-<p>成功后, 会在上层目录生成 <code>eclipse_SYMBOLS.xml</code> 这么一个文件.<br>然后回到eclipse里面, 将其导入. 如图:<br><img src="https://draapho.github.io/images/1737/link9.JPG" alt="link.JPG"></p>
-<p>另外, 为方便跳转, 可以在eclipse下面把linux源码下不相关的平台代码排除掉.<br><img src="https://draapho.github.io/images/1737/link4.JPG" alt="link.JPG"></p>
-<p>最后, 需要把项目的index索引重建一下才能正确跳转. 重建耗时较长.<br><img src="https://draapho.github.io/images/1737/link10.JPG" alt="link.JPG"></p>
-<p><strong>至此内核源码的C语言部分已经能成功的跳转查看了.汇编部分可以用eclipse的搜索功能.</strong></p>
-<h1 id="写驱动"><a href="#写驱动" class="headerlink" title="写驱动"></a>写驱动</h1><p>需要先在工程里加载好Kernel源码!<br>然后参考 <strong><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></strong></p>
-<p>大致步骤如下:</p>
-<ul>
-<li>LinK+IDE里, 新建工程-&gt;Linux Kernel Development(LinK+)</li>
-<li>选择 Device Driver Project</li>
-<li>写好驱动名称, 驱动路径, 作者, 开源证书类型</li>
-<li>Kernel Version 要去掉 <code>Use Host Machine Kernel</code>, 选择我们已经编译好的嵌入式内核源码路径</li>
-<li>X86架构 (ARM不支持),</li>
-<li>下面两步可以根据需求自己选择驱动框架, LinK+会自动生成有框架的.c和.h以及Makefile文件.</li>
-<li>驱动下面, 所有的跳转都可用, 可以非常方便的查看函数和宏定义.</li>
-<li>可以使用eclipse去编译, 设置一个 <code>modules</code> 目标就可以了.</li>
-</ul>
-<h1 id="Eclipse交叉编译说明"><a href="#Eclipse交叉编译说明" class="headerlink" title="Eclipse交叉编译说明"></a>Eclipse交叉编译说明</h1><p>这个方法的核心是不用Eclipse自己的编译工具链. 所有的编译工具都由Makefile内指定了.<br>所以, 这个也适用于编译查看u-boot源码.<br>如果是应用层代码, 那么就需要自己写Makefile指定编译工具了.<br>另外一个方法是, 另外下载一个 <code>Eclipse IDE for C/C++</code>, 单独为应用层代码配置一个环境. </p>
-<p>可参考:</p>
-<ul>
-<li><a href="http://www.linuxidc.com/Linux/2016-09/135062.htm" target="_blank" rel="noopener">Linux下搭建树莓派交叉编译环境</a></li>
-<li><a href="http://www.cnblogs.com/lazygunner/archive/2011/11/30/2269726.html" target="_blank" rel="noopener">Linux + Eclipse 配置交叉编译环境</a></li>
-<li><a href="http://blog.csdn.net/tianzhihen_wq/article/details/41872365" target="_blank" rel="noopener">配置eclipse linux嵌入式 集成开发环境（编译部分）详细</a></li>
-<li><a href="http://m.itboth.com/d/BzIRZz/windows-eclipse-arm" target="_blank" rel="noopener">eclipse在windows下的arm交叉编译环境搭建</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/11/26/1736-linux-apt/" itemprop="url">
                   linux软件的安装和管理
                 </a>
@@ -1589,6 +1424,227 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/11/02/1730-fs-busybox/" itemprop="url">
+                  fs之BusyBox的使用与编译
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-11-02T00:00:00+11:00" content="2017-11-02">
+              2017-11-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a></li>
+<li><a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="什么是BusyBox"><a href="#什么是BusyBox" class="headerlink" title="什么是BusyBox"></a>什么是BusyBox</h1><p>BusyBox 是linux下的一个应用程序, 集成了最常用的Linux命令和工具.<br>在jz2440开发板里, <strong>BusyBox是内核成功启动后, 调用的第一个应用程序.</strong><br>启动jz2440开发板, 在终端内输入如下指令, 可以发现系统指令都是BusyBox的软链接.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板终端</span></span><br><span class="line">$ ls -l /bin/ls</span><br><span class="line">lrwxrwxrwx    1 1000     1000            7 Jan 22  2008 /bin/ls -&gt; busybox</span><br><span class="line">$ ls -l /bin/cp</span><br><span class="line">lrwxrwxrwx    1 1000     1000            7 Jan 22  2008 /bin/cp -&gt; busybox</span><br><span class="line"></span><br><span class="line">$ ls -l /linuxrc</span><br><span class="line">lrwxrwxrwx    1 1000     1000           11 Jan 22  2008 /linuxrc -&gt; bin/busybox</span><br><span class="line">$ ls -l /sbin/init</span><br><span class="line">lrwxrwxrwx    1 1000     1000            7 Jan 22  2008 /sbin/init -&gt; ../bin/busybox</span><br><span class="line">$ ls -l /bin/sh</span><br><span class="line">lrwxrwxrwx    1 1000     1000            7 Jan 22  2008 /bin/sh -&gt; busybox</span><br></pre></td></tr></table></figure>
+<h1 id="BusyBox的使用"><a href="#BusyBox的使用" class="headerlink" title="BusyBox的使用"></a>BusyBox的使用</h1><p>内核启动后, 调用的第一个应用程序就是BusyBox. 而BusyBox的职责如下:</p>
+<ul>
+<li>读取配置文件, <code>/etc/inittab</code></li>
+<li>解析配置文件, <code>&lt;id&gt;:&lt;runlevels&gt;:&lt;action&gt;:&lt;process&gt;</code>  <ul>
+<li>指定程序, <code>&lt;process&gt;</code></li>
+<li>何时执行, <code>&lt;action&gt;</code></li>
+</ul>
+</li>
+<li>执行程序</li>
+</ul>
+<h2 id="启动BusyBox"><a href="#启动BusyBox" class="headerlink" title="启动BusyBox"></a>启动BusyBox</h2><p>由 <a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a> 可知,<br><code>start_kernel</code> 函数最后会尝试调用: <code>run_init_process(execute_command);</code>, 由uboot的传入execute_command.<br>查看uboot的bootargs环境变量, <code>init=/linuxrc</code>, 所以会执行 <code>run_init_process(&quot;/linuxrc&quot;)</code><br>由于 <code>/linuxrc</code> 是 <code>/bin/busybox</code> 的软连接, 所以最终调用了busybox.</p>
+<p>如果调用失败, 会依次尝试如下指令, 但这些指令都是busybox的软连接, 等同于调用了busybox指令</p>
+<ul>
+<li><code>run_init_process(&quot;/sbin/init&quot;);</code>, busybox的软连接</li>
+<li><code>run_init_process(&quot;/etc/init&quot;);</code>, 指令不存在</li>
+<li><code>run_init_process(&quot;/bin/init&quot;);</code>, 指令不存在</li>
+<li><code>run_init_process(&quot;/bin/sh&quot;);</code>, busybox的软连接</li>
+</ul>
+<p>BusyBox 源码大致的函数调用关系:</p>
+<ul>
+<li><code>init_main</code>, busybox的入口<ul>
+<li><code>parse_inittab</code>, 准备分析配置文件<ul>
+<li><code>file=fopen(INITTAB, &quot;r&quot;)</code>, 打开配置文件 <code>/etc/inittab</code></li>
+<li><code>new_init_action</code>, 创建并链表化 init_action 结构.</li>
+</ul>
+</li>
+<li><code>run_actions(SYSINIT)</code>, 初始化工作, 最早被执行<ul>
+<li><code>waitfor(a,0)</code>, 等待执行完成</li>
+<li><code>delete_init_action(a)</code>, 从 init_action_list 链表中删除, 不会再被执行了</li>
+</ul>
+</li>
+<li><code>run_actions(WAIT)</code>, 等待执行完成<ul>
+<li>同 <code>run_actions(SYSINIT)</code></li>
+</ul>
+</li>
+<li><code>run_actions(ONCE)</code>, 执行一次且不会等待执行完成.<ul>
+<li><code>run(a)</code>, 执行指令, 不会等待执行完成</li>
+<li><code>delete_init_action(a)</code>, 从链表中删除</li>
+</ul>
+</li>
+<li><code>run_actions(RESPAWN)</code>, 如果子进程终止, 那么会重新孵化(调用执行).</li>
+<li><code>run_actions(ASKFIRST)</code>, 相比于RESPAWN, 要求用户按键确认.</li>
+</ul>
+</li>
+</ul>
+<h2 id="BusyBox使用说明"><a href="#BusyBox使用说明" class="headerlink" title="BusyBox使用说明"></a>BusyBox使用说明</h2><p>查看busybox源码, <code>busybox-1.7.0/examples/inittab</code> 文件内有较为详细的说明.<br>关键内容如下:</p>
+<ul>
+<li>配置文件格式: <code>&lt;id&gt;:&lt;runlevels&gt;:&lt;action&gt;:&lt;process&gt;</code></li>
+<li><code>&lt;id&gt;</code>, 指定tty终端. 非强制, 会在前面加上 <code>/dev/</code> 变成 <code>/dev/&lt;id&gt;</code><ul>
+<li>譬如 <code>tty2</code>, 实际运行的终端是 <code>/dev/tty2</code></li>
+<li>如果没有值的话, 对应的文件会是 <code>/dev/null</code></li>
+</ul>
+</li>
+<li><code>&lt;runlevels&gt;</code>, 忽略</li>
+<li><code>&lt;action&gt;</code>, 包括:<ul>
+<li><code>sysinit</code>, 用作系统初始化, 执行指令并等待完成</li>
+<li><code>respawn</code>, 执行指令, 如果子线程终止, 会被重新孵化/执行</li>
+<li><code>askfirst</code>, 功能同 <code>respawn</code>, 只是需要用户按键确认</li>
+<li><code>wait</code>, 执行指令并等待完成</li>
+<li><code>once</code>, 执行指令不等待.</li>
+<li><code>restart</code>, <code>ctrlaltdel</code>, <code>shutdown</code>, 由linux内核信号量传递而来. 执行指令并等待.</li>
+</ul>
+</li>
+<li><code>&lt;process&gt;</code>, 要执行的应用程序或者脚本</li>
+<li>如果BusyBox没有找到 <code>/etc/inittab</code> 文件, 则会自动加载如下应用程序:<ul>
+<li><code>::sysinit:/etc/init.d/rcS</code>, 系统初始化时, 调用rcS脚本</li>
+<li><code>::askfirst:/bin/sh</code>, 询问后, 运行终端</li>
+<li><code>::ctrlaltdel:/sbin/reboot</code>, 按键重启</li>
+<li><code>::shutdown:/sbin/swapoff -a</code>, 关机时要做的事</li>
+<li><code>::shutdown:/bin/umount -a -r</code>, 关机时要做的事</li>
+<li><code>::restart:/sbin/init</code>, 重启后要做的事</li>
+</ul>
+</li>
+<li>jz2440的 <code>/etc/inittab</code> 内容如下<ul>
+<li><code>::sysinit:/etc/init.d/rcS</code>, 初始化配置</li>
+<li><code>s3c2410_serial0::askfirst:-/bin/sh</code>, 指定串口运行终端</li>
+<li><code>::ctrlaltdel:/sbin/reboot</code>, 特定按键重启</li>
+<li><code>::shutdown:/bin/umount -a -r</code>, 关机时要做的事</li>
+</ul>
+</li>
+</ul>
+<h1 id="BusyBox的编译"><a href="#BusyBox的编译" class="headerlink" title="BusyBox的编译"></a>BusyBox的编译</h1><p>BusyBox的编译和安装可以查看源码内提供的 <code>INSRALL</code> 文件. 编译方法和过程和内核是类似的.<br>在linux主机ubuntu下进行交叉编译:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tar -xjf busybox-1.7.0.tar.bz2      <span class="comment"># 解压</span></span><br><span class="line"><span class="built_in">cd</span> busybox-1.7.0/                   <span class="comment"># 进入目录, pwd=./busybox-1.7.0</span></span><br><span class="line">make menuconfig                     <span class="comment"># 会弹出UI配置界面</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果报错: *** mixed implicit and normal rules: deprecated syntax</span></span><br><span class="line"><span class="comment"># 修改makefile相关的行:</span></span><br><span class="line"><span class="comment"># config %config: 修改为 %config:</span></span><br><span class="line"><span class="comment"># / %/: 修改为 %/</span></span><br></pre></td></tr></table></figure>
+<p>BusyBox的配置项也非常多, 在此就不深入研究了.<br>需要注意的是, 因为这里是交叉编译. 所以编译前, 需要修改BusyBox的编译工具链.<br>因为没有在Menuconfig界面里找到, 所以通过Makefile文件直接修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd=./busybox-1.7.0</span></span><br><span class="line">vim Makefile</span><br><span class="line"></span><br><span class="line"><span class="comment"># vim 界面</span></span><br><span class="line"><span class="comment"># 使用 :/COMPILE 找到 CROSS_COMPILE 配置项, 修改为</span></span><br><span class="line">CROSS_COMPILE   ?= arm-linux-</span><br><span class="line"><span class="comment"># 使用 :wq 保存退出</span></span><br><span class="line"></span><br><span class="line">make                <span class="comment"># 编译</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装, 不能使用 make install, 否则Linux主机Ubuntu的命令就会被破坏掉!</span></span><br><span class="line">mkdir ~/jz2440/fs_first                         <span class="comment"># 创建一个filesystem, 实验用</span></span><br><span class="line">make CONFIG_PREFIX=~/jz2440/fs_first install    <span class="comment"># 安装到指定目录</span></span><br><span class="line"><span class="comment"># 再次强调, 这里是交叉编译, 不能直接用 make install. 否则linux主机的系统就被破坏了.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 fs_first 目录</span></span><br><span class="line"><span class="comment"># 可以看到全部都是常用的linux指令, 存放在 /bin /sbin /usr/bin /usr/sbin 目录下面.</span></span><br><span class="line"><span class="built_in">cd</span> ~/jz2440/fs_first/</span><br><span class="line">total 20</span><br><span class="line">drwxrwxr-x 5 name group 4096 Nov  2 15:46 ./</span><br><span class="line">drwxrwxrwx 7 name group 4096 Nov  2 15:44 ../</span><br><span class="line">drwxrwxr-x 2 name group 4096 Nov  2 15:46 bin/</span><br><span class="line">lrwxrwxrwx 1 name group   11 Nov  2 15:46 linuxrc -&gt; bin/busybox*</span><br><span class="line">drwxrwxr-x 2 name group 4096 Nov  2 15:46 sbin/</span><br><span class="line">drwxrwxr-x 4 name group 4096 Nov  2 15:46 usr/</span><br></pre></td></tr></table></figure>
+<p>这样, BusyBox编译就完成了.<br>然后, 就可以考虑构建linux的文件系统了</p>
+<p>要构建一个最小的linux根文件系统, 至少需要如下文件:</p>
+<ul>
+<li><code>dev/console</code>, linux内核的标准IO接口 </li>
+<li><code>dev/null</code>, 相当于一个NULL文件</li>
+<li>init进程, 即 <code>bin/busybox</code></li>
+<li><code>etc/inittab</code> 配置文件, (可以省略, busybox会调用其默认值)</li>
+<li>配置文件里指定的应用程序或脚本, 如 <code>/etc/init.d/rcS</code> <code>bin/sh</code></li>
+<li>C语言库 <code>lib/</code></li>
+</ul>
+<h1 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h1><ul>
+<li><a href="http://blog.csdn.net/kyokowl/article/details/6921640" target="_blank" rel="noopener">busybox 详解</a></li>
+<li>嵌入式Linux应用开发完全手册, 第17章BusyBox相关部分</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -1634,7 +1690,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">103</span>
+              <span class="site-state-item-count">102</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
