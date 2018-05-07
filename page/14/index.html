@@ -261,6 +261,184 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/20/1612-python-pyqtui/" itemprop="url">
+                  PyQt 的交互操作
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-20T00:00:00+11:00" content="2016-10-20">
+              2016-10-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="environment"><a href="#environment" class="headerlink" title="environment"></a>environment</h1><ul>
+<li>Windows</li>
+<li><a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python 2.7</a></li>
+<li><a href="https://riverbankcomputing.com/software/pyqt/download" target="_blank" rel="noopener">PyQt 4.11.4</a></li>
+</ul>
+<h1 id="useful-guide-startup"><a href="#useful-guide-startup" class="headerlink" title="useful guide / startup"></a>useful guide / startup</h1><ul>
+<li><a href="http://www.training.prace-ri.eu/uploads/tx_pracetmo/QtGuiIntro.pdf" target="_blank" rel="noopener">Introduction to GUI development using Qt</a>, 简单明了的介绍了qt gui的基本特性</li>
+<li><a href="https://www.tutorialspoint.com/pyqt/" target="_blank" rel="noopener">PyQt Tutorial</a>, learn PyQt step by step.</li>
+<li><a href="https://nikolak.com/pyqt-threading-tutorial/" target="_blank" rel="noopener">PyQt: Threading Basics Tutorial</a>, 防止UI阻塞, 使用线程</li>
+</ul>
+<h1 id="Generate-basic-UI-file"><a href="#Generate-basic-UI-file" class="headerlink" title="Generate basic UI file"></a>Generate basic UI file</h1><ul>
+<li>use <code>Qt Designer</code> to create basic UI<ul>
+<li><code>New</code>-&gt;<code>Widget</code>-&gt;drag <code>PushButton</code> to <code>Form</code> Window</li>
+<li>Save it, for example <code>demo.ui</code></li>
+</ul>
+</li>
+<li>make sure <code>pyuic4.bat</code> is in the System PATH<ul>
+<li>input <code>pyuic4.bat -h</code> in shell, check the response.</li>
+</ul>
+</li>
+<li>change <code>.ui</code> to <code>.py</code> file<ul>
+<li>run <code>pyuic4.bat -x -o demo.py demo.ui</code> in the working folder.</li>
+<li><code>-o</code> means output, set the output filename.</li>
+<li><code>-x</code> will generate <code>if __name__ == &#39;__main__&#39;:</code> then can run directly</li>
+<li><code>pyuic4.bat demo.ui &gt; demo.py</code> is also OK.</li>
+</ul>
+</li>
+<li><del>the sample of <code>demo.py</code>, generated automatically by pyuic4.bat</del></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Form implementation generated from reading ui file 'demo.ui'</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Created by: PyQt4 UI code generator 4.11.4</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># WARNING! All changes made in this file will be lost!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtCore, QtGui</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    _fromUtf8 = QtCore.QString.fromUtf8</span><br><span class="line"><span class="keyword">except</span> AttributeError:</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_fromUtf8</span><span class="params">(s)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> s</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    _encoding = QtGui.QApplication.UnicodeUTF8</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_translate</span><span class="params">(context, text, disambig)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> QtGui.QApplication.translate(context, text, disambig, _encoding)</span><br><span class="line"><span class="keyword">except</span> AttributeError:</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_translate</span><span class="params">(context, text, disambig)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> QtGui.QApplication.translate(context, text, disambig)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ui_Form</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setupUi</span><span class="params">(self, Form)</span>:</span></span><br><span class="line">        Form.setObjectName(_fromUtf8(<span class="string">"Form"</span>))</span><br><span class="line">        self.pushButton = QtGui.QPushButton(Form)</span><br><span class="line">        self.pushButton.setGeometry(QtCore.QRect(<span class="number">40</span>, <span class="number">40</span>, <span class="number">75</span>, <span class="number">23</span>))</span><br><span class="line">        self.pushButton.setObjectName(_fromUtf8(<span class="string">"pushButton"</span>))</span><br><span class="line"></span><br><span class="line">        self.retranslateUi(Form)</span><br><span class="line">        QtCore.QMetaObject.connectSlotsByName(Form)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">retranslateUi</span><span class="params">(self, Form)</span>:</span></span><br><span class="line">        Form.setWindowTitle(_translate(<span class="string">"Form"</span>, <span class="string">"Form"</span>, <span class="keyword">None</span>))</span><br><span class="line">        self.pushButton.setText(_translate(<span class="string">"Form"</span>, <span class="string">"PushButton"</span>, <span class="keyword">None</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># using -x will generate the following code</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="keyword">import</span> sys</span><br><span class="line">    app = QtGui.QApplication(sys.argv)</span><br><span class="line">    Form = QtGui.QWidget()</span><br><span class="line">    ui = Ui_Form()</span><br><span class="line">    ui.setupUi(Form)</span><br><span class="line">    Form.show()</span><br><span class="line">    sys.exit(app.exec_())</span><br></pre></td></tr></table></figure>
+<ul>
+<li><del>run &amp; check the　UI</del><ul>
+<li>run <code>python demo.py</code> in the working folder.</li>
+<li>OR run directly in editor like atom.</li>
+</ul>
+</li>
+</ul>
+<h1 id="click-then-do-sth"><a href="#click-then-do-sth" class="headerlink" title="click then do sth"></a>click then do sth</h1><ul>
+<li>create a new py file, for example <code>show.py</code>. input code like:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> demo  <span class="comment"># generated from xxx.ui</span></span><br><span class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(self.__class__, self).__init__()  <span class="comment"># QtGui.QWidget.__init__()</span></span><br><span class="line">        self.setupUi(self)</span><br><span class="line">        self.pushButton.clicked.connect(</span><br><span class="line">            self.handleButton)  <span class="comment"># here is important line</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handleButton</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> (<span class="string">"hello, https://draapho.github.io/"</span>)</span><br><span class="line">        <span class="comment"># size = self.geometry()</span></span><br><span class="line">        <span class="comment"># self.resize(size.width() + 2, size.height() + 2)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app = QtGui.QApplication(sys.argv)</span><br><span class="line">    form = MyForm()</span><br><span class="line">    form.show()</span><br><span class="line">    sys.exit(app.exec_())</span><br></pre></td></tr></table></figure>
+<ul>
+<li>look at <code>self.ui.pushButton.clicked.connect(self.handleButton)</code><br>it links clicked event with handleButton function.</li>
+<li>if you want to resize the window after clicked the button. change <code>handleButton</code> to</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handleButton</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="comment"># print ("hello, https://draapho.github.io/")</span></span><br><span class="line">    size = self.geometry()</span><br><span class="line">    self.resize(size.width() + <span class="number">2</span>, size.height() + <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="click-then-do-heavy-work"><a href="#click-then-do-heavy-work" class="headerlink" title="click then do heavy work"></a>click then do heavy work</h1><ul>
+<li><p><del>bad code, UI totally dead</del></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> demo</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(self.__class__, self).__init__()</span><br><span class="line">        self.setupUi(self)</span><br><span class="line">        self.pushButton.clicked.connect(self.startCount)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">startCount</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.pushButton.clicked.disconnect()</span><br><span class="line">        self.pushButton.clicked.connect(self.stopCount)</span><br><span class="line">        i = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> i &lt; <span class="number">15</span>:</span><br><span class="line">            i += <span class="number">1</span></span><br><span class="line">            self.pushButton.setText(str(i))</span><br><span class="line">            <span class="keyword">print</span> i</span><br><span class="line">            time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stopCount</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.pushButton.clicked.disconnect()</span><br><span class="line">        self.pushButton.clicked.connect(self.startCount)</span><br><span class="line">        self.pushButton.setText(<span class="string">"PushButton"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app = QtGui.QApplication(sys.argv)</span><br><span class="line">    form = MyForm()</span><br><span class="line">    form.show()</span><br><span class="line">    app.exec_()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>use thread, can do everything in UI</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PyQt4 <span class="keyword">import</span> QtGui</span><br><span class="line"><span class="keyword">from</span> PyQt4.QtCore <span class="keyword">import</span> QThread, SIGNAL</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> demo</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">getCountThread</span><span class="params">(QThread)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        QThread.__init__(self)</span><br><span class="line">        self.count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.wait()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> self.count &lt; <span class="number">15</span>:</span><br><span class="line">            self.count += <span class="number">1</span></span><br><span class="line">            self.emit(SIGNAL(<span class="string">'showCount(int)'</span>), self.count)</span><br><span class="line">            <span class="keyword">print</span> self.count</span><br><span class="line">            self.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span><span class="params">(QtGui.QWidget, demo.Ui_Form)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(self.__class__, self).__init__()</span><br><span class="line">        self.setupUi(self)</span><br><span class="line">        self.pushButton.clicked.connect(self.startCount)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">startCount</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.pushButton.clicked.disconnect()</span><br><span class="line">        self.get_thread = getCountThread()</span><br><span class="line">        self.connect(self.get_thread, SIGNAL(<span class="string">"showCount(int)"</span>), self.showCount)</span><br><span class="line">        self.connect(self.get_thread, SIGNAL(<span class="string">"finished()"</span>), self.done)</span><br><span class="line">        self.get_thread.start()</span><br><span class="line">        <span class="comment"># must be under the self.get_thread.start()</span></span><br><span class="line">        self.pushButton.clicked.connect(self.get_thread.terminate)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">showCount</span><span class="params">(self, count)</span>:</span></span><br><span class="line">        self.pushButton.setText(str(count))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">done</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.pushButton.clicked.disconnect()</span><br><span class="line">        self.pushButton.setText(<span class="string">"PushButton"</span>)</span><br><span class="line">        self.pushButton.clicked.connect(self.startCount)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app = QtGui.QApplication(sys.argv)</span><br><span class="line">    form = MyForm()</span><br><span class="line">    form.show()</span><br><span class="line">    app.exec_()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>explanation</p>
+<ul>
+<li><code>getCountThread</code> 子线程类, 执行繁重任务</li>
+<li><code>MyForm</code>-&gt;<code>startCount</code> 点击按键后执行, 设置好信号, 启动子线程</li>
+<li><code>self.connect(self.get_thread, SIGNAL(&quot;showCount(int)&quot;), self.showCount)</code><br>准备接收来自线程的信号, 并在 <code>showCount</code> 更新UI</li>
+<li><code>self.connect(self.get_thread, SIGNAL(&quot;finished()&quot;), self.done)</code><br>准备接收来自线程的结束信号, 然后在 <code>done</code> 下更新标记和UI</li>
+<li><code>self.get_thread.start()</code><br>启动子线程</li>
+<li><code>self.pushButton.clicked.connect(self.get_thread.terminate)</code><br>将按键的功能设置为终止子线程, 必须放在 <code>self.get_thread.start()</code> 下面</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/16/1611-WinSoft-other/" itemprop="url">
                   Windows 软件系列-开发软件
                 </a>
@@ -2252,137 +2430,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/01/1605-Stm32Selection/" itemprop="url">
-                  stm32选型及资料搜索指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-01T00:00:00+10:00" content="2016-10-01">
-              2016-10-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="stm32选型及手册搜索"><a href="#stm32选型及手册搜索" class="headerlink" title="stm32选型及手册搜索"></a>stm32选型及手册搜索</h1><ul>
-<li>进入搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="noopener">STM选型</a></li>
-<li>在搜索框输入指定型号, 点击进入具体型号的页面. 如<a href="http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103rc.html" target="_blank" rel="noopener">STM32F103RC</a></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/datasheet/59/f6/fa/84/20/4e/4c/59/CD00191185.pdf/files/CD00191185.pdf/jcr:content/translations/en.CD00191185.pdf" target="_blank" rel="noopener">DS5792</a> -  <strong>DataSheet, 数据手册. 电气参数详解, 软硬件必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/reference_manual/59/b9/ba/7f/11/af/43/d5/CD00171190.pdf/files/CD00171190.pdf/jcr:content/translations/en.CD00171190.pdf" target="_blank" rel="noopener">RM0008</a> - <strong>Reference Manuals, 参考手册. 寄存器详解. 软件开发必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/application_note/a2/9c/07/d9/2a/b2/47/dc/CD00004479.pdf/files/CD00004479.pdf/jcr:content/translations/en.CD00004479.pdf" target="_blank" rel="noopener">AN1709</a> - <strong>Application Notes, 应用指南. 需要仔细看这类文档</strong>. 是针对具体问题的指南, 如这一篇是EMC设计指南</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/programming_manual/10/98/e8/d4/2b/51/4b/f5/CD00283419.pdf/files/CD00283419.pdf/jcr:content/translations/en.CD00283419.pdf" target="_blank" rel="noopener">PM0075</a> - Programming Manuals, 烧录手册. 介绍擦写flash相关的流程和寄存器</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf" target="_blank" rel="noopener">ES0340</a> - Errata Sheets, 勘误表. 遇到非常奇怪的问题时, 可以先来看看勘误表, 是否源文件就是错的!</li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/technical_note/92/30/3c/a1/4c/bb/43/6f/DM00103228.pdf/files/DM00103228.pdf/jcr:content/translations/en.DM00103228.pdf" target="_blank" rel="noopener">TN1163</a> - Technical Notes &amp; Articles, 技术指南, 存储焊接, 开发工具配置之类的解答. <strong>生产必备</strong></li>
-<li><a href="http://www.st.com/content/ccc/resource/technical/document/user_manual/f9/4a/8d/e6/b8/20/4a/46/DM00062592.pdf/files/DM00062592.pdf/jcr:content/translations/en.DM00062592.pdf" target="_blank" rel="noopener">UM1561</a> - User Manuals, 对官方开发板或开发工具的用户说明书</li>
-</ul>
-<h1 id="其它设计资料的搜索"><a href="#其它设计资料的搜索" class="headerlink" title="其它设计资料的搜索"></a>其它设计资料的搜索</h1><ul>
-<li>根据型号并不能找出期望的文档. 譬如需要一份电源设计参考.</li>
-<li>进去搜索网页<a href="http://www.st.com/content/st_com/en/products/microcontrollers.html" target="_blank" rel="noopener">STM选型</a></li>
-<li>在搜索框输入关键词<code>hardware power</code>, 在搜索结果页面, 选择<code>Resouces</code>标签</li>
-<li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="noopener">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2428,7 +2475,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">103</span>
+              <span class="site-state-item-count">104</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

@@ -261,6 +261,259 @@
             
               
                 
+                <a class="post-title-link" href="/2017/11/03/1731-fs-build/" itemprop="url">
+                  fs之创建文件系统
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-11-03T00:00:00+11:00" content="2017-11-03">
+              2017-11-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a></li>
+<li><a href="https://draapho.github.io/2017/11/03/1731-fs-build/">fs之创建文件系统</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="要构建一个最小的linux根文件系统"><a href="#要构建一个最小的linux根文件系统" class="headerlink" title="要构建一个最小的linux根文件系统"></a>要构建一个最小的linux根文件系统</h1><ul>
+<li><code>dev/console</code>, linux内核的标准IO接口</li>
+<li><code>dev/null</code>, 相当于一个NULL文件</li>
+<li>init进程, 即 <code>bin/busybox</code></li>
+<li><code>etc/inittab</code> 配置文件, (可以省略, busybox会调用其默认值)</li>
+<li>配置文件里指定的应用程序或脚本, 如 <code>/etc/init.d/rcS</code> <code>bin/sh</code></li>
+<li>C语言库 <code>lib/</code></li>
+</ul>
+<p>在 <a href="https://draapho.github.io/2017/11/02/1730-fs-busybox/">fs之Busybox的编译与使用</a> 一文中,<br>已经将busybox安装到指定目录 <code>~/jz2440/fs_first/</code>,<br>接下来, 基于此目录, 继续完善嵌入式linux的最小文件系统</p>
+<h2 id="创建-dev-console-dev-null-文件"><a href="#创建-dev-console-dev-null-文件" class="headerlink" title="创建 dev/console dev/null 文件"></a>创建 <code>dev/console</code> <code>dev/null</code> 文件</h2><p><code>dev/console</code> 用于标准输入输出<br><code>dev/null</code> 空设备, 用于丢弃不需要的输出流, 或提供空输入.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd = ~/jz2440/fs_first/</span></span><br><span class="line"></span><br><span class="line">$ ll /dev/console /dev/null</span><br><span class="line"><span class="comment"># 查看现有系统的这两个文件的详情</span></span><br><span class="line">crw------- 1 root root 5, 1 Sep  5 00:01 /dev/console</span><br><span class="line"><span class="comment"># c表示字符设备, 5为主设备号, 1为次设备号</span></span><br><span class="line">crw-rw-rw- 1 root root 1, 3 Sep  5 00:01 /dev/null</span><br><span class="line"><span class="comment"># c表示字符设备, 1为主设备号, 3为次设备号</span></span><br><span class="line"></span><br><span class="line">$ mkdir dev</span><br><span class="line">$ <span class="built_in">cd</span> dev        <span class="comment"># 进入 ~/jz2440/fs_first/dev/ 目录</span></span><br><span class="line"></span><br><span class="line">$ sudo mknod console c 5 1</span><br><span class="line">$ sudo mknod null c 1 3</span><br><span class="line"><span class="comment"># 仿照现有的文件系统内容, 创建 console 和 null 两个节点文件</span></span><br><span class="line"></span><br><span class="line">$ ll            <span class="comment"># pwd=~/jz2440/fs_first/dev/</span></span><br><span class="line">drwxrwxr-x 2 draapho draapho 4096 Nov  3 11:01 ./</span><br><span class="line">drwxrwxr-x 6 draapho draapho 4096 Nov  3 11:00 ../</span><br><span class="line">crw-r--r-- 1 root    root    5, 1 Nov  3 11:00 console</span><br><span class="line">crw-r--r-- 1 root    root    1, 3 Nov  3 11:01 null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 至此, 创建 /dev/console 以及 /dev/null 完成.</span></span><br></pre></td></tr></table></figure>
+<h2 id="创建-etc-inittab-文件"><a href="#创建-etc-inittab-文件" class="headerlink" title="创建 etc/inittab 文件"></a>创建 <code>etc/inittab</code> 文件</h2><p><code>etc/inittab</code> 供busybox初始化时调用的配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd = ~/jz2440/fs_first/</span></span><br><span class="line"></span><br><span class="line">$ mkdir etc</span><br><span class="line">$ vim etc/inittab</span><br><span class="line"><span class="comment"># 输入 "console::askfirst:-/bin/sh", 保存退出</span></span><br><span class="line">$ cat etc/inittab</span><br><span class="line">console::askfirst:-/bin/sh</span><br><span class="line"><span class="comment"># "-/bin/sh" 前面的-, 提示让busybox开启一个账户登陆终端.</span></span><br><span class="line"><span class="comment"># 由源码函数 ash_main() 代码可知当检测到 - 时, 赋值isloginsh = 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 至此, 创建 etc/inittab 完成.</span></span><br></pre></td></tr></table></figure>
+<h2 id="安装C库"><a href="#安装C库" class="headerlink" title="安装C库"></a>安装C库</h2><p>务必使用 <code>gcc-3.4.5-glibc-2.3.6</code> 这个版本的C库<br>在 <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌入式linux环境搭建3-Ubuntu16.04</a> 中,<br>已经将这个库安装到了 <code>/usr/local/</code> 目录下.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/gcc-3.4.5-glibc-2.3.6/arm-linux/lib</span><br><span class="line">$ ll</span><br><span class="line"><span class="comment"># 查看解压后的库文件, 针对 arm-linux的库</span></span><br><span class="line">...</span><br><span class="line">-rwxr-xr-x  1 draapho draapho  112886 Jan 22  2008 ld-2.3.6.so*</span><br><span class="line">lrwxrwxrwx  1 draapho draapho      11 Jan 22  2008 ld-linux.so.2 -&gt; ld-2.3.6.so*</span><br><span class="line">drwxr-xr-x  2 draapho draapho    4096 Jan 22  2008 ldscripts/</span><br><span class="line">-rwxr-xr-x  1 draapho draapho   17586 Jan 22  2008 libanl-2.3.6.so*</span><br><span class="line">-rw-r--r--  1 draapho draapho   13094 Jan 22  2008 libanl.a</span><br><span class="line">lrwxrwxrwx  1 draapho draapho      11 Jan 22  2008 libanl.so -&gt; libanl.so.1*</span><br><span class="line">lrwxrwxrwx  1 draapho draapho      15 Jan 22  2008 libanl.so.1 -&gt; libanl-2.3.6.so*</span><br><span class="line">...</span><br><span class="line"><span class="comment"># ".a" 表示静态库, ".so"表示动态库, 还有很多动态库的软连接.</span></span><br><span class="line"><span class="comment"># 我们只需要拷贝动态库和动态库的软连接即可.</span></span><br><span class="line"></span><br><span class="line">$ mkdir ~/jz2440/fs_first/lib</span><br><span class="line">$ cp *.so* ~/jz2440/fs_first/lib/ -d</span><br><span class="line"><span class="comment"># 拷贝动态库到最小文件系统下面. "-d" 表示只需要拷贝连接. cp指令默认会拷贝连接到的内容.</span></span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cd</span> ~/jz2440/fs_first/</span><br><span class="line">$ ll lib</span><br><span class="line"><span class="comment"># 查看一下拷贝结果.</span></span><br><span class="line"><span class="comment"># 至此, 创建 lib/ C库完成.</span></span><br></pre></td></tr></table></figure>
+<h1 id="制作并烧录yaffs2映像文件"><a href="#制作并烧录yaffs2映像文件" class="headerlink" title="制作并烧录yaffs2映像文件"></a>制作并烧录yaffs2映像文件</h1><p>直接说结论, 一般文件系统都会放到 nand flash 里,<br>所以会使用 mkyaffs2image 工具将目录文件生成为 yaffs2 格式文件系统,<br>最后烧录进 nand flash 的 root 分区即可.</p>
+<p>linux下的大多数工具都需要下载源码再自己编译, 譬如这里的 mkyaffs2image.<br>对于这类软件的安装, 我一般归到环境搭建里面去.<br>可以参考 <a href="https://draapho.github.io/2017/02/20/1706-linux-ubuntu16/">嵌嵌入式linux环境搭建3-Ubuntu16.04</a></p>
+<h2 id="flash和文件系统比较"><a href="#flash和文件系统比较" class="headerlink" title="flash和文件系统比较"></a>flash和文件系统比较</h2><ul>
+<li>jffs2: Journalling Flash FileSystem V2<ul>
+<li>主要用于<strong>NOR FLASH</strong>, 基于MTD驱动层.</li>
+<li>缺点是当文件系统已满或接近满时，因为垃圾收集的关系而使jffs2的运行速度大大放慢</li>
+<li>jffs不适合用于NAND闪存</li>
+</ul>
+</li>
+<li>yaffs： Yet Another Flash File System<ul>
+<li>针对<strong>NAND FLASH</strong>而设计的一种日志型文件系统. 直接提供了API对FLASH进行操作.</li>
+<li>与jffs2相比, 减少了数据压缩等功能, 所以速度更快, 挂载时间更短, 内存占用较小.</li>
+<li>yaffs 仅支持小页(512 Bytes), yaffs2 可支持大页(2KB)的NAND闪存. yaffs2也优化了性能.</li>
+<li>大多数情况, 嵌入式系统推荐使用 yaffs2</li>
+</ul>
+</li>
+<li>Cramfs: Compressed ROM File System<ul>
+<li>一种<strong>只读</strong>的压缩文件系统。它也基于MTD驱动程序.</li>
+<li>按页单独压缩, 可以随机页访问. 高压缩比, 可节省Flash空间.</li>
+<li>速度快，效率高，其只读的特点有利于保护文件系统免受破坏，提高了系统的可靠性.</li>
+</ul>
+</li>
+<li>NOR FLASH vs NAND FLASH</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>NOR FLASH</th>
+<th>NAND FLASH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口时序同SRAM,易使用</td>
+<td>地址/数据线复用，数据位较窄</td>
+</tr>
+<tr>
+<td>读取速度较快</td>
+<td>读取速度较慢</td>
+</tr>
+<tr>
+<td>擦除速度慢，以64-128KB的块为单位</td>
+<td>擦除速度快，以8－32KB的块为单位</td>
+</tr>
+<tr>
+<td>写入速度慢</td>
+<td>写入速度快</td>
+</tr>
+<tr>
+<td>随机存取速度较快，支持XIP(eXecute In Place，芯片内执行)，适用于代码存储。在嵌入式系统中，常用于存放引导程序、根文件系统等。</td>
+<td>顺序读取速度较快，随机存取速度慢，适用于数据存储(如大容量的多媒体应用)。在嵌入式系统中，常用于存放用户文件系统等。</td>
+</tr>
+<tr>
+<td>单片容量较小，1-32MB</td>
+<td>单片容量较大，8-128MB，提高了单元密度</td>
+</tr>
+<tr>
+<td>最大擦写次数10万次</td>
+<td>最大擦写次数100万次</td>
+</tr>
+</tbody>
+</table>
+<h2 id="制作yaffs2映像文件"><a href="#制作yaffs2映像文件" class="headerlink" title="制作yaffs2映像文件"></a>制作yaffs2映像文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/jz2440/</span><br><span class="line">$ mkyaffs2image fs_first fs_first.yaffs2</span><br><span class="line"><span class="comment"># 进入文件系统所在的上级目录, 然后制作镜像</span></span><br><span class="line"></span><br><span class="line">$ ll</span><br><span class="line">-rw------- 1 draapho draapho 8750016 Nov  3 12:23 fs_first.yaffs2</span><br><span class="line"><span class="comment"># 查看制作结果</span></span><br></pre></td></tr></table></figure>
+<h2 id="烧录yaffs2映像文件"><a href="#烧录yaffs2映像文件" class="headerlink" title="烧录yaffs2映像文件"></a>烧录yaffs2映像文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line"><span class="comment"># 打开 jz2440 开发板串口终端, 启动时输入空格键, 进入如下菜单</span></span><br><span class="line"><span class="comment">##### 100ask Bootloader for OpenJTAG #####</span></span><br><span class="line">...</span><br><span class="line">[y] Download root_yaffs image</span><br><span class="line">...</span><br><span class="line">Enter your selection: y                     <span class="comment"># 输入k, 烧录 root_yaffs</span></span><br><span class="line">USB host is connected. Waiting a download.  <span class="comment"># 提示连接成功</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 Ubuntu 终端, 输入</span></span><br><span class="line"><span class="built_in">cd</span> ~/jz2440/</span><br><span class="line">sudo dnw fs_first.yaffs2                    <span class="comment"># 输入dnw指令, 指明烧录文件</span></span><br><span class="line"><span class="comment"># DNW usb device found!                     # 开始烧录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板重启后, 就能启动终端输入指令操作了.</span></span><br></pre></td></tr></table></figure>
+<h1 id="进一步完善linux根文件系统"><a href="#进一步完善linux根文件系统" class="headerlink" title="进一步完善linux根文件系统"></a>进一步完善linux根文件系统</h1><p>上面只是完成了linux文件系统的基础功能.<br>要实现更高级的功能, 我们需要更为复杂全面的文件系统.</p>
+<h2 id="创建-proc-文件"><a href="#创建-proc-文件" class="headerlink" title="创建 proc 文件"></a>创建 <code>proc</code> 文件</h2><p>proc目录即process的简写, 可以让ps指令查看linux的进程.<br>知道 <code>/proc</code> 的基本作用和使用方法以后, 我们需要把这些功能整合到文件系统里面.<br>为了循序渐进的说明, 下面展示了三种方法, 常用的就是第三种.</p>
+<h3 id="开发板人工实现"><a href="#开发板人工实现" class="headerlink" title="开发板人工实现"></a><del>开发板人工实现</del></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板终端</span></span><br><span class="line"></span><br><span class="line">$ ps</span><br><span class="line">PID  Uid        VSZ Stat Command</span><br><span class="line">ps: can<span class="string">'t open '</span>/proc<span class="string">': No such file or directory</span></span><br><span class="line"><span class="string"># 譬如执行ps指令, 就会提示没有找到 /proc 目录</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 我们先手工实现一下</span></span><br><span class="line"><span class="string"># pwd=/</span></span><br><span class="line"><span class="string">$ mkdir proc</span></span><br><span class="line"><span class="string">$ mount -t proc none /proc</span></span><br><span class="line"><span class="string"># 创建 proc 目录, 并挂载到此目录. -t 为指定挂载类型为 proc.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">$ ps</span></span><br><span class="line"><span class="string">  PID  Uid        VSZ Stat Command</span></span><br><span class="line"><span class="string">    1 0          3088 S   init</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string"># 这样, ps指令就能看到进程了.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">$ cd /proc</span></span><br><span class="line"><span class="string">$ ls</span></span><br><span class="line"><span class="string">1              745            diskstats      locks          sys</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">$ cd 1          # 进入目录1</span></span><br><span class="line"><span class="string">$ ls -l fd      # 查看目录fd (file descriptor)</span></span><br><span class="line"><span class="string">lrwx------    1 0        0              64 Jan  1 00:10 0 -&gt; /dev/console</span></span><br><span class="line"><span class="string">lrwx------    1 0        0              64 Jan  1 00:10 1 -&gt; /dev/console</span></span><br><span class="line"><span class="string">lrwx------    1 0        0              64 Jan  1 00:10 2 -&gt; /dev/console</span></span><br><span class="line"><span class="string"># 可以看到init进程的三个文件描述符, 分别对应了 标准输入, 标准输出, 标准错误.</span></span><br></pre></td></tr></table></figure>
+<h3 id="集成到文件系统-直接-mount"><a href="#集成到文件系统-直接-mount" class="headerlink" title="~~集成到文件系统, 直接 mount ~~"></a>~~集成到文件系统, 直接 mount ~~</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux主机, Ubuntu终端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 proc 文件</span></span><br><span class="line">$ <span class="built_in">cd</span> ~/jz2440/fs_first/</span><br><span class="line">$ mkdir proc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加初始化脚本</span></span><br><span class="line">$ vim etc/inittab</span><br><span class="line"><span class="comment"># 新增一行 "::sysinit:/etc/init.d/rcS" 用作运行脚本</span></span><br><span class="line">$ cat etc/inittab</span><br><span class="line">console::askfirst:-/bin/sh</span><br><span class="line">::sysinit:/etc/init.d/rcS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建脚本, 执行挂载指令</span></span><br><span class="line">$ mkdir etc/init.d</span><br><span class="line">$ vim etc/init.d/rcS</span><br><span class="line"><span class="comment"># 加入脚本语句 "mount -t proc none /proc" 挂载proc目录</span></span><br><span class="line">$ cat etc/init.d/rcS</span><br><span class="line">mount -t proc none /proc</span><br><span class="line">$ chmod +x etc/init.d/rcS</span><br><span class="line"><span class="comment"># 加上可执行的权限</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这样, 嵌入式linux完成启动后, 会运行init进程.</span></span><br><span class="line"><span class="comment"># - init进程运行 /etc/inittab 内的指令</span></span><br><span class="line"><span class="comment"># - 就会运行 /etc/init.d/rcS 脚本</span></span><br><span class="line"><span class="comment"># - 最终运行 mount -t proc none /proc 指令</span></span><br></pre></td></tr></table></figure>
+<h3 id="集成到文件系统-使用-mount-a"><a href="#集成到文件系统-使用-mount-a" class="headerlink" title="集成到文件系统, 使用 mount -a"></a>集成到文件系统, 使用 <code>mount -a</code></h3><p>一般的, linux需要mount多个文件, 因此使用更为通用的 <code>mount -a</code> 指令,<br>然后去读取 <code>/etc/fstab</code> 文件内的配置项.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux主机, Ubuntu终端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 proc 文件, tmp 文件</span></span><br><span class="line">$ <span class="built_in">cd</span> ~/jz2440/fs_first/</span><br><span class="line">$ mkdir proc</span><br><span class="line">$ mkdir tmp         <span class="comment"># 临时文件目录, 顺便一起做掉</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加初始化脚本</span></span><br><span class="line">$ vim etc/inittab</span><br><span class="line"><span class="comment"># 新增一行 "::sysinit:/etc/init.d/rcS" 用作运行脚本</span></span><br><span class="line">$ cat etc/inittab</span><br><span class="line">console::askfirst:-/bin/sh</span><br><span class="line">::sysinit:/etc/init.d/rcS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建脚本, 执行挂载指令</span></span><br><span class="line">$ mkdir etc/init.d</span><br><span class="line">$ vim etc/init.d/rcS</span><br><span class="line"><span class="comment"># 加入脚本语句 "mount -a" 挂载proc目录</span></span><br><span class="line">$ cat etc/init.d/rcS</span><br><span class="line">mount -a</span><br><span class="line">$ chmod +x etc/init.d/rcS</span><br><span class="line"><span class="comment"># 加上可执行的权限</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建挂载指令的配置文件</span></span><br><span class="line">$ vim etc/fstab</span><br><span class="line"><span class="comment"># 创建 fstab 配置文件, 输入必要的内容, 见cat的结果</span></span><br><span class="line">$ cat etc/fstab</span><br><span class="line"><span class="comment">#dev    dir     type    options         dump    fsck</span></span><br><span class="line">proc    /proc   proc    defaults        0       0</span><br><span class="line">tmpfs   /tmp    tmpfs   defaults        0       0</span><br><span class="line"><span class="comment"># 这里加载proc, 顺便把临时文件的加载也做了</span></span><br></pre></td></tr></table></figure>
+<p>此时. 可以使用 mkyaffs2image 生成镜像文件并烧录, 测试一下.</p>
+<h3 id="fstab文件的简单说明"><a href="#fstab文件的简单说明" class="headerlink" title="fstab文件的简单说明"></a>fstab文件的简单说明</h3><ul>
+<li>dev, 要挂接的设备<ul>
+<li>譬如: <code>/dev/hd2</code> <code>/dev/mtdblock1</code></li>
+<li>对于 proc, 直接忽略此字段. 可以是任意值</li>
+<li>对于NFS文件系统, 此字段为 <code>&lt;host&gt;:&lt;dir&gt;</code></li>
+</ul>
+</li>
+<li>mount-point, 挂载点, 即一个目录文件</li>
+<li>type, 文件系统类型<ul>
+<li>如 jffs, yaffs, ext2, nfs</li>
+<li>也可以是auto, 对DVD, usb等设备会非常有用</li>
+<li>proc, tmpfs 等是特殊的文件类型, 都有特定功能.</li>
+</ul>
+</li>
+<li>options, 挂接参数.<ul>
+<li>一般用 defaults 就行</li>
+<li>参考<a href="https://wiki.archlinux.org/index.php/Fstab_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87" target="_blank" rel="noopener">fstab (简体中文)</a>)</li>
+</ul>
+</li>
+<li>dump和fsck, 文件系统的备份和检查<ul>
+<li>嵌入式系统一般都禁用, 设置为0</li>
+</ul>
+</li>
+</ul>
+<h2 id="使用-mdev-自动生成文件"><a href="#使用-mdev-自动生成文件" class="headerlink" title="使用 mdev 自动生成文件"></a>使用 mdev 自动生成文件</h2><p>udev是Linux的设备管理器。它主要的功能是管理/dev目录底下的设备节点<br>busybox提供了udev的简化版本mdev, 其作用是在系统启动或动态加载驱动时, 自动生成节点文件.</p>
+<p>在busybox源码里, 可以找到 <code>busybox-1.7.0\docs\mdev.txt</code>. 关键步骤如下:</p>
+<ul>
+<li><code>mount -t sysfs sysfs /sys</code></li>
+<li><code>echo /bin/mdev &gt; /proc/sys/kernel/hotplug</code></li>
+<li><code>mdev -s</code></li>
+<li><code>mount -t tmpfs mdev /dev</code></li>
+<li><code>mkdir /dev/pts</code></li>
+<li><code>mount -t devpts devpts /dev/pts</code></li>
+</ul>
+<p>由于我们使用的是 <code>mount -a</code>, 因此具体步骤稍有修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux主机, Ubuntu终端</span></span><br><span class="line"><span class="comment"># pwd = ~/jz2440/fs_first/</span></span><br><span class="line"></span><br><span class="line">$ mkdir sys</span><br><span class="line">$ vim etc/fstab</span><br><span class="line"><span class="comment"># 修改fstab, 按要求增加 /sys /dev.</span></span><br><span class="line">$ cat etc/fstab</span><br><span class="line"><span class="comment">#dev    dir     type    options         dump    fsck</span></span><br><span class="line">proc    /proc   proc    defaults        0       0</span><br><span class="line">tmpfs   /tmp    tmpfs   defaults        0       0</span><br><span class="line">sysfs   /sys    sysfs   defaults        0       0</span><br><span class="line">tmpfs   /dev    tmpfs   defaults        0       0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加初始化指令到 etc/init.d/rcS</span></span><br><span class="line">$ vim etc/init.d/rcS</span><br><span class="line"><span class="comment"># 修改rcS, mdev的要求增加指令</span></span><br><span class="line">$ cat etc/init.d/rcS</span><br><span class="line">mount -a</span><br><span class="line">mkdir /dev/pts</span><br><span class="line">mount -t devpts devpts /dev/pts</span><br><span class="line"><span class="built_in">echo</span> /sbin/mdev &gt; /proc/sys/kernel/hotplug</span><br><span class="line">mdev -s</span><br><span class="line"><span class="comment"># 不存在 /bin/mdev, busybox实际把它放在了 /sbin/mdev 下面.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这样, 嵌入式linux完成启动后, 会运行init进程.</span></span><br><span class="line"><span class="comment"># - init进程运行 /etc/inittab 内的指令</span></span><br><span class="line"><span class="comment"># - 然后调用 /etc/init.d/rcS 脚本</span></span><br><span class="line"><span class="comment"># - 依次执行rcS脚本内的指令, </span></span><br><span class="line"><span class="comment"># - 执行"mount -a"时, 会根据 /etc/fstab 的配置挂载文件系统.</span></span><br></pre></td></tr></table></figure>
+<p>完成烧录后, 使用 <code>ls /dev</code>, 就会看到自动生成了非常多的设备文件.<br>至此, 一个最小linux文件系统制作完成了.</p>
+<h1 id="制作-jffs2-映像文件"><a href="#制作-jffs2-映像文件" class="headerlink" title="制作 jffs2 映像文件"></a>制作 jffs2 映像文件</h1><p>jffs2 是一个压缩的文件系统, 所以体积几乎比yaffs2小一半.<br>多用于 NOR FLASH</p>
+<h2 id="生成-jffs2-工具"><a href="#生成-jffs2-工具" class="headerlink" title="生成 jffs2 工具"></a>生成 jffs2 工具</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mtd-utils-05.07.23.tar.bz2 可生成jffs2工具</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 首先需要压缩库zlib-1.2.3的支持</span></span><br><span class="line">$ tar xzf zlib-1.2.3.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> zlib-1.2.3</span><br><span class="line">$ ./configure --shared --prefix=/usr </span><br><span class="line"><span class="comment"># 配置为动态库, 放入/usr目录下</span></span><br><span class="line">$ make</span><br><span class="line">$ sudo make install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后编译 mkfs.jffs2</span></span><br><span class="line">$ tar xjf mtd-utils-05.07.23.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> mtd-utils-05.07.23/util</span><br><span class="line">$ make</span><br><span class="line">$ sudo make install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试一下是否装好了</span></span><br><span class="line">$ mkfs.jffs</span><br></pre></td></tr></table></figure>
+<h2 id="制作-jffs2-映像文件-1"><a href="#制作-jffs2-映像文件-1" class="headerlink" title="制作 jffs2 映像文件"></a>制作 jffs2 映像文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/jz2440/</span><br><span class="line">$ mkfs.jffs -n -s 2048 -e 128KiB -d fs_first -o fs_first.jffs2</span><br><span class="line"><span class="comment"># -n            不要再每个擦除块上都加上清除标记</span></span><br><span class="line"><span class="comment"># -s 2048       指定Flash页大小</span></span><br><span class="line"><span class="comment"># -e 128KiB     指定Flash块大小(最小擦除单位)</span></span><br><span class="line"><span class="comment"># -d fs_first   文件系统目录</span></span><br><span class="line"><span class="comment"># -0 fs_first.jffs2 目标文件</span></span><br></pre></td></tr></table></figure>
+<p>至此, jffs2 格式的映像文件制作完成.</p>
+<h2 id="烧录-jffs2-映像文件"><a href="#烧录-jffs2-映像文件" class="headerlink" title="烧录 jffs2 映像文件"></a>烧录 jffs2 映像文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line"><span class="comment"># 打开 jz2440 开发板串口终端, 启动时输入空格键, 进入如下菜单</span></span><br><span class="line"><span class="comment">##### 100ask Bootloader for OpenJTAG #####</span></span><br><span class="line">...</span><br><span class="line">[j] Download root_jffs2 image</span><br><span class="line">...</span><br><span class="line">Enter your selection: j                     <span class="comment"># 输入k, 烧录 root_jffs2</span></span><br><span class="line">USB host is connected. Waiting a download.  <span class="comment"># 提示连接成功</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 Ubuntu 终端, 输入</span></span><br><span class="line"><span class="built_in">cd</span> ~/jz2440/</span><br><span class="line">sudo dnw fs_first.yaffs2                    <span class="comment"># 输入dnw指令, 指明烧录文件</span></span><br><span class="line"><span class="comment"># DNW usb device found!                     # 开始烧录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到, 开发板 uboot, q退出菜单进入命令行模式</span></span><br><span class="line"><span class="comment"># 由于linux会自动识别为yaffs2格式, 因此还需要设置一下uboot环境变量, 指定文件系统的类型.</span></span><br><span class="line">$ <span class="built_in">set</span> bootargs noinitrd console=ttySAC0 root=/dev/mtdblock3 rootfstype=jffs2 init=/linuxrc</span><br><span class="line">$ saveenv</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板重启后, 就能启动终端输入指令操作了.</span></span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://www.cnblogs.com/zelos/archive/2011/03/27/1996766.html" target="_blank" rel="noopener">嵌入式系统文件系统比较 jffs2, yaffs, cramfs, romfs, ramdisk, ramfs/tmpfs （转）</a></li>
+<li><a href="http://blog.csdn.net/daofengdeba/article/details/7721340" target="_blank" rel="noopener">Cramfs、JFFS2、YAFFS2的全面对比</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Fstab_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87" target="_blank" rel="noopener">fstab (简体中文)</a>)</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/11/02/1730-fs-busybox/" itemprop="url">
                   fs之BusyBox的使用与编译
                 </a>
@@ -1537,157 +1790,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/14/1724-kernel-makefile/" itemprop="url">
-                  kernel之Makefile分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-09-14T00:00:00+10:00" content="2017-09-14">
-              2017-09-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linlux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linlux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a></li>
-<li><a href="https://draapho.github.io/2017/09/14/1724-kernel-makefile/">kernel之Makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/09/15/1725-kernel-launch/">kernel之内核启动分析</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="Makefile-概览"><a href="#Makefile-概览" class="headerlink" title="Makefile 概览"></a>Makefile 概览</h1><p><code>.\linux-2.6.22.6\Documentation\kbuild\makefiles.txt</code> 详细介绍了 kernel 的 makefile用法.<br>建议完整过一遍, 它对如何配置, 生成配置, 编译过程有完整的阐述.</p>
-<p>Makefile分为5个部分:</p>
-<ul>
-<li><code>Makefile</code>, 位于kernel根目录, 顶层Makefile. 最终目的是编译内核, 生成 <code>vmlinux</code> 和 <code>modules</code>.</li>
-<li><code>.config</code>, kernel配置文件, 已在 <a href="https://draapho.github.io/2017/09/01/1722-kernel-compile/">kernel之编译体验</a>分析过生成方式和过程</li>
-<li><code>arch/$(ARCH)/Makefile</code>, 芯片架构相关的Makefile</li>
-<li><code>scripts/Makefile.*</code>, Makefile的规则和脚本</li>
-<li><code>kbuild Makefiles</code>, 即各子目录下的<code>Makefile</code>, 最终都会被顶层Makefile调用的.</li>
-</ul>
-<p><code>obj-y</code>, 表示需要编译进内核, 其形式很简单</p>
-<ul>
-<li><code>obj-$(CONFIG_DM9000) += dm9dev9000c.o</code>, 含变量的形式.</li>
-<li><code>obj-y += dm9dev9000c.o</code>, 替换变量后的直观形式.</li>
-</ul>
-<p><code>obj-m</code>, 表示需要编译为<code>.ko</code>模块. 有三种形式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># 单文件编译为模块, 变量$(CONFIG_ISDN_PPP_BSDCOMP)为m</span><br><span class="line">obj-$(CONFIG_ISDN_PPP_BSDCOMP) += isdn_bsdcomp.o</span><br><span class="line"></span><br><span class="line"># 多文件编译为模块, 变量$(CONFIG_ISDN)为m</span><br><span class="line"># 目标模块名称 isdn.ko</span><br><span class="line">obj-$(CONFIG_ISDN) += isdn.o</span><br><span class="line"># 关联相关源文件, 使用 xxx-objs. $(LD) 链接命令会链接如下文件.</span><br><span class="line">isdn-objs := isdn_net_lib.o isdn_v110.o isdn_common.o</span><br><span class="line"></span><br><span class="line"># 多文件可配置, 编译为模块. 可使用 xxx-$(CONFIG_) 来配置</span><br><span class="line"># $(CONFIG_EXT2_FS) 为m, 即需要生成 ext2.ko 模块文件</span><br><span class="line">obj-$(CONFIG_EXT2_FS)        += ext2.o</span><br><span class="line"># 必须的关联文件有如下两个, 此处效果等同于 ext2-objs := balloc.o bitmap.o</span><br><span class="line">ext2-y                       := balloc.o bitmap.o</span><br><span class="line"># 另外一个文件则根据配置决定是否编译进模块. 其值为 y 或者空.</span><br><span class="line">ext2-$(CONFIG_EXT2_FS_XATTR) += xattr.o</span><br></pre></td></tr></table></figure>
-<p><code>lib-y</code> 编译为库文件. 形如 <code>lib-y := checksum.o delay.o</code><br>一般仅用于 <code>lib/</code> 以及 <code>arch/*/lib-y</code> 目录下面</p>
-<p>另外还有一些 <code>EXTRA_CFLAGS</code>, <code>EXTRA_AFLAGS</code>, <code>EXTRA_LDFLAGS</code>, <code>EXTRA_ARFLAGS</code> 的 flag配置<br>此处略过不表.</p>
-<h1 id="linux下关键字搜索技巧"><a href="#linux下关键字搜索技巧" class="headerlink" title="linux下关键字搜索技巧"></a>linux下关键字搜索技巧</h1><p>由于有多个Makefile, 变量也分布在不同的文件中, 所以阅读起来比较麻烦.<br>此处再重复列举一下linux下的搜索技巧</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">grep -n 100ask24x0 ./Makefile       <span class="comment"># 在Makefile文件下查找 100ask24x0, 并显示行号</span></span><br><span class="line">grep -nr 100ask24x0 *               <span class="comment"># 当前目录递归查找 100ask24x0</span></span><br><span class="line">grep -nwr 100ask24x0 *              <span class="comment"># w=word, 100ask24x0 作为一个单词查找</span></span><br><span class="line">grep -nd skip 100ask24x0 *          <span class="comment"># 仅在当前目录查找, 不显示子目录信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 特别强大的一条指令, 可针对指定文件搜索指定关键字!</span></span><br><span class="line"><span class="comment"># 先用find找出所有的Makefile文件, 然后在Makefile文件内查找 uImage 关键字.</span></span><br><span class="line">find ./ -name <span class="string">"Makefile"</span> | xargs grep -nw --color <span class="string">"uImage"</span></span><br></pre></td></tr></table></figure>
-<h1 id="Makefile整体分析"><a href="#Makefile整体分析" class="headerlink" title="Makefile整体分析"></a>Makefile整体分析</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment"># 顶层Makefile, 位于 "./linux-2.6.22.6/Makefile"</span></span><br><span class="line">    <span class="comment"># 这里就不按文件顺序排列, 而按照分析Makefile的逻辑顺序排列了.</span></span><br><span class="line"></span><br><span class="line">186 ARCH		?= arm                  <span class="comment"># arm 架构</span></span><br><span class="line">187 CROSS_COMPILE	?= arm-linux-       <span class="comment"># 指定编译器</span></span><br><span class="line"></span><br><span class="line">192 KCONFIG_CONFIG	?= .config          <span class="comment"># 指定配置文件</span></span><br><span class="line"></span><br><span class="line">284 LD		= <span class="variable">$(CROSS_COMPILE)</span>ld        <span class="comment"># 指定一些列指令</span></span><br><span class="line">285 CC		= <span class="variable">$(CROSS_COMPILE)</span>gcc</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 编译时, 我们使用 make uImage, 因为需要uImage格式.</span></span><br><span class="line">    <span class="comment"># 但过程和 make all 是一样的, 都需要生成 vmlinux </span></span><br><span class="line">484 all: vmlinux                       <span class="comment"># 直接make, 就是生成vmlinux</span></span><br><span class="line"></span><br><span class="line">581 <span class="comment"># Build vmlinux. 可以看一行开始的注释, 说明了vmlinux的依赖结构</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 找到了 vmlinux 这个目标有关的依赖文件, 逐一扩展来看</span></span><br><span class="line">745 vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE</span><br><span class="line">    <span class="comment"># kernel/kallsyms.c</span></span><br><span class="line"></span><br><span class="line">608 vmlinux-init := $(head-y) $(init-y)</span><br><span class="line">609 vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)</span><br><span class="line">611 vmlinux-lds  := arch/<span class="variable">$(ARCH)</span>/kernel/vmlinux.lds</span><br><span class="line">    <span class="comment"># vmlinux-lds:= arch/arm/kernel/vmlinux.lds</span></span><br><span class="line">    <span class="comment"># 此文件由 vmlinux.lds.S 在make时自动生成!</span></span><br><span class="line"></span><br><span class="line">434 init-y		:= init/</span><br><span class="line">435 drivers-y	:= drivers/ sound/</span><br><span class="line">436 net-y		:= net/</span><br><span class="line">437 libs-y		:= lib/</span><br><span class="line">438 core-y		:= usr/</span><br><span class="line">562 core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/</span><br><span class="line"></span><br><span class="line">573 init-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.o, $(init-y)</span>)</span><br><span class="line">574 core-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.o, $(core-y)</span>)</span><br><span class="line">575 drivers-y	:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.o, $(drivers-y)</span>)</span><br><span class="line">576 net-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.o, $(net-y)</span>)</span><br><span class="line">577 libs-y1		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/lib.a, $(libs-y)</span>)</span><br><span class="line">578 libs-y2		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.o, $(libs-y)</span>)</span><br><span class="line">579 libs-y		:= $(libs-y1) $(libs-y2)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># patsubst 是makefile内的字符串替换函数, 替换结果为:</span></span><br><span class="line">    <span class="comment"># init-y    := init/built-in.o</span></span><br><span class="line">    <span class="comment"># core-y    := usr/built-in.o kernel/built-in.o mm/built-in.o fs/built-in.o ... (略)</span></span><br><span class="line">    <span class="comment"># drivers-y := drivers/built-in.o sound/built-in.o</span></span><br><span class="line">    <span class="comment"># net-y     := net/built-in.o</span></span><br><span class="line">    <span class="comment"># libs-y    := lib/lib.a lib/built-in.o</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># find ./ -name "Makefile" | xargs grep -nw --color "head-y"</span></span><br><span class="line">    <span class="comment"># 查出 head-y 位于 "./arch/arm/Makefile" 以及 "./arch/arm/kernel/Makefile" 内</span></span><br><span class="line">    <span class="comment"># head-y	:= arch/arm/kernel/head.S arch/arm/kernel/init_task.c, 分析见 架构文件内的Makefile.</span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 此句就是执行指令, 将上述相关文件打包生成vmlinux二进制内核文件. 太难懂, 先略过.</span></span><br><span class="line">745 vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE</span><br><span class="line">749	<span class="variable">$(<span class="built_in">call</span> if_changed_rule,vmlinux__)</span></span><br><span class="line">750	<span class="variable">$(Q)</span><span class="variable">$(MAKE)</span> -f <span class="variable">$(srctree)</span>/scripts/Makefile.modpost <span class="variable">$@</span></span><br><span class="line">751	<span class="variable">$(Q)</span>rm -f .old_version</span><br></pre></td></tr></table></figure>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment"># 架构文件内的 Makefile, 位于 "./arch/arm/Makefile"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 查找 .config 文件可知, CONFIG_MMU=y</span></span><br><span class="line">26  <span class="keyword">ifeq</span> (<span class="variable">$(CONFIG_MMU)</span>,)       <span class="comment"># CONFIG_MMU不为空, 条件不成立</span></span><br><span class="line">27  MMUEXT		:= -nommu</span><br><span class="line">28  <span class="keyword">endif</span>                       <span class="comment"># 因此 $(MMUEXT) 为空</span></span><br><span class="line"></span><br><span class="line">94  head-y		:= arch/arm/kernel/head<span class="variable">$(MMUEXT)</span>.o arch/arm/kernel/init_task.o</span><br><span class="line">    <span class="comment"># head-y	:= arch/arm/kernel/head.S arch/arm/kernel/init_task.c</span></span><br><span class="line">    <span class="comment"># 至于 "./arch/arm/kernel/Makefile" 内的head-y, 猜测是为 extra-y 服务的, 不去追究.</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># make uImage时, 也需要先生成 vmlinux. 事实上, uImage格式只是比vmlinux多64字节的头.</span></span><br><span class="line">227 zImage Image xipImage bootpImage uImage: vmlinux</span><br></pre></td></tr></table></figure>
-<p>至此, 为生成vmlinux的原材料都已经分析完成, 就看如何执行指令了.<br>但是, 由Makefile进行分析的话, 需要去看一系列的脚本文件, 工作量太大, 也难以理解.<br>我们倒过来分析, 直接执行 <code>make uImage V=1</code>, 查看编译指令是否和分析的一致.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6</span></span><br><span class="line">make uImage             <span class="comment"># 生成 uImage, 如有必要, 先 make clean</span></span><br><span class="line">rm vmlinux              <span class="comment"># 删除目标文件vmlinux</span></span><br><span class="line">make uImage V=1         <span class="comment"># 查看生成vmlinux时, 详细的编译指令</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以在执行结果中, 找到这么一行:</span></span><br><span class="line"><span class="comment"># arm-linux-ld -EL  -p --no-undefined -X -o vmlinux -T arch/arm/kernel/vmlinux.lds </span></span><br><span class="line"><span class="comment"># arch/arm/kernel/head.o arch/arm/kernel/init_task.o  init/built-in.o </span></span><br><span class="line"><span class="comment"># --start-group  usr/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o  arch/arm/common/built-in.o  arch/arm/mach-s3c2410/built-in.o  arch/arm/mach-s3c2400/built-in.o  arch/arm/mach-s3c2412/built-in.o  arch/arm/mach-s3c2440/built-in.o  arch/arm/mach-s3c2442/built-in.o  arch/arm/mach-s3c2443/built-in.o  arch/arm/nwfpe/built-in.o  arch/arm/plat-s3c24xx/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  block/built-in.o  arch/arm/lib/lib.a  lib/lib.a  arch/arm/lib/built-in.o  lib/built-in.o  drivers/built-in.o  sound/built-in.o  net/built-in.o </span></span><br><span class="line"><span class="comment"># --end-group .tmp_kallsyms2.o</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分析如下:</span></span><br><span class="line">    <span class="comment"># "arm-linux-ld"                    链接命令</span></span><br><span class="line">    <span class="comment"># "-o vmlinux"                      目标文件</span></span><br><span class="line">    <span class="comment"># "-T arch/arm/kernel/vmlinux.lds"  指定链接脚本</span></span><br><span class="line">    <span class="comment"># 一系列的 ".o" 文件, 就是前文分析出的相关文件, 能一一对应的.</span></span><br></pre></td></tr></table></figure>
-<h1 id="链接指令的工作方式"><a href="#链接指令的工作方式" class="headerlink" title="链接指令的工作方式"></a>链接指令的工作方式</h1><p>链接指令的工作方式为, 根据链接脚本的要求对每个文件内的段按顺序排放. 相同的段, 则按照指令的文件顺序排放.<br>譬如: lds 一开始的段位 <code>.text.head</code> 和 <code>.init</code>. 那么以 head.o 和 init_task.o 为例, 其排放顺序为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># .text.head 段开始</span><br><span class="line">head.text.head          # 第一个文件的 .text.head 段</span><br><span class="line">init_task.text.head     # 第二个文件的 .text.head 段</span><br><span class="line"># .text.head 段结束</span><br><span class="line"></span><br><span class="line"># .init 段开始</span><br><span class="line">head.init               # 第一个文件的 .init 段</span><br><span class="line">init_task.init          # 第二个文件的 .init 段</span><br><span class="line"># .init 段结束</span><br><span class="line"></span><br><span class="line"># 这样, 链接指令就会把各文件打包生成一个最终的二进制文件, 名称为 vmlinux</span><br></pre></td></tr></table></figure></p>
-<p>为分析内核启动过程, 重要的信息如下:</p>
-<ul>
-<li>第1个文件: <code>arch/arm/kernel/head.S</code></li>
-<li>链接脚本:  <code>arch/arm/kernel/vmlinux.lds</code></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1733,7 +1835,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">103</span>
+              <span class="site-state-item-count">104</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
