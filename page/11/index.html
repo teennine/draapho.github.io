@@ -261,6 +261,186 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/28/1704-linux-source2/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-启动程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-28T00:00:00+11:00" content="2017-01-28">
+              2017-01-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h1 id="启动程序-boot"><a href="#启动程序-boot" class="headerlink" title="启动程序 boot"></a>启动程序 boot</h1><p><em>启动引导时内核在内存中的位置和移动情况</em><br><img src="https://draapho.github.io/images/1704/2-bios-boot.jpg" alt="bios-boot"></p>
+<ol>
+<li>80x86结构的CPU开机后, 从0xFFFF0开始自动执行代码, 通常是 ROM-BIOS中的地址.<br>BIOS在内存地址0处初始化中断向量, 然后将可启动设备的第一个扇区(磁盘引导扇区, 512字节)读入内存地址0x7C00处.</li>
+<li>bootsect.s 被BIOS读入到内存地址 0x7C00(31Kb) 处开始运行后, 立刻把自己移到 0x90000(576Kb) 处.</li>
+<li>接着, bootsect.s 把 setup.s 读入到 0x90200 处, system模块(即内核)读入到 0x10000 处.<ul>
+<li>此版本内核模块不会超过 0x80000, 即512K大小, 因此不会覆盖掉0x90000处的内容</li>
+<li>setup.s 需要一些 ROM BIOS 保留下来的一些系统参数(如显卡模式, 硬盘参数等), 这些参数被BIOS放在内存起始处, 大小为1Kb.</li>
+<li>因而 bootsect.s 只能先把内核放到 0x10000 处而不是直接放到 0x0000 处!</li>
+</ul>
+</li>
+<li>bootsect.s 把执行权交给 setup.s.</li>
+<li>然后, setup.s 把BIOS预留在内存起始处的参数存储到0x90000处(覆盖了bootsect.s), 再把system模块移到内存起始处 (0x0000)</li>
+<li>setup.s 把执行权交给 head.s, linux系统代码加载过程完成, linux开始启动!</li>
+</ol>
+<p>备注:</p>
+<ul>
+<li>启动过程涉及到很多80x86的硬件知识, 没必要深究, 重点是理解启动过程和思路!</li>
+<li>因为目录linux早已支持arm体系结构, 嵌入式也以arm为主. 涉及到硬件的部分需要时再深入了解即可.</li>
+</ul>
+<h2 id="bootsect-s"><a href="#bootsect-s" class="headerlink" title="bootsect.s"></a>bootsect.s</h2><ul>
+<li>bootsect.s 是磁盘引导块程序, 放在磁盘的一个扇区中(引导扇区).</li>
+<li>PC上电, BIOS自检后, BIOS会把引导扇区bootsect加载到内存地址0x7C00处并执行.</li>
+<li>bootsect 立刻把自己挪到 0x90000 处并继续执行</li>
+<li>利用BISO中断0x13获取启动引导盘参数, 准备读取1.44MB启动磁盘内的后续部分(setup.s + system模块)</li>
+<li>加载 setup.s 到 0x90200 处</li>
+<li>在屏幕上显示 “Loading system…”</li>
+<li>把system模块加载到0x10000处</li>
+<li>长跳到 setup.s, 执行 setup.s</li>
+</ul>
+<h2 id="setup-s"><a href="#setup-s" class="headerlink" title="setup.s"></a>setup.s</h2><ul>
+<li>setup.s 是一个操作系统加载程序. 主要作用读取BIOS保留的系统参数, 移动system模块到内存0x0000处, 并执行head.s代码</li>
+<li>setup.s 首先是把BIOS预留在内存0x0000处的参数保存到内存 0x90000 处, 会覆盖掉已经没有用的 bootsect.s 代码</li>
+<li>主要参数有: 光标位置, 扩展内存数, 显示页面, 显示模式, 字符列数, 显示内存, 显示状态, 显卡特性, 硬盘参数, 根设备号</li>
+<li>接着 setup.s 将system模块从 0x10000-0x8ffff 整体向下移动到 0x0000 处.</li>
+<li>然后 setup.s 加载 idtr 和 gdtr (中断/全局描述符表寄存器), 重设中断号, 设置CPU进入32位保护模式运行</li>
+<li>跳转到 system模块的 head.s 继续运行(运行在32位保护模式下)</li>
+</ul>
+<p><em>setup.s 结束后内中的程序示意图</em><br><img src="https://draapho.github.io/images/1704/2-setup-memory.jpg" alt="setup-memory"></p>
+<h2 id="head-s"><a href="#head-s" class="headerlink" title="head.s"></a>head.s</h2><ul>
+<li>head.s 位于整个linux操作系统最前面, 主要功能就是为linux的执行检测和初始化系统环境</li>
+<li>设置系统堆栈</li>
+<li>设置idt(中断描述符表) 和 gdt(全局表述符表)</li>
+<li>检测A20地址线是否已真的开启 (就是能读取1M以上的内存地址)</li>
+<li>将页目录表放在内存地址0处 (会覆盖自己idt部分的内容)</li>
+<li>最后, heads利用返回指令, 弹出main.c的入口地址, 运行main()程序</li>
+</ul>
+<p><em>head.s 结束后, system模块在内存中的示意图</em><br><img src="https://draapho.github.io/images/1704/2-head-memory.jpg" alt="head-memory"></p>
+<h2 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h2><p><em>main初始化完成后, 内存功能示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-memory.jpg" alt="maim-memory"></p>
+<p><em>内核初始化程序流程示意图</em><br><img src="https://draapho.github.io/images/1704/2-main-flow.jpg" alt="maim-flow"></p>
+<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
+<p><em>进程(process), 进程组(process group) 和 会话期(session) 的关系图</em><br><img src="https://draapho.github.io/images/1704/2-session-process.jpg" alt="session-process"></p>
+<ul>
+<li>一般一个用户登录后, 其所有程序属于同一个session. 用途很多, 譬如便于发出终止信号结束所有进程.</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/01/26/1704-linux-source1/" itemprop="url">
                   Linux 0.11 源码阅读笔记-内存的基础概念
                 </a>
@@ -1857,678 +2037,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/17/1627-linux-cmd-bash/" itemprop="url">
-                  Bash Shell及环境变量
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-17T00:00:00+11:00" content="2016-12-17">
-              2016-12-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="入门教程"><a href="#入门教程" class="headerlink" title="入门教程"></a>入门教程</h1><p>推荐 <a href="http://c.biancheng.net/cpp/shell/" target="_blank" rel="noopener">C语言中文网-Shell教程</a></p>
-<ul>
-<li><a href="http://c.biancheng.net/cpp/view/6998.html" target="_blank" rel="noopener">第一个shell脚本</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/6999.html" target="_blank" rel="noopener">shell变量</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2739.html" target="_blank" rel="noopener">shell特殊变量</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2737.html" target="_blank" rel="noopener">shell替换</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2736.html" target="_blank" rel="noopener">shell运算符</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7000.html" target="_blank" rel="noopener">shell注释</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7001.html" target="_blank" rel="noopener">shell字符串</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7002.html" target="_blank" rel="noopener">shell数组</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7003.html" target="_blank" rel="noopener">shell echo命令</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/1499.html" target="_blank" rel="noopener">shell printf命令</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7005.html" target="_blank" rel="noopener">shell if else语句</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7006.html" target="_blank" rel="noopener">shell case esac语句</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7007.html" target="_blank" rel="noopener">shell for循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7008.html" target="_blank" rel="noopener">shell while循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7009.html" target="_blank" rel="noopener">shell until循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7010.html" target="_blank" rel="noopener">shell跳出循环</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/7011.html" target="_blank" rel="noopener">shell函数</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2491.html" target="_blank" rel="noopener">shell函数参数</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2738.html" target="_blank" rel="noopener">shell输入输出重定向</a></li>
-<li><a href="http://c.biancheng.net/cpp/view/2740.html" target="_blank" rel="noopener">shell文件包含</a></li>
-</ul>
-<h1 id="Bash-Shell基础操作"><a href="#Bash-Shell基础操作" class="headerlink" title="Bash Shell基础操作"></a>Bash Shell基础操作</h1><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>[Tab]</code></td>
-<td>指令或文件名自动补齐</td>
-</tr>
-<tr>
-<td><code>[Tab][Tab]</code></td>
-<td>连按两下[Tab], 列出所有可补齐的指令或档案</td>
-</tr>
-<tr>
-<td><code>[ctrl]-c</code></td>
-<td>中断指令</td>
-</tr>
-<tr>
-<td><code>[ctrl]-d</code></td>
-<td>EOF,表示输入结束</td>
-</tr>
-<tr>
-<td><code>[↑]</code> <code>[↓]</code></td>
-<td>浏览历史指令</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>stty</code></td>
-<td>查看和设置终端按键参数</td>
-</tr>
-<tr>
-<td>…… <strong><code>stty -a</code></strong></td>
-<td>查看终端所有的按键参数</td>
-</tr>
-<tr>
-<td><code>history</code></td>
-<td>查询历史指令, 建议将其设置别名<code>alias h=’history’</code></td>
-</tr>
-<tr>
-<td><code>!</code></td>
-<td>执行历史指令, 后接数字或字母</td>
-</tr>
-<tr>
-<td>…… <strong><code>!!</code></strong></td>
-<td>执行上一个指令</td>
-</tr>
-<tr>
-<td>…… <strong><code>!al</code></strong></td>
-<td>执行以al为开头的最后一个指令</td>
-</tr>
-<tr>
-<td>…… <strong><code>!12</code></strong></td>
-<td>执行第12条历史指令(先用history查看历史指令号)</td>
-</tr>
-<tr>
-<td><code>alias cmd=’command’</code></td>
-<td>设置指令别名, command为指令字符串</td>
-</tr>
-<tr>
-<td>…… <strong><code>alias h=history</code></strong></td>
-<td>设置指令history的别名为h.不用引号,单双引号皆可</td>
-</tr>
-<tr>
-<td><code>unalias cmd</code></td>
-<td>取消指令别名</td>
-</tr>
-<tr>
-<td><code>type -a command</code></td>
-<td>查询指令类型(file外部指令; alias别名指令;builtin内建指令)</td>
-</tr>
-<tr>
-<td><code>command --help</code></td>
-<td>获取command内置的帮助信息,较为简短</td>
-</tr>
-<tr>
-<td><code>man command</code></td>
-<td>获取command的帮助文件. <code>j</code> <code>k</code>上下移动, <code>q</code>退出</td>
-</tr>
-<tr>
-<td><code>sh file</code></td>
-<td>创建一个子shell, 执行file内的指令</td>
-</tr>
-<tr>
-<td><code>source file</code></td>
-<td>在当前shell内,执行file内的指令</td>
-</tr>
-<tr>
-<td><code>. file</code></td>
-<td>等同于source file</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>su -l user</code></td>
-<td>切换用户, -l表示环境变量一起变</td>
-</tr>
-<tr>
-<td>…… <strong><code>su</code></strong></td>
-<td>切换为管理员账户</td>
-</tr>
-<tr>
-<td><code>sudo command</code></td>
-<td>赋予用户临时的管理员权限 (<code>/etc/sudoers</code>决定是否支持)</td>
-</tr>
-<tr>
-<td><code>exit</code></td>
-<td>退出当前用户的终端环境</td>
-</tr>
-<tr>
-<td><code>shutdown -h now</code></td>
-<td>立刻关机</td>
-</tr>
-<tr>
-<td><code>sync; sync; shutdown -r now</code></td>
-<td>立刻重启, 重启前需要存储一下数据</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>date</code></td>
-<td>时间</td>
-</tr>
-<tr>
-<td><code>cal</code></td>
-<td>日期</td>
-</tr>
-<tr>
-<td><code>bc</code></td>
-<td>计算器, 输入quit退出</td>
-</tr>
-<tr>
-<td><code>apt-get</code></td>
-<td>ubuntu deb包软件管理</td>
-</tr>
-<tr>
-<td>…… <strong><code>sudo apt-get install packagename</code></strong></td>
-<td>安装指定软件包</td>
-</tr>
-<tr>
-<td>…… <strong><code>sudo apt-get autoremovepackagename</code></strong></td>
-<td>删除指定软件包 (包括配置文件)</td>
-</tr>
-</tbody>
-</table>
-<h1 id="变量与环境变量"><a href="#变量与环境变量" class="headerlink" title="变量与环境变量"></a>变量与环境变量</h1><ul>
-<li>系统变量一般大写, 如MAIL</li>
-<li>用户变量一般小写, 如myhome</li>
-<li>普通变量(也称shell变量)作用范围: 当前的shell</li>
-<li>环境变量(也称用户变量)作用范围: 当前的shell及其子shell</li>
-<li>环境变量开机设置文档<ul>
-<li><code>~/.bashrc</code>, <code>~/.profile</code>, <code>/etc/profile</code>, <code>/etc/bash.bashrc</code>,等等</li>
-<li>首先读取 <code>/etc/profile</code>, 最后读取 <code>~/.bashrc</code></li>
-<li>个人设定建议放在<code>~/.bashrc</code>内,并做如下修改:</li>
-<li>修改<code>HISTSIZE=50</code>  (减少记录的历史指令,安全)</li>
-<li>加入<code>alias h=&#39;history&#39;</code></li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>myhome=/home/my/</code></td>
-<td>无空格字符串,注意等号左右不要有空格</td>
-</tr>
-<tr>
-<td><code>myhome=’/home/my/’</code></td>
-<td>单引号内可包含任意字符串, 无特殊含义</td>
-</tr>
-<tr>
-<td><code>myname=”my name is”</code></td>
-<td>双引号内某些字符有特殊作用, 如 $</td>
-</tr>
-<tr>
-<td><code>read variable</code></td>
-<td>键盘输入变量, 回车表示结束输入</td>
-</tr>
-<tr>
-<td>…… <strong><code>read -p “Input name:” -t 30 myname</code></strong></td>
-<td>提示输入变量给myname, 30秒输入时间</td>
-</tr>
-<tr>
-<td><code>echo $myhome</code></td>
-<td>变量名前加上$, 即可读取该变量的值</td>
-</tr>
-<tr>
-<td><code>echo “$myhome”</code></td>
-<td>“$变量名”,无歧义. 注意不能单引号</td>
-</tr>
-<tr>
-<td><code>echo ${myhome}</code></td>
-<td>${变量名},无歧义</td>
-</tr>
-<tr>
-<td><code>unset myhome</code></td>
-<td>删除变量</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>let val=10*10</code></td>
-<td>加上let后, val值为100,而非10*10. 用的比declare多!</td>
-</tr>
-<tr>
-<td><code>readonly VAL=’read only’</code></td>
-<td>将VAL为只读变量,不可更改和unset (等同 declare -r)</td>
-</tr>
-<tr>
-<td><code>declare -ai array</code></td>
-<td>将array声明为整数数组 (不加参数a,效果一样)</td>
-</tr>
-<tr>
-<td><code>array[1]=10*10</code></td>
-<td>数组的赋值, array定义为整数,因此array[1]值为100</td>
-</tr>
-<tr>
-<td><code>echo ${array[1]}</code></td>
-<td>使用”$array[1]”没用.若无{}, 会认为是”$array”[1]</td>
-</tr>
-<tr>
-<td><code>unset array</code></td>
-<td>将array数组变量删除</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>PATH=/home:$PATH</code></td>
-<td>新增”/home:”在PATH变量最前面</td>
-</tr>
-<tr>
-<td><code>PATH=”$PATH””:/home”</code></td>
-<td>前后都加”双引号”,无歧义. 建议这样书写</td>
-</tr>
-<tr>
-<td><code>PATH=${PATH}’:/home’</code></td>
-<td>变量名用{大括号}指明,无歧义. 新增变量也可用’单引号’</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>echo $?</code></td>
-<td>?为特殊变量,为上一指令传回的值. 0成功, !0失败</td>
-</tr>
-<tr>
-<td><code>echo $$</code></td>
-<td>获取并显示当前shell的 PID (process ID)</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>#</code> <code>##</code> <code>%</code> <code>%%</code> <code>/</code> <code>//</code></td>
-<td>变量的截取和替换. 以<code>myhome=/home/test/test.sh</code>为例</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome#/*/}</code></strong></td>
-<td><code>test/test.sh</code>,从头比较, 单次删除,故<del><code>/home/</code></del></td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome##/*/}</code></strong></td>
-<td><code>test.sh</code>, 从头比较, 全部删除,获得文件名</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome%/*}</code></strong></td>
-<td><code>/home/test</code>,从尾比较, 单次删除,获得路径</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome%%/*}</code></strong></td>
-<td>从尾比较, 全部删除,故全部被删掉</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome/test/TEST}</code></strong></td>
-<td><code>/home/TEST/test.h</code>, 从头比较, 单次替换</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${myhome//test/TEST}</code></strong></td>
-<td><code>/home/TEST/TEST.h</code>,从头比较, 全部替换</td>
-</tr>
-<tr>
-<td><code>-</code> <code>:-</code> <code>+</code> <code>:+</code> <code>=</code> <code>:=</code> <code>?</code> <code>:?</code></td>
-<td>变量的比较和判断. 常用于判断和确保变量有效</td>
-</tr>
-<tr>
-<td>…… <strong><code>var=${str-expr}</code></strong></td>
-<td>var为目标变量, str为已有变量, expr为变量值</td>
-</tr>
-<tr>
-<td>…… <strong><code>myname=${myname:-root}</code></strong></td>
-<td>若myname不存在或为空,则myname=root</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>env</code></td>
-<td>enviroment, 显示当前环境变量,用的最多!</td>
-</tr>
-<tr>
-<td><code>set</code></td>
-<td>显示所有变量(环境变量,普通变量)</td>
-</tr>
-<tr>
-<td><code>export</code></td>
-<td>显示已成为当前环境变量的普通变量</td>
-</tr>
-<tr>
-<td>…… <strong><code>export variable</code></strong></td>
-<td>将variable设为环境变量, 等同 <code>declare -x variable</code></td>
-</tr>
-<tr>
-<td><code>locale</code></td>
-<td>查看当前语言的环境变量</td>
-</tr>
-<tr>
-<td>…… <strong><code>locale -a</code></strong></td>
-<td>查看系统支持的语言</td>
-</tr>
-</tbody>
-</table>
-<h1 id="Bash-Shell特殊符号"><a href="#Bash-Shell特殊符号" class="headerlink" title="Bash Shell特殊符号"></a>Bash Shell特殊符号</h1><table>
-<thead>
-<tr>
-<th>符号</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>*</code></td>
-<td>万用字符, 表示0或多个字符</td>
-</tr>
-<tr>
-<td><code>?</code></td>
-<td>万用字符, 表示一个字符</td>
-</tr>
-<tr>
-<td><code>!</code></td>
-<td>逻辑非, 通常在<code>[中括号]</code>内使用</td>
-</tr>
-<tr>
-<td><code>\</code></td>
-<td>转义字符, 需要转义的字符 <code>&quot;</code> <code>&#39;</code> <code>$</code> <code>\</code> <code>` \</code></td>
-</tr>
-<tr>
-<td>…… <strong><code>\n</code></strong></td>
-<td>换行</td>
-</tr>
-<tr>
-<td>…… <strong><code>\r</code></strong></td>
-<td>回车</td>
-</tr>
-<tr>
-<td>…… <strong><code>\t</code></strong></td>
-<td>水平制表符</td>
-</tr>
-<tr>
-<td>…… <strong><code>\v</code></strong></td>
-<td>垂直制表符</td>
-</tr>
-<tr>
-<td>…… <strong><code>\b</code></strong></td>
-<td>后退</td>
-</tr>
-<tr>
-<td>…… <strong><code>\a</code></strong></td>
-<td>蜂鸣</td>
-</tr>
-<tr>
-<td>…… <strong><code>\077</code></strong></td>
-<td>八进制字符</td>
-</tr>
-<tr>
-<td>…… <strong><code>\xff</code></strong></td>
-<td>十六进制</td>
-</tr>
-<tr>
-<td><code>#</code></td>
-<td>批注</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>$variable</code></td>
-<td>变量名</td>
-</tr>
-<tr>
-<td><code>${variable}</code></td>
-<td>大括号. 中间为命令区块组合,限定变量名范围</td>
-</tr>
-<tr>
-<td>…… <strong><code>echo ${array[1]}</code></strong></td>
-<td>显示<code>array[1]</code> 变量值, array为数组,需用<code>{大括号}</code>包含变量名</td>
-</tr>
-<tr>
-<td><code>[a-f], [35], [!a-z]</code></td>
-<td>中括号. 中间为字符组合, <code>[仅代表一个字符]</code></td>
-</tr>
-<tr>
-<td>…… <strong><code>ls -d ~/*[0-9]*</code></strong></td>
-<td>列出用户home目录下所有包含数字的文件和目录</td>
-</tr>
-<tr>
-<td><code>$(command)</code></td>
-<td>小括号. 中间为子shell,此命令等同于`command`</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>&#39;$string&#39;</code></td>
-<td>单引号, 特殊符号无效,变量不置换, 显示为$string</td>
-</tr>
-<tr>
-<td><code>&quot;$variable&quot;</code></td>
-<td>双引号, 特殊符号有用,变量置换</td>
-</tr>
-<tr>
-<td>`command`</td>
-<td>`(键盘1左边的字符),需要优先执行的指令</td>
-</tr>
-<tr>
-<td>…… <strong>cd /usr/src/linux-headers-`uname -r`</strong></td>
-<td>进入当前linux的内核源码目录</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>cmd1 l cmd2 和 cm1 ll cmd2</td>
-<td>hexo解析问题, 无法再表格中正确显示<code>丨</code>, <strong>故放到表格的最后</strong></td>
-</tr>
-<tr>
-<td><code>cut</code> <code>grep</code> <code>split</code></td>
-<td>截取分割, 通常配合 <code>pipe</code>使用</td>
-</tr>
-<tr>
-<td><code>sort</code> <code>wc</code> <code>uniq</code></td>
-<td>排序命令, 通常配合 <code>pipe</code>使用</td>
-</tr>
-<tr>
-<td><code>tr</code> <code>col</code> <code>join</code> <code>paste</code> <code>expand</code></td>
-<td>字符转换, 通常配合 <code>pipe</code>使用</td>
-</tr>
-<tr>
-<td><code>cmd1;cmd2; cmd3</code></td>
-<td>可以一行写多个指令</td>
-</tr>
-<tr>
-<td><code>cmd1 &amp;&amp; cmd2</code></td>
-<td>cmd1执行正确($?为0),则继续执行cmd2, 否则不执行</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><code>&gt;</code> <code>2&gt;</code> <code>&gt;&gt;</code> <code>2&gt;&gt;</code></td>
-<td>输出到文件 (&gt;写入, &gt;&gt;累加, 2错误信息)</td>
-</tr>
-<tr>
-<td>…… <strong><code>ll &gt; list.txt</code></strong></td>
-<td>将当前目录下的文件详细信息存储到list.txt文件中</td>
-</tr>
-<tr>
-<td>…… <strong><code>ls / &gt;&gt; list.txt</code></strong></td>
-<td>将根目录下的文件信息追加到list.txt文件中</td>
-</tr>
-<tr>
-<td>…… <strong><code>find /home -name test &gt; ok 2&gt; error</code></strong></td>
-<td>将正确信息写到ok中,错误的写到error中</td>
-</tr>
-<tr>
-<td>…… <strong><code>find /home -name test &gt; list 2&gt;&amp;1</code></strong></td>
-<td>将所有信息都写到list中 (&amp;1是数字一)</td>
-</tr>
-<tr>
-<td>…… <strong><code>find /home -name test &gt; /dev/null 2&gt; err</code></strong></td>
-<td><code>/dev/null</code>相当于黑洞.只将错误写到err中</td>
-</tr>
-<tr>
-<td><code>&lt;</code> <code>&lt;&lt;</code></td>
-<td>输入信息(&lt;从文件获取, &lt;&lt;结束的输入字符)</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat &gt; catfile</code></strong></td>
-<td>从键盘获取文本并写到catfile中 (键盘按[ctrl]+d结束输入)</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat &gt; catfile &lt;&lt; end</code></strong></td>
-<td>从键盘获取文本并写到catfile中(键盘输入end结束输入)</td>
-</tr>
-<tr>
-<td>…… <strong><code>cat &gt; catfile &lt; input</code></strong></td>
-<td>导入input文件信息再写到catfile中</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><code>cmd1 | cmd2</code>  <code>pipe</code>管线命令,将cmd1的处理结果传给cmd2继续处理</li>
-<li>譬如 <code>ll | more</code>  将ll获得的数据传给more进一步处理</li>
-<li><code>cmd1 || cmd2</code>  cmd1执行错误($?为!0),则继续执行cmd2, 否则不执行</li>
-<li>譬如 <code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; || echo &quot;nofile&quot;</code> 如果<code>/tmp/test</code>存在显示<code>exist</code>,否则<code>nofile</code></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2569,7 +2082,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-count">106</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2577,7 +2090,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2586,7 +2099,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-count">78</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

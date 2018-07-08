@@ -261,6 +261,164 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/24/1614-CheatSheet-git/" itemprop="url">
+                  Git 初始设置及常用命令
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-24T00:00:00+11:00" content="2016-10-24">
+              2016-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="git示意图"><a href="#git示意图" class="headerlink" title="git示意图"></a>git示意图</h1><p>  <img src="https://draapho.github.io/images/1614/git.jpg" alt="git"></p>
+<h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><ul>
+<li><a href="http://ndpsoftware.com/git-cheatsheet.html" target="_blank" rel="noopener">Visual Git Cheat Sheet</a></li>
+<li><a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noopener">Pro Git book</a></li>
+<li>廖雪峰的 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="noopener">Git教程</a></li>
+<li>设置SSH, 参考 <a href="https://help.github.com/categories/ssh/" target="_blank" rel="noopener">GitHub Help - SSH</a></li>
+<li>设置GPG, 参考 <a href="https://help.github.com/categories/gpg/" target="_blank" rel="noopener">GitHub Help - GPG</a></li>
+</ul>
+<h1 id="一些理解"><a href="#一些理解" class="headerlink" title="一些理解"></a>一些理解</h1><ul>
+<li>git的核心理解为指针即可, 包括 <code>workspace</code>, <code>index</code>, <code>commitHash</code><ul>
+<li><code>repository</code>是基于<code>commitHash</code>管理版本的.</li>
+<li><code>HEAD</code>, <code>HEAD^1</code>, <code>HEAD~3</code>, <code>branch</code>, <code>tags</code>都是<code>commitHash</code>的别名, 便于人们记忆和理解.</li>
+<li>可以基于 <code>git reset</code> 来检测是否完全理解git基于指针的设计思路.</li>
+<li><code>HEAD^1</code>基于父节点, <code>HEAD~1</code>基于层次. 单层结构下没有差别. 复杂多层结构建议直接用 <code>commitHash</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">       A ---------------------  A =      = A^0</span><br><span class="line">      / \</span><br><span class="line">     B   C                      B = A^   = A^1     = A~1</span><br><span class="line">    /|\  |                      C = A^2  = A^2</span><br><span class="line">   / | \ |</span><br><span class="line">  D  E   F -------------------  D = A^^  = A^1^1   = A~2</span><br><span class="line"> / \    / \                     E = B^2  = A^^2</span><br><span class="line">/   \  /   \                    F = B^3  = A^^3</span><br><span class="line">G   H  I   J -----------------  G = A^^^ = A^1^1^1 = A~3</span><br><span class="line">                                H = D^2  = B^^2    = A^^^2  = A~2^2</span><br><span class="line">                                I = F^   = B^3^    = A^^3^</span><br><span class="line">                                J = F^2  = B^3^2   = A^^3^2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>git的命令, 常见格式为 <code>git diff p1 p2 -- file</code>. 意为, 比较<code>p1</code>与<code>p2</code>两处指定file的区别<ul>
+<li><code>p1</code> 缺省指向workspace, <code>p2</code> 缺省指向index.</li>
+<li><code>--</code> 接文件或目录, 名字无歧义时可以省去<code>--</code>. (如 git checkout name 就可能有歧义, branch OR file?)</li>
+<li><code>.</code> 表示所有的文件, 如 <code>git add .</code></li>
+</ul>
+</li>
+<li>学会查看帮助, 加上 <code>-h</code> 即可. 如 <code>git checkout -h</code><ul>
+<li><code>[]</code> 表示可选项, <code>&lt;&gt;</code> 表示必填项</li>
+</ul>
+</li>
+</ul>
+<h1 id="初始安装"><a href="#初始安装" class="headerlink" title="初始安装"></a>初始安装</h1><ul>
+<li><p>新建git仓库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># Create local repository</span><br><span class="line"># put &quot;.gitignore&quot; to project root direct.</span><br><span class="line">git init                        # create local repository</span><br><span class="line">git add README.md               # add somefiles</span><br><span class="line">git commit -m &quot;first commit&quot;    # commit to local repository</span><br><span class="line"></span><br><span class="line"># link with remote repository</span><br><span class="line">git remote add origin url       # add remote repository, &lt;url&gt; like https://... OR ssh://...</span><br><span class="line">git push -u origin master       # -u, 指定默认远程主机为 origin</span><br><span class="line"></span><br><span class="line"># Clone existing repository</span><br><span class="line">git clone url                   # &lt;url&gt; like https://... OR ssh://...</span><br><span class="line"></span><br><span class="line"># more cmd about config</span><br><span class="line">git config --list               # show config</span><br><span class="line">git config -e                   # edit local config file</span><br><span class="line">git config -e --global          # edit global config file</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用命令设置全局参数. (可跳过, 建议使用 <code>git config -e --global</code>)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"># global setting</span><br><span class="line">git config --global user.name &quot;Your Name&quot;</span><br><span class="line">git config --global user.email &quot;email@example.com&quot;</span><br><span class="line"></span><br><span class="line"># alise setting</span><br><span class="line">git config --global alias.a &apos;add&apos;</span><br><span class="line">git config --global alias.aa &apos;add .&apos;</span><br><span class="line">git config --global alias.b &apos;branch&apos;</span><br><span class="line">git config --global alias.bb &apos;branch -a -v&apos;</span><br><span class="line">git config --global alias.co &apos;checkout&apos;</span><br><span class="line">git config --global alias.cm &apos;commit -m&apos;</span><br><span class="line">git config --global alias.lg &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit&quot;</span><br><span class="line">git config --global alias.ll &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10&quot;</span><br><span class="line">git config --global alias.st &apos;status&apos;</span><br><span class="line">git config --global alias.diffname &apos;diff --name-status&apos;</span><br><span class="line"></span><br><span class="line"># set diff color</span><br><span class="line">git config --global color.diff.old &quot;red normal bold&quot;</span><br><span class="line">git config --global color.diff.new &quot;green normal bold&quot;</span><br><span class="line"></span><br><span class="line"># solve the warning, LF will be replaced by CRLF</span><br><span class="line">git config --global core.autocrlf false</span><br><span class="line">git config --global core.safecrlf false</span><br><span class="line"></span><br><span class="line"># set difftool mergetool (need p4merge)</span><br><span class="line">git config --global diff.tool p4merge</span><br><span class="line">git config --global difftool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$LOCAL&quot; &quot;$REMOTE&quot;&apos;</span><br><span class="line">git config --global difftool.prompt false</span><br><span class="line">git config --global merge.tool p4merge</span><br><span class="line">git config --global mergetool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$PWD/$BASE&quot; &quot;$PWD/$REMOTE&quot; &quot;$PWD/$LOCAL&quot; &quot;$PWD/$MERGED&quot;&apos;</span><br><span class="line">git config --global mergetool.p4merge.trustExitCode false</span><br><span class="line">git config --global mergetool.keepBackup false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>git config -e --global</code> 打开全局配置文件, 设置全局参数.</p>
+</li>
+<li>安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="noopener">p4merge</a>, 用于支持 <code>difftool</code> 和 <code>mergetool</code></li>
+<li>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">[user]</span><br><span class="line">    name = https://draapho.github.io/</span><br><span class="line">    email = draapho@gmail.com</span><br><span class="line">[alias]</span><br><span class="line">    a = add</span><br><span class="line">    aa = add .</span><br><span class="line">    b = branch</span><br><span class="line">    bb = branch -a -v</span><br><span class="line">    co = checkout</span><br><span class="line">    cm = commit -m</span><br><span class="line">    lg = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit</span><br><span class="line">    ll = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10</span><br><span class="line">    st = status</span><br><span class="line">    diffname = diff --name-status</span><br><span class="line">[color &quot;diff&quot;]</span><br><span class="line">    old = red normal bold</span><br><span class="line">    new = green normal bold</span><br><span class="line">[core]</span><br><span class="line">    autocrlf = false</span><br><span class="line">    safecrlf = false</span><br><span class="line">[diff]</span><br><span class="line">    tool = p4merge</span><br><span class="line">[difftool &quot;p4merge&quot;]</span><br><span class="line">    cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$LOCAL\&quot; \&quot;$REMOTE\&quot;</span><br><span class="line">[difftool]</span><br><span class="line">    prompt = false</span><br><span class="line">[merge]</span><br><span class="line">    tool = p4merge</span><br><span class="line">[mergetool &quot;p4merge&quot;]</span><br><span class="line">    cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$PWD/$BASE\&quot; \&quot;$PWD/$REMOTE\&quot; \&quot;$PWD/$LOCAL\&quot; \&quot;$PWD/$MERGED\&quot;</span><br><span class="line">    trustExitCode = false</span><br><span class="line">[mergetool]</span><br><span class="line">    keepBackup = false</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"># 查看信息</span><br><span class="line">git st                          # git status            # 显示工作区变更的文件</span><br><span class="line">git lg                          # git log 增强版        # 显示所有提交</span><br><span class="line">git ll                          # git lg -10            # 显示过去10次提交</span><br><span class="line">git shortlog -sn                                        # 显示所有提交过的用户</span><br><span class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</span><br><span class="line"></span><br><span class="line"># stash                                                 # 少量且短时间的使用!</span><br><span class="line">git stash                                               # workspace-&gt;stash(藏匿处)</span><br><span class="line">git stash pop                                           # stash(不保存)-&gt;workspace</span><br><span class="line"></span><br><span class="line"># 提交文件</span><br><span class="line">git aa                          # git add .             # workspace-&gt;index</span><br><span class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</span><br><span class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</span><br><span class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</span><br><span class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</span><br><span class="line"></span><br><span class="line"># 分支操作</span><br><span class="line">git b name                      # git branch name       # 创建分支</span><br><span class="line">git b name commit                                       # 基于指定 commit 创建分支</span><br><span class="line">git b -d name                   # branch delete         # 删除分支</span><br><span class="line">git b -dr origin/name           # delete remote         # 删除远程分支</span><br><span class="line">git b -m new_name               # git branch --move     # 重命名分支</span><br><span class="line">git bb                          # git branch -a         # 查看所有分支</span><br><span class="line">git remote -v                                           # 查看远程分支</span><br><span class="line">git co name                     # git checkout name     # 切换分支</span><br><span class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</span><br><span class="line"></span><br><span class="line"># 版本合并和回退</span><br><span class="line">git merge branch                # 合并branch到当前分支</span><br><span class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</span><br><span class="line">git cherry-pick commit          # 合并commit到当前分支</span><br><span class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!</span><br><span class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!</span><br><span class="line">git push                                                # 推送到默认的远程主机</span><br><span class="line">git push -f                     # --force               # 忽略冲突, 强制推送</span><br><span class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</span><br><span class="line"></span><br><span class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</span><br><span class="line">git tag                         # 查看版本</span><br><span class="line">git tag v100                    # 创建版本</span><br><span class="line">git tag -d v100                 # 删除版本</span><br><span class="line">git push --tags                 # 推送tag</span><br><span class="line"></span><br><span class="line"># 查看差异</span><br><span class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</span><br><span class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</span><br><span class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</span><br><span class="line">git diff --name-status p1 p2    # 获得变更的文件列表</span><br><span class="line">git diff --stat p1 p2           # 统计变更的数据</span><br><span class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</span><br><span class="line"></span><br><span class="line"># 撤销</span><br><span class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</span><br><span class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</span><br><span class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</span><br><span class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</span><br><span class="line"></span><br><span class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</span><br><span class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</span><br><span class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</span><br><span class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</span><br><span class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/21/1613-python-cli/" itemprop="url">
                   python调用命令行
                 </a>
@@ -1489,835 +1647,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/08/1607-CheatSheet-win/" itemprop="url">
-                  Windows快捷键
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-08T00:00:00+11:00" content="2016-10-08">
-              2016-10-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="专用快捷键"><a href="#专用快捷键" class="headerlink" title="专用快捷键"></a>专用快捷键</h1><table>
-<thead>
-<tr>
-<th>atom</th>
-<th>备注</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ctrl-shift-p</code></td>
-<td>palette</td>
-<td>调出命令板</td>
-</tr>
-<tr>
-<td><code>ctrl-alt-i</code></td>
-<td>information</td>
-<td>调用控制台</td>
-</tr>
-<tr>
-<td><code>ctrl-,</code></td>
-<td></td>
-<td>打开设置面板</td>
-</tr>
-<tr>
-<td><code>ctrl-.</code></td>
-<td>非编辑区有效</td>
-<td>调试快捷键</td>
-</tr>
-<tr>
-<td>+<code>ctrl-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示有冲突的文件</td>
-</tr>
-<tr>
-<td>+<code>shift-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示下一个冲突</td>
-</tr>
-<tr>
-<td>+<code>ctrl-shift-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示上一个冲突</td>
-</tr>
-<tr>
-<td><strong>eclipse</strong></td>
-<td><strong>备注</strong></td>
-<td><strong>说明</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-o</code></td>
-<td></td>
-<td>显示函数列表</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-o</code></td>
-<td></td>
-<td>自动处理 include/import</td>
-</tr>
-<tr>
-<td><code>alt-shift-s</code></td>
-<td>source</td>
-<td>显示代码常用操作</td>
-</tr>
-<tr>
-<td><code>alt-/</code></td>
-<td></td>
-<td>代码提示</td>
-</tr>
-<tr>
-<td>+ <code>ctrl \</code></td>
-<td><del><code>ctrl-tab</code></del></td>
-<td>切换<code>.c``.h</code>文件</td>
-</tr>
-<tr>
-<td>+ <code>alt-\</code></td>
-<td><code>alt-shift-a</code></td>
-<td>列选模式</td>
-</tr>
-<tr>
-<td>+ <code>ctrl-f3</code></td>
-<td><code>ctrl-1</code></td>
-<td>快速修复</td>
-</tr>
-<tr>
-<td>+ <code>alt-shift-f</code></td>
-<td><code>ctrl-shift-t</code></td>
-<td>查找类</td>
-</tr>
-</tbody>
-</table>
-<h1 id="编辑器快捷键"><a href="#编辑器快捷键" class="headerlink" title="编辑器快捷键"></a>编辑器快捷键</h1><table>
-<thead>
-<tr>
-<th>文件操作</th>
-<th>助记</th>
-<th>说明</th>
-<th>来源</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ctrl-n</code></td>
-<td>new</td>
-<td>创建文件</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-o</code></td>
-<td>open</td>
-<td>打开文件</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-s</code></td>
-<td>save</td>
-<td>保存</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-s</code></td>
-<td>save</td>
-<td>保存所有</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-w</code></td>
-<td>windows</td>
-<td>关闭当前页</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-w</code></td>
-<td>windows</td>
-<td>关闭其它页面</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-t</code></td>
-<td>tags</td>
-<td>恢复关闭的文件</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-tab</code></td>
-<td>tab</td>
-<td>下一个标签</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-tab</code></td>
-<td>tab</td>
-<td>上一个标签</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>f1</code></td>
-<td></td>
-<td>help</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-f1</code></td>
-<td></td>
-<td>google搜索选定内容</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>文件编辑</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-a</code></td>
-<td>all</td>
-<td>全部选中</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制文档路径</td>
-<td>atom</td>
-</tr>
-<tr>
-<td><code>ctrl-d</code></td>
-<td>delete</td>
-<td>删除</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-d</code></td>
-<td>delete</td>
-<td>删除当前行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-</code> <code>h</code> <code>j</code> <code>k</code> <code>l</code></td>
-<td>vim</td>
-<td>上下左右</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-h</code> <code>ctrl-←</code></td>
-<td>vim h</td>
-<td>左移到词首</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-l</code> <code>ctrl-→</code></td>
-<td>vim l</td>
-<td>右移到词尾</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-j</code> <code>ctrl-↓</code></td>
-<td>vim j</td>
-<td>向下移行</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-k</code> <code>ctrl-↑</code></td>
-<td>vim k</td>
-<td>向上移行</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>alt-shift-j</code></td>
-<td>vim J</td>
-<td>合并行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><del><code>ctrl-t</code></del></td>
-<td>禁用掉</td>
-<td>避免<code>ctrl-y</code>失效</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-v</code></td>
-<td>velcro</td>
-<td>黏贴</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-v</code></td>
-<td>ctrl-v</td>
-<td>复制当前行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-x</code></td>
-<td></td>
-<td>剪切</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-x</code></td>
-<td>ctrl-x</td>
-<td>剪切当前行</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-y</code> <code>ctrl-r</code></td>
-<td>redo</td>
-<td>恢复更改</td>
-<td>windows / vim</td>
-</tr>
-<tr>
-<td><code>ctrl-z</code> <code>ctrl-u</code></td>
-<td>undo</td>
-<td>撤销更改</td>
-<td>windows / vim</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-y</code></td>
-<td></td>
-<td>下一个浏览记录</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-z</code></td>
-<td></td>
-<td>上一个浏览记录</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>alt-鼠标</code> <code>alt-\</code></td>
-<td></td>
-<td>列选模式</td>
-<td>notepad++ / custom</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>下面新增一行</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-enter</code></td>
-<td>enter</td>
-<td>上面新增一行</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>tab</code> <code>shift-tab</code></td>
-<td></td>
-<td>插入缩进/删除缩进</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-^</code></td>
-<td>vim</td>
-<td>移到行首</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-^</code></td>
-<td>vim</td>
-<td>选到行首</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-$</code></td>
-<td>vim</td>
-<td>移到行尾</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-$</code></td>
-<td>vim</td>
-<td>选到行尾</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>查找与替换</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-f</code></td>
-<td>find</td>
-<td>查找</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-f</code></td>
-<td>find</td>
-<td>多文件查找</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>f3</code> <code>shift-f3</code></td>
-<td></td>
-<td>查找下一个 / 查找上一个</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-f3</code></td>
-<td></td>
-<td>选中所有匹配的关键字</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-m</code></td>
-<td>mark</td>
-<td>打标记</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>f2</code> <code>shift-f2</code></td>
-<td>tag</td>
-<td>下一个标记/上一个标记</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-f2</code></td>
-<td>tag</td>
-<td>显示所有标签</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-f2</code></td>
-<td>tag</td>
-<td>清空所有标签</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-.</code></td>
-<td>..</td>
-<td>TAB转为空格</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-.</code></td>
-<td>&gt;&gt;</td>
-<td>空格转为TAB</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>代码专用</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-b</code></td>
-<td>beautify</td>
-<td>格式化代码</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-m</code></td>
-<td>markdown</td>
-<td>markdown预览</td>
-<td>atom</td>
-</tr>
-<tr>
-<td><code>alt-0</code> <code>alt-shift-0</code></td>
-<td>0-9</td>
-<td>折叠代码/展开代码</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-[</code> <code>ctrl-]</code></td>
-<td></td>
-<td>移动/全选对应括号</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-鼠标</code> <code>shift-鼠标</code></td>
-<td></td>
-<td>跳转</td>
-<td>eclipse / custom</td>
-</tr>
-<tr>
-<td><code>f4</code> <code>shift-f4</code></td>
-<td></td>
-<td>跳转 / 跳回</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>f5</code></td>
-<td>run</td>
-<td>运行</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>f6</code></td>
-<td></td>
-<td>比较文件</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-/</code></td>
-<td><code>//</code></td>
-<td>单行注释翻转</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-/</code></td>
-<td><code>/*</code></td>
-<td>多行注释</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-\</code></td>
-<td><code>/*</code></td>
-<td>取消多行注释</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-~</code></td>
-<td></td>
-<td>打开终端</td>
-<td>sublime</td>
-</tr>
-</tbody>
-</table>
-<h1 id="Win系统快捷键"><a href="#Win系统快捷键" class="headerlink" title="Win系统快捷键"></a>Win系统快捷键</h1><table>
-<thead>
-<tr>
-<th>Listary</th>
-<th>助记</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>win-~</code></td>
-<td></td>
-<td>打开Listary</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>打开文件</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>打开路径</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制路径</td>
-</tr>
-<tr>
-<td><code>ctrl+j</code> <code>ctrl+k</code></td>
-<td>vim j,k</td>
-<td>下一个 / 上一个(需设置)</td>
-</tr>
-<tr>
-<td><strong>Ditto</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>文件夹/应用</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-1</code></td>
-<td>list</td>
-<td>打开ditto面板</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>黏贴</td>
-</tr>
-<tr>
-<td><code>shift-enter</code></td>
-<td>enter</td>
-<td>纯文本黏贴</td>
-</tr>
-<tr>
-<td><strong>AHK</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>功能</strong></td>
-</tr>
-<tr>
-<td><code>鼠标中键</code></td>
-<td></td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>shift-鼠标中键</code></td>
-<td></td>
-<td>剪切</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-鼠标中键</code></td>
-<td></td>
-<td>复制当前路径</td>
-</tr>
-<tr>
-<td><code>鼠标右键</code></td>
-<td></td>
-<td>首次黏贴</td>
-</tr>
-<tr>
-<td><code>ctrl-鼠标右键</code></td>
-<td></td>
-<td>黏贴</td>
-</tr>
-<tr>
-<td><code>ctrl-~</code></td>
-<td></td>
-<td>打开终端 (关联路径)</td>
-</tr>
-<tr>
-<td><code>alt-win-鼠标中键</code></td>
-<td></td>
-<td>复制屏幕颜色</td>
-</tr>
-<tr>
-<td><code>alt-win-←↑↓→</code></td>
-<td></td>
-<td>单像素移动鼠标</td>
-</tr>
-<tr>
-<td><code>alt-win-d</code></td>
-<td>date</td>
-<td>输入当前日期</td>
-</tr>
-<tr>
-<td><strong>AHK快捷方式</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>文件夹/应用</strong></td>
-</tr>
-<tr>
-<td><code>alt-a</code> <code>win-a</code></td>
-<td>all / audio</td>
-<td>我的电脑 / 音频处理软件</td>
-</tr>
-<tr>
-<td><code>alt-b</code> <code>win-b</code></td>
-<td>backup</td>
-<td>backup / FreeFileSync</td>
-</tr>
-<tr>
-<td><code>alt-c</code> <code>win-c</code></td>
-<td>c盘 / caculate</td>
-<td>c盘 / 计算器</td>
-</tr>
-<tr>
-<td><code>alt-d</code> <code>win-d</code></td>
-<td>download</td>
-<td>download / 迅雷</td>
-</tr>
-<tr>
-<td><code>alt-e</code> <code>win-e</code></td>
-<td>e盘 / editor</td>
-<td>e盘 / 编辑器</td>
-</tr>
-<tr>
-<td><code>alt-f</code> <code>win-f</code></td>
-<td>f盘 / find</td>
-<td>f盘 / everything</td>
-</tr>
-<tr>
-<td><code>alt-g</code> <code>win-g</code></td>
-<td>green / google</td>
-<td>绿色软件 / 浏览器</td>
-</tr>
-<tr>
-<td><code>win-h</code></td>
-<td>help</td>
-<td>zeal 文档帮助</td>
-</tr>
-<tr>
-<td><code>win-i</code></td>
-<td>ie</td>
-<td>IE核浏览器</td>
-</tr>
-<tr>
-<td><code>win-j</code></td>
-<td>记账</td>
-<td>MoneyHome</td>
-</tr>
-<tr>
-<td><code>alt-l</code> <code>win-l</code></td>
-<td>life / look</td>
-<td>life / 视频搜索</td>
-</tr>
-<tr>
-<td><code>alt-m</code> <code>win-m</code></td>
-<td>music</td>
-<td>music / mcool</td>
-</tr>
-<tr>
-<td><code>win-n</code></td>
-<td>notepad</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>alt-p</code> <code>win-p</code></td>
-<td>picture</td>
-<td>picture / Paint.Net</td>
-</tr>
-<tr>
-<td><code>alt-s</code> <code>win-s</code></td>
-<td>study / ScreenShot</td>
-<td>study / 截屏</td>
-</tr>
-<tr>
-<td><code>alt-v</code> <code>win-v</code></td>
-<td>video</td>
-<td>video / PotPlayer</td>
-</tr>
-<tr>
-<td><code>alt-w</code> <code>win-w</code></td>
-<td>work / word</td>
-<td>work / word</td>
-</tr>
-<tr>
-<td><code>win-x</code></td>
-<td>虚拟机</td>
-<td>Hyper-V</td>
-</tr>
-<tr>
-<td><code>alt-y</code> <code>win-y</code></td>
-<td>移动硬盘 / 翻译</td>
-<td>y盘 / 有道词典</td>
-</tr>
-<tr>
-<td><code>win-z</code></td>
-<td>证券</td>
-<td>证券</td>
-</tr>
-</tbody>
-</table>
-<h1 id="大致原则"><a href="#大致原则" class="headerlink" title="大致原则"></a>大致原则</h1><ul>
-<li><code>ctrl</code> 基本操作</li>
-<li><code>shift</code> 反向操作/块操作</li>
-<li><code>alt</code> 处理文件-AHK使用</li>
-<li><code>win</code> 打开应用-AHK使用</li>
-<li><code>alt-win</code> 特殊应用-AHK使用</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/15/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/15/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2358,7 +1692,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-count">106</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2366,7 +1700,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2375,7 +1709,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-count">78</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
