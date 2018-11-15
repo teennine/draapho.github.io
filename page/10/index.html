@@ -261,6 +261,157 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/20/1706-linux-ubuntu16/" itemprop="url">
+                  嵌入式linux环境搭建3-Ubuntu16.04
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-20T00:00:00+11:00" content="2017-02-20">
+              2017-02-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
+<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
+<li>gateway ip <code>10.0.0.138</code></li>
+<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
+<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
+<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
+</ul>
+</li>
+<li>使用环境: Ubuntu server 16.04 32bit (安装在win10的虚拟机内)</li>
+<li>在经历了两次失败后, 成功搭建了整个环境. 服务器版去掉了UI, 给虚拟机用很好.</li>
+<li>补充一点, 刚开始用的是 ubuntu server 16.04 64 bit, 也遇到点问题.<br>由于是要做交叉编译的开发环境, 所以 PC linux 和 embedded linux 用一样的带宽才好.</li>
+</ul>
+<h1 id="apt-get使用摘要"><a href="#apt-get使用摘要" class="headerlink" title="apt-get使用摘要"></a>apt-get使用摘要</h1><ul>
+<li>软件升级: <code>sudo apt-get update</code></li>
+<li>普通安装: <code>apt-get install softname1 softname2 ...</code></li>
+<li>修复安装： <code>apt-get -f install softname1 softname2...</code>  (-f Atemp to correct broken dependencies)</li>
+<li>重新安装： <code>apt-get --reinstall install softname1 softname2...</code></li>
+<li>移除式卸载(保留配置)： <code>apt-get remove softname1 softname2 ...</code></li>
+<li>清除式卸载(删除配置)： <code>apt-get --purge remove softname1 softname2...</code><br>或 <code>apt-get purge sofname1 softname2...</code></li>
+</ul>
+<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 make</span></span><br><span class="line">sudo apt-get install make</span><br><span class="line">make -v                     <span class="comment"># GNU Make 4.1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装gcc, 非交叉编译用</span></span><br><span class="line">sudo apt-get install gcc</span><br><span class="line">gcc -v                      <span class="comment"># gcc version 5.4.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置时区</span></span><br><span class="line">sudo dpkg-reconfigure tzdata</span><br></pre></td></tr></table></figure>
+<h1 id="安装32bit兼容库"><a href="#安装32bit兼容库" class="headerlink" title="安装32bit兼容库"></a><del>安装32bit兼容库</del></h1><p>不要安装 64bit 的ubuntu作为交叉编译的linux环境. 我最后换回到了32bit</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ia32-libs      <span class="comment"># 提示不可用, 替代方案如下</span></span><br><span class="line">sudo apt-get install lib32ncurses5</span><br></pre></td></tr></table></figure>
+<h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><p>个人更喜欢用静态IP, 这样putty的设置更直观方便.<br>如果要使用动态IP, 可以设置 windwos 的 HaneWIN, 用<code>-range</code>来指定nfs客户端的网址段</p>
+<p>刚开始怎么样都不能上外网, 突然按照下面的顺序就好了… 原因不明<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/network/interfaces</span><br><span class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></span><br><span class="line">    auto lo</span><br><span class="line">    iface lo inet loopback</span><br><span class="line"></span><br><span class="line">    auto eth0</span><br><span class="line"></span><br><span class="line">    iface eth0 inet static</span><br><span class="line">    address  10.0.0.100</span><br><span class="line">    netmask  255.255.255.0</span><br><span class="line">    gateway  10.0.0.138</span><br><span class="line">    dns-nameservers   8.8.8.8  10.0.0.138</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可装完ssh服务再重启. 然后验证putty是否可用.</span></span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装ssh服务-用putty远程登录"><a href="#安装ssh服务-用putty远程登录" class="headerlink" title="安装ssh服务, 用putty远程登录"></a>安装ssh服务, 用putty远程登录</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ssh服务</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openssh-server</span><br><span class="line"><span class="comment"># 如果有依赖包冲突, 执行如下指令</span></span><br><span class="line">sudo apt-get install openssh-client=1:6.6p1-2ubuntu1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否已经运行</span></span><br><span class="line">sudo ps -e | grep ssh</span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">sudo service ssh start</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启后, 验证是否能用putty功能</span></span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
+<h1 id="nfs-客户端的安装"><a href="#nfs-客户端的安装" class="headerlink" title="nfs 客户端的安装"></a>nfs 客户端的安装</h1><p>参考: <a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04" target="_blank" rel="noopener">How To Set Up an NFS Mount on Ubuntu 14.04</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 nfs 客户端软件</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install nfs-common</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立空文件夹用于挂载nfs</span></span><br><span class="line">sudo mkdir -p /mnt/nfs/study</span><br><span class="line">sudo mkdir -p /mnt/nfs/work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开机自动挂载(参考文章中的客户端自动挂载方法没有起作用)</span></span><br><span class="line">sudo vim /etc/rc.local</span><br><span class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></span><br><span class="line">    sudo mount 10.0.0.98:/study /mnt/nfs/study</span><br><span class="line">    sudo mount 10.0.0.98:/work /mnt/nfs/work</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立软连接(快捷方式), 可忽略此步骤</span></span><br><span class="line"><span class="built_in">cd</span> /home/user/</span><br><span class="line">sudo ln -s /mnt/nfs/study study</span><br><span class="line">sudo ln -s /mnt/nfs/work work</span><br></pre></td></tr></table></figure>
+<h1 id="安装交叉编译工具gcc"><a href="#安装交叉编译工具gcc" class="headerlink" title="安装交叉编译工具gcc"></a>安装交叉编译工具gcc</h1><p>老老实实使用开发板提供的 <code>gcc-3.4.5-glibc-2.3.6</code> 编译器版本.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接拷贝解压 gcc-3.4.5-glibc-2.3.6.tar.bz2</span></span><br><span class="line">sudo tar xjf arm-linux-gcc-3.4.5-glibc-2.3.6.tar.bz2 -C /usr/<span class="built_in">local</span>/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加路径到环境变量</span></span><br><span class="line">sudo vim /etc/bash.bashrc</span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="keyword">if</span> [ -d /usr/<span class="built_in">local</span>/gcc-3.4.5-glibc-2.3.6 ] ; <span class="keyword">then</span></span><br><span class="line">        PATH=/usr/<span class="built_in">local</span>/gcc-3.4.5-glibc-2.3.6/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试安装结果</span></span><br><span class="line"><span class="built_in">source</span> /etc/bash.bashrc                             <span class="comment"># 不重启更新PATH</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>                                          <span class="comment"># 查看PATH</span></span><br><span class="line">arm-linux-gcc -v                                    <span class="comment"># 测试是否安装成功</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装-u-boot-tools-工具"><a href="#安装-u-boot-tools-工具" class="headerlink" title="安装 u-boot-tools 工具"></a>安装 u-boot-tools 工具</h1><p>安装 u-boot-tools, 内核编译后生成uImage使用.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 mkimage</span></span><br><span class="line">sudo apt-get install u-boot-tools</span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">mkimage -V              <span class="comment"># mkimage version 2016.01+dfsg1-2ubuntu1</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="安装-mkyaffs2image-工具"><a href="#安装-mkyaffs2image-工具" class="headerlink" title="安装 mkyaffs2image 工具"></a>安装 mkyaffs2image 工具</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></span><br><span class="line">sudo chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></span><br><span class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装-dnw-工具"><a href="#安装-dnw-工具" class="headerlink" title="安装 dnw 工具"></a>安装 dnw 工具</h1><p>该工具用于配合uboot进行烧录, 无需驱动, 无需额外烧录器, 简单方便</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp dnw /bin/                                   <span class="comment"># 拷贝到bin</span></span><br><span class="line">sudo chmod +x /bin/dnw                              <span class="comment"># 增加可执行权限</span></span><br><span class="line">dnw                                                 <span class="comment"># 测试是否可用</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装-ncurses-基本库"><a href="#安装-ncurses-基本库" class="headerlink" title="安装 ncurses 基本库"></a>安装 ncurses 基本库</h1><p>ncurses是字符终端下屏幕控制的基本库, <code>make menuconfig</code> 需要使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ncurses</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libncurses5-dev libncursesw5-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否成功</span></span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/19/1706-linux-centos7/" itemprop="url">
                   嵌入式linux环境搭建2-CentOS7
                 </a>
@@ -1290,150 +1441,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/31/1704-linux-source3/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-内核代码
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-31T00:00:00+11:00" content="2017-01-31">
-              2017-01-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h1 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h1><p><img src="https://draapho.github.io/images/1704/3-kernel-function.jpg" alt="kernel-function"></p>
-<h2 id="硬件中断程序"><a href="#硬件中断程序" class="headerlink" title="硬件中断程序"></a>硬件中断程序</h2><p>处理系统硬件中断. 多为故障处理, 直接打印出堆栈信息帮助排错.</p>
-<h2 id="系统调用程序"><a href="#系统调用程序" class="headerlink" title="系统调用程序"></a>系统调用程序</h2><p>本质是调用中断 int 0x80. 由于是用户发起的, 也称之为软中断.</p>
-<ul>
-<li>system_call.s 会根据 <code>sys_call_table[]</code> (在sys.h内) 去调用相应的C函数. sys_xxx函数则很分散.</li>
-<li>signal.c 用于处理内核的信号. (<code>signal()</code>可能丢失信号, <code>sigaction()</code>更可靠)</li>
-</ul>
-<p><em>信号处理程序的调用方式</em><br><img src="https://draapho.github.io/images/1704/3-signal.jpg" alt="signal"></p>
-<h2 id="调度程序"><a href="#调度程序" class="headerlink" title="调度程序"></a>调度程序</h2><p>linux 0.11的调度思路结合<code>时间片</code>和<code>优先权</code>调度.</p>
-<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
-<ul>
-<li>调度过程: count大, 就优先调度! 计算公式为: <code>count = counter/2 + priotiry</code>.<br>对于以及运行完成的任务, count 直接为 priotiry<br>对于被阻塞的任务, 由于公式内包含有 count/2 的权重, 即使优先级再低, 也会被照顾到.</li>
-<li><code>switch_to()</code> 一段汇编宏定义, 用于切换到指定任务(加载TSS).</li>
-<li><code>schedule()</code> 调度函数, 每10ms判断各任务的信号位图以及比较<code>counter</code>值. 需要切换任务时, 调用 <code>switch_to(next)</code></li>
-<li><code>do_timer()</code> 在 system_call.s 中 <code>_timer_interrupt</code> 被调用, 每10ms调用一次 <code>schedule()</code></li>
-<li><code>sleep_on()</code> 当进程所请求的资源暂时不可用时, 等待一段时间. 等切换回来后再继续运行. 调用 <code>schedule()</code></li>
-<li><code>wake_up()</code> 把正在等待可用资源的指定任务值为就绪状态, 就如字面意义, 是一个唤醒函数. 但实现比较搞脑子!</li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1479,7 +1486,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">106</span>
+              <span class="site-state-item-count">107</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
