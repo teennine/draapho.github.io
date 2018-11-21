@@ -261,150 +261,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/01/31/1704-linux-source3/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-内核代码
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-01-31T00:00:00+11:00" content="2017-01-31">
-              2017-01-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h1 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h1><p><img src="https://draapho.github.io/images/1704/3-kernel-function.jpg" alt="kernel-function"></p>
-<h2 id="硬件中断程序"><a href="#硬件中断程序" class="headerlink" title="硬件中断程序"></a>硬件中断程序</h2><p>处理系统硬件中断. 多为故障处理, 直接打印出堆栈信息帮助排错.</p>
-<h2 id="系统调用程序"><a href="#系统调用程序" class="headerlink" title="系统调用程序"></a>系统调用程序</h2><p>本质是调用中断 int 0x80. 由于是用户发起的, 也称之为软中断.</p>
-<ul>
-<li>system_call.s 会根据 <code>sys_call_table[]</code> (在sys.h内) 去调用相应的C函数. sys_xxx函数则很分散.</li>
-<li>signal.c 用于处理内核的信号. (<code>signal()</code>可能丢失信号, <code>sigaction()</code>更可靠)</li>
-</ul>
-<p><em>信号处理程序的调用方式</em><br><img src="https://draapho.github.io/images/1704/3-signal.jpg" alt="signal"></p>
-<h2 id="调度程序"><a href="#调度程序" class="headerlink" title="调度程序"></a>调度程序</h2><p>linux 0.11的调度思路结合<code>时间片</code>和<code>优先权</code>调度.</p>
-<p><em>调用fork创建新进程</em><br><img src="https://draapho.github.io/images/1704/2-fork-function.jpg" alt="fork-function"></p>
-<ul>
-<li>调度过程: count大, 就优先调度! 计算公式为: <code>count = counter/2 + priotiry</code>.<br>对于以及运行完成的任务, count 直接为 priotiry<br>对于被阻塞的任务, 由于公式内包含有 count/2 的权重, 即使优先级再低, 也会被照顾到.</li>
-<li><code>switch_to()</code> 一段汇编宏定义, 用于切换到指定任务(加载TSS).</li>
-<li><code>schedule()</code> 调度函数, 每10ms判断各任务的信号位图以及比较<code>counter</code>值. 需要切换任务时, 调用 <code>switch_to(next)</code></li>
-<li><code>do_timer()</code> 在 system_call.s 中 <code>_timer_interrupt</code> 被调用, 每10ms调用一次 <code>schedule()</code></li>
-<li><code>sleep_on()</code> 当进程所请求的资源暂时不可用时, 等待一段时间. 等切换回来后再继续运行. 调用 <code>schedule()</code></li>
-<li><code>wake_up()</code> 把正在等待可用资源的指定任务值为就绪状态, 就如字面意义, 是一个唤醒函数. 但实现比较搞脑子!</li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/01/28/1704-linux-source2/" itemprop="url">
                   Linux 0.11 源码阅读笔记-启动程序
                 </a>
@@ -1628,6 +1484,559 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/18/1628-soft-regular/" itemprop="url">
+                  正则表达式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-18T00:00:00+11:00" content="2016-12-18">
+              2016-12-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
+<li><a href="https://draapho.github.io/2016/12/18/1628-soft-regular/">正则表达式</a></li>
+<li><a href="https://draapho.github.io/2017/09/19/1726-soft-easyre/">人人都看得懂的正则表达式教程</a></li>
+<li><a href="https://draapho.github.io/2017/10/07/1727-soft-reexample/">最全的常用正则表达式大全</a></li>
+</ul>
+<p>本文详细介绍了正则表达式的基础内容</p>
+<h1 id="正则表达式基础内容"><a href="#正则表达式基础内容" class="headerlink" title="正则表达式基础内容"></a>正则表达式基础内容</h1><table>
+<thead>
+<tr>
+<th>RE 字符/范例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\</code></td>
+<td>跳脱/转义字符</td>
+</tr>
+<tr>
+<td><strong>占位符</strong></td>
+<td>表示一个字符</td>
+</tr>
+<tr>
+<td><code>^word</code></td>
+<td><code>^</code>表<strong>行首</strong>, 待匹配的字符串<code>word</code>在行首！</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;^#&#39; re.txt</code></td>
+<td>显示行首为 <code>#</code> 的行</td>
+</tr>
+<tr>
+<td><code>word$</code></td>
+<td><code>$</code>表<strong>行尾</strong>, 待匹配的字符串<code>word</code>在行尾！</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;!$&#39; re.txt</code></td>
+<td>显示行尾为 <code>!</code> 的行</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>代表<strong>任意一个</strong>字符, 必须有一个字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;e.e&#39; re.txt</code></td>
+<td>结果为 <code>eve</code> <code>eee</code> <code>e e</code>, 但不能是 <code>ee</code></td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>字符集合. <strong>除<code>^</code> <code>\</code> <code>-</code>外, 其它特殊字符在中括号被认为是普通字符</strong>. 系统字符集可以包含其中如<code>[\d]</code></td>
+</tr>
+<tr>
+<td><code>[^]</code></td>
+<td>中括号内的第一个<code>^</code>表示补集, <del>而不是行尾</del>, 也可以理解为非. 非第一个则为普通字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;[(+*)]&#39; re.txt</code></td>
+<td>匹配 <code>(</code> <code>+</code> <code>*</code> <code>)</code> 中的一个字符.</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;[0-9]&#39; re.txt</code></td>
+<td>搜寻含有任意数字的那一行.  中括号内的<code>-</code>表连续(由编码决定),</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;oo[^0-9]&#39; re.txt</code></td>
+<td>排除结果 <code>oo0-oo9</code>, 可以是 <code>ooa</code> <code>oog</code>等等</td>
+</tr>
+<tr>
+<td><strong>数量符</strong></td>
+<td>跟在一个字符或组的后面, 重复该RE字符或组若干次</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td><strong>零个或多个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;ess*&#39; re.py</code></td>
+<td>结果为 <code>es</code>(0次s), <code>ess</code>, <code>esss</code></td>
+</tr>
+<tr>
+<td>…… <code>.*</code></td>
+<td>表示任意字符</td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><strong>连续m到n个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>{m,}</code></td>
+<td><strong>连续m个及以上</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>{m}</code></td>
+<td><strong>连续m个</strong>的前一RE字符</td>
+</tr>
+<tr>
+<td>…… <code>grep -n &#39;go\{2,3\}g&#39; re.txt</code></td>
+<td>结果为 <code>goog</code>(2次o), <code>gooog</code>(3次o).</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><strong>零个或一个</strong>的前一RE字符, 等同于<code>{0,1}</code></td>
+</tr>
+<tr>
+<td>…… <code>egrep -n &#39;go?d&#39; re.txt</code></td>
+<td>只能匹配<code>gd</code>和<code>god</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>重复<strong>一个或以上</strong>的前一RE字符, 等同于<code>{1,}</code></td>
+</tr>
+<tr>
+<td>…… <code>egrep -n &#39;go+d&#39; re.txt</code></td>
+<td>匹配<code>god</code> <code>good</code>等, <del>但不能匹配<code>gd</code></del></td>
+</tr>
+<tr>
+<td><code>*?</code> <code>+?</code> <code>??</code> <code>{m,n}?</code></td>
+<td>让 <code>*</code> <code>+</code> <code>?</code> <code>{m,n}</code> 变得非贪婪, 即匹配尽可能少的字符</td>
+</tr>
+<tr>
+<td>…… <code>&lt;.*&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td>会得到 <code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code> 整个字符串, <del>而不是预想的<code>&#39;&lt;H1&gt;&#39;</code></del></td>
+</tr>
+<tr>
+<td>…… <code>&lt;.*?&gt;</code>匹配<code>&#39;&lt;H1&gt;title&lt;/H1&gt;&#39;</code></td>
+<td><code>*?</code>变得非贪婪, 会得到 <code>&#39;&lt;H1&gt;&#39;</code> 字符串</td>
+</tr>
+<tr>
+<td><strong>逻辑分组</strong></td>
+<td>对字符进行分组和判断</td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>分组字符串</td>
+</tr>
+<tr>
+<td>…… <code>egrep &#39;A(xyz)+C&#39;</code></td>
+<td>匹配A开头, C结尾, 中间有一个以上”xyz”的字符串, 如 <code>AxyzC</code> <code>AxyzxyzxyzC</code></td>
+</tr>
+<tr>
+<td><code>\number</code></td>
+<td>反向引用, 引用编号为<code>number</code>的分组<code>()</code>匹配到字符串</td>
+</tr>
+<tr>
+<td>…… <code>(\d)abc\1</code></td>
+<td>匹配结果 <code>1abc1</code> 或 <code>5abc5</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>|</code> 理解为或即可, 用来隔开多个正则表达式.</li>
+<li>譬如 <code>egrep -n &#39;gd|good&#39; re.txt</code>   只能匹配<code>gd</code>和<code>good</code></li>
+<li>譬如 <code>egrep -n &#39;g(la|oo)d&#39; re.txt</code> 只能匹配<code>glad</code>和<code>good</code></li>
+</ul>
+<h1 id="正则表达式的兼容性问题"><a href="#正则表达式的兼容性问题" class="headerlink" title="正则表达式的兼容性问题"></a>正则表达式的兼容性问题</h1><h2 id="PCRE"><a href="#PCRE" class="headerlink" title="PCRE"></a>PCRE</h2><p>即 Perl Compatible Regular Expression<br>常见的正则表达式记法,其实都源于Perl.<br>实际上，正则表达式是从Perl衍生出一个显赫的流派, 称为PCRE<br><code>\d</code> <code>\w</code> <code>\s</code> 之类的记法，就是这个流派的特征.</p>
+<p>Python 的re库就是使用的PCRE. 其系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>系统字符集</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\d</code></td>
+<td>digital, 数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>\D</code></td>
+<td>非数字字符, <code>[^\d]</code></td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>space, 空白字符, <code>[ \t\r\n\f\v]</code></td>
+</tr>
+<tr>
+<td><code>\S</code></td>
+<td>非空白字符, <code>[^\s]</code></td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>word, 单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>\W</code></td>
+<td>非单词字符, <code>[^\w]</code></td>
+</tr>
+<tr>
+<td><code>\A</code></td>
+<td>仅匹配字符串开头</td>
+</tr>
+<tr>
+<td><code>\Z</code></td>
+<td>仅匹配字符串结尾</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>提取指定的<code>\w</code>串</td>
+</tr>
+<tr>
+<td>… <code>\bfoo\b</code></td>
+<td>匹配 <code>foo</code> <code>foo.</code> <code>(foo)</code> <code>b foo z</code>, <del>不匹配 <code>foobar</code></del></td>
+</tr>
+<tr>
+<td><code>\B</code></td>
+<td><code>[^\b]</code>, 指定部分内容提取<code>\w</code>串</td>
+</tr>
+<tr>
+<td>… <code>py\B</code></td>
+<td>匹配 <code>python</code> <code>py3</code>, <del>不匹配 <code>py</code> <code>py.</code> <code>py!</code></del></td>
+</tr>
+</tbody>
+</table>
+<h2 id="POSIX"><a href="#POSIX" class="headerlink" title="POSIX"></a>POSIX</h2><p>linux是遵循POSIX标准的, 因此在linux下使用正则表达式时, 系统字符集如下:</p>
+<table>
+<thead>
+<tr>
+<th>系统字符集</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[:alnum:]</code></td>
+<td>单词字符, <code>[A-Za-z0-9_]</code></td>
+</tr>
+<tr>
+<td><code>[:alpha:]</code></td>
+<td>字母字符, <code>[A-Za-z]</code></td>
+</tr>
+<tr>
+<td><code>[:ascii:]</code></td>
+<td>ASCII字符, <code>[\x00-\x7F]</code></td>
+</tr>
+<tr>
+<td><code>[:blank:]</code></td>
+<td>空格字符, <code>[ \t]</code></td>
+</tr>
+<tr>
+<td><code>[:cntrl:]</code></td>
+<td>控制键字符, <code>[\x00-\x1F\x7F]</code></td>
+</tr>
+<tr>
+<td><code>[:digit:]</code></td>
+<td>数字字符, <code>[0-9]</code></td>
+</tr>
+<tr>
+<td><code>[:graph:]</code></td>
+<td>非空字符, <code>[\x21-\x7E]</code>, <code>[:blank:]</code>的补集</td>
+</tr>
+<tr>
+<td><code>[:lower:]</code></td>
+<td>小写字母, <code>[a-z]</code></td>
+</tr>
+<tr>
+<td><code>[:print:]</code></td>
+<td>可被打印的字符, <code>[\x20-\x7E]</code></td>
+</tr>
+<tr>
+<td><code>[:punct:]</code></td>
+<td>所有标点符号, <code>[][!&quot;#$%&amp;&#39;()*+,./:;&lt;=&gt;?@\</code>^_{}~-]丨`</td>
+</tr>
+<tr>
+<td><code>[:upper:]</code></td>
+<td>大写字母 <code>[A-Z]</code></td>
+</tr>
+<tr>
+<td><code>[:space:]</code></td>
+<td>空白字符 <code>[ \t\r\n\v\f]</code></td>
+</tr>
+<tr>
+<td><code>[:word:]</code></td>
+<td>字母字符 <code>[A-Za-z_]</code></td>
+</tr>
+<tr>
+<td><code>[:xdigit:]</code></td>
+<td>16进制类型 <code>[0-9A-Fa-f]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="BRE-基础RE"><a href="#BRE-基础RE" class="headerlink" title="BRE, 基础RE"></a>BRE, 基础RE</h2><p>即, Basic Regular Expression<br>BRE只定义了6组元字符：</p>
+<ul>
+<li><code>[]</code>, 用于在多个字符中选定一个字符进行匹配</li>
+<li><code>.</code>,  用于匹配任意字符</li>
+<li><code>^</code>,  用于匹配时表示“非”的含义，还有一个用法是匹配行首</li>
+<li><code>$</code>,  用于匹配行尾</li>
+<li><code>*</code>,  零个或多个的前一RE字符</li>
+<li><code>\</code>,  跳脱/转义字符</li>
+</ul>
+<p>在Linux/Unix常用工具中, grep vi sed都属于BRE这一派,<br>为了向前兼容并使用RE的一些新特性, 导致它的语法看起来比较奇怪. <code>()</code> <code>{}</code> 需要使用 <code>\</code> 转义后才有特殊含义.<br>如果直接使用 <code>a{1,2}</code>, 只能去匹配 <code>a{1,2}</code> 字符串. 只有使用 <code>a\{1,2\}</code> 才能匹配为 <code>a</code>和<code>aa</code>.<br>另外, BRE一般不支持 <del><code>+</code> <code>?</code> <code>(...|...)</code> <code>\number</code></del></p>
+<h2 id="ERE-扩展RE"><a href="#ERE-扩展RE" class="headerlink" title="ERE, 扩展RE"></a>ERE, 扩展RE</h2><p>即, Extention Regular Expression<br>ERE在BRE上增加了3组元字符的定义：</p>
+<ul>
+<li><code>{}</code> 用于表示重复匹配的次数. BRE中将<code>{}</code>当作普通字符对待，必须加<code>\</code>进行转义, 即<code>\{\}</code></li>
+<li><code>()</code>, 用于分组。BRE中只将<code>()</code>当作普通字符对待，必须加<code>\</code>进行转义，即<code>\(\)</code></li>
+<li><code>|</code>, 完全为ERE新增的多项匹配能力定义的，BRE无多项匹配能力，只将<code>|</code>作普通字符对待</li>
+<li><code>\number</code>, ERE没有明确规定需要支持反向引用, 但不少工具都支持此功能</li>
+</ul>
+<h2 id="linux-unix下的RE表达式汇总"><a href="#linux-unix下的RE表达式汇总" class="headerlink" title="linux/unix下的RE表达式汇总"></a>linux/unix下的RE表达式汇总</h2><table>
+<thead>
+<tr>
+<th>PCRE记法</th>
+<th>vi/vim</th>
+<th>grep</th>
+<th>egrep</th>
+<th>awk</th>
+<th>sed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+<td><code>*</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+<td><code>\+</code></td>
+<td><code>+</code></td>
+<td><code>+</code></td>
+<td><code>\+</code></td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td><code>\=</code></td>
+<td><code>\?</code></td>
+<td><code>?</code></td>
+<td><code>?</code></td>
+<td><code>\?</code></td>
+</tr>
+<tr>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>{m,n}</code></td>
+<td><code>\{m,n\}</code></td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\&lt;</code> <code>\&gt;</code></td>
+<td><code>\y</code> <code>\&lt;</code> <code>\&gt;</code></td>
+</tr>
+<tr>
+<td><code>(…)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>\(…\)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+<td><code>(…)</code></td>
+</tr>
+<tr>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td><code>\1</code> <code>\2</code></td>
+<td>不支持</td>
+<td><code>\1</code> <code>\2</code></td>
+</tr>
+</tbody>
+</table>
+<p>注意:</p>
+<ul>
+<li>PCRE中常用<code>\b</code>来表示<strong>单词的起始或结束位</strong>,</li>
+<li>Linux工具中, 通常用<code>\&lt;</code>来匹配<strong>单词的起始位置</strong>, 用<code>\&gt;</code>来匹配<strong>单词的结束位置</strong></li>
+<li><code>sed</code>中的<code>\y</code>可以同时匹配这两个位置。</li>
+</ul>
+<h1 id="与bash-shell的一些容易弄混的区别"><a href="#与bash-shell的一些容易弄混的区别" class="headerlink" title="与bash shell的一些容易弄混的区别"></a>与bash shell的一些容易弄混的区别</h1><table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>bash shell中的含义</th>
+<th>RE中的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>零个到多个任意字符</td>
+<td>重复零个或多个前一RE字符</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>一个任意字符</td>
+<td>重复零个或一个前一RE字符</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>运行代码 <code>source</code></td>
+<td>一个任意字符</td>
+</tr>
+<tr>
+<td><code>[0-9a-z]</code></td>
+<td>list内的一个字符</td>
+<td>list内的一个字符</td>
+</tr>
+<tr>
+<td><code>[0-9]</code>的补集</td>
+<td><code>[!0-9]</code> ()</td>
+<td><code>[^range]</code> (<code>!</code>在RE里是普通字符)</td>
+</tr>
+<tr>
+<td><code>{}</code></td>
+<td><code>{123,abc}</code> 字符串匹配</td>
+<td><code>{m,n}</code> 重复m到n个前一RE字符</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>匹配<code>a</code>开头的任意文件<ul>
+<li>bash下 <code>ls a*</code></li>
+<li>re下 <code>ls | grep &quot;^a.*&quot;</code></li>
+</ul>
+</li>
+<li>匹配string1或string2或更多之一字符串<ul>
+<li>bash下 <code>{string1,string2,string3}</code>. 如 <code>touch a{xyz,123}.txt</code>, 结果为 <code>axyz.txt</code> <code>a123.txt</code></li>
+<li>re下 <code>(string1|string2|string3)</code>. 如 <code>ls | egrep &#39;g(la|oo)d&#39;</code>, 结果为 <code>glad</code> <code>good</code></li>
+</ul>
+</li>
+<li>连续字符匹配<ul>
+<li>bash下, 有两种连续字符表示法 <code>{0..9}</code> 和 <code>[0-9]</code>, 支持<code>[1-3a-z]</code>, <del>不支持<code>{1..3a..z}</code></del>, </li>
+<li>bash下 <code>touch {ex{1..3},ex4}.sh</code>或<code>touch {ex{1..3},ex4}.sh</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code> </li>
+<li>re下 <code>ls | egrep &quot;(ex[1-3]|ex4).sh&quot;</code>, 结果为 <code>ex1.sh</code> <code>ex2.sh</code> <code>ex3.sh</code> <code>ex4.sh</code></li>
+</ul>
+</li>
+<li>简单总结, RE的功能远比bash自带的匹配符功能强大. 特别容易弄混的也就是 <code>*</code> <code>?</code> <code>[^range]</code></li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://python.usyiyi.cn/documents/python_278/library/re.html" target="_blank" rel="noopener">python标准库 7.2 re — 正则表达式操作</a></li>
+<li><a href="http://www.cnblogs.com/huxi/archive/2010/07/04/1771073.html" target="_blank" rel="noopener">Python正则表达式指南</a></li>
+<li><a href="http://linux.vbird.org/linux_basic/0330regularex.php" target="_blank" rel="noopener">鸟哥的私房菜 第十一章、正規表示法與文件格式化處理</a></li>
+<li><a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank" rel="noopener">Linux/Unix工具与正则表达式的POSIX规范</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -1673,7 +2082,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">107</span>
+              <span class="site-state-item-count">106</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
