@@ -261,6 +261,301 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/22/1748-qqiot-procedure/" itemprop="url">
+                  QQ物联开发步骤简介
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+11:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/qqiot/" itemprop="url" rel="index">
+                    <span itemprop="name">qqiot</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
+<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
+<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
+<li><a href="https://draapho.github.io/2017/12/23/1749-qqiot-demo/">QQ物联演示项目</a></li>
+</ul>
+<p>本文使用 linux-3.4.2 内核, 使用jz2440开发板.</p>
+<h1 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h1><h2 id="硬件设备概念"><a href="#硬件设备概念" class="headerlink" title="硬件设备概念"></a>硬件设备概念</h2><ul>
+<li>SN (serial number), 序列号<ul>
+<li>由产品开发商提供, 但QQ规定了格式要求</li>
+<li>需要保证唯一性. 即同一种类的单品都有其唯一的SN</li>
+<li>格式: 16个字符长度. 由字母, 数字, 下划线, 连词符, 冒号组成.</li>
+<li>譬如 <code>ABC-0032-1234567</code></li>
+<li>历史原因, 源码里面的名称是 <code>guid</code></li>
+</ul>
+</li>
+<li>LICENSE, 数字签名<ul>
+<li>license 是对sn的数字签名, 所以与sn是一一对应的关系</li>
+<li>license由腾讯提供的工具来实现, 输入sn即可</li>
+<li>其目的就是保护设备信息, 避免设备被山寨.</li>
+</ul>
+</li>
+<li>PID(product identify), 产品ID.<ul>
+<li>即产品类别ID, 类似于超市商品的二维码, 表明产品类别</li>
+<li>有了PID和SN后, QQ就可以唯一确定一台智能设备</li>
+<li>QQ物联的设备二维码就是由PID和SN这两个信息组成的</li>
+<li>QQ会提供PID值</li>
+</ul>
+</li>
+<li>DIN(device identify number), 设备ID<ul>
+<li>可以认为就是此设备的QQ号码, 64位长度.</li>
+<li>DIN 由 PID + SN + LICENSE 产生.</li>
+<li>QQ会保证DIN的唯一性</li>
+</ul>
+</li>
+<li>SDK, 开发套件<ul>
+<li>分为设备SDK和应用SDK</li>
+<li>设备SDK, 就是给智能硬件使用的开发套件. 以后学习的重点是在这里.</li>
+<li>应用SDK, 如果要开发独立APP, 就需要此SDK. 提供QQ开放接口. 此处略过不表.</li>
+</ul>
+</li>
+</ul>
+<h2 id="QQ云端概念"><a href="#QQ云端概念" class="headerlink" title="QQ云端概念"></a>QQ云端概念</h2><ul>
+<li>datapoint, 数据点<ul>
+<li>理解为QQ指定的一套数据格式规范即可.</li>
+</ul>
+</li>
+<li>PropertyID, 属性ID<ul>
+<li>每个datapoint都有自己的id, 用于表明此数值的属性.</li>
+<li>譬如property_id (200001), 表示摄像头分辨率.</li>
+<li>简单的理解, datapoint传输整个键值对. PropertyID是key.</li>
+</ul>
+</li>
+</ul>
+<h2 id="轻APP前端"><a href="#轻APP前端" class="headerlink" title="轻APP前端"></a>轻APP前端</h2><p>QQ物联轻APP是手机QQ里“我的设备”控制器内嵌的HTML5页面（模板），分为通用/公共模板和开发商自定义模板</p>
+<ul>
+<li>通用/公共模板<ul>
+<li>公共模板的样式不可自定义, 但可以自行配置功能控件.</li>
+<li>可节省软件端的研发和维护成本, 缩短产品研发周期.</li>
+</ul>
+</li>
+<li>自定义模板<ul>
+<li>使用Html5, 根据QQ物联提供的设计规范和接口实现定制化用户界面 (内嵌在QQ里)</li>
+<li>自定义模板需要开发者将页面发布到自有的服务器, 然后将url地址提交到平台.</li>
+</ul>
+</li>
+<li>deviceAPI<ul>
+<li>QQ物联提供的给自定义模板调用的JS接口.</li>
+<li>注意, 目前其对视屏功能仅部分支持.</li>
+</ul>
+</li>
+</ul>
+<h2 id="手机APP"><a href="#手机APP" class="headerlink" title="手机APP"></a>手机APP</h2><p>手机端概念只有在需要自己开发app, 调用应用SDK时, 才会用到!</p>
+<ul>
+<li>AppID<ul>
+<li>标识APP, 此App使用QQ登录组件. 即调用了QQ的应用SDK</li>
+</ul>
+</li>
+<li>OpenID<ul>
+<li>等同于用户QQ号码的身份. 长度128bit</li>
+<li>OpenID 由 appid + qq号码 产生</li>
+</ul>
+</li>
+<li>TinyID (Tiny OpenID)<ul>
+<li>QQ内部由于兼容问题, 对OpenID的一个缩略, 使用64bit长度</li>
+</ul>
+</li>
+</ul>
+<h2 id="配网方式-wifi下"><a href="#配网方式-wifi下" class="headerlink" title="配网方式(wifi下)"></a>配网方式(wifi下)</h2><p>不少硬件设备是没有屏幕的, 如何接入wifi就成为一个大问题. QQ物联提供如下几种方式</p>
+<ul>
+<li>WiFi Router： 设备自行解决入网问题，适用于有屏幕的智能设备</li>
+<li>SmartLink： 博通合作方案, 其wifi芯片支持Monitor模式(可实现数据包注入), 内置了AES-CCM加密库</li>
+<li>SmartLinkEx: 额外采用声波通讯技术协同配网, 提高极端环境下的配网成功率. 适合有麦克风的设备</li>
+<li>QQLink： SmartLink的弱加密版本, 安全性没有SmartLink方案高.</li>
+<li>QQLinkEx： 额外采用声波通讯技术协同配网. 适合有麦克风的设备</li>
+</ul>
+<h1 id="开发步骤"><a href="#开发步骤" class="headerlink" title="开发步骤"></a>开发步骤</h1><ol>
+<li>建立企业开发账号.<ul>
+<li><a href="http://iot.open.qq.com/wiki/index.html#!FUNC/Register_On_WebSite.md" target="_blank" rel="noopener">Step1. 申请开发者账号</a>, 申请一个公司用QQ</li>
+<li><a href="http://iot.open.qq.com/wiki/index.html#!FUNC/Register_On_WebSite.md" target="_blank" rel="noopener">Step2. 申请加入白名单</a>, 需等待审核结果.</li>
+<li><a href="http://iot.open.qq.com/wiki/index.html#!FUNC/Register_On_WebSite.md" target="_blank" rel="noopener">Step3. 进入配置平台</a>, 成功后, 就有开发配置平台了.</li>
+</ul>
+</li>
+<li>创建新设备.<ul>
+<li>在配置平台里面, 可以创建新设备.</li>
+<li>慎重选择设备类型, 不同的设备类型提供不同的后台功能!</li>
+<li>测试环境不要点击 <code>提交上线</code>, 最多有100台设备任意调试.</li>
+<li>如果提交上线, 设备就会被锁定, 等待QQ审核结果. 此过程无法开发调试!</li>
+<li>开发和测试完成后, 再去 <code>提交上线</code>, 等待审核结果.</li>
+<li>已审核通过的产品如果还要更改配置页面, 则需要再次通过腾讯审核.</li>
+</ul>
+</li>
+<li>配置设备后台<ul>
+<li>新建设备之设备类型: 决定QQ物联设备大致需要的功能(控制/音视频).</li>
+<li>设备信息之公钥上传: 用工具生成<code>public.pem</code>, 然后上传. 用于认证GUID/SN号.</li>
+<li>设备信息之联网方式: 如果设备有界面可以自行入网, 可以选择自行入网. 如果没有输入界面, 则需要选wifi配网方式.</li>
+<li>功能配置之公有功能: 设定手机QQ和QQ物联设备的收发内容</li>
+<li>功能配置之特殊功能: 用来定义手机QQ与QQ物联设备两者之间特殊消息的数据格式<ul>
+<li>显示类型：只能是QQ物联设备向手机QQ发送用于显示的的数据</li>
+<li>控制类型：QQ物联设备与手机QQ可以互传控制消息的数据</li>
+<li>设置好后, 会获得一个ID值! 数据传输格式是腾讯的 datapoint</li>
+<li><strong>功能描述</strong>:  自定义数据的组织格式. 参考 <a href="http://iot.open.qq.com/wiki/index.html#!FUNC/DataPoint_Custom_CMD.md" target="_blank" rel="noopener">自定义指令</a> 里的说明</li>
+</ul>
+</li>
+<li>控制器设置: 配置手机QQ的控制UI界面<ul>
+<li>自动生成控制器, 就是使用QQ提供的通用模板. 模板里的元素可以自定义</li>
+<li>自定义控制器, 就是自定义模板. 需要HTML5开发并放到自己的服务器端</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>创建设备序列号和密钥<ul>
+<li>整个过程有两组公钥私钥配对.</li>
+<li>服务器生成的公钥私钥, 开发者需下载公钥<code>170000xxxx.pem</code>. 此配对用于加密数据, 保证通讯安全.</li>
+<li>开发者生成的公钥私钥, 开发者需上传公钥<code>public.pem</code>. 保证私钥安全性. 此配对用于认证设备SN没有被盗用.</li>
+<li>设备SN的认证方法是, 开发者用私钥加密SN生成license, 将SN和license传给QQ服务器, QQ服务器会用上传的公钥去检查SN合法性.</li>
+<li>license最好也保存好. 因为如果别人获取license和SN后, 可以仿冒特定的设备.</li>
+<li><code>公钥&amp;证书工具</code>, 在设备信息的公钥上传里提供了下载.</li>
+</ul>
+</li>
+<li>QQ物联设备端功能开发<ul>
+<li><a href="http://iot.open.qq.com/wiki/#!FUNC/DataPoint_Common_CMD.md" target="_blank" rel="noopener">控制指令</a></li>
+<li><a href="http://iot.open.qq.com/wiki/#!FUNC/DataPoint_Custom_CMD.md" target="_blank" rel="noopener">自定义指令</a></li>
+<li><a href="http://iot.open.qq.com/wiki/#!FUNC/DataPoint_Sync_Status.md" target="_blank" rel="noopener">状态同步</a></li>
+</ul>
+</li>
+<li>开发者测试</li>
+<li>交给QQ物联官方审核</li>
+<li>发布产品</li>
+</ol>
+<h1 id="收发消息的过程"><a href="#收发消息的过程" class="headerlink" title="收发消息的过程"></a>收发消息的过程</h1><h2 id="QQ物联设备接收消息"><a href="#QQ物联设备接收消息" class="headerlink" title="QQ物联设备接收消息"></a>QQ物联设备接收消息</h2><p>datapoint的主要函数:</p>
+<ul>
+<li><code>tx_init_data_point</code>: 初始化</li>
+<li><code>tx_report_data_point</code>: 上报</li>
+<li><code>tx_ack_data_point</code>: 回应</li>
+</ul>
+<p>QQ物联设备端, 对消息处理的主要过程如下:</p>
+<ul>
+<li><code>tx_init_data_point</code> 进行初始化后, 并定义回调函数 <code>on_receive_datapoint</code></li>
+<li>手机QQ发送datapoint消息给QQ物联设备</li>
+<li>QQ物联设备接收到后, 使用回调函数处理消息</li>
+<li>处理方式是通过datapoint的ID来分辨消息类型(特殊功能里设置)</li>
+</ul>
+<h2 id="QQ物联设备发送消息"><a href="#QQ物联设备发送消息" class="headerlink" title="QQ物联设备发送消息"></a>QQ物联设备发送消息</h2><ul>
+<li>QQ设备发送消息给QQ服务器<ul>
+<li><code>tx_send_text_msg</code> 发送文本</li>
+<li><code>tx_send_structuring_msg</code> 发送图文和音视频</li>
+</ul>
+</li>
+<li>QQ服务器更具配置情况(触发器-动作-模板), 只转发满足条件的消息给手机QQ</li>
+<li>触发器页面: 设置过滤条件并制定动作<ul>
+<li>该消息由哪个QQ物联设备发送来的</li>
+<li>该消息的ID号</li>
+<li>触发后要执行的动作</li>
+</ul>
+</li>
+<li>动作页面: 动作制定模板(文本/图片/语音/视频)</li>
+<li>QQ服务器根据模板构造发送给手机QQ的消息</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://iot.open.qq.com/wiki/index.html" target="_blank" rel="noopener">QQ物联资料库</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/20/1747-qqiot-bind/" itemprop="url">
                   QQ物联绑定分析
                 </a>
@@ -1166,213 +1461,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/07/1741-drv-chr3/" itemprop="url">
-                  驱动之基于中断设计按键驱动
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-12-07T00:00:00+11:00" content="2017-12-07">
-              2017-12-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
-<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
-<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
-<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
-<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="Linux的中断实现"><a href="#Linux的中断实现" class="headerlink" title="Linux的中断实现"></a>Linux的中断实现</h1><h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><ul>
-<li><code>trap_init</code>, 构造异常向量表<ul>
-<li>位于 <code>arch/arm/kernel/traps.c</code>, 三个memcpy函数</li>
-</ul>
-</li>
-<li><code>s3c24xx_init_irq</code> 芯片初始化 <code>struct irq_desc</code> 结构体.<ul>
-<li>由 <code>MACHINE_START(S3C2440, &quot;SMDK2440&quot;)</code> 宏定义加入系统的初始化数据段 <code>&quot;.arch.info.init&quot;</code>.</li>
-<li>位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
-<li><code>s3c24xx_init_irq</code> 会调用函数 <code>set_irq_chip</code>, <code>set_irq_handler</code> 完成irq的初始化</li>
-</ul>
-</li>
-<li>cpu发生中断，跳到异常向量入口执行(<code>b vector_irq + stubs_offset</code>)<ul>
-<li>位于 <code>arch/arm/kernel/entry-armv.S</code></li>
-</ul>
-</li>
-<li><code>vector_irq</code> 用宏实现保存,执行(<code>asm_do_IRQ</code>),恢复.<ul>
-<li><code>vector_irq</code> 由宏定义 <code>vector_stub</code> 而来</li>
-<li>函数调用 <code>__irq_usr</code>-&gt;<code>irq_handler</code>-&gt;<code>asm_do_IRQ</code></li>
-</ul>
-</li>
-<li><code>asm_do_IRQ</code> 根据中断号irq=(EINT4~EINT23)调用irq_desc[irq].handle_irq=(handle_edge_irq)<ul>
-<li>位于 <code>arch/arm/kernel/irq.c</code>, 调用 <code>desc_handle_irq</code> 函数</li>
-<li>handle_irq 的初始化由 <code>s3c24xx_init_irq</code> 完成, 位于 <code>arch/arm/plat-s3c24xx/irq.c</code></li>
-</ul>
-</li>
-<li><code>handle_edge_irq</code> 使用chip成员中的函数=&amp;s3c_irqext_chip来设置硬件<ul>
-<li>函数 <code>set_irq_chip</code>, 指定 <code>struct irq_chip</code> 结构,</li>
-<li>此结构定义了中断的基本操作, 譬如启动, 关闭, 使能, 禁止, 触发条件, 响应(ack), mask 等等.</li>
-</ul>
-</li>
-<li><code>handle_edge_irq</code> 逐个调用用户在irq_desc[irq].action连表中注册的处理函数<ul>
-<li>函数 <code>set_irq_handler</code>, 实际调用 <code>__set_irq_handler</code></li>
-<li>此函数指定了 <code>struct irq_desc</code> 结构, 其中 <code>action</code> 维护用户回调函数链表.</li>
-</ul>
-</li>
-<li>用户注册中断服务程序 <code>request_irq</code>include/linux/irq.h<ul>
-<li>供内核驱动代码调用</li>
-<li>分配一个 <code>irqaction</code> 结构</li>
-<li>将其加入<code>irq_desc[irq].action</code>中</li>
-<li>设置中断触发方式和引脚状态 <code>desc-&gt;chip-&gt;set_type()</code></li>
-<li>使能中断</li>
-</ul>
-</li>
-<li>卸载中断服务程序 <code>free_irq</code><ul>
-<li>供内核驱动代码调用</li>
-<li>由irq号定位action链表, 然后将其删掉</li>
-<li>关闭中断</li>
-</ul>
-</li>
-</ul>
-<h2 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h2><ul>
-<li><a href="http://blog.csdn.net/czg13548930186/article/details/77715829" target="_blank" rel="noopener">字符设备驱动-Linux内核异常处理体系结构</a></li>
-<li><a href="http://blog.csdn.net/czg13548930186/article/details/77751916" target="_blank" rel="noopener">字符设备驱动-中断方式操控按键</a></li>
-<li><a href="http://www.wowotech.net/irq_subsystem/irq_handler.html" target="_blank" rel="noopener">Linux kernel的中断子系统之（六）：ARM中断处理过程</a></li>
-</ul>
-<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><h2 id="核心点"><a href="#核心点" class="headerlink" title="核心点"></a>核心点</h2><p>此次为中断的驱动源码, 核心点有2个地方</p>
-<ul>
-<li><code>request_irq</code> <code>free_irq</code><ul>
-<li>这两个函数用于注册和释放中断号, 重点说注册</li>
-<li>调用<code>request_irq</code>后, 对应的中断会自动初始化并使能.</li>
-<li>相应的调用<code>free_irq</code>后, 对应的中断会自动被屏蔽掉.</li>
-<li><code>irq</code>, 中断号. 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
-<li><code>handler</code>, 由驱动编程人员实现的回调函数</li>
-<li><code>irqflags</code>, 中断触发类型, 见<code>#include &lt;asm/arch-s3c2410/irqs.h&gt;</code></li>
-<li><code>*devname</code>, 自己给中断取个名字, 和驱动的设备名称无关. 会在 <code>cat /proc/interrupts</code> 下面显示出来.</li>
-<li><code>*dev_id</code>, 可以认为是中断设备的ID号, 但此处习惯于导入驱动自用的数据结构指针.</li>
-</ul>
-</li>
-<li><code>wake_up_interruptible</code> <code>wait_event_interruptible</code><ul>
-<li>用了这两个函数, 才会真正提高系统的运行效率.</li>
-<li>其概念是, 中断触发时, 调用 <code>wake_up_interruptible</code>, 告知中断发生, 需要处理</li>
-<li>此时, <code>wait_event_interruptible</code> 就会被唤醒, 判断条件后, 决定是继续执行还是进程睡眠.</li>
-</ul>
-</li>
-</ul>
-<h2 id="drv-key-int-c"><a href="#drv-key-int-c" class="headerlink" title="drv_key_int.c"></a>drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">Driver Name     :       drv_key_int</span></span><br><span class="line"><span class="comment">Author          :       DRAAPHO</span></span><br><span class="line"><span class="comment">License         :       GPL</span></span><br><span class="line"><span class="comment">Description     :       LINUX DEVICE DRIVER PROJECT, 由LinK+生成模板, 部分修改而来.</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_int.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_N_MINORS 1              <span class="comment">// 三个按键, 但作为一个字符设备就可以了.</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_FIRST_MINOR 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_int"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> drv_key_int_major=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">dev_t</span> drv_key_int_device_num;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">drv_key_int_class</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">privatedata</span> &#123;</span>                <span class="comment">// 驱动私有结构, 模板生成, 此驱动没用.</span></span><br><span class="line">    <span class="keyword">int</span> nMinor;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cdev</span> <span class="title">cdev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">drv_key_int_device</span>;</span></span><br><span class="line">&#125; drv_key_int_private;</span><br><span class="line"></span><br><span class="line">drv_key_int_private devices[DRV_KEY_INT_N_MINORS];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 中断驱动增加的代码 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_WAIT_QUEUE_HEAD</span><span class="params">(key_waitq)</span></span>;  <span class="comment">// 作用类似于信号量, 这里是向系统加入一个等待列表.</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">int</span> ev_press = <span class="number">0</span>;           <span class="comment">// 中断事件标记, 手动值1或者清0</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;              <span class="comment">// 记录按键值</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pin_desc</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pin;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> key_val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pin_desc</span> <span class="title">pins_desc</span>[3] = &#123;</span>            <span class="comment">// 设置好按键的引脚和对应的值</span></span><br><span class="line">    &#123;S3C2410_GPF0, <span class="number">0x01</span>&#125;,</span><br><span class="line">    &#123;S3C2410_GPF2, <span class="number">0x02</span>&#125;,</span><br><span class="line">    &#123;S3C2410_GPG3, <span class="number">0x04</span>&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pin_desc</span> * <span class="title">pindesc</span> = (<span class="title">struct</span> <span class="title">pin_desc</span> *)<span class="title">dev_id</span>;</span>  <span class="comment">// 获取自用的数据指针</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pinval;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"keys_irq, irq=%d\n"</span>, irq);</span><br><span class="line">    pinval = s3c2410_gpio_getpin(pindesc-&gt;pin);             <span class="comment">// 读取按键电平</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (pinval) &#123;                                           <span class="comment">// 松开</span></span><br><span class="line">        keys_val &amp;= ~pindesc-&gt;key_val;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;                                                <span class="comment">// 按下</span></span><br><span class="line">        keys_val |= pindesc-&gt;key_val;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ev_press = <span class="number">1</span>;                                           <span class="comment">// 表示中断发生</span></span><br><span class="line">    wake_up_interruptible(&amp;key_waitq);                      <span class="comment">// 唤醒休眠的进程</span></span><br><span class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 部分修改模板代码 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_open</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function */</span></span><br><span class="line">    drv_key_int_private *priv = container_of(inode-&gt;i_cdev ,</span><br><span class="line">                                    drv_key_int_private ,cdev);</span><br><span class="line">    filp-&gt;private_data = priv;</span><br><span class="line">    PINFO(<span class="string">"In char driver open() function\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册中断号, 设置中断类型, 设置中断名称(和设备名称无关), 传入自用的数据指针</span></span><br><span class="line">    ret  = request_irq(IRQ_EINT0, keys_irq, IRQT_BOTHEDGE, <span class="string">"S2"</span>, &amp;pins_desc[<span class="number">0</span>]);</span><br><span class="line">    ret |= request_irq(IRQ_EINT2, keys_irq, IRQT_BOTHEDGE, <span class="string">"S3"</span>, &amp;pins_desc[<span class="number">1</span>]);</span><br><span class="line">    ret |= request_irq(IRQ_EINT11, keys_irq, IRQT_BOTHEDGE, <span class="string">"S4"</span>, &amp;pins_desc[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ret) <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_int_release</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function */</span></span><br><span class="line">    drv_key_int_private *priv;</span><br><span class="line">    priv=filp-&gt;private_data;</span><br><span class="line">    PINFO(<span class="string">"In char driver release() function\n"</span>);</span><br><span class="line"></span><br><span class="line">    free_irq(IRQ_EINT11, &amp;pins_desc[<span class="number">2</span>]);                    <span class="comment">// 注销中断</span></span><br><span class="line">    free_irq(IRQ_EINT2, &amp;pins_desc[<span class="number">1</span>]);</span><br><span class="line">    free_irq(IRQ_EINT0, &amp;pins_desc[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_key_int_read</span><span class="params">(struct file *filp,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function */</span></span><br><span class="line">    drv_key_int_private *priv;</span><br><span class="line">    priv = filp-&gt;private_data;</span><br><span class="line">    PINFO(<span class="string">"In char driver read() function\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></span><br><span class="line">    wait_event_interruptible(key_waitq, ev_press);</span><br><span class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 模板代码, 没有修改 =====</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_key_int_fops</span>= &#123;</span></span><br><span class="line">    .owner              = THIS_MODULE,</span><br><span class="line">    .open               = drv_key_int_open,</span><br><span class="line">    .release            = drv_key_int_release,</span><br><span class="line">    .read               = drv_key_int_read,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">drv_key_int_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line"></span><br><span class="line">    res = alloc_chrdev_region(&amp;drv_key_int_device_num,DRV_KEY_INT_FIRST_MINOR,DRV_KEY_INT_N_MINORS ,DRIVER_NAME);</span><br><span class="line">    <span class="keyword">if</span>(res) &#123;</span><br><span class="line">        PERR(<span class="string">"register device no failed\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    drv_key_int_major = MAJOR(drv_key_int_device_num);</span><br><span class="line"></span><br><span class="line">    drv_key_int_class = class_create(THIS_MODULE , DRIVER_NAME);</span><br><span class="line">    <span class="keyword">if</span>(!drv_key_int_class) &#123;</span><br><span class="line">        PERR(<span class="string">"class creation failed\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</span><br><span class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</span><br><span class="line">        cdev_init(&amp;devices[i].cdev , &amp;drv_key_int_fops);</span><br><span class="line">        cdev_add(&amp;devices[i].cdev,drv_key_int_device_num,<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        devices[i].drv_key_int_device  =</span><br><span class="line">                device_create(drv_key_int_class , <span class="literal">NULL</span> ,drv_key_int_device_num ,</span><br><span class="line">                            DRV_KEY_INT_NODE_NAME<span class="string">"%d"</span>,DRV_KEY_INT_FIRST_MINOR+i);</span><br><span class="line">        <span class="keyword">if</span>(!devices[i].drv_key_int_device) &#123;</span><br><span class="line">            class_destroy(drv_key_int_class);</span><br><span class="line">            PERR(<span class="string">"device creation failed\n"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        devices[i].nMinor = DRV_KEY_INT_FIRST_MINOR+i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"INIT\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">drv_key_int_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"EXIT\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEY_INT_N_MINORS;i++) &#123;</span><br><span class="line">        drv_key_int_device_num= MKDEV(drv_key_int_major ,DRV_KEY_INT_FIRST_MINOR+i);</span><br><span class="line"></span><br><span class="line">        cdev_del(&amp;devices[i].cdev);</span><br><span class="line"></span><br><span class="line">        device_destroy(drv_key_int_class ,drv_key_int_device_num);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    class_destroy(drv_key_int_class);</span><br><span class="line"></span><br><span class="line">    unregister_chrdev_region(drv_key_int_device_num ,DRV_KEY_INT_N_MINORS);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_key_int_init);</span><br><span class="line">module_exit(drv_key_int_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="drv-key-int-h"><a href="#drv-key-int-h" class="headerlink" title="drv_key_int.h"></a>drv_key_int.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_int"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_key_int.o </span><br><span class="line">KERN_SRC	:= /home/draapho/share/kernel/linux-2.6.22.6/</span><br><span class="line">PWD			:= <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">	depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
-<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</span><br><span class="line"></span><br><span class="line">    fd = open(<span class="string">"/dev/key_int0"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        read(fd, &amp;keys_val, <span class="number">1</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译测试代码</span></span><br><span class="line">$ arm-linux-gcc test_drv_key_int.c -o test_drv_key_int</span><br></pre></td></tr></table></figure>
-<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试模块和中断加载情况</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key_int.ko             <span class="comment"># 加载模块</span></span><br><span class="line">drv_key_int:INIT</span><br><span class="line"></span><br><span class="line">$ cat /proc/devices                 <span class="comment"># 查看设备, 可以看到 drv_key_int</span></span><br><span class="line">$ cat /proc/interrupts              <span class="comment"># 查看中断设备, 没有 s2,s3,s4</span></span><br><span class="line"></span><br><span class="line">$ <span class="built_in">exec</span> 5&lt;/dev/key_int0              <span class="comment"># 打开设备, 相当于open.</span></span><br><span class="line">drv_key_int:In char driver open() <span class="keyword">function</span></span><br><span class="line"><span class="comment"># 5是文件描述符, 其它数字也可以. ls -l /proc/self/fd/ 下可以查看文件描述符</span></span><br><span class="line"></span><br><span class="line">$ cat /proc/interrupts              <span class="comment"># 再查看中断设备, 可以看到 s2,s3,s4 了!</span></span><br><span class="line"><span class="comment"># 此时按下按键的话, 会触发中断, 打印 drv_key_int:keys_irq, irq=16/18/55</span></span><br><span class="line"></span><br><span class="line">$ <span class="built_in">exec</span> 5&lt;&amp;-                         <span class="comment"># 关闭设备, 相当于close</span></span><br><span class="line">drv_key_int:In char driver release() <span class="keyword">function</span></span><br><span class="line"></span><br><span class="line">$ rmmod drv_key_int.ko              <span class="comment"># 移除模块</span></span><br><span class="line">drv_key_int:EXIT</span><br></pre></td></tr></table></figure>
-<p>下面, 使用测试文件进行测试</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_int/KERN_SRC    # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key_int.ko             <span class="comment"># 加载模块</span></span><br><span class="line">drv_key_int:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_int                <span class="comment"># 检测按键中断</span></span><br><span class="line"><span class="comment"># 可以发现, 打印有时候有点乱, 那是因为中断的关系</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_int &amp;              <span class="comment"># 后台运行</span></span><br><span class="line">$ top                               <span class="comment"># 查看系统资源情况</span></span><br><span class="line"><span class="comment"># 可以看到 ./test_drv_key_int 进程占用很少的资源.</span></span><br></pre></td></tr></table></figure>
-<p>分析测试代码, 在死循环里面, 会调用到 <code>wait_event_interruptible</code>, 当没有中断发生时, 就会切换用户进程.<br>当中断发生后, 驱动通过 <code>wake_up_interruptible</code> 唤醒用户进程, 继续执行.<br>然后由于, 用户的printf和内核的printk相互独立, 所以最终打印可能会有点乱.</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1418,7 +1506,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">106</span>
+              <span class="site-state-item-count">107</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
