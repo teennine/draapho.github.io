@@ -90,7 +90,7 @@
 <meta property="og:site_name" content="DRA&amp;PHO">
 <meta property="og:description" content="环境及结论 大环境的搭建思路可参考嵌入式linux环境搭建-主机端 gateway ip 10.0.0.138 PC windows: win10 64bit, ip 10.0.0.98 PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100 Embedded Linux: jz2440v3 ip 10.0.0.111   目的是尝试不同">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2017-11-27T06:50:49.480Z">
+<meta property="og:updated_time" content="2019-05-19T07:49:17.355Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式linux环境搭建2-CentOS7">
 <meta name="twitter:description" content="环境及结论 大环境的搭建思路可参考嵌入式linux环境搭建-主机端 gateway ip 10.0.0.138 PC windows: win10 64bit, ip 10.0.0.98 PC linux(最终版本): ubuntu server 16.04 32 bit, ip 10.0.0.100 Embedded Linux: jz2440v3 ip 10.0.0.111   目的是尝试不同">
@@ -346,7 +346,7 @@
 <h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>在centos下, 内核 make clean 会报错: Makefile‘混和的隐含和普通规则’<br>我想还是因为 2440 内核文件使用的makefile太老了. 和centos兼容性不好.<br>按下述方法改了一点后, 最后make还是失败了. 因而放弃 centos 系统.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改根目录下的 Makefile</span></span><br><span class="line">/ %/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line"><span class="comment"># 改成： -----&gt;</span></span><br><span class="line">/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line">%/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把：</span></span><br><span class="line">config %config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br><span class="line"><span class="comment"># 改成： -----&gt;</span></span><br><span class="line">config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br><span class="line">%config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
       
     </div>
@@ -458,7 +458,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">113</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -475,7 +475,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>

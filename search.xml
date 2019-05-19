@@ -4,6 +4,247 @@
   
     
     <entry>
+      <title><![CDATA[Pandas Dataframe 入门]]></title>
+      <url>https://draapho.github.io/2019/05/20/1905-python-pandas/</url>
+      <content type="html"><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>对于一个用python做数据处理的人来说，pandas是必须要了解的。<br>对于一个数据处理工具来说，读写是最基本的，<br>下面是我最近整理的关于pandas一些基本本操作，主要包括以下内容：</p>
+<ul>
+<li>如何创建DataFrame</li>
+<li>如何读取DataFrame的值，读一行/列、读多行/列</li>
+<li>如何对DataFrame赋值</li>
+<li>如何对DataFrame插入一（多）行/列</li>
+<li>如何删除DataFrame的一（多）行/列</li>
+</ul>
+<p>开始前先引入两个库<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure></p>
+<h1 id="1-创建DataFrame"><a href="#1-创建DataFrame" class="headerlink" title="1 创建DataFrame"></a>1 创建DataFrame</h1><h2 id="1-1-利用字典创建"><a href="#1-1-利用字典创建" class="headerlink" title="1.1 利用字典创建"></a>1.1 利用字典创建</h2><p>利用字典创建DataFrame:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line">df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">        one  two     three</span><br><span class="line"><span class="number">1</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>如果创建df时不指定索引，默认索引将是从0开时，步长为1的数组。</li>
+<li>df的行、列可以是不同的数据类型，同行也可以有多种数据类型。</li>
+<li>df创建完成好可以重新设置索引，通常用到3个函数：<code>set_index</code>、<code>reset_index</code>、<code>reindex</code></li>
+</ul>
+<h3 id="1-1-1-set-index"><a href="#1-1-1-set-index" class="headerlink" title="1.1.1 set_index"></a>1.1.1 <code>set_index</code></h3><p><code>set_index</code>用于将df中的一行或多行设置为索引. 用法:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">df.set_index(<span class="string">'one'</span>)</span><br><span class="line">df.set_index([<span class="string">'one'</span>],drop=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># 参数drop默认为True，意为将该列设置为索引后从数据中删除，如果设为False，将继续在数据中保留该行。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.set_index(<span class="string">'one'</span>)</span><br><span class="line">           two     three</span><br><span class="line">one</span><br><span class="line"><span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"> <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.set_index([<span class="string">'one'</span>],drop=<span class="keyword">False</span>)</span><br><span class="line">                one  two     three</span><br><span class="line">one</span><br><span class="line"><span class="number">-1.183802</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"> <span class="number">1.426724</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">-1.530958</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">-0.939147</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">df.set_index([<span class="string">'one'</span>,<span class="string">'two'</span>])</span><br><span class="line">df.index=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>]</span><br><span class="line"><span class="comment"># 如果要设置的索引不在数据中, 可以用index直接设置</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">        one  two     three</span><br><span class="line">a <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line">b  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line">c <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line">d <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.set_index([<span class="string">'one'</span>,<span class="string">'two'</span>])</span><br><span class="line">                  three</span><br><span class="line">one       two</span><br><span class="line"><span class="number">-1.183802</span> <span class="number">1.0</span>  zhangsan</span><br><span class="line"> <span class="number">1.426724</span> <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">-1.530958</span> <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">-0.939147</span> <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-1-2-reset-index"><a href="#1-1-2-reset-index" class="headerlink" title="1.1.2 reset_index"></a>1.1.2 <code>reset_index</code></h3><p><code>reset_index</code>用于将索引还原成默认值，即从0开始步长为1的数组。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">df.reset_index(drop=<span class="keyword">True</span>)</span><br><span class="line">df.set_index([<span class="string">'one'</span>],drop=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># 参数drop默认值为False，意为将原来的索引做为数据列保留，如果设为True，原来的索引会直接删除。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.reset_index()</span><br><span class="line">  index       one  two     three</span><br><span class="line"><span class="number">0</span>     a <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">1</span>     b  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">2</span>     c <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">3</span>     d <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.reset_index(drop=<span class="keyword">True</span>)</span><br><span class="line">        one  two     three</span><br><span class="line"><span class="number">0</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">1</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">2</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">3</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="1-1-3-reindex"><a href="#1-1-3-reindex" class="headerlink" title="1.1.3 reindex"></a>1.1.3 <code>reindex</code></h3><p><code>reindex</code>比较复杂，也不常用到，这里是基础篇，不做大量说明，感兴趣的朋友可以看 <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.reindex.html" target="_blank" rel="noopener">官方文档</a></p>
+<h2 id="1-2-利用数组创建"><a href="#1-2-利用数组创建" class="headerlink" title="1.2 利用数组创建"></a>1.2 利用数组创建</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">data=np.random.randn(<span class="number">6</span>,<span class="number">4</span>)       <span class="comment">#创建一个6行4列的数组</span></span><br><span class="line">df=pd.DataFrame(data,columns=list(<span class="string">'ABCD'</span>),index=[<span class="number">1</span>,<span class="number">2</span>,<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'2006-10-1'</span>,<span class="string">'第六行'</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">1</span>         <span class="number">-0.173690</span>  <span class="number">0.004300</span> <span class="number">-0.896126</span>  <span class="number">0.360287</span></span><br><span class="line"><span class="number">2</span>          <span class="number">1.493732</span>  <span class="number">0.784469</span> <span class="number">-0.799769</span> <span class="number">-1.828341</span></span><br><span class="line">a         <span class="number">-0.678492</span>  <span class="number">0.613644</span>  <span class="number">1.835787</span>  <span class="number">0.252200</span></span><br><span class="line">b         <span class="number">-1.347327</span>  <span class="number">0.134869</span> <span class="number">-0.595432</span> <span class="number">-0.533671</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>  <span class="number">0.178216</span> <span class="number">-0.690090</span> <span class="number">-0.625436</span>  <span class="number">1.377065</span></span><br><span class="line">第六行    <span class="number">-1.534302</span> <span class="number">-0.147462</span>  <span class="number">0.703847</span>  <span class="number">0.221454</span></span><br></pre></td></tr></table></figure>
+<h2 id="1-3-创建一个空DataFrame"><a href="#1-3-创建一个空DataFrame" class="headerlink" title="1.3 创建一个空DataFrame"></a>1.3 创建一个空DataFrame</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pd.DataFrame(columns=(<span class="string">'id'</span>,<span class="string">'name'</span>,<span class="string">'grade'</span>,<span class="string">'class'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pd.DataFrame(columns=(<span class="string">'id'</span>,<span class="string">'name'</span>,<span class="string">'grade'</span>,<span class="string">'class'</span>))</span><br><span class="line">Empty DataFrame</span><br><span class="line">Columns: [id, name, grade, <span class="class"><span class="keyword">class</span>]</span></span><br><span class="line"><span class="class"><span class="title">Index</span>:</span> []</span><br></pre></td></tr></table></figure>
+<h1 id="2-读DataFrame"><a href="#2-读DataFrame" class="headerlink" title="2 读DataFrame"></a>2 读DataFrame</h1><p>为了便于理解，以下面DataFrame为例，对其读写操作展开说明：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=np.random.randn(<span class="number">6</span>,<span class="number">4</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,columns=list(<span class="string">'ABCD'</span>),index=[<span class="number">1</span>,<span class="number">2</span>,<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'2006-10-1'</span>,<span class="string">'第六行'</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">1</span>         <span class="number">-0.173690</span>  <span class="number">0.004300</span> <span class="number">-0.896126</span>  <span class="number">0.360287</span></span><br><span class="line"><span class="number">2</span>          <span class="number">1.493732</span>  <span class="number">0.784469</span> <span class="number">-0.799769</span> <span class="number">-1.828341</span></span><br><span class="line">a         <span class="number">-0.678492</span>  <span class="number">0.613644</span>  <span class="number">1.835787</span>  <span class="number">0.252200</span></span><br><span class="line">b         <span class="number">-1.347327</span>  <span class="number">0.134869</span> <span class="number">-0.595432</span> <span class="number">-0.533671</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>  <span class="number">0.178216</span> <span class="number">-0.690090</span> <span class="number">-0.625436</span>  <span class="number">1.377065</span></span><br><span class="line">第六行    <span class="number">-1.534302</span> <span class="number">-0.147462</span>  <span class="number">0.703847</span>  <span class="number">0.221454</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="2-1-按列读取"><a href="#2-1-按列读取" class="headerlink" title="2.1 按列读取"></a>2.1 按列读取</h2><h3 id="2-1-1-df-列名"><a href="#2-1-1-df-列名" class="headerlink" title="2.1.1 df.列名"></a>2.1.1 <code>df.列名</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 该方法每次只能读取一列。</span></span><br><span class="line">df.A</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.A</span><br><span class="line"><span class="number">1</span>            <span class="number">1.787797</span></span><br><span class="line"><span class="number">2</span>            <span class="number">0.098504</span></span><br><span class="line">a           <span class="number">-0.361166</span></span><br><span class="line">b            <span class="number">0.337533</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>   <span class="number">-0.628970</span></span><br><span class="line">第六行          <span class="number">3.356526</span></span><br><span class="line">Name: A, dtype: float64</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-2-df-39-列名-39-df-39-列名-39-df-39-列名1-39-39-列名2-39-39-列名n-39"><a href="#2-1-2-df-39-列名-39-df-39-列名-39-df-39-列名1-39-39-列名2-39-39-列名n-39" class="headerlink" title="2.1.2 df[&#39;列名&#39;] df[[&#39;列名&#39;]] df[[&#39;列名1&#39;,&#39;列名2&#39;,&#39;列名n&#39;]]"></a>2.1.2 <code>df[&#39;列名&#39;]</code> <code>df[[&#39;列名&#39;]]</code> <code>df[[&#39;列名1&#39;,&#39;列名2&#39;,&#39;列名n&#39;]]</code></h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 该方法每次只能读取一列。</span></span><br><span class="line">df[<span class="string">'A'</span>]</span><br><span class="line">df[[<span class="string">'A'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>]]</span><br><span class="line"></span><br><span class="line"><span class="comment"># df['A']和 df[['A']] 返回结果的值相同，但数据结构有差异,</span></span><br><span class="line"><span class="comment"># 用 type(df['A']),type(df[['A']]) 查看。 前者为series, 后者为DataFrame.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'A'</span>]</span><br><span class="line"><span class="number">1</span>            <span class="number">1.787797</span></span><br><span class="line"><span class="number">2</span>            <span class="number">0.098504</span></span><br><span class="line">a           <span class="number">-0.361166</span></span><br><span class="line">b            <span class="number">0.337533</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>   <span class="number">-0.628970</span></span><br><span class="line">第六行       <span class="number">3.356526</span></span><br><span class="line">Name: A, dtype: float64</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[[<span class="string">'A'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>]]</span><br><span class="line">                  A         C         D</span><br><span class="line"><span class="number">1</span>          <span class="number">1.787797</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"><span class="number">2</span>          <span class="number">0.098504</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a         <span class="number">-0.361166</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line">b          <span class="number">0.337533</span>  <span class="number">0.378315</span>  <span class="number">0.485731</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span> <span class="number">-0.628970</span>  <span class="number">1.152818</span> <span class="number">-0.671454</span></span><br><span class="line">第六行     <span class="number">3.356526</span>  <span class="number">0.854735</span> <span class="number">-0.768296</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(df[<span class="string">'A'</span>]),type(df[[<span class="string">'A'</span>]])</span><br><span class="line">(&lt;class 'pandas.core.series.Series'&gt;, &lt;class 'pandas.core.frame.DataFrame'&gt;)</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-3-iloc-colNo-iloc-colNo1-colNo2"><a href="#2-1-3-iloc-colNo-iloc-colNo1-colNo2" class="headerlink" title="2.1.3 .iloc[:,colNo] .iloc[:,colNo1:colNo2]"></a>2.1.3 <code>.iloc[:,colNo]</code> <code>.iloc[:,colNo1:colNo2]</code></h3><p>按列号读取，有时候我们可能更希望通过列号（1，2，3…）读取数据而不是列名，<br>又或着我们要读取多行的时候一个一个输入列名是很麻烦的，<br>我们希望有最简单的代码读取我们最想要的内容，<br><code>.iloc</code> 方法可以让我们通过列号索引数据，具体如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df.iloc[:<span class="number">1</span>]         <span class="comment"># 读取第一列</span></span><br><span class="line">df.iloc[:,<span class="number">1</span>:<span class="number">3</span>]      <span class="comment"># 读取第1列到第3列</span></span><br><span class="line">df.iloc[:,<span class="number">2</span>:]       <span class="comment"># 读取第2列之后的数据</span></span><br><span class="line">df.iloc[:,:<span class="number">3</span>]       <span class="comment"># 读取前3列数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这其实是按单元格读取数据的特殊写法，如果有疑问请看 2.3 按单元格读取数据。</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-2-按行读取"><a href="#2-2-按行读取" class="headerlink" title="2.2 按行读取"></a>2.2 按行读取</h2><h3 id="2-2-1-loc-39-行标签-39-loc-39-行标签-39-loc-39-行标签1-39-39-行标签2-39-39-行标签n-39"><a href="#2-2-1-loc-39-行标签-39-loc-39-行标签-39-loc-39-行标签1-39-39-行标签2-39-39-行标签n-39" class="headerlink" title="2.2.1 .loc[&#39;行标签&#39;] .loc[[&#39;行标签&#39;]] .loc[[&#39;行标签1&#39;,&#39;行标签2&#39;,&#39;行标签n&#39;]]"></a>2.2.1 <code>.loc[&#39;行标签&#39;]</code> <code>.loc[[&#39;行标签&#39;]]</code> <code>.loc[[&#39;行标签1&#39;,&#39;行标签2&#39;,&#39;行标签n&#39;]]</code></h3><p><code>.loc</code>根据行标签索引数据，这里的行标签可以理解为索引（没有深入研究，但是在这里，行标签=索引）,<br>比如我们要分别读取第1行和第3行就是<code>df[[1]]</code>、<code>df[[&#39;a&#39;]]</code>，<br>如果该df的索引变为<code>[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;]</code>，分别读取第1行和第3行的操作将变成<code>df[[&#39;a&#39;]]</code>,<code>df[[&#39;c&#39;]]</code>，<br>也就是说.loc后面的’行标签’必须在索引中。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">df.loc[[<span class="number">1</span>]]</span><br><span class="line">df.loc[[<span class="number">1</span>,<span class="string">'a'</span>,<span class="string">'2006-10-1'</span>]]</span><br><span class="line"><span class="comment"># df.loc[1] 和 df.loc[[1]] 返回结果的值相同，但数据结构有差异</span></span><br><span class="line"><span class="comment"># 用 type(df.loc[1]),type(df.loc[[1]]) 查看。 前者为series, 后者为DataFrame.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>]]</span><br><span class="line">          A         B         C         D</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'a'</span>,<span class="string">'2006-10-1'</span>]]</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">1</span>          <span class="number">1.787797</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line">a         <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span> <span class="number">-0.628970</span> <span class="number">-1.219419</span>  <span class="number">1.152818</span> <span class="number">-0.671454</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(df.loc[<span class="number">1</span>]),type(df.loc[[<span class="number">1</span>]])</span><br><span class="line">(&lt;class 'pandas.core.series.Series'&gt;, &lt;class 'pandas.core.frame.DataFrame'&gt;)</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-2-iloc-39-行号-39-iloc-39-行号-39-iloc-39-行号1-39-39-行号2-39-39-行号n-39"><a href="#2-2-2-iloc-39-行号-39-iloc-39-行号-39-iloc-39-行号1-39-39-行号2-39-39-行号n-39" class="headerlink" title="2.2.2 .iloc[&#39;行号&#39;] .iloc[[&#39;行号&#39;]] .iloc[[&#39;行号1&#39;,&#39;行号2&#39;,&#39;行号n&#39;]]"></a>2.2.2 <code>.iloc[&#39;行号&#39;]</code> <code>.iloc[[&#39;行号&#39;]]</code> <code>.iloc[[&#39;行号1&#39;,&#39;行号2&#39;,&#39;行号n&#39;]]</code></h3><p><code>.iloc</code>根据行号索引数据，行号是固定不变的，不受索引变化的影响，<br>如果df的索引是默认值，则.loc和.iloc的用法没有区别，因为此时行号和行标签相同。</p>
+<p><code>.iloc</code>还可以通过切片的方式读取数据，所谓切片就是给出要读数据的首尾位置，<br>然后读取首尾中间这“一片”数据（个人理解，可能理解的不对或比较片面，对此有疑惑的朋友请自行查阅相关资料）<br>比如我们要读取第1行到第4行的数据，利用切片的方法就是 <code>df.iloc[1:5]</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">df.iloc[[<span class="number">1</span>]]</span><br><span class="line">df.iloc[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">5</span>]]</span><br><span class="line">df.iloc[<span class="number">1</span>:<span class="number">5</span>]        <span class="comment"># 切片形式</span></span><br><span class="line">df.iloc[:<span class="number">5</span>]         <span class="comment"># 读取第0行到第4行的数据；</span></span><br><span class="line">df.iloc[<span class="number">8</span>:]         <span class="comment"># 读取第8行后所有数据，包括第8行；</span></span><br><span class="line">df.iloc[<span class="number">3</span>,<span class="number">6</span>]        <span class="comment"># 读取第3行到第6行的数据，包括第3行但不包括第6行。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[[<span class="number">1</span>]]</span><br><span class="line">          A         B         C         D</span><br><span class="line"><span class="number">2</span>  <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以看到 df.loc[1] 和 df.iloc[1] 读到的内容是不一样的，</span></span><br><span class="line"><span class="comment"># df.loc[1] 读取的是索引号为1的那一行，df.iloc[1] 读取的是第1行。</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">5</span>]]</span><br><span class="line">            A         B         C         D</span><br><span class="line"><span class="number">2</span>    <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a   <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line">第六行  <span class="number">3.356526</span> <span class="number">-0.945234</span>  <span class="number">0.854735</span> <span class="number">-0.768296</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">1</span>:<span class="number">5</span>]</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">2</span>          <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a         <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line">b          <span class="number">0.337533</span>  <span class="number">1.770279</span>  <span class="number">0.378315</span>  <span class="number">0.485731</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span> <span class="number">-0.628970</span> <span class="number">-1.219419</span>  <span class="number">1.152818</span> <span class="number">-0.671454</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-2-3-ix"><a href="#2-2-3-ix" class="headerlink" title="2.2.3 .ix"></a>2.2.3 <del><code>.ix</code></del></h3><p><code>.ix</code> 已经不推荐使用, 所以就不举例分析了.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.ix[[<span class="number">1</span>]]</span><br><span class="line">__main__:<span class="number">1</span>: DeprecationWarning:</span><br><span class="line">.ix <span class="keyword">is</span> deprecated. Please use</span><br><span class="line">.loc <span class="keyword">for</span> label based indexing <span class="keyword">or</span></span><br><span class="line">.iloc <span class="keyword">for</span> positional indexing</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-4-at-iat"><a href="#2-2-4-at-iat" class="headerlink" title="2.2.4 at iat"></a>2.2.4 <code>at</code> <code>iat</code></h3><p><code>at</code>、<code>iat</code> 这里就不做介绍了，因为上面的方法完全够用了，感兴趣的话可以看 <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.at.html" target="_blank" rel="noopener">官方文档</a><br><code>.loc</code> <code>.iloc</code> 完全可以满足DataFrame的读取操作，所以<code>ix</code>,<code>at</code>,<code>iat</code>并不推荐使用。</p>
+<h2 id="2-3-按单元格读取"><a href="#2-3-按单元格读取" class="headerlink" title="2.3 按单元格读取"></a>2.3 按单元格读取</h2><h3 id="2-3-1-df-col-row"><a href="#2-3-1-df-col-row" class="headerlink" title="2.3.1 df[col][row]"></a>2.3.1 <code>df[col][row]</code></h3><p>读取一个单元格的数据时推荐使用，也可以写成 <code>df.col[row]</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">df[<span class="string">'A'</span>][<span class="number">1</span>]</span><br><span class="line">df.A[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'A'</span>][<span class="number">1</span>]</span><br><span class="line"><span class="number">1.7877970995354475</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.A[<span class="number">1</span>]</span><br><span class="line"><span class="number">1.7877970995354475</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="2-3-2-loc"><a href="#2-3-2-loc" class="headerlink" title="2.3.2 .loc"></a>2.3.2 <code>.loc</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一个单元格：</span></span><br><span class="line">df.loc[row][col]</span><br><span class="line">df.loc[row,col]</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一行多列：</span></span><br><span class="line">df.loc[row][[col1,col2]]</span><br><span class="line">df.loc[row,[col1,col2]]</span><br><span class="line">df.loc[row][firstCol:endCol]</span><br><span class="line">df.loc[row,firstCol:endCol]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>][[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>,[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>][<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>,<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行一列：</span></span><br><span class="line">df.loc[[row1,row2]][col]</span><br><span class="line">df.loc[[row1,row2]].col</span><br><span class="line">df.loc[[row1,row2],col]</span><br><span class="line"><span class="comment"># 行号不能用切片!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="number">2</span>]][<span class="string">'A'</span>]</span><br><span class="line"><span class="number">1</span>    <span class="number">1.787797</span></span><br><span class="line"><span class="number">2</span>    <span class="number">0.098504</span></span><br><span class="line">Name: A, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="number">2</span>,<span class="string">'b'</span>]].B</span><br><span class="line"><span class="number">1</span>    <span class="number">0.366138</span></span><br><span class="line"><span class="number">2</span>   <span class="number">-1.332709</span></span><br><span class="line">b    <span class="number">1.770279</span></span><br><span class="line">Name: B, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'a'</span>],<span class="string">'A'</span>]</span><br><span class="line"><span class="number">1</span>    <span class="number">1.787797</span></span><br><span class="line">a   <span class="number">-0.361166</span></span><br><span class="line">Name: A, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行多列:</span></span><br><span class="line">df.loc[[row1,row2],[col1,col2]]</span><br><span class="line">df.loc[[row1,row2]][[col1,col2]]</span><br><span class="line">df.loc[[row1,row3],firstCol:endCol]</span><br><span class="line"><span class="comment"># 行号不能用切片!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="number">2</span>]][[<span class="string">'A'</span>,<span class="string">'C'</span>]]</span><br><span class="line">          A         C</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span> <span class="number">-0.668013</span></span><br><span class="line"><span class="number">2</span>  <span class="number">0.098504</span> <span class="number">-0.420558</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'b'</span>],[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">          A         B</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span>  <span class="number">0.366138</span></span><br><span class="line">b  <span class="number">0.337533</span>  <span class="number">1.770279</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'b'</span>],<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">          A         B         C</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span></span><br><span class="line">b  <span class="number">0.337533</span>  <span class="number">1.770279</span>  <span class="number">0.378315</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-3-iloc"><a href="#2-3-3-iloc" class="headerlink" title="2.3.3 .iloc"></a>2.3.3 <code>.iloc</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一个单元格：</span></span><br><span class="line">df.iloc[rowNo].col</span><br><span class="line">df.iloc[rowNo][col]</span><br><span class="line">df.iloc[rowNo,colNo]</span><br><span class="line"><span class="comment"># 不支持 df.iloc[rowNo,col]</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一行多列：</span></span><br><span class="line">df.iloc[rowNo,firestColNo,endColNo]</span><br><span class="line">df.iloc[rowNo][[col1,col2]]</span><br><span class="line">df.iloc[rowNo][firesCol:endCol]</span><br><span class="line"><span class="comment"># 不支持 df.iloc[rowNo,[col1,col2]]</span></span><br><span class="line"><span class="comment"># 不支持 df.iloc[rowNo,firstColNo:endColNo]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>,<span class="number">1</span>:<span class="number">3</span>]</span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>][[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>][<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行一列：</span></span><br><span class="line">df.iloc[[rowNo1,rowNo2],colNo]</span><br><span class="line">df.iloc[firstRowNo:endRowNo,colNo]</span><br><span class="line">df.iloc[[rowNo1,rowNo2]][col]</span><br><span class="line">df.iloc[firstRowNo,endRowNo][col]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>:<span class="number">3</span>,<span class="number">1</span>]</span><br><span class="line"><span class="number">1</span>    <span class="number">0.366138</span></span><br><span class="line"><span class="number">2</span>   <span class="number">-1.332709</span></span><br><span class="line">a   <span class="number">-0.427358</span></span><br><span class="line">Name: B, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">1</span>:<span class="number">3</span>][<span class="string">'A'</span>]</span><br><span class="line"><span class="number">2</span>    <span class="number">0.098504</span></span><br><span class="line">a   <span class="number">-0.361166</span></span><br><span class="line">Name: A, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">4</span>]][<span class="string">'A'</span>]</span><br><span class="line"><span class="number">2</span>            <span class="number">0.098504</span></span><br><span class="line">a           <span class="number">-0.361166</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>   <span class="number">-0.628970</span></span><br><span class="line">Name: A, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行多列：</span></span><br><span class="line">df.iloc[firstRowNo:endRowNo,firstColNo:endColNo]</span><br><span class="line">df.iloc[[RowNo1,RowNo2],[ColNo1,ColNo2]]</span><br><span class="line">df.iloc[firstRowNo:endRowNo][[col1,col2]]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>:<span class="number">3</span>,<span class="number">1</span>:<span class="number">4</span>]</span><br><span class="line">          B         C         D</span><br><span class="line"><span class="number">1</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"><span class="number">2</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>:<span class="number">3</span>, [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]]</span><br><span class="line">          B         C         D</span><br><span class="line"><span class="number">1</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"><span class="number">2</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">1</span>:<span class="number">3</span>][[<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>]]</span><br><span class="line">          A         B         C</span><br><span class="line"><span class="number">2</span>  <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span></span><br><span class="line">a <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-4-ix-at-iat"><a href="#2-3-4-ix-at-iat" class="headerlink" title="2.3.4 .ix at iat"></a>2.3.4 <del><code>.ix</code> <code>at</code> <code>iat</code></del></h3><p><code>ix</code>,<code>at</code>,<code>iat</code>不推荐使用</p>
+<h1 id="3-写DataFrame-DataFrame赋值"><a href="#3-写DataFrame-DataFrame赋值" class="headerlink" title="3 写DataFrame/DataFrame赋值"></a>3 写DataFrame/DataFrame赋值</h1><h2 id="3-1-按列赋值"><a href="#3-1-按列赋值" class="headerlink" title="3.1 按列赋值"></a>3.1 按列赋值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">df.col=colList/colValue</span><br><span class="line">df[col]=colList/colValue</span><br><span class="line"><span class="comment"># 如果用一个列表或数组赋值，其长度必须和df的行数相同。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.A=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'A'</span>]=<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-2-按行赋值"><a href="#3-2-按行赋值" class="headerlink" title="3.2 按行赋值"></a>3.2 按行赋值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df.loc[row]=rowList</span><br><span class="line">df.loc[row]=rowValue</span><br></pre></td></tr></table></figure>
+<h2 id="3-3-给多行多列赋值"><a href="#3-3-给多行多列赋值" class="headerlink" title="3.3 给多行多列赋值"></a>3.3 给多行多列赋值</h2><p>DataFrame的读写操作是多变的，这里也仅仅列出了几种常用的方法，熟练一种方式即可。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df.loc[[row1,row2],[col1,col2]]=value/valueList</span><br><span class="line">df.iloc[[rowNo1,rowNo2],[colNo1,colNo2]]=value/valueList</span><br><span class="line">df.iloc[[rowNo1,rowNo2]][[col1,col2]]=value/valueList</span><br><span class="line">df.ix[firstRow:endRow,firstCol:endCol]=value/valueList</span><br></pre></td></tr></table></figure></p>
+<h1 id="4-DataFrame的插入"><a href="#4-DataFrame的插入" class="headerlink" title="4 DataFrame的插入"></a>4 DataFrame的插入</h1><p>初始化 DataFrame, 以下面DataFrame为例展开说明<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line">df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获得如下DataFrame</span></span><br><span class="line">        one  two     three</span><br><span class="line"><span class="number">1</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="4-1-在任意位置插入"><a href="#4-1-在任意位置插入" class="headerlink" title="4.1 在任意位置插入"></a>4.1 在任意位置插入</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 插入一列</span></span><br><span class="line">insert(ioc,column,value)</span><br><span class="line"><span class="comment"># ioc:要插入的位置</span></span><br><span class="line"><span class="comment"># colunm:列名</span></span><br><span class="line"><span class="comment"># value:值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.insert(<span class="number">2</span>,<span class="string">'four'</span>,[<span class="number">11</span>,<span class="number">22</span>,<span class="number">33</span>,<span class="number">44</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">        one  two  four     three</span><br><span class="line"><span class="number">1</span> <span class="number">-1.417222</span>  <span class="number">1.0</span>    <span class="number">11</span>  zhangsan</span><br><span class="line"><span class="number">2</span>  <span class="number">1.251673</span>  <span class="number">2.0</span>    <span class="number">22</span>        李四</span><br><span class="line"><span class="number">3</span> <span class="number">-0.103710</span>  <span class="number">3.0</span>    <span class="number">33</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span> <span class="number">-1.237722</span>  <span class="number">4.0</span>    <span class="number">44</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 插入一行</span></span><br><span class="line">row=&#123;<span class="string">'one'</span>:<span class="number">111</span>,<span class="string">'two'</span>:<span class="number">222</span>,<span class="string">'three'</span>:<span class="number">333</span>&#125;</span><br><span class="line">df.loc[<span class="number">1</span>]=row       <span class="comment"># or</span></span><br><span class="line">df.iloc[<span class="number">1</span>]=row      <span class="comment"># or</span></span><br><span class="line">df.ix[<span class="number">1</span>]=row</span><br></pre></td></tr></table></figure>
+<h2 id="4-2-在末尾插入"><a href="#4-2-在末尾插入" class="headerlink" title="4.2 在末尾插入"></a>4.2 在末尾插入</h2><p>如果插入一行或一列，用上面的方法把插入位置改为末尾即可，下面给出插入多行多列的方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 按列合并, 插入多行</span></span><br><span class="line">df.append(df2)</span><br><span class="line"><span class="comment"># 效果等同于 pd.concat([df,df2],axis=0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="comment"># 初始化列表df, df2, 用于列合并</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:[<span class="number">222</span>,<span class="number">214</span>],<span class="string">"two"</span>:np.linspace(<span class="number">11</span>,<span class="number">22</span>,<span class="number">2</span>), <span class="string">"three"</span>:[<span class="string">'AAA'</span>, <span class="string">'BBB'</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2=pd.DataFrame(data)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.append(df2)</span><br><span class="line">          one   two     three</span><br><span class="line"><span class="number">1</span>    <span class="number">0.168605</span>   <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>    <span class="number">0.466244</span>   <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span>   <span class="number">-0.176716</span>   <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span>    <span class="number">1.066139</span>   <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"><span class="number">0</span>  <span class="number">222.000000</span>  <span class="number">11.0</span>       AAA</span><br><span class="line"><span class="number">1</span>  <span class="number">214.000000</span>  <span class="number">22.0</span>       BBB</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 插入多行多列</span></span><br><span class="line">pandas.concat(objs, axis=<span class="number">0</span>, join_axes=<span class="keyword">None</span>, ignore_index=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># objs:合并对象</span></span><br><span class="line"><span class="comment"># axis:合并方式，默认0表示按列合并，1表示按行合并</span></span><br><span class="line"><span class="comment"># ignore_index:是否忽略索引</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按行合并</span></span><br><span class="line">初始化列表df, df1, 用于行合并</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"four"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"five"</span>:np.linspace(<span class="number">1</span>,<span class="number">100</span>,<span class="number">4</span>)&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df1=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df1</span><br><span class="line">       four   five</span><br><span class="line"><span class="number">1</span> <span class="number">-0.119780</span>    <span class="number">1.0</span></span><br><span class="line"><span class="number">2</span> <span class="number">-0.290202</span>   <span class="number">34.0</span></span><br><span class="line"><span class="number">3</span>  <span class="number">1.209032</span>   <span class="number">67.0</span></span><br><span class="line"><span class="number">4</span>  <span class="number">0.997500</span>  <span class="number">100.0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pd.concat([df,df1],axis=<span class="number">1</span>)</span><br><span class="line">        one  two  four     three      four   five</span><br><span class="line"><span class="number">1</span> <span class="number">-1.417222</span>  <span class="number">1.0</span>    <span class="number">11</span>  zhangsan <span class="number">-0.119780</span>    <span class="number">1.0</span></span><br><span class="line"><span class="number">2</span>  <span class="number">1.251673</span>  <span class="number">2.0</span>    <span class="number">22</span>      李四 <span class="number">-0.290202</span>   <span class="number">34.0</span></span><br><span class="line"><span class="number">3</span> <span class="number">-0.103710</span>  <span class="number">3.0</span>    <span class="number">33</span>       <span class="number">999</span>  <span class="number">1.209032</span>   <span class="number">67.0</span></span><br><span class="line"><span class="number">4</span> <span class="number">-1.237722</span>  <span class="number">4.0</span>    <span class="number">44</span>       <span class="number">0.1</span>  <span class="number">0.997500</span>  <span class="number">100.0</span></span><br><span class="line"><span class="comment"># 若 df2 和 df 的列数不相同, 空缺的行内容会别填充为 NaN</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按列合并</span></span><br><span class="line"><span class="comment"># 初始化列表df, df2, 用于列合并</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:[<span class="number">222</span>,<span class="number">214</span>],<span class="string">"two"</span>:np.linspace(<span class="number">11</span>,<span class="number">22</span>,<span class="number">2</span>), <span class="string">"three"</span>:[<span class="string">'AAA'</span>, <span class="string">'BBB'</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2=pd.DataFrame(data)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2</span><br><span class="line">   one   two three</span><br><span class="line"><span class="number">0</span>  <span class="number">222</span>  <span class="number">11.0</span>   AAA</span><br><span class="line"><span class="number">1</span>  <span class="number">214</span>  <span class="number">22.0</span>   BBB</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pd.concat([df,df2],axis=<span class="number">0</span>)                                                                 &#125;</span><br><span class="line">          one   two     three</span><br><span class="line"><span class="number">1</span>    <span class="number">0.034967</span>   <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>   <span class="number">-1.888495</span>   <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span>    <span class="number">1.045013</span>   <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span>   <span class="number">-0.313027</span>   <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"><span class="number">0</span>  <span class="number">222.000000</span>  <span class="number">11.0</span>       AAA</span><br><span class="line"><span class="number">1</span>  <span class="number">214.000000</span>  <span class="number">22.0</span>       BBB</span><br><span class="line"><span class="comment"># 若 df2 和 df 的列数不相同, 空缺的列内容会别填充为 NaN</span></span><br></pre></td></tr></table></figure>
+<h1 id="5-DataFrame的删除操作"><a href="#5-DataFrame的删除操作" class="headerlink" title="5 DataFrame的删除操作"></a>5 DataFrame的删除操作</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">drop(labels, axis=<span class="number">0</span>, level=<span class="keyword">None</span>, inplace=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># lables：要删除数据的标签</span></span><br><span class="line"><span class="comment"># axis：0表示删除行，1表示删除列，默认0</span></span><br><span class="line"><span class="comment"># inplace:是否在当前df中执行此操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="comment"># 下述操作不会影响 df 本身, 因为没有被重新赋值.</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.drop([<span class="string">'one'</span>,<span class="string">'two'</span>],axis=<span class="number">1</span>)</span><br><span class="line">      three</span><br><span class="line"><span class="number">1</span>  zhangsan</span><br><span class="line"><span class="number">2</span>        李四</span><br><span class="line"><span class="number">3</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span>       <span class="number">0.1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.drop([<span class="number">1</span>,<span class="number">3</span>],axis=<span class="number">0</span>)</span><br><span class="line">        one  two three</span><br><span class="line"><span class="number">2</span>  <span class="number">0.466244</span>  <span class="number">2.0</span>    李四</span><br><span class="line"><span class="number">4</span>  <span class="number">1.066139</span>  <span class="number">4.0</span>   <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<h1 id="6-DataFrame的高级操作"><a href="#6-DataFrame的高级操作" class="headerlink" title="6 DataFrame的高级操作"></a>6 DataFrame的高级操作</h1><h2 id="6-1-drop-duplicates-删除重复行"><a href="#6-1-drop-duplicates-删除重复行" class="headerlink" title="6.1 drop_duplicates 删除重复行"></a>6.1 <code>drop_duplicates</code> 删除重复行</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df.drop_duplicates()                    <span class="comment"># 删除重复行</span></span><br><span class="line">df.drop_duplicates([<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>])       <span class="comment"># 指定要判断的列, 删除重复内容的行.</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-2-fillnan-填充无效值"><a href="#6-2-fillnan-填充无效值" class="headerlink" title="6.2 fillnan 填充无效值"></a>6.2 <code>fillnan</code> 填充无效值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df.fillna(<span class="string">'我是无效值'</span>)                  <span class="comment"># 将 NaN 替换为 '我是无效值'</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>转载自 <a href="https://blog.csdn.net/xtfge0915/article/details/52938740#" target="_blank" rel="noopener">pandas 入门：DataFrame的创建，读写，插入和删除</a> 和 <a href="https://blog.csdn.net/xtfge0915/article/details/83477062" target="_blank" rel="noopener">pandas进阶：DataFrame高级操作</a>有删改</em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Python 错误及解决方法]]></title>
+      <url>https://draapho.github.io/2019/05/19/1904-python-error/</url>
+      <content type="html"><![CDATA[<h1 id="UnicodeEncodeError-‘charmap’-codec-can’t-encode-characters"><a href="#UnicodeEncodeError-‘charmap’-codec-can’t-encode-characters" class="headerlink" title="UnicodeEncodeError: ‘charmap’ codec can’t encode characters"></a>UnicodeEncodeError: ‘charmap’ codec can’t encode characters</h1><ul>
+<li>此问题多发生在windows的区域和开发中用到在字符不匹配. 譬如英文区域的windows要编解码中文字符.</li>
+<li>原因及解决方法参考 <a href="https://blog.csdn.net/haiross/article/details/36189103" target="_blank" rel="noopener">代码页即地狱</a></li>
+</ul>
+<p>简单来说, 就是windows底层编码的问题. 要解决这个问题, 只能从windows系统着手.</p>
+<p><img src="https://draapho.github.io/images/1904/Region.png" alt="Region"></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[波浪理论]]></title>
+      <url>https://draapho.github.io/2019/04/26/1903-wave-principle/</url>
+      <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2019/03/26/1902-trading-rule/">交易市场思考</a></li>
+<li><a href="https://draapho.github.io/2019/04/26/1903-wave-principle/">波浪理论</a></li>
+</ul>
+<p><strong>待完善</strong></p>
+<h1 id="波浪理论特性"><a href="#波浪理论特性" class="headerlink" title="波浪理论特性"></a>波浪理论特性</h1><ul>
+<li>价格和速度构成的形态为主, 结合价格比例关系, 时间为辅的技术分析理论.</li>
+<li>将数理引入了股市技术分析, 即斐波那契数列和黄金比率φ.</li>
+<li><strong>对波浪形态进行了全分类, 并将不同波浪的特性进行了定性描述.</strong></li>
+<li><strong>缺点: 级别混乱, 千人千浪.</strong></li>
+</ul>
+<h1 id="波浪形态及特性"><a href="#波浪形态及特性" class="headerlink" title="波浪形态及特性"></a>波浪形态及特性</h1><p>重要规则如下:</p>
+<ul>
+<li><strong>浪4不进入浪1领域</strong></li>
+<li><strong>1,3,5浪中, 浪3永远不是最短的一浪.</strong></li>
+<li><strong>1,3,5浪中的某一浪通常会延长</strong></li>
+<li>交替原则<ul>
+<li><strong>调整浪的简/繁, 陡/平交替.</strong></li>
+<li><strong>若推动浪的3浪延长, 则5浪时简单浪形, 和1浪相似.</strong></li>
+<li><strong>若推动浪的1,3浪相似, 则5浪可能延长.</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="波浪分类"><a href="#波浪分类" class="headerlink" title="波浪分类"></a>波浪分类</h2><ul>
+<li>驱动浪(motive):<ul>
+<li><strong>推动浪</strong>(impulse): 多数驱动浪以推动浪的形态出现.<ul>
+<li>小级别形态为五浪推动, 使用数字12345标注.</li>
+<li><strong>浪4最低点高于浪1最高点, 两者无重叠价位.</strong> (少数市场例外, 如期货市场)</li>
+<li><strong>浪3不是最短的子浪</strong>, 即要么浪1最短, 要么浪5最短.</li>
+<li><strong>浪1,3,5三者之一通常会产生延长浪.</strong>, 能事前判断的也就浪三延长.</li>
+<li><strong>浪2和浪4的简单/复杂形态几乎总是交替的.</strong> 一个调整浪属于锯齿形(简单), 另一个则为平台/三级/复合型(复杂)</li>
+<li>推动浪通常可用平行线划出通道. <strong>5浪经常对通道翻越/假突破后结束.</strong></li>
+</ul>
+</li>
+<li>延长浪:<ul>
+<li>延长浪的概念是一个坑, 不利于确定级别和浪形的起始点.</li>
+<li><strong>延长浪通常只作用于1,3,5中的一个</strong>, 为将来的各个波浪长度提供了一定的预测指南.</li>
+<li><strong>若1浪和3浪长度大致相等, 则5浪就可能成为一个延长的巨浪</strong></li>
+<li><strong>股市中, 最为常见的就是3浪延长, 此时5浪必然简单, 且与1浪类似.</strong></li>
+<li>另有一种几乎<strong>等长等速的九浪模式</strong>, 很难区分哪浪延长了.</li>
+</ul>
+</li>
+<li><strong>倾斜三角形</strong>(diagonal triangle): 少见的变体, 也属于驱动浪.<ul>
+<li>引导倾斜三角形, 5-3-5-3-5浪形, 主要出现在浪1和锯齿形调整浪的浪A.</li>
+<li>终结倾斜三角型, 3-3-3-3-3浪形, 主要出现在浪5, 偶见于浪C.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>调整浪</strong>(corrective): 三浪调整或其变体.</p>
+<ul>
+<li>与大级别趋势反向的最初5浪永远不是调整浪的结束, 而仅仅是调整浪的一部分.</li>
+<li><strong>锯齿形</strong>(zigzag), 5-3-5浪形, 最为简单的调整浪, 使用ABC标注.<ul>
+<li>单锯齿形, 双锯齿形, 三锯齿形</li>
+</ul>
+</li>
+<li>平台型(flat), 3-3-5浪形, 使用ABC标注.<ul>
+<li>普通平台型, 扩散平台型, 顺势平台型</li>
+</ul>
+</li>
+<li>三角形(triangle), 3-3-3-3-3浪形, 使用ABCDE标示<ul>
+<li>三种收缩类型: 上升三角形, 下降三角形, 对称三角形.</li>
+<li>一种扩散类型: 反对称三角形.</li>
+</ul>
+</li>
+<li><strong>复合型</strong>(combination) 引入WXYZ标示<ul>
+<li>双重三浪, 三重三浪.</li>
+</ul>
+</li>
+<li><strong>调整浪通常在同级别驱动浪的浪4范围内结束</strong></li>
+<li><strong>调整浪的陡直/横向, 简单/复杂形态几乎总是交替出现</strong>, 即大级别中2浪调整和4浪调整通常是陡/横, 简/繁交替的.</li>
+</ul>
+</li>
+<li><p>作用浪(action): 或顺势浪, 与大一级别波浪同向运动的波浪. 135ac属于作用浪</p>
+<ul>
+<li>多数作用浪由小一级别的驱动浪构成, 即五浪.</li>
+<li>少数作用浪由小一级别的调整浪构成, 即三浪或其变体.</li>
+</ul>
+</li>
+<li>反作用浪(reaction): 或逆势浪, 与大一级别波浪反向运动的波浪. 24b属于反作用浪</li>
+</ul>
+<h2 id="驱动浪特性"><a href="#驱动浪特性" class="headerlink" title="驱动浪特性"></a>驱动浪特性</h2><p>延长浪, 浪3不是最短, 浪4不进入浪1领域</p>
+<pre><code>- 正确的数浪: 若1,2浪确定后, 走出的3浪过短或与2浪重叠, 那么多半意味着延长的3浪正在形成.
+</code></pre><p>/////////////////////////// 图P15  图P16</p>
+<p>5浪</p>
+<pre><code>- 5浪失败/衰竭: 第5浪未能超过3浪最高点的情况.
+- 5浪结束通常要包含小级别的5个子浪来确定. (缺乏时间和级别概念)
+</code></pre><p>图P19 倾斜三角形<br>    终结倾斜三角型, 3-3-3-3-3浪形, 主要出现在浪5, 偶见于浪C. 形态为收敛的楔形, 其子浪5经常对趋势线有假突破(翻越)</p>
+<p>趋势的结束:</p>
+<pre><code>- 5浪延长
+- 衰竭/失败的5浪
+- 倾斜三角形
+</code></pre><h2 id="调整浪特性"><a href="#调整浪特性" class="headerlink" title="调整浪特性"></a>调整浪特性</h2><p>调整浪不会是五浪, 只有驱动浪才会构成五浪. 因此与趋势反向运动的最初五浪不是调整浪的结束, 而仅是调整浪的一部分.<br>各种调整过程呈现两种风格: 陡直(sharp)调整 和 横向(sideways)调整.<br>(第2章解释了交替出现的原因….)</p>
+<p>明确的调整浪模式:</p>
+<ul>
+<li>锯齿形(5-3-5)<ul>
+<li>单锯齿形调整浪是一种简单的三浪模式,<ul>
+<li>标示为A-B-C, 内部子浪为5-3-5 (图1-22,23)</li>
+</ul>
+</li>
+<li>双重/三重锯齿形调整浪: 由2-3个单锯齿形调整浪, 通过一个三浪结构连接的调整浪(图1-26)<ul>
+<li>双重标示为 W-X-Y, 内部子浪为(5-3-5)-3-(5-3-5). 三重标示为 W-X-Y-X-Z.</li>
+</ul>
+</li>
+<li>当第一个锯齿形调整浪没有达到正常目标时, 容易发生两次, 至多三次的锯齿形调整浪.</li>
+</ul>
+</li>
+<li>平台形(3-3-5)<ul>
+<li>标示为A-B-C, 内部子浪为3-3-5</li>
+<li>平台形往往出现在趋势强劲有力的时候, 多出现在第四浪. 内在趋势越强, 平台型调整浪就越短暂.</li>
+<li>规则平台形 (图1-30)<ul>
+<li>作用浪A, 由于缺乏足够的破坏力, 只走出了3浪.</li>
+<li>作用浪B, 同样缺乏足够的修复力, 3浪之后在浪A起点附近结束</li>
+<li>作用浪C, 通常只在略微超过浪A终点的位置结束.</li>
+</ul>
+</li>
+<li>扩散平台形: B浪超过A浪起点, C浪超过远远超过A浪终点.</li>
+<li>顺势平台形: B浪超过A浪起点, C浪不能走完全程, 不及A浪终点.<ul>
+<li>形态上有点类似于推动浪的衰竭, 但本质是趋势推动力强劲!</li>
+<li>如果B浪走成了5浪, 那就不是顺势平台型, 很可能是大级别的第一个上升浪!</li>
+<li>顺势平台型非常少见, 不建议提前标注这种类型! (顺势三角形较为常见)</li>
+</ul>
+</li>
+<li>双重平台形 (…后面讨论)</li>
+</ul>
+</li>
+<li>三角形(3-3-3-3-3)   (图1-42)<ul>
+<li>标示为A-B-C-D-E, 内部子浪为3-3-3-3-3.</li>
+<li>连接A,C终点, 以及B,D终点, 就会是一个三角形调整浪. 浪E可能未达或超过A-C线.</li>
+<li>对称三角形: 上下边共同收缩</li>
+<li>下降三角形: 上边收缩快, 下边基本水平.</li>
+<li>上升三角形: 上边基本水平, 下边收缩快.</li>
+<li>顺势三角形: B浪超过A浪的起点, 即与主趋势方向一致. (形态上和终结倾斜三角型是类似的)</li>
+<li>扩散三角形: 上下边共同扩散. 和扩散平台型的主要区别在浪C(5浪/3浪)</li>
+<li>三角形调整浪中, 大多数子浪是锯齿形调整浪, 但子浪中的一个浪会比其他子浪复杂<ul>
+<li>复杂子浪(通常是C浪)会呈现出: 规则平台形, 扩散平台形或多重锯齿形的样子.</li>
+<li>少数情况, E浪就是三角形调整, 从而构成一个九浪三角形. (图1-44)</li>
+</ul>
+</li>
+<li>三角形调整浪总是出现在最后一个作用浪之前, 即原趋势的最后一次调整的位置.<ul>
+<li>出现在浪4浪B的位置, 意味着后面还会有一波推动浪:浪5或浪C</li>
+<li>多重锯齿形, 联合型中的最后一个浪X, 通常呈现为三角形调整浪</li>
+<li>联合型调整浪中的最后一个作用模式出现.</li>
+<li>如果浪2看起来是三角形调整浪, 通常意味着这个浪2是一个复杂调整浪, 三角形只是其中的一部分!</li>
+</ul>
+</li>
+<li>股市中, 浪4出现三角形调整, 那么浪5通常迅速敏捷, 大致运行浪4最宽部分的距离.<ul>
+<li>在强劲市场中, 也有可能走出延伸5浪. 如果幅度超出浪4最宽部分, 可以考虑延伸的5浪. (多出现在商品中)</li>
+<li>但是, 也可能走成终结倾斜三角形.</li>
+</ul>
+</li>
+<li>时间: 收缩三角形趋势线相交之处, 往往是市场转折之时.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[交易市场思考]]></title>
       <url>https://draapho.github.io/2019/03/26/1902-trading-rule/</url>
       <content type="html"><![CDATA[<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
@@ -11,7 +252,7 @@
 </ul>
 <h1 id="指导思想"><a href="#指导思想" class="headerlink" title="指导思想"></a>指导思想</h1><ul>
 <li><strong>如果连时间都控制不了(自律), 还谈什么自信!</strong></li>
-<li>高手无他, 知道重点(<strong>识别强弱</strong>), 深入研究(<strong>结构, 均线, 资金流</strong>)</li>
+<li>高手无他, 知道重点(<strong>强弱, 共振</strong>), 深入研究(<strong>结构, 均线, 资金流</strong>)</li>
 <li><strong>技术分析核心思想: 若何时何价, 则强/中/弱</strong>, 没有期望, 只有通过实际走势客观判断市场强弱.</li>
 <li><strong>技术分析最大的坑: 何时必何价, 预测!</strong>. 由于加入了主观期望后的选择性观察和判断, 故而失去客观性!</li>
 <li>大道至简且相通: <strong>减少交易次数, 顺势而为, 讲的是人性!</strong>.</li>
@@ -52,7 +293,11 @@
 <li>只有市场认知, 最多只能像爬藤植物一般, 可以快速生长, 但无法完成积累!</li>
 <li>同时认知市场和人性, 才可能成长为参天大树.</li>
 <li>任何事物都有自己的路径依赖. 做投资, 必须一开始就培养成为参天大树的交易习惯.</li>
-<li>大道至简且相通: <strong>减少交易次数, 顺势而为.</strong> 由于讲的是人性, 技术派一般听不进去.</li>
+<li>大道至简: <strong>减少交易次数, 顺势而为.</strong><ul>
+<li>抄底逃顶的技术派一般听不进去.</li>
+<li>长期持股的价值派自带这种模式.</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -75,10 +320,14 @@
 <li>嗔疑痴: 与预期不一致后的生气,怀疑,拒不认错. 导致无法及时按计划处理错误, 如放弃止损或导致踏空.</li>
 <li>惧: 惧是嗔疑痴的后续情绪, 由于一错再错, 就会恐惧, 最终在行为上表现为卖在低位, 买在高位.</li>
 <li>慢: 慢的危害最大也最不易察觉! 特别是自认为知行合一, 战无不胜之时!</li>
+<li>在交易市场, <strong>克服人性弱点的唯一办法就是承认自己的弱点, 避免自己陷入到不利的处境之中.</strong></li>
 </ul>
 <h2 id="交易市场本质"><a href="#交易市场本质" class="headerlink" title="交易市场本质"></a>交易市场本质</h2><ul>
 <li><strong>成本/价格</strong><ul>
-<li>交易者心情的起伏取决于价格波动.</li>
+<li>交易者情绪的起伏取决于价格波动, 价格波动又导致了交易者情绪的起伏.<ul>
+<li>情绪和价格, 就有如电场和磁场, 交织在一起不断的变化延伸, 画出了K线图.</li>
+</ul>
+</li>
 <li>空仓者没有亏损压力, 故只需克服贪字即可.</li>
 <li>更为根本的是持仓成本.<ul>
 <li>能承受50%以上亏损的价值投资者恐怕不多.</li>
@@ -92,7 +341,7 @@
 </li>
 <li><strong>时间</strong><ul>
 <li><strong>时间是主宰.</strong></li>
-<li>将贪婪的心抚平为少亏一点就行.</li>
+<li>将贪婪的心降低预期至少亏一点, 直至不能再亏.</li>
 <li>让恐高的心习以为常, 因为不忍再次踏空而匆匆买入.</li>
 <li>直觉上, 应该有类似于牛顿冷却定律的数学公式.</li>
 </ul>
@@ -112,7 +361,7 @@
 </li>
 <li>人性<ul>
 <li>市场的所有表象, 最终体现的都是人性的本质.</li>
-<li>交易市场是一个最公平, 最充分, 也最和平的人性博弈场所.</li>
+<li>交易市场是一个最公平, 最充分, 最激烈, 也最和平的人性博弈场所.</li>
 </ul>
 </li>
 </ul>
@@ -128,14 +377,14 @@
 </li>
 <li>日间短线. 快进快出<ul>
 <li>A股市场的最短交易时间, 很多散户高手使用.</li>
-<li>优点: 满足高频交易的心理. 适用于与任何牛熊鹿任何阶段!</li>
+<li>优点: 满足高频交易的心理. 适用于与牛熊鹿任何阶段!</li>
 <li>缺点: 对操作者要求极高(能力和心理素质, 全职看盘), 资金容量有限.</li>
 </ul>
 </li>
 <li>波段交易<ul>
 <li>中期持股, 数周或数月.</li>
 <li>优点: 省时省力, 资金容量大. 资金成长性远远高于短线客.</li>
-<li>缺点: 对操作者要求极高(正确识别出波段顶底, 能忍空仓, 敢于重仓)</li>
+<li>缺点: 对操作者要求极高(正确识别出波段机会, 能中长期空仓等待)</li>
 </ul>
 </li>
 </ul>
@@ -147,7 +396,7 @@
 <li>操作级别: 长期持股.<ul>
 <li>优点: 由于其忽略股价短时波动的理念, 可以很容易的忽略情绪去买卖.</li>
 <li>缺点: 普通投资者缺乏全面的基本面分析能力, 学习手段也有限!</li>
-<li>缺点: 散户根本不适合价值投资! 因为解决不了风险分散以及何时卖出的问题!</li>
+<li>缺点: 散户解决不了风险分散以及何时卖出的问题.</li>
 </ul>
 </li>
 </ul>
@@ -166,11 +415,17 @@
 <li><strong>仓位系统</strong><ul>
 <li>应对风险的不二法门, 仓位系统大原则: 始终让自己留在赌桌上.</li>
 <li>分仓比例, 单次允许最大的亏损, 开仓数量, 加仓数量.</li>
+<li>仓位系统是用来对冲人性弱点的!</li>
 </ul>
 </li>
 <li><strong>心性系统</strong><ul>
-<li>心性系统的目标就是知行合一.</li>
-<li>能否不为外界所动的坚持标准! (外界只其他人的声音)</li>
+<li>心性系统的目标就是知行合一.<ul>
+<li>并不是指练就”无欲无求”, “洒脱自然”的出世态度. (那还入交易市场干吗?)</li>
+<li>知: 承认自己的贪嗔痴疑慢, 承认人性的弱点.</li>
+<li>行: 用交易规则和执行力, 减少和避免不利情况的发生.</li>
+</ul>
+</li>
+<li>能否不为外界所动的坚持标准! (外界指其他人的声音)</li>
 <li>市场证明判断错误后, 能否立刻纠错. (认陪比追涨重要的多!)</li>
 </ul>
 </li>
@@ -181,7 +436,7 @@
 </li>
 <li>期待快速赢利与炒股是持久战的矛盾.<ul>
 <li>曲成万物，欲速则不达</li>
-<li>想想参天大树和快速生长的爬藤植物即可</li>
+<li>想想参天大树和快速生长的爬藤植物, 大象和忙忙碌碌的蜜蜂蚂蚁.</li>
 </ul>
 </li>
 <li>思想在高处与操作行为在低处的矛盾<ul>
@@ -214,13 +469,19 @@
 <li>结构要素: 横竖斜, 分别对应持续时间, 股价空间, 速度.</li>
 </ul>
 </li>
-<li>时间周期<ul>
+<li><strong>时间周期</strong><ul>
+<li>以4和6为数理基础构成的时间序列. (铸剑先生)</li>
 <li>顶底循环周期, 均线交叉/拐点周期, 不同级别比例关系, 同级别对称关系.</li>
 <li>唯一性靠结构解决: 趋势运行需要时间，时间服从于结构，结构排在第一位！(百年一人)</li>
 </ul>
 </li>
-<li>共振: 多级别共振, 注意小服从大.</li>
-<li>判断级别和走势属性:<ul>
+<li><strong>共振</strong><ul>
+<li>级别共振, 注意小服从大.</li>
+<li>技术共振: 资金, 结构, 均线, 时间.</li>
+<li>横向共振: 金融, 市场, 板块, 基本面.</li>
+</ul>
+</li>
+<li><strong>判断级别和走势属性</strong><ul>
 <li>判断出级别, 从而事前确定操作级别.</li>
 <li>判断后续走势的属性, 从而决定是否参与以及参与的仓位.</li>
 </ul>
@@ -229,14 +490,14 @@
 </li>
 <li><strong>仓位系统</strong>:<ul>
 <li>高度看好的股票, 可以建一个跟随仓, 作用类似于侦察兵, 帮助自己随时观察强弱变化.</li>
-<li>潜在盈亏比和市场强弱决定开仓比例, 提前确定好主动止损情况和被动止损点.</li>
+<li><strong>潜在盈亏比和市场强弱决定开仓比例, 提前确定好主动止损情况和被动止损点.</strong></li>
 <li>如果市场和个股走势符合预期, 可以在趋势回调中加仓. 加仓仓位必须单独设置止损点.</li>
-<li>根据市场实际走势的强弱变化, 可减仓或清仓. 对于预测的顶底, 只允许按短线思维减仓!</li>
+<li><strong>要根据市场实际走势的强弱变化来重仓和清仓. 对于预测的顶底, 只允许分仓按短线思维操作!</strong></li>
 </ul>
 </li>
 <li><strong>选股系统</strong>:<ul>
 <li>观察资金流<ul>
-<li>大资金建仓成本是个股的超级底牌.</li>
+<li><strong>大资金建仓成本是个股的超级底牌.</strong></li>
 <li>技术面和资金面共振做多就是超级牛股.</li>
 <li>并不是看一二天的大资金流入流出. 而是像烧水一样有多重铺垫.</li>
 <li>在重要的点位, 如阻力位, 尤其要看主力资金是虚砸实接还是虚拉实砸.</li>
@@ -249,13 +510,13 @@
 </li>
 <li>共振<ul>
 <li>技术面多级别共振.</li>
-<li>不同技术指标共振. (可以全部融入到均线概念中)</li>
+<li>不同技术指标共振. (可以归纳为资金,结构,均线)</li>
 <li>政策面, 基本面, 资金面, 技术面共振</li>
 <li>个股, 板块, 大盘环境共振.</li>
 </ul>
 </li>
 <li>基本面优良<ul>
-<li>不会研究基本面, 找行业前三操作即可.</li>
+<li>不会研究基本面, 找行业前三, 国有企业即可.</li>
 <li>重点关注内容: 市值大小, 盈利能力, 稳定性, 发展情况.</li>
 </ul>
 </li>
@@ -264,6 +525,8 @@
 <li>预测系统:<ul>
 <li>暂时不花大力气学习, 稳定盈利靠确认系统和执行力.</li>
 <li>最终是要深入研究的, 股票市场可预测等同于人类行为可预测, 对整个人文科学意义重大.</li>
+<li>这里的预测, 并不是传统科学理论的”精确”预测, 而是如天气预报, 量子理论的概率预测.</li>
+<li>事物和生命是有限选择权, 因此可部分预测. 但精确预测会造成宿命论.</li>
 </ul>
 </li>
 <li>一些体会:<ul>
@@ -274,23 +537,24 @@
 <li>大小资金各有优劣<ul>
 <li>大资金: 主动创造机会, 大主导小; 行动缓慢, 在明处, 只能打阵地战.</li>
 <li>小资金: 被动等待机会, 小跟随大; 行动快捷, 在暗处, 可以打游击战, 运动战.</li>
+<li><strong>交易是持久战, 重守正, 轻出奇, 多守正, 少出奇. </strong></li>
 </ul>
 </li>
 <li><strong>多头分两类, 一种是技术多头, 另一种是资金多头.</strong><ul>
-<li>资金多头往往在技术多头之前就布局好了.</li>
+<li>大资金多头往往在技术多头之前就布局好了.</li>
 <li>在技术多头情况下, 大资金做空的抛压就会被技术多头化解掉.</li>
 <li>简单理解的话, 一浪和五浪属于资金和技术的不和谐, 三浪属于资金和技术的共振.</li>
 </ul>
 </li>
 </ul>
 </li>
-<li>常见的错误(有则改之, 无则加勉):<ul>
+<li>常见的错误<ul>
 <li>过度交易, 自信膨胀, 驾驭市场, 忽视意外.</li>
 <li>没到买点就摊平亏损 (事前确定最大亏损额度)</li>
 <li>过早获利了结, 过迟认陪 (事前确定操作级别)</li>
 <li>逆向交易 (不做次要方向)</li>
 <li>追涨杀跌 (永不追高买入, 错过了就欣赏)</li>
-<li>冲动交易, 跟着情绪走 (无计划不操作! 不带感情, 机械执行!)</li>
+<li>冲动交易, 跟着情绪走 (无计划不操作! 按规则严格执行!)</li>
 </ul>
 </li>
 <li>推荐书籍:<ul>
@@ -305,7 +569,6 @@
 <li>&lt;通向财务自由之路&gt; 范.K.撒普</li>
 <li>&lt;专业投机原理&gt; 维克托.斯波朗迪</li>
 <li>&lt;彼得.林奇点评版 股票作手回忆录&gt; 杰西.利弗莫尔</li>
-<li>&lt;当下的力量&gt; 埃克哈特·托利</li>
 </ul>
 </li>
 </ul>
@@ -1834,7 +2097,7 @@
 </ul>
 <p>最后, 无论成败, 先在此感谢 <a href="http://blog.sina.com.cn/u/1215172700" target="_blank" rel="noopener">缠中说禅</a> 不但指明了实用的生存方法, 更是给予了我无穷的灵感!<br>读君博文, 方觉虚度光阴30载. 愿君彼岸安好.</p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -3888,7 +4151,7 @@
 </ul>
 <p>总体而言, jz2440的教程使用的框架比较老, LinK+使用的框架更合适高版本的linux内核.</p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -4054,7 +4317,7 @@
 <li><a href="http://blog.sina.com.cn/s/blog_76c545390100sscr.html" target="_blank" rel="noopener">ubuntu下 mini2440的NFS挂载【终极版】</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -4113,7 +4376,7 @@
 <li><a href="http://m.itboth.com/d/BzIRZz/windows-eclipse-arm" target="_blank" rel="noopener">eclipse在windows下的arm交叉编译环境搭建</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -4214,7 +4477,7 @@
 <li><a href="http://blog.csdn.net/zwjsatan/article/details/8101712" target="_blank" rel="noopener">sudo apt-get update更新源失败</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -4325,7 +4588,7 @@
 <li><strong>以上部分初学先忽略! </strong></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -4514,7 +4777,7 @@
 <li><a href="http://www.cnblogs.com/an9wer/p/5564284.html" target="_blank" rel="noopener">python2.X和python3.X在同一平台下的切换技巧</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -5004,7 +5267,7 @@
 <p>时空都是相对的, 取决于个体的主观感受.<br>人和人类需要放下对时空的执念, 时空是舞台, 她不属于任何生命.<br>空间上不去贪恋物欲横流, 天下王土.<br>时间上不去追求长生不老, 生生世世.<br>但在舞台上怎么表演, 可以自己决定一部分.</p>
 <p><strong>一花一世界, 一木一浮生. 随缘就好.</strong></p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -5876,7 +6139,7 @@
 <p><img src="https://draapho.github.io/images/1717/Sprint_backlog_3.JPG" alt="Sprint_backlog_3"></p>
 <p><img src="https://draapho.github.io/images/1717/Sprint_backlog_4.JPG" alt="Sprint_backlog_4"></p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -5925,7 +6188,7 @@
 <h2 id="农业收割"><a href="#农业收割" class="headerlink" title="农业收割"></a>农业收割</h2><p>单机版AI+机器人, 可以完成非标准化的蔬果采摘工作.<br>提前训练好AI, 用来识别特定的水果, 以及采摘方式.<br>将此AI植入合适的机器人, 即可实现高效的自动农业收割.</p>
 <p>当然, 都AI机器人了, 自然也是结合物联网上传采摘了多少果子之类的简单功能了.</p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6138,7 +6401,7 @@
 <li>[Cheat Sheets of the C standard library][<a href="http://ws3.ntcu.edu.tw/ACS099133/cheatsheet/c-libraries-cheatsheet.pdf" target="_blank" rel="noopener">http://ws3.ntcu.edu.tw/ACS099133/cheatsheet/c-libraries-cheatsheet.pdf</a>]</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6466,7 +6729,7 @@
 <li><a href="http://www.wowotech.net/bluetooth/le_encryption.html" target="_blank" rel="noopener">蓝牙协议分析(10)_BLE安全机制之LE Encryption</a><br>渐渐就由浅入深, 探讨技术细节了.</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6554,7 +6817,7 @@
 <h1 id="源码及性能"><a href="#源码及性能" class="headerlink" title="源码及性能"></a>源码及性能</h1><p>最终源码见 <a href="https://github.com/draapho/chemistwarehouse-spider" target="_blank" rel="noopener">github</a></p>
 <p>爬虫最终性能:<br>抓取效率一般, 每1000条数据大概要2分钟. 要提高效率可以考虑使用多进程!<br>但一天抓取一次即可, 因此这个速度可以接受. 暂时保持单进程不变.</p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6701,7 +6964,7 @@
 </li>
 </ol>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6753,7 +7016,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6886,7 +7149,7 @@
 </ul>
 <h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><p><a href="https://yeasy.gitbooks.io/docker_practice/content/install/ubuntu.html" target="_blank" rel="noopener">Docker — 从入门到实践</a><br><a href="http://www.dockerinfo.net/2117.html" target="_blank" rel="noopener">Docker技术架构详细分析 Docker模块分析</a><br><a href="http://wiki.jikexueyuan.com/project/docker/installation/windows.html" target="_blank" rel="noopener">Microsoft Windows 安装docker</a><br><a href="http://www.dockerinfo.net/341.html" target="_blank" rel="noopener">Docker命令指令详情-持续更新</a></p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6952,7 +7215,7 @@
 <h3 id="制作QT文件系统"><a href="#制作QT文件系统" class="headerlink" title="制作QT文件系统"></a><del>制作QT文件系统</del></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu shell</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建qt文件夹</span></span><br><span class="line"><span class="comment"># tar要加上sudo. 因为解压出来的dev目录下有一些设备节点要用到root权限</span></span><br><span class="line">sudo tar xjf fs_mini_mdev.tar.bz2           <span class="comment"># 解压 fs_mini_mdev 最小fs</span></span><br><span class="line">sudo cp -rf fs_mini_mdev fs_qtopia          <span class="comment"># 重命名为 fs_qtopia</span></span><br><span class="line"><span class="comment"># sudo chown -R root:root fs_qtopis         # 更改用户和组</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 复制Qtopia 依赖的库文件</span></span><br><span class="line"><span class="built_in">cd</span> .../gcc-3.4.5-glibc-2.3.6/arm-linux/lib/</span><br><span class="line">cp libpng.so* .../fs_qtopia/lib/ -d</span><br><span class="line">cp libjpeg.so* .../fs_qtopia/lib/ -d</span><br><span class="line">cp libuuid.so* .../fs_qtopia/lib/ -d</span><br><span class="line">cp libz.so* .../fs_qtopia/lib/ -d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 安装触摸屏所需的文件</span></span><br><span class="line"><span class="built_in">cd</span> .../tslib-1.3                            <span class="comment"># 编译ts库时, 解压出来的文件目录</span></span><br><span class="line">make prefix=.../fs_qtopia/usr/ install      <span class="comment"># 修改为绝对路径!</span></span><br><span class="line"><span class="built_in">cd</span> .../fs_qtopia</span><br><span class="line">cp ./usr/etc/ts.conf ./etc/                 <span class="comment"># 复制 ts.conf 文件</span></span><br><span class="line">vim ./etc/ts.conf                           <span class="comment"># 可以在windows下直接改</span></span><br><span class="line">    <span class="comment"># ===== 文件内容, 修改如下内容: =====</span></span><br><span class="line">    <span class="comment"># module mousebuts</span></span><br><span class="line">    module variance xlimit=50 ylimit=50 pthreshold=3</span><br><span class="line">    <span class="comment"># module dejitter xdelta=1 ydelta=1 pthreshold=3    # 注释掉了这一行!</span></span><br><span class="line">    module linear</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 复制字库和opt文件夹到开发板根目录</span></span><br><span class="line"><span class="built_in">cd</span> .../qtopia/qtopia-free-2.2.0/</span><br><span class="line">cp -rf qt2/lib/fonts qtopia/image/opt/Qtopia/lib/</span><br><span class="line">cp -rf qtopia/image/opt/ .../fs_qtopia</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 创建时区文件, 直接使用ubuntu中的时区文件</span></span><br><span class="line"><span class="built_in">cd</span> .../fs_qtopia</span><br><span class="line">mkdir -p usr/share/zoneinfo/</span><br><span class="line">cp -rf /usr/share/zoneinfo/America usr/share/zoneinfo/</span><br><span class="line">cp /usr/share/zoneinfo/zone.tab usr/share/zoneinfo/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 建立脚本, 用来校验触摸屏</span></span><br><span class="line"><span class="comment"># QT自带的触摸屏程序不好用. 想再次较验时, 把 /etc/pointercal 删掉后重启就可以了</span></span><br><span class="line"><span class="built_in">cd</span> .../fs_qtopia</span><br><span class="line">vim bin/ts_cal.sh                   <span class="comment"># 建立script文件</span></span><br><span class="line">    <span class="comment"># ===== 文件内容如下: =====</span></span><br><span class="line">    <span class="comment">#!/bin/sh</span></span><br><span class="line">    <span class="built_in">export</span> HOME=/root</span><br><span class="line">    <span class="built_in">export</span> QTDIR=/opt/Qtopia</span><br><span class="line">    <span class="built_in">export</span> QPEDIR=/opt/Qtopia</span><br><span class="line">    <span class="built_in">export</span> QWS_DISPLAY=LinuxFb:/dev/fb0</span><br><span class="line">    <span class="built_in">export</span> QWS_KEYBOARD=<span class="string">"TTY:/dev/tty1"</span></span><br><span class="line">    <span class="comment">#export QWS_MOUSE_PROTO="USB:/dev/mouse0"</span></span><br><span class="line">    <span class="built_in">export</span> QWS_MOUSE_PROTO=<span class="string">"TPanel:/dev/ts0"</span></span><br><span class="line">    <span class="built_in">export</span> PATH=<span class="variable">$QPEDIR</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">    <span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$QPEDIR</span>/lib:<span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line">    <span class="built_in">export</span> TSLIB_TSDEVICE=/dev/ts0</span><br><span class="line">    <span class="built_in">export</span> TSLIB_CONSOLEDEVICE=none</span><br><span class="line">    <span class="built_in">export</span> TSLIB_FBDEVICE=/dev/fb0</span><br><span class="line">    <span class="built_in">export</span> TSLIB_CONFFILE=/etc/ts.conf</span><br><span class="line">    <span class="built_in">export</span> TSLIB_PLUGINDIR=/usr/share/ts/plugins</span><br><span class="line">    <span class="built_in">export</span> TSLIB_TSEVENTTYPE=<span class="string">"H3600"</span></span><br><span class="line">    /usr/bin/ts_calibrate</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line">chmod +x bin/ts_cal.sh     <span class="comment"># 修改为可执行</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 7. 建立脚本, 用来运行qtopia</span></span><br><span class="line"><span class="built_in">cd</span> .../fs_qtopia</span><br><span class="line">mkdir -p root                       <span class="comment"># 给 export HOME=/root 使用</span></span><br><span class="line">vim bin/qpe.sh                      <span class="comment"># 建立script文件</span></span><br><span class="line">    <span class="comment"># ===== 文件内容如下: =====</span></span><br><span class="line">    <span class="comment">#!/bin/sh</span></span><br><span class="line">    <span class="built_in">export</span> HOME=/root</span><br><span class="line">    <span class="built_in">export</span> QTDIR=/opt/Qtopia</span><br><span class="line">    <span class="built_in">export</span> QPEDIR=/opt/Qtopia</span><br><span class="line">    <span class="built_in">export</span> QWS_DISPLAY=LinuxFb:/dev/fb0</span><br><span class="line">    <span class="built_in">export</span> QWS_KEYBOARD=<span class="string">"TTY:/dev/tty1"</span></span><br><span class="line">    <span class="comment">#export QWS_MOUSE_PROTO="USB:/dev/mouse0"</span></span><br><span class="line">    <span class="built_in">export</span> QWS_MOUSE_PROTO=<span class="string">"TPanel:/dev/ts0"</span></span><br><span class="line">    <span class="built_in">export</span> PATH=<span class="variable">$QPEDIR</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">    <span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$QPEDIR</span>/lib:<span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line">    <span class="built_in">export</span> TSLIB_TSDEVICE=/dev/ts0</span><br><span class="line">    <span class="built_in">export</span> TSLIB_CONSOLEDEVICE=none</span><br><span class="line">    <span class="built_in">export</span> TSLIB_FBDEVICE=/dev/fb0</span><br><span class="line">    <span class="built_in">export</span> TSLIB_CONFFILE=/etc/ts.conf</span><br><span class="line">    <span class="built_in">export</span> TSLIB_PLUGINDIR=/usr/share/ts/plugins</span><br><span class="line">    <span class="built_in">export</span> TSLIB_TSEVENTTYPE=<span class="string">"H3600"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ ! -e /etc/pointercal ] <span class="keyword">then</span>                <span class="comment"># 若不存在ts校验文件</span></span><br><span class="line">        /bin/ts_cal.sh                              <span class="comment"># 执行校验脚本 (步骤6的文件)</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="variable">$QPEDIR</span>/bin/qpe &amp;</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line">chmod +x bin/qpe.sh         <span class="comment"># 修改为可执行</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 8. 修改根文件系统的启动脚本</span></span><br><span class="line"><span class="comment"># 需要用到临时目录/tmp，为减少对Flash的擦写，在/tmp目录上挂接tmpfs文件系统</span></span><br><span class="line"><span class="built_in">cd</span> .../fs_qtopia</span><br><span class="line">mkdir -p tmp                        <span class="comment"># 建立/tmp目录</span></span><br><span class="line">vim etc/fstab                       <span class="comment"># 挂载 tmpfs</span></span><br><span class="line">    <span class="comment"># ===== 文件内容, 加入如下语句: =====</span></span><br><span class="line">    tmpfs   /tmp    tmpfs   defaults    0   0</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vi =====</span></span><br><span class="line">vim etc/init.d/rcS                  <span class="comment"># 开机自动执行 qpe.sh 脚本</span></span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句: =====</span></span><br><span class="line">    /bin/qpe.sh &amp;</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vi =====</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">9. 至此, fs_qtopia已经是一个完整的, 可支持QT的根文件系统了.</span><br><span class="line">mkyaffs2image fs_qtopia fs_qtopia.yaffs2    <span class="comment"># 制作映像文件</span></span><br></pre></td></tr></table></figure>
 <h1 id="编译驱动程序"><a href="#编译驱动程序" class="headerlink" title="编译驱动程序"></a>编译驱动程序</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu shell</span></span><br><span class="line"><span class="comment"># 源码位于 '.../drivers_and_test/first_drv'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = 驱动程序目录下</span></span><br><span class="line">vim Makefile                             <span class="comment"># 修改Makefile</span></span><br><span class="line">    <span class="comment"># ===== 文件内容, 找到 'KERN_DIR', 配置内核位置: =====</span></span><br><span class="line">    KERN_DIR = /mnt/nfs/study/jz2440/kernel/linux-2.6.22.6</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line">make                                    <span class="comment"># 获得 first_drv.ko</span></span><br><span class="line">arm-linux-gcc -o firstdrvtest firstdrvtest.c      <span class="comment"># 交叉编译测试程序,</span></span><br><span class="line"><span class="comment"># -o 表示目标文件, 所以 'arm-linux-gcc firstdrvtest.c -o firstdrvtest' 也可以</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 开发板 shell</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设使用nfs加载的系统, 上述编译好后, 直接能在开发板上看到更改</span></span><br><span class="line"><span class="comment"># pwd = 驱动程序目录下</span></span><br><span class="line">insmod first_drv.ko                     <span class="comment"># 加载驱动模块</span></span><br><span class="line">./firstdrvtest on                       <span class="comment"># 执行测试</span></span><br><span class="line">./firstdrvtest off                      <span class="comment"># 执行测试</span></span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -6997,7 +7260,7 @@
 <h1 id="安装-ncurses-基本库"><a href="#安装-ncurses-基本库" class="headerlink" title="安装 ncurses 基本库"></a>安装 ncurses 基本库</h1><p>ncurses是字符终端下屏幕控制的基本库, <code>make menuconfig</code> 需要使用</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ncurses</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libncurses5-dev libncursesw5-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否成功</span></span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7031,7 +7294,7 @@
 <h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>在centos下, 内核 make clean 会报错: Makefile‘混和的隐含和普通规则’<br>我想还是因为 2440 内核文件使用的makefile太老了. 和centos兼容性不好.<br>按下述方法改了一点后, 最后make还是失败了. 因而放弃 centos 系统.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改根目录下的 Makefile</span></span><br><span class="line">/ %/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line"><span class="comment"># 改成： -----&gt;</span></span><br><span class="line">/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line">%/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把：</span></span><br><span class="line">config %config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br><span class="line"><span class="comment"># 改成： -----&gt;</span></span><br><span class="line">config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br><span class="line">%config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7078,7 +7341,7 @@
 <h2 id="遇到问题并解决-结果是坑"><a href="#遇到问题并解决-结果是坑" class="headerlink" title="遇到问题并解决, 结果是坑"></a><del>遇到问题并解决, 结果是坑</del></h2><p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></span><br><span class="line"><span class="comment"># 解决方法如下:</span></span><br><span class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></span><br><span class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -<span class="built_in">print</span>-libgcc-file-name`) -lgcc</span><br><span class="line"><span class="comment"># 修改成:</span></span><br><span class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -<span class="built_in">print</span>-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></span><br><span class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</span><br><span class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</span><br><span class="line"><span class="comment"># 修改成:</span></span><br><span class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</span><br><span class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7225,7 +7488,7 @@
 <li><a href="http://hackaday.com/2016/09/01/how-to-use-docker-to-cross-compile-for-raspberry-pi-and-more/" target="_blank" rel="noopener">HOW TO USE DOCKER TO CROSS COMPILE FOR RASPBERRY PI</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7269,7 +7532,7 @@
 <li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7368,7 +7631,7 @@
 <li><a href="https://mp.weixin.qq.com/s?__biz=MzI5ODExMDQzNw==&amp;mid=2650737282&amp;idx=1&amp;sn=07a3fc491dbd06ea61afe4c7108cf7b9&amp;chksm=f4a17608c3d6ff1e7bb2b1168efa53f39db5c77b474296ba6086c1cf6612a452a6d234766b52&amp;scene=0&amp;key=7b81aac53bd2393d2edc7d94c6241745fd19b9a63b96f3683b767fbe2d367bd483fac89816919a23882f7bb13be77dc2&amp;ascene=7&amp;uin=MTUzODYxOTg2MQ%3D%3D&amp;devicetype=android-19&amp;version=26031933&amp;nettype=live.vodafone.com&amp;pass_ticket=MhcadpuflaJvGcaLNh0HQ3y1Ae%2FL2WCKStoj0RjDWXVN6c001WFeoX4HFyF1KE51" target="_blank" rel="noopener">我是一块硬盘-码农翻身-刘欣</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7411,7 +7674,7 @@
 <li><a href="http://www.deansys.com/doc/ldd3/ch01s03.html" target="_blank" rel="noopener">设备和模块的分类</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7449,7 +7712,7 @@
 <li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7523,7 +7786,7 @@
 <li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7593,7 +7856,7 @@
 <li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -7625,7 +7888,7 @@
 <li><a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="noopener">GNU Operating System</a>.)</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -8012,7 +8275,7 @@
 <li>勤做笔记: 好记性不如烂笔头. 我相信即便linux高度使用者, 能记住的也就几条常用指令. 自己做好笔记就便于日后查阅, 做笔记的同时也加深了印象!</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -8057,7 +8320,7 @@
 <li><a href="http://codingpy.com/article/the-idiomatic-way-to-merge-dicts-in-python/" target="_blank" rel="noopener">怎样合并字典最符合Python语言习惯？</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -8504,7 +8767,7 @@
 <li><a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank" rel="noopener">Linux/Unix工具与正则表达式的POSIX规范</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -9065,7 +9328,7 @@
 <li>譬如 <code>ls /tmp/test &amp;&amp; echo &quot;exist&quot; || echo &quot;nofile&quot;</code> 如果<code>/tmp/test</code>存在显示<code>exist</code>,否则<code>nofile</code></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -9469,7 +9732,7 @@
 <li><strong><code>find / -print | cpio -covB &gt; /dev/st0</code></strong> , 将系统数据全部写入磁带机</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -9876,7 +10139,7 @@
 <h2 id="重载分区为可读写"><a href="#重载分区为可读写" class="headerlink" title="重载分区为可读写"></a>重载分区为可读写</h2><p>将根目录改为可读写,系统维护时使用<br><code>mount -n -o remount,rw /</code></p>
 <h2 id="自动挂载分区"><a href="#自动挂载分区" class="headerlink" title="自动挂载分区"></a>自动挂载分区</h2><p>通过修改 <code>/etc/fstab</code> 实现. 根据规则自行添加行即可.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># &lt;file system&gt;   &lt;mount point&gt; &lt;type&gt; &lt;options&gt; &lt;dump&gt; &lt;pass&gt;</span><br><span class="line"># &lt;分区&gt;           &lt;挂载点&gt;      &lt;类型&gt;  &lt;配置&gt;     &lt;备份&gt;  &lt;检查&gt;</span><br><span class="line"></span><br><span class="line"># 以下是通过分区唯一的uuid进行挂载,优点是可绑定指定分区</span><br><span class="line"># 获取uuid指令: `ll /dev/disk/by-uuid/`</span><br><span class="line">  UUID=xxxx-xxxx  /             ext4   errors=..  0     1</span><br><span class="line">  UUID=xxxx-xxxx  /boot         ext4   defaults   0     2</span><br><span class="line">  UUID=xxxx-xxxx  /home         ext4   defaults   0     2</span><br><span class="line"></span><br><span class="line"># 以下是通过设备文件名进行挂载,优点是直观</span><br><span class="line"># 查看设备文件名指令: `sudo fdisk -l`  (sudo,获取管理员权限)</span><br><span class="line">  /dev/sda5       /mnt/data     ext4   defaults   0     2</span><br></pre></td></tr></table></figure></p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -9957,7 +10220,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -10010,7 +10273,7 @@
 <li><a href="https://my.oschina.net/1123581321/blog/208671" target="_blank" rel="noopener">gevent 延时、定时、超时、io等待、动态添加任务</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -10136,7 +10399,7 @@
 </ul>
 <h2 id="使用正则表达式的一些例子"><a href="#使用正则表达式的一些例子" class="headerlink" title="使用正则表达式的一些例子"></a>使用正则表达式的一些例子</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 去掉所有的空格和tab</span></span><br><span class="line">re.sub(<span class="string">'[\s+]'</span>, <span class="string">''</span>, str)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 转换小写下划线格式变化为驼峰格式</span></span><br><span class="line">re.sub(<span class="string">'^\w|_\w'</span>, <span class="keyword">lambda</span> x:x.group()[<span class="number">-1</span>].upper(), <span class="string">'blog_view'</span>) <span class="comment"># 输出 'BlogView'。</span></span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -10381,7 +10644,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -10620,7 +10883,7 @@
 <li>详情可参考 <a href="https://mborgerson.com/creating-an-executable-from-a-python-script" target="_blank" rel="noopener">Creating an Executable from a Python Script</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -10651,7 +10914,7 @@
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygatt</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BleDevice</span><span class="params">(pygatt.BGAPIBackend)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.device = <span class="keyword">None</span></span><br><span class="line">        self.adapter = pygatt.BGAPIBackend()</span><br><span class="line">        self.adapter.start()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.adapter.stop()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">scan</span><span class="params">(self, timeout=<span class="number">5</span>)</span>:</span></span><br><span class="line">        self.devices = self.adapter.scan(timeout)</span><br><span class="line">        <span class="keyword">return</span> self.devices</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect_name</span><span class="params">(self, name, devices=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> devices <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            devices = self.devices</span><br><span class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> self.devices:</span><br><span class="line">            <span class="keyword">if</span> name == dev[<span class="string">'name'</span>]:</span><br><span class="line">                <span class="keyword">return</span> self.connect(dev[<span class="string">'address'</span>])</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">(self, address)</span>:</span></span><br><span class="line">        self.device = self.adapter.connect(address)</span><br><span class="line">        <span class="keyword">return</span> self.device</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">discover_characteristics</span><span class="params">(self, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        characteristics = []</span><br><span class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                device.char_read(uuid)</span><br><span class="line">                characteristics.append(</span><br><span class="line">                    &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">True</span>&#125;)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="keyword">if</span> <span class="string">"unable to read"</span> <span class="keyword">in</span> str(e).lower():</span><br><span class="line">                    characteristics.append(</span><br><span class="line">                        &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">False</span>&#125;)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">raise</span> e</span><br><span class="line">        <span class="keyword">return</span> characteristics</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_indication</span><span class="params">(self, uuid, device=None, callback=None, indication=True)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        device.subscribe(uuid, callback, indication)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics</span><span class="params">(self, uuid, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        <span class="keyword">return</span> device.char_read(uuid)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics_handle</span><span class="params">(self, handle, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        <span class="keyword">return</span> device.char_read_handle(handle)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics</span><span class="params">(self, str, uuid, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        data = map(ord, str)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</span><br><span class="line">            device.char_write(uuid, data[i:i + <span class="number">20</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics_handle</span><span class="params">(self, str, handle, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        data = map(ord, str)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</span><br><span class="line">            device.char_write_handle(handle, data[i:i + <span class="number">20</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="comment"># logging.basicConfig()</span></span><br><span class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></span><br><span class="line">    ble = BleDevice()</span><br><span class="line">    <span class="keyword">print</span> ble.scan()</span><br><span class="line">    device = ble.connect_name(<span class="string">"Bluegiga CR Demo"</span>)</span><br><span class="line">    <span class="keyword">print</span> device._address</span><br><span class="line">    chars = ble.discover_characteristics(device)</span><br><span class="line">    <span class="keyword">print</span> chars</span><br><span class="line">    <span class="comment"># print chars[0]['uuid']</span></span><br><span class="line">    <span class="keyword">print</span> ble.read_characteristics(chars[<span class="number">1</span>][<span class="string">'uuid'</span>])</span><br><span class="line">    ble.write_characteristics(<span class="string">"hello world"</span>, chars[<span class="number">0</span>][<span class="string">'uuid'</span>])</span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -10869,7 +11132,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11045,7 +11308,7 @@
 </ul>
 <h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"># 查看信息</span><br><span class="line">git st                          # git status            # 显示工作区变更的文件</span><br><span class="line">git lg                          # git log 增强版        # 显示所有提交</span><br><span class="line">git ll                          # git lg -10            # 显示过去10次提交</span><br><span class="line">git shortlog -sn                                        # 显示所有提交过的用户</span><br><span class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</span><br><span class="line"></span><br><span class="line"># stash                                                 # 少量且短时间的使用!</span><br><span class="line">git stash                                               # workspace-&gt;stash(藏匿处)</span><br><span class="line">git stash pop                                           # stash(不保存)-&gt;workspace</span><br><span class="line"></span><br><span class="line"># 提交文件</span><br><span class="line">git aa                          # git add .             # workspace-&gt;index</span><br><span class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</span><br><span class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</span><br><span class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</span><br><span class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</span><br><span class="line"></span><br><span class="line"># 分支操作</span><br><span class="line">git b name                      # git branch name       # 创建分支</span><br><span class="line">git b name commit                                       # 基于指定 commit 创建分支</span><br><span class="line">git b -d name                   # branch delete         # 删除分支</span><br><span class="line">git b -dr origin/name           # delete remote         # 删除远程分支</span><br><span class="line">git b -m new_name               # git branch --move     # 重命名分支</span><br><span class="line">git bb                          # git branch -a         # 查看所有分支</span><br><span class="line">git remote -v                                           # 查看远程分支</span><br><span class="line">git co name                     # git checkout name     # 切换分支</span><br><span class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</span><br><span class="line"></span><br><span class="line"># 版本合并和回退</span><br><span class="line">git merge branch                # 合并branch到当前分支</span><br><span class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</span><br><span class="line">git cherry-pick commit          # 合并commit到当前分支</span><br><span class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!</span><br><span class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!</span><br><span class="line">git push                                                # 推送到默认的远程主机</span><br><span class="line">git push -f                     # --force               # 忽略冲突, 强制推送</span><br><span class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</span><br><span class="line"></span><br><span class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</span><br><span class="line">git tag                         # 查看版本</span><br><span class="line">git tag v100                    # 创建版本</span><br><span class="line">git tag -d v100                 # 删除版本</span><br><span class="line">git push --tags                 # 推送tag</span><br><span class="line"></span><br><span class="line"># 查看差异</span><br><span class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</span><br><span class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</span><br><span class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</span><br><span class="line">git diff --name-status p1 p2    # 获得变更的文件列表</span><br><span class="line">git diff --stat p1 p2           # 统计变更的数据</span><br><span class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</span><br><span class="line"></span><br><span class="line"># 撤销</span><br><span class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</span><br><span class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</span><br><span class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</span><br><span class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</span><br><span class="line"></span><br><span class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</span><br><span class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</span><br><span class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</span><br><span class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</span><br><span class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11064,7 +11327,7 @@
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># CLI: Command Line Interface</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">runCLI</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># __cmd_link = self.cur_dir + "\\stlink_cli\\ST-LINK_CLI.exe -c SWD SWJCLK=5 UR"</span></span><br><span class="line">    __cmd_link = <span class="string">"dir"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 多用 shell=True. shell=False只能运行bat文件或直接在终端中执行. 此例中显示的内容也会有区别</span></span><br><span class="line">    _pp = Popen(__cmd_link, shell=<span class="keyword">True</span>, stdout=PIPE, stderr=PIPE)</span><br><span class="line">    out, err = _pp.communicate()</span><br><span class="line"></span><br><span class="line">    logging.debug(<span class="string">"cmd &gt; "</span> + __cmd_link)</span><br><span class="line">    logging.debug(<span class="string">"out &gt; "</span> + out.rstrip())</span><br><span class="line">    logging.debug(<span class="string">"err &gt; "</span> + err.rstrip())</span><br><span class="line">    <span class="keyword">return</span> _pp.returncode</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    logging.basicConfig(level=logging.DEBUG)</span><br><span class="line">    logging.debug(runCLI())</span><br></pre></td></tr></table></figure>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11136,7 +11399,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11238,7 +11501,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11449,7 +11712,7 @@
 <li>我的 <a href="https://draapho.github.io/2016/10/08/1607-CheatSheet-win/">Windows快捷键</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11612,7 +11875,7 @@
 </li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -11658,7 +11921,7 @@
 <li>以后环境变了, 只需要重新创建一下 <code>zeal.lnk</code> 然后放到 <code>D:\Green\userpath\bin</code> 即可.</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -12376,7 +12639,7 @@
 <li><code>alt-win</code> 特殊应用-AHK使用</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -12512,7 +12775,7 @@
 <li>所以, 建议普通用户不用折腾这块了. 真有异地工作, 资料同步的需求, 用公共云, github, BitBucket都很好.</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -12888,7 +13151,7 @@
 <li><a href="http://linux.vbird.org/linux_basic/0310vi.php" target="_blank" rel="noopener">vim极简中文示意图</a>-&gt;<code>9.3.6 vim 常用指令示意图</code><br><img src="https://draapho.github.io/images/1604/vimCheatSheet.jpg" alt="vim极简中文示意图"></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -12913,7 +13176,7 @@
 <li>这里第一条就是 <a href="http://www.st.com/content/ccc/resource/technical/document/application_note/87/b8/0f/5e/ab/d0/4f/2d/DM00071779.pdf/files/DM00071779.pdf/jcr:content/translations/en.DM00071779.pdf" target="_blank" rel="noopener">AN4218: Hardware design guideline power supply and voltage measurement</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -13123,7 +13386,7 @@
 <li>参考 <a href="http://alanhou.org/windows-default-encoding-utf8/" target="_blank" rel="noopener">Windows新建文件改为默认UTF8</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -13301,7 +13564,7 @@
 <li><strong>软件开发人员必备</strong>. 还可以在atom直接调用查看API, 省去大量的文档搜索时间.</li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -13390,7 +13653,7 @@
 <li><a href="http://theme-next.iissnan.com/getting-started.html" target="_blank" rel="noopener">Next 主题</a></li>
 </ul>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     
@@ -13412,7 +13675,7 @@
 <p>&emsp; &emsp; 对于AI的发展态势, 我无法继续无动于衷地持旁观态度. 不一定要将其作为主业, 但必须抽出业余时间慢慢学起来. 掌握一些基础知识, 尝试一些可能的应用.</p>
 <p>&emsp; &emsp; 以上类似于一份职业规划了, 出发点是兴趣, 希望自己能坚持着一样样学下来, 并在这个博客内有所体现.</p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 ]]></content>
     </entry>
     

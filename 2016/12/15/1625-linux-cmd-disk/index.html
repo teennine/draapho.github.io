@@ -91,7 +91,7 @@
 <meta property="og:description" content="linux 系统文件简要说明FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.单一文件或目录的最大允">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://draapho.github.io/images/1625/LinuxFileSystem.jpg">
-<meta property="og:updated_time" content="2017-05-29T11:35:28.631Z">
+<meta property="og:updated_time" content="2019-05-19T07:48:08.021Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux 系统文件及磁盘指令">
 <meta name="twitter:description" content="linux 系统文件简要说明FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.单一文件或目录的最大允">
@@ -721,7 +721,7 @@
 <h2 id="重载分区为可读写"><a href="#重载分区为可读写" class="headerlink" title="重载分区为可读写"></a>重载分区为可读写</h2><p>将根目录改为可读写,系统维护时使用<br><code>mount -n -o remount,rw /</code></p>
 <h2 id="自动挂载分区"><a href="#自动挂载分区" class="headerlink" title="自动挂载分区"></a>自动挂载分区</h2><p>通过修改 <code>/etc/fstab</code> 实现. 根据规则自行添加行即可.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># &lt;file system&gt;   &lt;mount point&gt; &lt;type&gt; &lt;options&gt; &lt;dump&gt; &lt;pass&gt;</span><br><span class="line"># &lt;分区&gt;           &lt;挂载点&gt;      &lt;类型&gt;  &lt;配置&gt;     &lt;备份&gt;  &lt;检查&gt;</span><br><span class="line"></span><br><span class="line"># 以下是通过分区唯一的uuid进行挂载,优点是可绑定指定分区</span><br><span class="line"># 获取uuid指令: `ll /dev/disk/by-uuid/`</span><br><span class="line">  UUID=xxxx-xxxx  /             ext4   errors=..  0     1</span><br><span class="line">  UUID=xxxx-xxxx  /boot         ext4   defaults   0     2</span><br><span class="line">  UUID=xxxx-xxxx  /home         ext4   defaults   0     2</span><br><span class="line"></span><br><span class="line"># 以下是通过设备文件名进行挂载,优点是直观</span><br><span class="line"># 查看设备文件名指令: `sudo fdisk -l`  (sudo,获取管理员权限)</span><br><span class="line">  /dev/sda5       /mnt/data     ext4   defaults   0     2</span><br></pre></td></tr></table></figure></p>
 <hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a> E-mail: draapho@gmail.com</em></strong></p>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
 
       
     </div>
@@ -833,7 +833,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">113</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -850,7 +850,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
