@@ -261,6 +261,417 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/19/1808-drv-usb2/" itemprop="url">
+                  驱动之USB设备驱动程序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-19T00:00:00+11:00" content="2018-01-19">
+              2018-01-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
+<li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
+<li><a href="https://draapho.github.io/2018/02/08/1814-drv-rtc/">驱动之RTC分析</a></li>
+<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
+<li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
+<li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/19/1808-drv-usb2/">驱动之USB设备驱动程序</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="查看USB设备信息"><a href="#查看USB设备信息" class="headerlink" title="查看USB设备信息"></a>查看USB设备信息</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/bus/usb/devices           <span class="comment"># 查看USB设备信息, 但是jz2440里没有devices目录</span></span><br><span class="line">$ cat /proc/bus/input/devices         <span class="comment"># 接入的是USB鼠标, 是输入设备, 这里可以看到USB鼠标的信息</span></span><br><span class="line">I: Bus=0003 Vendor=046d Product=c52b Version=0111</span><br><span class="line">N: Name=<span class="string">"Logitech USB Receiver"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 接入USB鼠标后, 会显示如下信息, 可知被分配到input10.</span></span><br><span class="line">usb 1-1: new full speed USB device using s3c2410-ohci and address 8</span><br><span class="line">usb 1-1: configuration <span class="comment">#1 chosen from 1 choice</span></span><br><span class="line">input: Logitech USB Receiver as /class/input/input10</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后用如下指令, 可以查处VID, PID</span></span><br><span class="line">$ cat sys/class/input/input10/id/product</span><br><span class="line">c52b</span><br><span class="line">$ cat sys/class/input/input10/id/vendor</span><br><span class="line">046d</span><br><span class="line">$ cat sys/class/input/input10/id/version</span><br><span class="line">0111</span><br></pre></td></tr></table></figure>
+<h1 id="源码-第一版"><a href="#源码-第一版" class="headerlink" title="源码, 第一版"></a>源码, 第一版</h1><p>第一版, 先实现USB框架.<br>使用 <code>LinK+ Device Driver Development</code> 生成并部分修改而来.</p>
+<p><img src="https://draapho.github.io/images/1808/drv_usb.jpg" alt="drv_usb.jpg"></p>
+<p>基本步骤如下:</p>
+<ol>
+<li>分配/设置 <code>struct usb_driver</code> 结构体<ul>
+<li><code>.id_table</code></li>
+<li><code>.probe</code></li>
+<li><code>.disconnect</code></li>
+</ul>
+</li>
+<li>注册 <code>usb_register</code></li>
+</ol>
+<h2 id="mousekey-c"><a href="#mousekey-c" class="headerlink" title="mousekey.c"></a>mousekey.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">Driver Name     :       mousekey</span></span><br><span class="line"><span class="comment">Author          :       DRAAPHO</span></span><br><span class="line"><span class="comment">License         :       GPL</span></span><br><span class="line"><span class="comment">Description     :       LINUX DEVICE DRIVER PROJECT</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"mousekey.h"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* TODO Fill the USB device table */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_device_id</span> <span class="title">mousekey_usb_ids</span>[] = &#123;</span></span><br><span class="line"><span class="comment">// 可以选择 USB设备类型, 或者 VID/PID 匹配驱动</span></span><br><span class="line">    &#123; USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID, USB_INTERFACE_SUBCLASS_BOOT, USB_INTERFACE_PROTOCOL_MOUSE) &#125;,</span><br><span class="line"><span class="comment">//    &#123; USB_DEVICE(0x046d,0xc52b) &#125;,  // idVendor(VID), idProduct(PID)</span></span><br><span class="line">    &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//struct usb_private &#123;</span></span><br><span class="line"><span class="comment">//  struct urb *urb;</span></span><br><span class="line"><span class="comment">//  struct usb_device *udev;</span></span><br><span class="line"><span class="comment">//&#125;;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_driver</span> <span class="title">mousekey_usb_driver</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mousekey_probe</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    struct usb_interface *iface, <span class="keyword">const</span> struct usb_device_id *id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="comment">//    struct usb_private *priv;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// struct usb_device_id *id 只记录用于匹配的信息.</span></span><br><span class="line">    <span class="comment">// 因此这里需要通过 iface 获取 usb_device 的信息.</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_device</span> *<span class="title">dev</span> = <span class="title">interface_to_usbdev</span>(<span class="title">iface</span>);</span></span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"found USB mousekey! ==========&gt;\n"</span>);</span><br><span class="line">    printk(<span class="string">"USB address=%d\n"</span></span><br><span class="line">           <span class="string">"manufacturer=%s, product=%s, serial=%s\n"</span></span><br><span class="line">           <span class="string">"idVendor=0x%x, idProduct=0x%x\n"</span></span><br><span class="line">           <span class="string">"Device Class=%d, SubClass=%d, Protocol=%d\n"</span>,</span><br><span class="line">           dev-&gt;devnum,</span><br><span class="line">           dev-&gt;manufacturer, dev-&gt;product, dev-&gt;serial,</span><br><span class="line">           dev-&gt;descriptor.idVendor, dev-&gt;descriptor.idProduct,</span><br><span class="line">           dev-&gt;descriptor.bDeviceClass,</span><br><span class="line">           dev-&gt;descriptor.bDeviceSubClass,</span><br><span class="line">           dev-&gt;descriptor.bDeviceProtocol);</span><br><span class="line">    printk(<span class="string">"InterfaceNumber=%d, NumberOfEndpoints=%d\n"</span></span><br><span class="line">           <span class="string">"Interface Class=%d, SubClass=%d, Protocol=%d\n"</span>,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceNumber,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bNumEndpoints,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceClass,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceSubClass,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceProtocol);</span><br><span class="line"></span><br><span class="line"><span class="comment">//    priv = kzalloc(sizeof(*priv), GFP_KERNEL);</span></span><br><span class="line"><span class="comment">//    if (!priv) &#123;</span></span><br><span class="line"><span class="comment">//        PERR("Failed to allocate the device's private data\n");</span></span><br><span class="line"><span class="comment">//        return -ENOMEM;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    usb_set_intfdata(iface, priv);</span></span><br><span class="line"><span class="comment">//    priv-&gt;udev = interface_to_usbdev(iface);</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mousekey_disconnect</span><span class="params">(struct usb_interface *iface)</span>    </span>&#123;</span><br><span class="line"><span class="comment">//    struct usb_private *priv = usb_get_intfdata(iface);</span></span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"disconnect USB mousekey\n"</span>);</span><br><span class="line"><span class="comment">//    kfree(priv);</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 1. 分配/设置 struct usb_driver */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_driver</span> <span class="title">mousekey_usb_driver</span> = &#123;</span></span><br><span class="line">    .name           = DRIVER_NAME,</span><br><span class="line">    .id_table       = mousekey_usb_ids,</span><br><span class="line">    .probe          = mousekey_probe,</span><br><span class="line">    .disconnect     = mousekey_disconnect,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">mousekey_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 注册 */</span></span><br><span class="line">    res = usb_register(&amp;mousekey_usb_driver);</span><br><span class="line">    <span class="keyword">if</span>( res ) &#123;</span><br><span class="line">        PERR(<span class="string">"Error registering the USB Driver\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"INIT\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">mousekey_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line">    PINFO(<span class="string">"EXIT\n"</span>);</span><br><span class="line">    usb_deregister(&amp;mousekey_usb_driver);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(mousekey_init);</span><br><span class="line">module_exit(mousekey_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="mousekey-h"><a href="#mousekey-h" class="headerlink" title="mousekey.h"></a>mousekey.h</h2><figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"mousekey"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/usb.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/hid.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := mousekey.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">    depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>由于内核自带了USB鼠标驱动程序, 因此需要重新编译内核, 去掉内核的HID的USB功能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6_custom  复制一个新的内核源码目录</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                               <span class="comment"># 去掉自带的HID USB驱动程序</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment">#   -&gt; HID Devices</span></span><br><span class="line"><span class="comment">#     &lt; &gt; USB Human Interface Device (full HID) support     # 取消HID的USB支持</span></span><br><span class="line"></span><br><span class="line">$ make uImage</span><br><span class="line"><span class="comment"># 烧录新的uImage</span></span><br><span class="line"><span class="comment"># 重启开发板进入uboot烧录界面, 按k准备烧录内核. 略过不表</span></span><br><span class="line">$ sudo dnw ./arch/arm/boot/uImage</span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/mousekey/        # USB鼠标驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成mousekey.ko</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/mousekey/        # USB鼠标驱动目录, nfs</span></span><br><span class="line">$ insmod mousekey.ko                            <span class="comment"># 加载驱动, 开始测试</span></span><br><span class="line">usbcore: registered new interface driver mousekey</span><br><span class="line">mousekey:INIT</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板上接入USB鼠标, 会打印如下信息:</span></span><br><span class="line">usb 1-1: new full speed USB device using s3c2410-ohci and address 7</span><br><span class="line">usb 1-1: configuration <span class="comment">#1 chosen from 1 choice</span></span><br><span class="line">mousekey:found USB mousekey! ==========&gt;</span><br><span class="line">......                                          <span class="comment"># 打印具体信息. 可以看出Device不重要, Interface才重要.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板上拔出USB鼠标, 会打印如下信息:</span></span><br><span class="line">usb 1-1: USB disconnect, address 7</span><br><span class="line">mousekey:disconnect USB mousekey</span><br><span class="line"></span><br><span class="line"><span class="comment"># rmmod mousekey</span></span><br><span class="line">mousekey:EXIT</span><br><span class="line">usbcore: deregistering interface driver mousekey</span><br></pre></td></tr></table></figure>
+<h1 id="源码-第二版"><a href="#源码-第二版" class="headerlink" title="源码, 第二版"></a>源码, 第二版</h1><p>实现USB设备驱动, 将USB鼠标识别成按键.<br>左键输入<code>l</code>, 右键输入<code>s</code>, 中键输入<code>enter</code></p>
+<ul>
+<li><code>mousekey.h</code> 和 <code>Makefile</code> 参考 <code>源码, 第一版</code></li>
+<li>这里因为是用的input子系统, 所以注册设备用了 <code>input_register_device</code>, 而不是 <code>usb_register_dev</code><ul>
+<li>用 <code>input_register_device</code> 注册的话, 会在 <code>/dev/</code> 下面新增一个 <code>event*</code></li>
+<li>用 <code>usb_register_dev</code> 注册的话, 会在 <code>/sys/class/usb/</code> 下面看到节点名称.</li>
+</ul>
+</li>
+<li><code>input 子系统</code> 参考 <a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a><ol>
+<li>分配一个input_dev变量</li>
+<li>设置/初始化此变量</li>
+<li>注册, input_register_device</li>
+<li>硬件相关代码, open, close, event, sync等等.</li>
+</ol>
+</li>
+<li><code>URB</code>, 即 <code>usb request block</code>. 基本用法:<ol>
+<li>分配 URB. <code>usb_alloc_urb</code></li>
+<li>初始化 URB 结构体 <code>struct urb</code></li>
+<li>提交URB (开始通讯). <code>usb_submit_urb</code></li>
+</ol>
+</li>
+<li>可参考 Linux 内核里的 <code>/drivers/hid/usbhid/usbmouse.c</code></li>
+</ul>
+<h2 id="mousekey-c-1"><a href="#mousekey-c-1" class="headerlink" title="mousekey.c"></a>mousekey.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">Driver Name     :       mousekey</span></span><br><span class="line"><span class="comment">Author          :       DRAAPHO</span></span><br><span class="line"><span class="comment">License         :       GPL</span></span><br><span class="line"><span class="comment">Description     :       LINUX DEVICE DRIVER PROJECT</span></span><br><span class="line"><span class="comment">===============================================================================</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"mousekey.h"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* TODO Fill the USB device table */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_device_id</span> <span class="title">mousekey_usb_ids</span>[] = &#123;</span></span><br><span class="line"><span class="comment">// 可以选择 USB设备类型, 或者 VID/PID 匹配驱动</span></span><br><span class="line">    &#123; USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID, USB_INTERFACE_SUBCLASS_BOOT, USB_INTERFACE_PROTOCOL_MOUSE) &#125;,</span><br><span class="line"><span class="comment">//    &#123; USB_DEVICE(0x046d,0xc52b) &#125;,  // idVendor(VID), idProduct(PID)</span></span><br><span class="line">    &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_driver</span> <span class="title">mousekey_usb_driver</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_private</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">urb</span> *<span class="title">urb</span>;</span>                <span class="comment">// usb请求块</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_device</span> *<span class="title">udev</span>;</span>        <span class="comment">// usb 设备</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">input_dev</span> *<span class="title">idev</span>;</span>         <span class="comment">// input 设备</span></span><br><span class="line">    <span class="keyword">char</span> *buf;                      <span class="comment">// urb 用的缓冲</span></span><br><span class="line">    <span class="keyword">dma_addr_t</span> buf_phys;            <span class="comment">// 缓冲物理地址, dma要用</span></span><br><span class="line">    <span class="keyword">int</span> len;                        <span class="comment">// 缓冲区大小</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mousekey_irq</span><span class="params">(struct urb *urb)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_private</span> *<span class="title">priv</span> = <span class="title">urb</span>-&gt;<span class="title">context</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    <span class="comment">// 先打印查看usb鼠标发来的数据, 不同的鼠标数据格式略有不同!</span></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; priv-&gt;len; i++) &#123;</span><br><span class="line">        printk(<span class="string">"%02x "</span>, priv-&gt;buf[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    printk(<span class="string">"\n"</span>);</span><br><span class="line">    usb_submit_urb(priv-&gt;urb, GFP_KERNEL);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (urb-&gt;status) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>:             <span class="comment">/* success */</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> -ECONNRESET:   <span class="comment">/* unlink */</span></span><br><span class="line">    <span class="keyword">case</span> -ENOENT:</span><br><span class="line">    <span class="keyword">case</span> -ESHUTDOWN:</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="comment">/* -EPIPE:  should clear the halt */</span></span><br><span class="line">    <span class="keyword">default</span>:            <span class="comment">/* error */</span></span><br><span class="line">        <span class="keyword">goto</span> resubmit;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* USB鼠标数据含义</span></span><br><span class="line"><span class="comment">     * data[0]: bit0-左键, 1-按下, 0-松开</span></span><br><span class="line"><span class="comment">     *          bit1-右键, 1-按下, 0-松开</span></span><br><span class="line"><span class="comment">     *          bit2-中键, 1-按下, 0-松开</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    input_report_key(priv-&gt;idev, KEY_L,     priv-&gt;buf[<span class="number">0</span>] &amp; <span class="number">0x01</span>);</span><br><span class="line">    input_report_key(priv-&gt;idev, KEY_S,     priv-&gt;buf[<span class="number">0</span>] &amp; <span class="number">0x02</span>);</span><br><span class="line">    input_report_key(priv-&gt;idev, KEY_ENTER, priv-&gt;buf[<span class="number">0</span>] &amp; <span class="number">0x04</span>);</span><br><span class="line">    input_sync(priv-&gt;idev);</span><br><span class="line"></span><br><span class="line">resubmit:</span><br><span class="line">    <span class="comment">/* 重新提交urb */</span></span><br><span class="line">    usb_submit_urb (urb, GFP_ATOMIC);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mousekey_probe</span><span class="params">(struct usb_interface *iface,</span></span></span><br><span class="line"><span class="function"><span class="params">                            <span class="keyword">const</span> struct usb_device_id *id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pipe;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_private</span> *<span class="title">priv</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_endpoint_descriptor</span> *<span class="title">endpoint</span>;</span></span><br><span class="line">    PINFO(<span class="string">"found USB mousekey! ==========&gt;\n"</span>);</span><br><span class="line"></span><br><span class="line">    priv = kzalloc(<span class="keyword">sizeof</span>(*priv), GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (!priv) &#123;</span><br><span class="line">        PERR(<span class="string">"Failed to allocate the device's private data\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line">    usb_set_intfdata(iface, priv);</span><br><span class="line">    priv-&gt;udev = interface_to_usbdev(iface);</span><br><span class="line"></span><br><span class="line">    printk(<span class="string">"USB address=%d\n"</span></span><br><span class="line">           <span class="string">"manufacturer=%s, product=%s, serial=%s\n"</span></span><br><span class="line">           <span class="string">"idVendor=0x%x, idProduct=0x%x\n"</span></span><br><span class="line">           <span class="string">"Device Class=%d, SubClass=%d, Protocol=%d\n"</span>,</span><br><span class="line">           priv-&gt;udev-&gt;devnum,</span><br><span class="line">           priv-&gt;udev-&gt;manufacturer, priv-&gt;udev-&gt;product, priv-&gt;udev-&gt;serial,</span><br><span class="line">           priv-&gt;udev-&gt;descriptor.idVendor, priv-&gt;udev-&gt;descriptor.idProduct,</span><br><span class="line">           priv-&gt;udev-&gt;descriptor.bDeviceClass,</span><br><span class="line">           priv-&gt;udev-&gt;descriptor.bDeviceSubClass,</span><br><span class="line">           priv-&gt;udev-&gt;descriptor.bDeviceProtocol);</span><br><span class="line">    printk(<span class="string">"InterfaceNumber=%d, NumberOfEndpoints=%d\n"</span></span><br><span class="line">           <span class="string">"Interface Class=%d, SubClass=%d, Protocol=%d\n"</span>,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceNumber,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bNumEndpoints,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceClass,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceSubClass,</span><br><span class="line">           iface-&gt;cur_altsetting-&gt;desc.bInterfaceProtocol);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (iface-&gt;cur_altsetting-&gt;desc.bNumEndpoints != <span class="number">1</span>)     <span class="comment">// endpoint 不为1, 认为不是USB鼠标</span></span><br><span class="line">        <span class="keyword">return</span> -ENODEV;</span><br><span class="line">    endpoint = &amp;iface-&gt;cur_altsetting-&gt;endpoint[<span class="number">0</span>].desc;</span><br><span class="line">    <span class="keyword">if</span> (!usb_endpoint_is_int_in(endpoint))                  <span class="comment">// endpoint 传输属性必须是中断输入</span></span><br><span class="line">        <span class="keyword">return</span> -ENODEV;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* a. 分配一个input_dev */</span></span><br><span class="line">    priv-&gt;idev = input_allocate_device();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* b. 设置 */</span></span><br><span class="line">    <span class="comment">/* b.1 能产生哪类事件 */</span></span><br><span class="line">    set_bit(EV_KEY, priv-&gt;idev-&gt;evbit);</span><br><span class="line">    set_bit(EV_REP, priv-&gt;idev-&gt;evbit);</span><br><span class="line">    <span class="comment">/* b.2 能产生哪些事件 */</span></span><br><span class="line">    set_bit(KEY_L, priv-&gt;idev-&gt;keybit);                     <span class="comment">// 鼠标按键模拟键盘 L S ENTER</span></span><br><span class="line">    set_bit(KEY_S, priv-&gt;idev-&gt;keybit);</span><br><span class="line">    set_bit(KEY_ENTER, priv-&gt;idev-&gt;keybit);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* c. 注册 */</span></span><br><span class="line">    input_register_device(priv-&gt;idev);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* d. 硬件相关操作, 这里就是使用urb进行USB通讯 */</span></span><br><span class="line">    <span class="comment">/* 1. 分配 URB. */</span></span><br><span class="line">    priv-&gt;urb = usb_alloc_urb(<span class="number">0</span>, GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 初始化 URB 结构体 */</span></span><br><span class="line">    pipe = usb_rcvintpipe(priv-&gt;udev, endpoint-&gt;bEndpointAddress);  <span class="comment">// 指定USB通讯类型和endpoint</span></span><br><span class="line">    priv-&gt;len = endpoint-&gt;wMaxPacketSize;                           <span class="comment">// buf大小</span></span><br><span class="line">    priv-&gt;buf = usb_buffer_alloc(priv-&gt;udev, priv-&gt;len, GFP_ATOMIC, &amp;priv-&gt;buf_phys);</span><br><span class="line">    <span class="comment">// 分配buf, usb会使用dma进行数据传输, buf_phys用于记录buf的物理地址.</span></span><br><span class="line"></span><br><span class="line">    usb_fill_int_urb(priv-&gt;urb, priv-&gt;udev, pipe, priv-&gt;buf, priv-&gt;len, mousekey_irq, priv, endpoint-&gt;bInterval);</span><br><span class="line">    <span class="comment">// mousekey_irq, usb中断发生时的回调函数. priv, 回调函数用的私有参数, 可以是NULL. bInterval, USB HUB的轮询间隔时间.</span></span><br><span class="line">    priv-&gt;urb-&gt;transfer_dma = priv-&gt;buf_phys;                       <span class="comment">// dma传输需要物理地址</span></span><br><span class="line">    priv-&gt;urb-&gt;transfer_flags |= URB_NO_TRANSFER_DMA_MAP;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 提交URB (开始通讯) */</span></span><br><span class="line">    usb_submit_urb(priv-&gt;urb, GFP_KERNEL);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mousekey_disconnect</span><span class="params">(struct usb_interface *iface)</span>    </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_private</span> *<span class="title">priv</span> = <span class="title">usb_get_intfdata</span>(<span class="title">iface</span>);</span></span><br><span class="line">    PINFO(<span class="string">"disconnect USB mousekey\n"</span>);</span><br><span class="line"></span><br><span class="line">    usb_kill_urb(priv-&gt;urb);</span><br><span class="line">    usb_free_urb(priv-&gt;urb);</span><br><span class="line">    usb_buffer_free(priv-&gt;udev, priv-&gt;len, priv-&gt;buf, priv-&gt;buf_phys);</span><br><span class="line">    input_unregister_device(priv-&gt;idev);</span><br><span class="line">    input_free_device(priv-&gt;idev);</span><br><span class="line">    kfree(priv);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 1. 分配/设置 struct usb_driver */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_driver</span> <span class="title">mousekey_usb_driver</span> = &#123;</span></span><br><span class="line">    .name           = DRIVER_NAME,</span><br><span class="line">    .id_table       = mousekey_usb_ids,</span><br><span class="line">    .probe          = mousekey_probe,</span><br><span class="line">    .disconnect     = mousekey_disconnect,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">mousekey_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 注册 */</span></span><br><span class="line">    res = usb_register(&amp;mousekey_usb_driver);</span><br><span class="line">    <span class="keyword">if</span>( res ) &#123;</span><br><span class="line">        PERR(<span class="string">"Error registering the USB Driver\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"INIT\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">mousekey_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line">    PINFO(<span class="string">"EXIT\n"</span>);</span><br><span class="line">    usb_deregister(&amp;mousekey_usb_driver);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(mousekey_init);</span><br><span class="line">module_exit(mousekey_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先按照此文之前的测试步骤烧录好无HID USB驱动的内核文件.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/mousekey/        # USB鼠标驱动目录, nfs</span></span><br><span class="line">$ insmod mousekey.ko                            <span class="comment"># 加载驱动, 开始测试</span></span><br><span class="line">usbcore: registered new interface driver mousekey</span><br><span class="line">mousekey:INIT</span><br><span class="line"></span><br><span class="line">$ ls /dev/event*                                <span class="comment"># 查看已有的event号</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板上接入USB鼠标, 会打印如下信息:</span></span><br><span class="line">usb 1-1: new full speed USB device using s3c2410-ohci and address 7</span><br><span class="line">usb 1-1: configuration <span class="comment">#1 chosen from 1 choice</span></span><br><span class="line">mousekey:found USB mousekey! ==========&gt;</span><br><span class="line">......                                          <span class="comment"># 打印具体信息. 可以看出Device不重要, Interface才重要.</span></span><br><span class="line"></span><br><span class="line">$ ls /dev/event*                                <span class="comment"># 查看新增的event号, 就是此驱动的event</span></span><br><span class="line">/dev/event1                                     <span class="comment"># 譬如, 新增了event1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法一 (没有LCD):</span></span><br><span class="line">$ cat /dev/tty1</span><br><span class="line"><span class="comment"># 点击鼠标, 终端会显示输入, 但没有输出反馈.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法二 (没有LCD):</span></span><br><span class="line">$ hexdump /dev/event1</span><br><span class="line"><span class="comment"># 字节数|   秒    |  微秒   | 类  |code|  value      # 小端模式, 低位在前!</span></span><br><span class="line">0000000 0bb2 0000 0e48 000c 0001 0026 0001 0000    <span class="comment"># input_event(keydev, EV_KEY, key_val, 1)</span></span><br><span class="line">0000010 0bb2 0000 0e54 000c 0000 0000 0000 0000    <span class="comment"># input_sync(keydev);</span></span><br><span class="line">0000020 0bb2 0000 5815 000e 0001 0026 0000 0000    <span class="comment"># input_event(keydev, EV_KEY, key_val, 0)</span></span><br><span class="line">0000030 0bb2 0000 581f 000e 0000 0000 0000 0000    <span class="comment"># input_sync(keydev);</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法三 (有LCD, 没有QT)</span></span><br><span class="line">$ vi /etc/inittab</span><br><span class="line">    <span class="comment"># ===== 设置为如下内容 =====</span></span><br><span class="line">    ::sysinit:/etc/init.d/rcS</span><br><span class="line">    s3c2410_serial0::askfirst:-/bin/sh</span><br><span class="line">    <span class="comment"># 增加了下面一行, 用于屏幕打开终端</span></span><br><span class="line">    tty1::askfirst:-/bin/sh</span><br><span class="line">    ::ctrlaltdel:/sbin/reboot</span><br><span class="line">    ::shutdown:/bin/umount -a -r</span><br><span class="line">    <span class="comment"># ===== wq保存, 退出 =====</span></span><br><span class="line">$ reboot                                        <span class="comment"># 重启终端</span></span><br><span class="line"><span class="comment"># 这样点击鼠标就直接能在LCD上查看输入和输出了.</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/01/18/1807-drv-usb1/" itemprop="url">
+                  驱动之USB基础概念和框架
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-18T00:00:00+11:00" content="2018-01-18">
+              2018-01-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
+<li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
+<li><a href="https://draapho.github.io/2018/02/08/1814-drv-rtc/">驱动之RTC分析</a></li>
+<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
+<li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
+<li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/19/1808-drv-usb2/">驱动之USB设备驱动程序</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="USB基础知识"><a href="#USB基础知识" class="headerlink" title="USB基础知识"></a>USB基础知识</h1><ul>
+<li>USB是主从结构的<ul>
+<li>所有的USB传输，都是从USB主机这方发起! USB设备没有”主动”通知USB主机的能力。</li>
+<li>例子：USB鼠标滑动一下立刻产生数据，但是它没有能力通知PC机来读数据，只能被动地等得PC机来读。</li>
+</ul>
+</li>
+<li>USB的传输类型:<ul>
+<li>控制传输(Control Transfers)：可靠，时间有保证，比如：USB设备的识别过程</li>
+<li>批量传输(Bulk Transfers):可靠, 时间没有保证, 比如：U盘</li>
+<li>中断传输(Interrupt Transfers)：可靠，实时，比如：USB鼠标</li>
+<li>实时传输(Isochronous Transfers)：不可靠，实时，比如：USB摄像头</li>
+</ul>
+</li>
+<li>USB的识别过程<ul>
+<li>硬件上(USB2.0)<ul>
+<li>USB主机端D-和D+接有15K下拉电阻, 未接USB设备时为低电平.</li>
+<li>USB设备端D-或D+接有1.5K上拉电阻.</li>
+<li>当USB设备插入USB主机端口时, 就会把D-或D+拉高, 让主机知道有设备接入了</li>
+<li>把D-拉高是低速设备, 把D+拉高是高速设备</li>
+</ul>
+</li>
+<li>软件上<ul>
+<li>USB核心驱动程序负责: 识别USB设备, 给USB设备找到对应的驱动程序</li>
+<li>当USB设备接入USB主机端后, 其默认的address是0. PC使用此adress与之通讯.</li>
+<li>建立通讯后, USB核心驱动会给它分配一个新的address, 并查找有没有对应的驱动.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>USB通讯速率<ul>
+<li>低速设备(USB1.1, Low speed): 1.5Mb/s</li>
+<li>全速设备(USB1.1, Full speed): 12Mb/s</li>
+<li>高速设备(USB2.0, High speed): 480Mb/s</li>
+<li>超高速设备(USB3.0, Super speed): 5Gb/s, 全双工</li>
+</ul>
+</li>
+</ul>
+<h1 id="USB主机端驱动框架"><a href="#USB主机端驱动框架" class="headerlink" title="USB主机端驱动框架"></a>USB主机端驱动框架</h1><p><img src="https://draapho.github.io/images/1807/usb_layer.png" alt="usb_layer.png"></p>
+<p>各层作用如下:</p>
+<ul>
+<li>USB设备驱动 (USB Device Driver):<ol>
+<li>让USB主机知道特定设备的数据含义</li>
+<li>linux USB驱动开发就是在这一层. 更底层都是由linux内核完成的.</li>
+</ol>
+</li>
+<li>USB核心层 (USB Core):<ol>
+<li>识别USB设备: 分配并设置USB设备的address, 然后发出命令获取描述符.</li>
+<li>查找并安装匹配的设备驱动</li>
+<li>提供USB读写函数 (只是一个接口, 不知道数据含义)</li>
+</ol>
+</li>
+<li>USB主机控制器 (USB HCD):<ol>
+<li>需要支持的USB接口规范, 譬如USB2.0的设备要向下兼容必须包含USB1.1</li>
+<li>OHCI: USB1.1 microsoft等创立的标准. 硬件功能强于软件功能</li>
+<li>UHCI: USB1.1 intel创立的标准. 软件功能强于硬件功能, 因此芯片价格更低</li>
+<li>EHCI: USB2.0</li>
+<li>xHCI: USB3.0</li>
+</ol>
+</li>
+</ul>
+<h1 id="USB设备端概念"><a href="#USB设备端概念" class="headerlink" title="USB设备端概念"></a>USB设备端概念</h1><p><img src="https://draapho.github.io/images/1807/usb_dev.png" alt="usb_dev.png"></p>
+<p>在USB从设备的结构中，从上到下分为:</p>
+<ul>
+<li>设备(device)<ul>
+<li>设备即硬件概念上的USB从设备.</li>
+<li><code>address</code> 的概念就是对设备而言的. 一条USB总线最多外接127个USB设备.</li>
+<li>软件数据结构 <code>usb_device</code> <code>usb_device_descriptor</code></li>
+</ul>
+</li>
+<li>配置(config)<ul>
+<li>设备可以有一个或多个配置. 但任一时刻只有一个有效配置.</li>
+<li>这里其实不难理解. 一个USB硬件设备可以允许多种功能.</li>
+<li>个典型的例子是手机, 目前手机自动连接后, 都会弹出问你要用哪种模式连接电脑. 对应了不同的配置</li>
+<li>因此选中一个配置后, 就从软件上决定了该USB设备的具体功能.</li>
+<li>软件数据结构  <code>usb_device</code> <code>usb_host_config</code> <code>usb_config_descriptor</code></li>
+</ul>
+</li>
+<li>接口(interface)<ul>
+<li>接口表示逻辑设备, 包含零个或多个endpoint打包.</li>
+<li>Linux的USB设备驱动是绑定到接口上的, 每个接口在主机看来都是一个独立的功能设备.</li>
+<li>譬如录音接口, 播放接口, 数据接口等等.</li>
+<li>软件数据结构  <code>usb_host_interface</code> <code>usb_interface_descriptor</code>.</li>
+</ul>
+</li>
+<li>端点(endpoint)<ul>
+<li>传输数据时, USB使用的就是endpoint概念. endpoint是数据通道.</li>
+<li><code>endpoint0</code> 用于控制传输, 可双向传输.</li>
+<li>除了 <code>endpoint0</code> 以外, 每个端点只支持一个方向的数据传输.</li>
+<li>每个 endpoint 都有传输类型和传输方向.</li>
+<li>传输类型: 控制传输, 批量传输, 中断传输, 实时传输.</li>
+<li>传输方向: 输入(IN), 输出(OUT). 注意, 都是基于USB主机来说的! 读U盘, 数据方向就是输入.</li>
+<li>譬如”读写U盘”, 软件上的概念是: 把数据写到U盘的 endpoint1 上去, 从U盘的 endpoint2 里读数据.</li>
+<li>软件数据结构  <code>usb_device</code> <code>usb_host_endpoint</code> <code>usb_endpoint_descriptor</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="Linux的USB驱动框架"><a href="#Linux的USB驱动框架" class="headerlink" title="Linux的USB驱动框架"></a>Linux的USB驱动框架</h1><p>以下我们用“usb_skel”的USB接口驱动实例（Linux/drivers/usb/usb-skeleton.c）来看看Linux的USB驱动框架：</p>
+<p><img src="https://draapho.github.io/images/1807/usb_skel.png" alt="usb_skel.png"></p>
+<h1 id="USB核心层源码分析"><a href="#USB核心层源码分析" class="headerlink" title="USB核心层源码分析"></a>USB核心层源码分析</h1><p>把USB设备接到开发板上，看输出信息:</p>
+<blockquote>
+<p>usb 1-1: new full speed USB device using s3c2410-ohci and address 2<br>usb 1-1: configuration #1 chosen from 1 choice</p>
+</blockquote>
+<p>拔掉后, 显示断开</p>
+<blockquote>
+<p>usb 1-1: USB disconnect, address 2</p>
+</blockquote>
+<p>尝试寻找源码: <code>grep &quot;USB device using&quot; -nR</code>, 找到 <code>drivers/usb/core/hub.c:2186</code> 文件.<br>由此开始分析.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">hub_irq                                 <span class="comment">// 硬件检测到USB总线状态变化</span></span><br><span class="line">    kick_khubd                          <span class="comment">// 踢一脚唤醒, 很形象</span></span><br><span class="line">        wake_up(&amp;khubd_wait);           <span class="comment">// 唤醒 hub_thread</span></span><br><span class="line"></span><br><span class="line">hub_thread</span><br><span class="line">    hub_events</span><br><span class="line">        hub_port_connect_change         <span class="comment">// USB总线状态改变事件处理函数</span></span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">usb_device</span> *<span class="title">hdev</span> = <span class="title">hub</span>-&gt;<span class="title">hdev</span>             // 处理<span class="title">usb</span> <span class="title">hub</span>的, 忽略</span></span><br><span class="line"><span class="class">            <span class="title">struct</span> <span class="title">usb_device</span> *<span class="title">udev</span>;</span>                        <span class="comment">// usb设备, 后面具体分析 usb_device 数据结构</span></span><br><span class="line">            udev = usb_alloc_dev(hdev, hdev-&gt;bus, port1);   <span class="comment">// 申请usb设备, 然后初始化一些参数</span></span><br><span class="line">            choose_address(udev);                           <span class="comment">// 挑出一个空闲的address, 但没有告知这个USB设备</span></span><br><span class="line">            hub_port_init                                   <span class="comment">// 开始对新接入的usb设备进行初始化设置</span></span><br><span class="line">                dev_info                                    <span class="comment">// 打印了如下信息:</span></span><br><span class="line">                <span class="comment">// usb 1-1: new full speed USB device using s3c2410-ohci and address 2</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">usb_device_descriptor</span> *<span class="title">buf</span>;</span>          <span class="comment">// buf 用于取出 bMaxPacketSize0 的大小</span></span><br><span class="line">                hub_set_address                             <span class="comment">// 这里, 才真正把address告诉USB设备</span></span><br><span class="line">                usb_get_device_descriptor(udev, <span class="number">8</span>);         <span class="comment">// 获取设备描述符, 兼容性考虑</span></span><br><span class="line">                usb_get_device_descriptor(udev, USB_DT_DEVICE_SIZE); <span class="comment">// 获取设备描述符</span></span><br><span class="line"></span><br><span class="line">            usb_new_device(udev)                            <span class="comment">// 查找USB设备驱动</span></span><br><span class="line">                usb_get_configuration(udev);                <span class="comment">// 把所有的描述符都读出来，并解析</span></span><br><span class="line">                    usb_get_descriptor                      <span class="comment">// 读描述符</span></span><br><span class="line">                    usb_parse_configuration                 <span class="comment">// 解析配置</span></span><br><span class="line">                device_add                                  <span class="comment">// platform概念的device部分函数.</span></span><br><span class="line">                <span class="comment">// 很熟悉的一个函数了, 见 "驱动之platform概念"</span></span><br><span class="line">                <span class="comment">// 1. 把device放入usb_bus_type的dev链表,</span></span><br><span class="line">                <span class="comment">// 2. 从usb_bus_type的driver链表里取出usb_driver, 把usb_interface和usb_driver的id_table比较</span></span><br><span class="line">                <span class="comment">// 3. 如果能匹配，调用usb_driver的probe</span></span><br></pre></td></tr></table></figure>
+<p>下面, 简单分析一下USB的几个描述符结构体<br>结构体内各个变量的具体含义可参考: <a href="http://www.beyondlogic.org/usbnutshell/usb5.shtml" target="_blank" rel="noopener">USB Descriptors</a><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// usb_device 和 usb_host_XXX 可以在 include\linux\usb.h 看到</span></span><br><span class="line"><span class="comment">// usb_XXX_descriptor 可以在 include\linux\usb\Ch9.h 看到</span></span><br><span class="line"><span class="comment">// Ch9.h 就是 Chapter9 的缩写, 表示USB协议规范第9章</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_device</span> &#123;</span>                         <span class="comment">// usb设备数据结构</span></span><br><span class="line">    <span class="keyword">int</span>     devnum;                         <span class="comment">/* Address on USB bus */</span></span><br><span class="line">    <span class="keyword">enum</span> usb_device_state   state;          <span class="comment">/* configured, not attached, etc */</span></span><br><span class="line">    <span class="keyword">enum</span> usb_device_speed   speed;          <span class="comment">/* high/full/low (or error) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// usb_host_*** 里面就包含了 usb 描述符</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_endpoint</span> <span class="title">ep0</span>;</span>           <span class="comment">// 特殊的 endpoint0 可双向传输</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_device_descriptor</span> <span class="title">descriptor</span>;</span><span class="comment">/* Descriptor */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_config</span> *<span class="title">config</span>;</span>         <span class="comment">/* All of the configs */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_config</span> *<span class="title">actconfig</span>;</span>      <span class="comment">/* the active configuration */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_endpoint</span> *<span class="title">ep_in</span>[16];</span>    <span class="comment">// 用做输入的 endpoint</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_endpoint</span> *<span class="title">ep_out</span>[16];</span>   <span class="comment">// 用做输出的 endpoint</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* static strings from the device */</span></span><br><span class="line">    <span class="keyword">char</span> *product;                          <span class="comment">/* iProduct string, if present */</span></span><br><span class="line">    <span class="keyword">char</span> *manufacturer;                     <span class="comment">/* iManufacturer string, if present */</span></span><br><span class="line">    <span class="keyword">char</span> *serial;                           <span class="comment">/* iSerialNumber string, if present */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 整个USB描述符的数据结构框架如下:</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">usb_device</span>                   // <span class="title">usb</span>设备</span></span><br><span class="line"><span class="class">    <span class="title">struct</span> <span class="title">usb_device_descriptor</span>        // <span class="title">device</span> 描述符</span></span><br><span class="line"><span class="class">        __<span class="title">le16</span> <span class="title">bcdUSB</span>;</span>                      <span class="comment">// 设备支持的最高USB版本</span></span><br><span class="line">        __u8  bDeviceClass;                 <span class="comment">// 设备类别</span></span><br><span class="line">        __u8  bDeviceSubClass;              <span class="comment">// 设备子类</span></span><br><span class="line">        __u8  bDeviceProtocol;              <span class="comment">// 通信协议</span></span><br><span class="line">        __u8  bMaxPacketSize0;              <span class="comment">// endpoint0 通讯支持的最大数据量</span></span><br><span class="line">        __le16 idVendor;                    <span class="comment">// 经销商ID, 由USB机构分配给厂家</span></span><br><span class="line">        __le16 idProduct;                   <span class="comment">// 产品ID, 由USB厂家自己分配</span></span><br><span class="line">        __u8  iSerialNumber;                <span class="comment">// 产品序列号</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_config</span>              // 主机记录的<span class="title">config</span>信息</span></span><br><span class="line"><span class="class">        <span class="title">struct</span> <span class="title">usb_config_descriptor</span>        // <span class="title">config</span> 描述符</span></span><br><span class="line"><span class="class">            __<span class="title">le16</span> <span class="title">wTotalLength</span>;</span>                <span class="comment">// config 总数据长度</span></span><br><span class="line">            __u8  bNumInterfaces;               <span class="comment">// config包含的interface数量</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">usb_interface</span>                // <span class="title">USB</span> <span class="title">interface</span></span></span><br><span class="line"><span class="class">            <span class="title">struct</span> <span class="title">usb_host_interface</span>           // 主机记录的<span class="title">interface</span>信息</span></span><br><span class="line"><span class="class">                <span class="title">struct</span> <span class="title">usb_interface_descriptor</span>     // <span class="title">interface</span>描述符</span></span><br><span class="line"><span class="class">                    __<span class="title">u8</span>  <span class="title">bInterfaceNumber</span>;</span>             <span class="comment">// interface编号</span></span><br><span class="line">                    __u8  bNumEndpoints;                <span class="comment">// 包含的endpoint数量</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_endpoint</span>            // 该<span class="title">interface</span>包含的<span class="title">endpoint</span></span></span><br><span class="line"><span class="class">            <span class="title">int</span> <span class="title">minor</span>;</span>                          <span class="comment">// 该USB interface的子设备号</span></span><br><span class="line">            <span class="comment">// 这里可以看出, Linux下, USB设备驱动是被绑到 USB interface 这一层的.</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">usb_host_endpoint</span>            // 主机记录的该<span class="title">USB</span>设备所有的<span class="title">endpoint</span></span></span><br><span class="line"><span class="class">        <span class="title">struct</span> <span class="title">usb_endpoint_descriptor</span>      // <span class="title">endpoint</span> 描述符</span></span><br><span class="line"><span class="class">            __<span class="title">u8</span>  <span class="title">bEndpointAddress</span>;</span>             <span class="comment">// endpoint 地址</span></span><br><span class="line">            __le16 wMaxPacketSize;              <span class="comment">// 支持的数据包大小</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">urb_list</span>;</span>          <span class="comment">// URB列表, USB Request Block.</span></span><br><span class="line">        <span class="comment">// URB 是linux内核给USB底层通讯抽象出来一种方法. 类似于TCP/IP协议里的socket方法.</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://blog.csdn.net/ahskx/article/details/50618983" target="_blank" rel="noopener">Linux的USB驱动分析</a></li>
+<li><a href="http://www.embeddedlinux.org.cn/emb-linux/kernel-driver/201710/25-7669.html" target="_blank" rel="noopener">Linux USB驱动工作流程</a></li>
+<li><a href="http://blog.csdn.net/u014276460/article/details/47292427" target="_blank" rel="noopener">浅谈USB驱动架构</a></li>
+<li><a href="http://www.cnblogs.com/xiaojiang1025/p/6500574.html" target="_blank" rel="noopener">Linux usb子系统(一) _写一个usb鼠标驱动</a></li>
+<li><a href="http://www.beyondlogic.org/usbnutshell/usb4.shtml" target="_blank" rel="noopener">USB in a NutShell</a></li>
+<li><a href="http://www.beyondlogic.org/usbnutshell/usb5.shtml" target="_blank" rel="noopener">USB Descriptors</a></li>
+<li><a href="https://www.crifan.com/files/doc/docbook/usb_basic/release/webhelp/four_hci_relations.html" target="_blank" rel="noopener">USB控制器类型：OHCI，UHCI，EHCI，xHCI</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/01/11/1806-drv-ts/" itemprop="url">
                   驱动之触摸屏驱动框架和实现
                 </a>
@@ -1205,388 +1616,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/04/1801-drv-chr7/" itemprop="url">
-                  驱动之定时器按键防抖
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-04T00:00:00+11:00" content="2018-01-04">
-              2018-01-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
-<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
-<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
-<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
-<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
-<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
-<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.<br>硬件具备唯一性, 因此某一时刻应该只有一个应用程序能对驱动进行操作.</p>
-<h1 id="定时器"><a href="#定时器" class="headerlink" title="定时器"></a>定时器</h1><h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p>定时器的用法一般分为如下步骤:</p>
-<ol>
-<li>声明一个 timer<ul>
-<li><code>struct timer_list newTimer</code></li>
-</ul>
-</li>
-<li>声明并初始化 timer<ul>
-<li>方法一: <code>DEFINE_TIMER(newTimer, timer_function, expires, data);</code></li>
-<li>方法二: <code>setup_timer(&amp;newTimer, timer_function, data)</code></li>
-<li>方法三: <code>init_timer(&amp;newTimer)</code></li>
-<li>timer_function 就是定时器的中断服务函数</li>
-</ul>
-</li>
-<li>完善定时中断服务函数<ul>
-<li>要周期性调用定时器, 使用 <code>mod_timer(&amp;newTimer, jiffies+interval)</code> 重新注册</li>
-<li>此部分代码特别注意锁的问题!</li>
-</ul>
-</li>
-<li>注册 timer 到定时器链表<ul>
-<li>相当于启动定时器, 可用 <code>add_timer(&amp;newTimer)</code></li>
-<li>实际上 <code>add_timer</code> 并非必须调用, 直接使用<code>mod_timer</code>也没问题.</li>
-<li><code>mod_timer</code> 等效于 <code>del_timer(); set expires; add_timer();</code></li>
-</ul>
-</li>
-<li>重新注册 timer<ul>
-<li>定时器配在置好后只运行一次，执行完中断服务函数后定时器就会自动销毁!</li>
-<li>想要实现周期性定时中断就必须在中断服务程序的结尾重新给定时器写入超时值</li>
-<li>使用 <code>mod_timer(&amp;newTimer, jiffies+interval)</code> 重新注册</li>
-</ul>
-</li>
-<li>提前停止定时器 timer （非必需步骤）<ul>
-<li>定时器计时结束后, 系统会自动销毁相关定时器.</li>
-<li><code>del_timer(&amp;newTimer)</code></li>
-<li><code>del_timer_sync(&amp;newTimer)</code>, 用于多核CPU. 单核的话等同于 <code>del_timer</code></li>
-</ul>
-</li>
-<li>其它相关概念<ul>
-<li><code>jiffies</code> 是linux系统启动后芯片时钟的节拍总数</li>
-<li><code>HZ</code> 每秒经过的jiffies数. 其值就是系统时钟的频率</li>
-<li><code>jiffies/HZ</code> 就是当前系统运行了多少秒</li>
-<li>64位系统中, jiffies 只访问到低32位值, 需要使用 <code>get_jiffies_64()</code> 才能获取完整的64位数值.</li>
-</ul>
-</li>
-</ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="http://blog.csdn.net/armeasy/article/details/6027709" target="_blank" rel="noopener">内核sem、wait_queue_head_t、timer和kernel_thread使用驱动范例</a> 内核线程和定时器的用法</li>
-<li><a href="http://blog.csdn.net/qidi_huang/article/details/51318157" target="_blank" rel="noopener">Linux内核 定时器 用法</a></li>
-<li><a href="http://www.cnblogs.com/chen-farsight/p/6226562.html" target="_blank" rel="noopener">Linux设备驱动——内核定时器</a></li>
-<li><a href="https://www.ibm.com/developerworks/cn/linux/l-timers-list/index.html" target="_blank" rel="noopener">Linux内核中的计时器和列表</a></li>
-</ul>
-<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>此驱动源码是韦东山教程里按键的最终版本. 驱动有如下特性:</p>
-<ul>
-<li>按键使用了中断</li>
-<li>多线程/进程安全, 硬件使用了互斥量.</li>
-<li>支持应用层阻塞或者非阻塞访问</li>
-<li>支持poll机制. 应用层可以使用poll</li>
-<li>支持异步机制. 应用层可以用信号中断来处理按键事件</li>
-</ul>
-<p>但对我个人而言, 这一版本的按键依旧不够好, 有机会自己写一版按键驱动</p>
-<ul>
-<li>按键状态反馈过于简单, 没有提供诸如短按, 长按, 连发, 释放的按键信息.</li>
-<li>经典的按键范例是状态机模型, 用定时器定时扫描按键状态, 可以不用硬件中断.</li>
-<li>没有实现对单个按键的open/closse操作.</li>
-</ul>
-<h2 id="drv-keys-c"><a href="#drv-keys-c" class="headerlink" title="drv_keys.c"></a>drv_keys.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br></pre></td><td class="code"><pre><span class="line">===============================================================================</span><br><span class="line">Driver Name     :       drv_keys</span><br><span class="line">Author          :       DRAAPHO</span><br><span class="line">License         :       GPL</span><br><span class="line">Description     :       LINUX DEVICE DRIVER PROJECT</span><br><span class="line">===============================================================================</span><br><span class="line">*/</span><br><span class="line"></span><br><span class="line">#include<span class="string">"drv_keys.h"</span></span><br><span class="line"></span><br><span class="line">#define DRV_KEYS_N_MINORS <span class="number">1</span>                 <span class="comment">// 子设备号, 可用于区别按键.</span></span><br><span class="line">#define DRV_KEYS_FIRST_MINOR <span class="number">0</span></span><br><span class="line">#define DRV_KEYS_NODE_NAME <span class="string">"key"</span></span><br><span class="line">#define DRV_KEYS_BUFF_SIZE <span class="number">1024</span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> drv_keys_major=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">dev_t</span> drv_keys_device_num;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">drv_keys_class</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fasync_struct</span> *<span class="title">keys_async</span>;</span>            <span class="comment">// 新增, kill_fasync使用</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_MUTEX</span><span class="params">(keys_lock)</span></span>;             <span class="comment">// 定义互斥锁</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">privatedata</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> nMinor;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cdev</span> <span class="title">cdev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">drv_keys_device</span>;</span></span><br><span class="line">&#125; drv_keys_private;</span><br><span class="line"></span><br><span class="line">drv_keys_private devices[DRV_KEYS_N_MINORS];</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 中断和定时器增加的代码 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="title">DECLARE_WAIT_QUEUE_HEAD</span><span class="params">(key_waitq)</span></span>;  <span class="comment">// 作用类似于信号量, 这里是向系统加入一个等待列表.</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">int</span> ev_press = <span class="number">0</span>;           <span class="comment">// 中断事件标记, 手动值1或者清0</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;              <span class="comment">// 记录按键值</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pin_desc</span> * <span class="title">pindesc</span>;</span>                  <span class="comment">// 用于保存中断内的数据指针, 给超时函数使用</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timer_list</span> <span class="title">keys_timer</span>;</span>               <span class="comment">// 定时器</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pin_desc</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pin;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> key_val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pin_desc</span> <span class="title">pins_desc</span>[3] = &#123;</span>            <span class="comment">// 设置好按键的引脚和对应的值</span></span><br><span class="line">    &#123;S3C2410_GPF0, <span class="number">0x01</span>&#125;,</span><br><span class="line">    &#123;S3C2410_GPF2, <span class="number">0x02</span>&#125;,</span><br><span class="line">    &#123;S3C2410_GPG3, <span class="number">0x04</span>&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"keys_irq, irq=%d\n"</span>, irq);</span><br><span class="line">    pindesc = (struct pin_desc *)dev_id;    <span class="comment">// 获取自用的数据指针</span></span><br><span class="line">    mod_timer(&amp;keys_timer, jiffies+HZ/<span class="number">100</span>); <span class="comment">// 每次产生中断, 都等待10ms, 避开按键抖动</span></span><br><span class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">keys_wait_10ms</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> data)</span> </span>&#123;            <span class="comment">// 中断发生10ms后, 在读取电平值</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> pinval;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!pindesc)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    pinval = s3c2410_gpio_getpin(pindesc-&gt;pin);             <span class="comment">// 读取按键电平</span></span><br><span class="line">    <span class="keyword">if</span> (pinval) &#123;                                           <span class="comment">// 松开</span></span><br><span class="line">        keys_val &amp;= ~pindesc-&gt;key_val;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;                                                <span class="comment">// 按下</span></span><br><span class="line">        keys_val |= pindesc-&gt;key_val;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ev_press = <span class="number">1</span>;                                           <span class="comment">// 表示中断发生</span></span><br><span class="line">    wake_up_interruptible(&amp;key_waitq);                      <span class="comment">// 唤醒休眠的进程</span></span><br><span class="line">    kill_fasync(&amp;keys_async, SIGIO, POLL_IN);               <span class="comment">// 发送SIGIO信号</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 部分修改模板代码 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_keys_open</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (filp-&gt;f_flags &amp; O_NONBLOCK) &#123;               <span class="comment">// 非阻塞</span></span><br><span class="line">        <span class="keyword">if</span> (down_trylock(&amp;keys_lock))               <span class="comment">// 尝试获取信号量</span></span><br><span class="line">            <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        down(&amp;keys_lock);                           <span class="comment">// 获取信号量, 阻塞</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    drv_keys_private *priv = container_of(inode-&gt;i_cdev ,</span><br><span class="line">            drv_keys_private ,cdev);</span><br><span class="line">    filp-&gt;private_data = priv;</span><br><span class="line">    PINFO(<span class="string">"drv_keys_open\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册中断号, 设置中断类型, 设置中断名称(和设备名称无关), 传入自用的数据指针</span></span><br><span class="line">    ret  = request_irq(IRQ_EINT0, keys_irq, IRQT_BOTHEDGE, <span class="string">"S2"</span>, &amp;pins_desc[<span class="number">0</span>]);</span><br><span class="line">    ret |= request_irq(IRQ_EINT2, keys_irq, IRQT_BOTHEDGE, <span class="string">"S3"</span>, &amp;pins_desc[<span class="number">1</span>]);</span><br><span class="line">    ret |= request_irq(IRQ_EINT11, keys_irq, IRQT_BOTHEDGE, <span class="string">"S4"</span>, &amp;pins_desc[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定时器初始化.</span></span><br><span class="line">    setup_timer(&amp;keys_timer, keys_wait_10ms, <span class="number">0</span>);</span><br><span class="line">    add_timer(&amp;keys_timer);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ret) <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_keys_release</span><span class="params">(struct inode *inode,struct file *filp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    drv_keys_private *priv;</span><br><span class="line">    priv=filp-&gt;private_data;</span><br><span class="line">    PINFO(<span class="string">"drv_keys_release\n"</span>);</span><br><span class="line"></span><br><span class="line">    del_timer_sync(&amp;keys_timer);                    <span class="comment">// 删除定时器</span></span><br><span class="line">    free_irq(IRQ_EINT11, &amp;pins_desc[<span class="number">2</span>]);            <span class="comment">// 注销中断</span></span><br><span class="line">    free_irq(IRQ_EINT2, &amp;pins_desc[<span class="number">1</span>]);</span><br><span class="line">    free_irq(IRQ_EINT0, &amp;pins_desc[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    up(&amp;keys_lock);                                 <span class="comment">// 释放信号量</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_keys_read</span><span class="params">(struct file *filp,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">char</span> __user *ubuff,<span class="keyword">size_t</span> count,<span class="keyword">loff_t</span> *offp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    drv_keys_private *priv;</span><br><span class="line">    priv = filp-&gt;private_data;</span><br><span class="line">    PINFO(<span class="string">"drv_keys_read()\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (count != <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (filp-&gt;f_flags &amp; O_NONBLOCK) &#123;               <span class="comment">// 非阻塞</span></span><br><span class="line">        <span class="keyword">if</span> (!ev_press)                              <span class="comment">// 无按键, 立刻返回</span></span><br><span class="line">            <span class="keyword">return</span> -EAGAIN;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// ev_press, 用于判断是否可以让当前进程睡眠(让出CPU, 进程切换)</span></span><br><span class="line">        wait_event_interruptible(key_waitq, ev_press);      <span class="comment">// 阻塞</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ev_press = <span class="number">0</span>;                                           <span class="comment">// 运行后, 立刻清零</span></span><br><span class="line">    <span class="keyword">if</span> (copy_to_user(ubuff, &amp;keys_val, <span class="number">1</span>)) &#123;                <span class="comment">// 传回按键值</span></span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="title">drv_keys_poll</span><span class="params">(struct file *file, poll_table *wait)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> mask = <span class="number">0</span>;</span><br><span class="line">    poll_wait(file, &amp;key_waitq, wait);      <span class="comment">// 这里不会休眠. 进程不阻塞</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ev_press)</span><br><span class="line">        mask |= POLLIN | POLLRDNORM;        <span class="comment">// 关键是返回值, 返回值为0, 进程可能休眠.</span></span><br><span class="line">        <span class="comment">// POLLIN, 是标准的事件值, 测试程序就基于此判断.</span></span><br><span class="line">        <span class="comment">// POLLRDNORM, Normal data may be read without blocking. 作用应该是告知应用程序类型和后续动作.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mask;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_keys_fasync</span> <span class="params">(<span class="keyword">int</span> fd, struct file *filp, <span class="keyword">int</span> on)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"drv_key_fasync\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> fasync_helper (fd, filp, on, &amp;keys_async);       <span class="comment">// 初始化keys_async</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 模板代码, 没有修改 =====</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_keys_fops</span>= &#123;</span></span><br><span class="line">    .owner              = THIS_MODULE,</span><br><span class="line">    .open               = drv_keys_open,</span><br><span class="line">    .release            = drv_keys_release,</span><br><span class="line">    .read               = drv_keys_read,</span><br><span class="line">    .poll               = drv_keys_poll,</span><br><span class="line">    .fasync             = drv_keys_fasync,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">drv_keys_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line"></span><br><span class="line">    res = alloc_chrdev_region(&amp;drv_keys_device_num,DRV_KEYS_FIRST_MINOR,DRV_KEYS_N_MINORS ,DRIVER_NAME);</span><br><span class="line">    <span class="keyword">if</span>(res) &#123;</span><br><span class="line">        PERR(<span class="string">"register device no failed\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    drv_keys_major = MAJOR(drv_keys_device_num);</span><br><span class="line"></span><br><span class="line">    drv_keys_class = class_create(THIS_MODULE , DRIVER_NAME);</span><br><span class="line">    <span class="keyword">if</span>(!drv_keys_class) &#123;</span><br><span class="line">        PERR(<span class="string">"class creation failed\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEYS_N_MINORS;i++) &#123;</span><br><span class="line">        drv_keys_device_num= MKDEV(drv_keys_major ,DRV_KEYS_FIRST_MINOR+i);</span><br><span class="line">        cdev_init(&amp;devices[i].cdev , &amp;drv_keys_fops);</span><br><span class="line">        cdev_add(&amp;devices[i].cdev,drv_keys_device_num,<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        devices[i].drv_keys_device  =</span><br><span class="line">                device_create(drv_keys_class , <span class="literal">NULL</span> ,drv_keys_device_num ,</span><br><span class="line">                            <span class="comment">// NULL ,DRV_KEYS_NODE_NAME"%d",DRV_KEYS_FIRST_MINOR+i);    // for higher kernel version</span></span><br><span class="line">                            DRV_KEYS_NODE_NAME<span class="string">"%d"</span>,DRV_KEYS_FIRST_MINOR+i);             <span class="comment">// for 2.6 kernel version</span></span><br><span class="line">        <span class="keyword">if</span>(!devices[i].drv_keys_device) &#123;</span><br><span class="line">            class_destroy(drv_keys_class);</span><br><span class="line">            PERR(<span class="string">"device creation failed\n"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        devices[i].nMinor = DRV_KEYS_FIRST_MINOR+i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"INIT\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">drv_keys_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* TODO Auto-generated Function Stub */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">    PINFO(<span class="string">"EXIT\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;DRV_KEYS_N_MINORS;i++) &#123;</span><br><span class="line">        drv_keys_device_num= MKDEV(drv_keys_major ,DRV_KEYS_FIRST_MINOR+i);</span><br><span class="line"></span><br><span class="line">        cdev_del(&amp;devices[i].cdev);</span><br><span class="line"></span><br><span class="line">        device_destroy(drv_keys_class ,drv_keys_device_num);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    class_destroy(drv_keys_class);</span><br><span class="line"></span><br><span class="line">    unregister_chrdev_region(drv_keys_device_num ,DRV_KEYS_N_MINORS);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_keys_init);</span><br><span class="line">module_exit(drv_keys_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="drv-keys-h"><a href="#drv-keys-h" class="headerlink" title="drv_keys.h"></a>drv_keys.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_keys"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/poll.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><p>这里我修改了一下, 把测试文件的编译也放进了这个文件.<br>用 <code>make test</code> 就能编译测试文件.</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">TEST_FILE   := drv_keys_test</span><br><span class="line"></span><br><span class="line">obj-m       := drv_keys.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">    rm -f <span class="variable">$(TEST_FILE)</span></span><br><span class="line"></span><br><span class="line"><span class="section">test:</span></span><br><span class="line">    arm-linux-gcc <span class="variable">$(TEST_FILE)</span>.c -o <span class="variable">$(TEST_FILE)</span></span><br></pre></td></tr></table></figure>
-<h2 id="drv-keys-test-c"><a href="#drv-keys-test-c" class="headerlink" title="drv_keys_test.c"></a>drv_keys_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line"></span><br><span class="line"><span class="comment">// void keys_signal_handler(int signum)         // 信号中断处理函数</span></span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line">    <span class="comment">// unsigned char key_val = 0;</span></span><br><span class="line">    <span class="comment">// read(fd,&amp;key_val,1);</span></span><br><span class="line">    <span class="comment">// printf("key_val: 0x%x\n",key_val);</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">int</span> oflags;                                 <span class="comment">// 用于异步通知的设置</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">fds</span>[1];</span>                       <span class="comment">// poll 关联的文件, 可多个文件</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> key_val = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    fd = open(<span class="string">"/dev/key0"</span>, O_RDWR);</span><br><span class="line">    <span class="comment">// fd = open("/dev/key0", O_RDWR | O_NONBLOCK); // 非阻塞</span></span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ===== 使用异步通知 =====</span></span><br><span class="line">    <span class="comment">// signal(SIGIO, keys_signal_handler);      // 注册信号中断处理函数</span></span><br><span class="line">    <span class="comment">// fcntl(fd,F_SETOWN,getpid());             // 告诉内核，发给本进程</span></span><br><span class="line">    <span class="comment">// oflags = fcntl(fd,F_GETFL);</span></span><br><span class="line">    <span class="comment">// fcntl(fd, F_SETFL, oflags | FASYNC);     // 改变fasync标记, 内核会调用驱动fasync, 完成初始化</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ===== POLL轮询 =====</span></span><br><span class="line">    <span class="comment">// fds[0].fd     = fd;                      // 关联的驱动文件</span></span><br><span class="line">    <span class="comment">// fds[0].events = POLLIN;                  // 事件类型</span></span><br><span class="line">    <span class="comment">// while (1) &#123;</span></span><br><span class="line">        <span class="comment">// ret = poll(fds, 1, 5000);            // 执行poll. 最多阻塞5s (有按键事件会立刻返回)</span></span><br><span class="line">        <span class="comment">// if (ret == 0) &#123;</span></span><br><span class="line">        <span class="comment">//     printf("time out\n");            // 5s后超时</span></span><br><span class="line">        <span class="comment">// &#125; else &#123;</span></span><br><span class="line">        <span class="comment">//     read(fd, &amp;keys_val, 1);          // 有按键, 读取按键值</span></span><br><span class="line">        <span class="comment">//     printf("keys_val = 0x%x\n", keys_val);</span></span><br><span class="line">        <span class="comment">// &#125;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ===== 阻塞查询 =====</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;                                  <span class="comment">// 开始主任务</span></span><br><span class="line">        ret = read(fd,&amp;key_val,<span class="number">1</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"key_val: 0x%x, ret = %d\n"</span>, key_val, ret);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="编译和测试"><a href="#编译和测试" class="headerlink" title="编译和测试"></a>编译和测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                  <span class="comment"># 编译驱动</span></span><br><span class="line">$ make <span class="built_in">test</span>                     <span class="comment"># 编译测试代码</span></span><br></pre></td></tr></table></figure>
-<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_keys.ko            <span class="comment"># 加载模块</span></span><br><span class="line">$ ./drv_keys_test               <span class="comment"># 检测按键中断</span></span><br><span class="line"><span class="comment"># 按键测试...</span></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br><span class="line"></span><br><span class="line">$ ./drv_keys_test &amp;             <span class="comment"># 后台运行, 会运行</span></span><br><span class="line">$ ./drv_keys_test &amp;             <span class="comment"># 后台运行, 进程被挂起, 因为资源被锁.</span></span><br><span class="line">$ top                           <span class="comment"># 查看进程情况</span></span><br><span class="line">$ <span class="built_in">kill</span> 789                      <span class="comment"># 杀死第一个进程</span></span><br><span class="line"><span class="comment"># 第二个进程就能获得资源, 开始运行</span></span><br><span class="line">$ <span class="built_in">kill</span> 790                      <span class="comment"># 杀死第二个进程</span></span><br><span class="line">$ rmmod drv_keys.ko             <span class="comment"># 卸载模块</span></span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/23/1749-qqiot-demo/" itemprop="url">
-                  QQ物联演示项目
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-12-23T00:00:00+11:00" content="2017-12-23">
-              2017-12-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/qqiot/" itemprop="url" rel="index">
-                    <span itemprop="name">qqiot</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/12/18/1746-qqiot-env/">嵌入式linux环境搭建-QQ物联</a></li>
-<li><a href="https://draapho.github.io/2017/12/22/1748-qqiot-procedure/">QQ物联开发步骤简介</a></li>
-<li><a href="https://draapho.github.io/2017/12/20/1747-qqiot-bind/">QQ物联绑定分析</a></li>
-<li><a href="https://draapho.github.io/2017/12/23/1749-qqiot-demo/">QQ物联演示项目</a></li>
-</ul>
-<p>本文使用 linux-3.4.2 内核, 使用jz2440开发板.</p>
-<h1 id="编译和安装驱动"><a href="#编译和安装驱动" class="headerlink" title="编译和安装驱动"></a>编译和安装驱动</h1><p>先编译安装一下LED, 测试一下LCD功能</p>
-<h2 id="LED驱动"><a href="#LED驱动" class="headerlink" title="LED驱动"></a>LED驱动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端</span></span><br><span class="line"></span><br><span class="line">unzip led_driver.zip</span><br><span class="line"><span class="built_in">cd</span> led_driver/</span><br><span class="line">ll /work/system/linux-3.4.2/            <span class="comment"># 确定内核目录存在, 编译要用到</span></span><br><span class="line">make                                    <span class="comment"># 编译LED驱动</span></span><br><span class="line">arm-linux-gcc jz2440_led_app.c -o jz2440_led_app    <span class="comment"># 编译测试文件</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line"><span class="comment">#pwd = .../share/.../led_driver/        # 共享文件进入ubuntu下的驱动目录</span></span><br><span class="line">cp jz2440_led_drv.ko /lib/modules/3.4.2/</span><br><span class="line">insmod jz2440_led_drv.ko</span><br><span class="line">./jz2440_led_app</span><br><span class="line"><span class="comment"># 可以看到打印信息, 并且开发板的LED灯亮灭.</span></span><br><span class="line">rmmod jz2440_led_drv.ko                 <span class="comment"># 卸载设备模块</span></span><br></pre></td></tr></table></figure>
-<h2 id="LCD测试"><a href="#LCD测试" class="headerlink" title="LCD测试"></a>LCD测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端</span></span><br><span class="line"></span><br><span class="line">unzip lcd_gui_simple.zip</span><br><span class="line"><span class="built_in">cd</span> lcd_gui_simple/</span><br><span class="line">make                                    <span class="comment"># 编译LED测试源码</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line"><span class="comment">#pwd = .../share/.../lcd_gui_simple/    # 共享文件进入ubuntu下的驱动目录</span></span><br><span class="line">ls /dev/fb0                             <span class="comment"># 确认已存在设备fb0</span></span><br><span class="line">./lcd_gui_simple                        <span class="comment"># 测试屏幕</span></span><br></pre></td></tr></table></figure>
-<h1 id="演示项目"><a href="#演示项目" class="headerlink" title="演示项目"></a>演示项目</h1><h2 id="编译和测试"><a href="#编译和测试" class="headerlink" title="编译和测试"></a>编译和测试</h2><p>必须将应用程序需要用到的文件都准备好, 这样才能正常原型.<br>有如下重点:</p>
-<ul>
-<li>密钥文件放到 <code>/etc/qq_iot/demo_bind/</code></li>
-<li>QQ SDK动态库放到 <code>/lib/</code></li>
-<li>应用文件和资源文件放在一起, 譬如 <code>/qqiot/</code></li>
-<li>准备好开发板必要驱动, 这里是led驱动. 其它驱动已经打包进内核.</li>
-<li>确保网络正确, 能ping通外网.</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端</span></span><br><span class="line">unzip net_bind_detector.zip</span><br><span class="line"><span class="built_in">cd</span> net_bind_detector/</span><br><span class="line"><span class="comment"># 确认一下./lib/libtxdevicesdk.so的版本. 保证所有代码用的同一个库</span></span><br><span class="line">make clean</span><br><span class="line">make                                    <span class="comment"># 生成 net_bind_detector</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440开发板</span></span><br><span class="line"><span class="comment">#pwd=.../share/.../密钥文件目录/</span></span><br><span class="line">mkdir -p /etc/qq_iot/demo_bind/</span><br><span class="line">tar xzf 1700003137001488.tar.gz         <span class="comment"># 解压密钥文件</span></span><br><span class="line">mv 1700003137001488/* /etc/qq_iot/demo_bind/</span><br><span class="line">rm -r 1700003137001488</span><br><span class="line">ls /etc/qq_iot/demo_bind/               <span class="comment"># 确认一下</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#pwd=.../share/.../net_bind_detector/   # 共享文件进入ubuntu下的驱动目录</span></span><br><span class="line">cp net_bind_detector /qqiot/            <span class="comment"># 拷贝到开发板flash中</span></span><br><span class="line">cp lib/libtxdevicesdk.so /lib/          <span class="comment"># 拷贝QQ SKD库</span></span><br><span class="line">cp -rfd res/ /qqiot/                    <span class="comment"># 拷贝测试用资源, d表示忽略软连接</span></span><br><span class="line">ls /qqiot</span><br><span class="line">ls /qqiot/res                           <span class="comment"># 确认拷贝结果</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开始测试</span></span><br><span class="line"><span class="built_in">cd</span> /qqiot/</span><br><span class="line">insmod /lib/modules/3.4.2/jz2440_led_drv.ko     <span class="comment"># 加载led模块</span></span><br><span class="line">./net_bind_detector</span><br><span class="line"><span class="comment"># 开始演示, 在QQ界面上操作, 开发板屏幕或LED就会有响应</span></span><br><span class="line"><span class="comment"># 然后测试QQ物联设备给手机QQ发送消息 (需要QQ服务器端正确配置)</span></span><br><span class="line">sendtextmsg                             <span class="comment"># 测试文本的发送</span></span><br><span class="line">sendpic                                 <span class="comment"># 测试图片文件的发送</span></span><br><span class="line">sendaudio                               <span class="comment"># 测试音频文件的发送</span></span><br><span class="line">sendvideo                               <span class="comment"># 测试视频文件的发送</span></span><br></pre></td></tr></table></figure>
-<p>如果要实现开机自启动, 把相关命令放在 <code>/etc/init.d/rcS</code> 结尾处即可.<br>注意, 此程序用到了相对路径. 如果直接用 <code>/qqiot/net_bind_detector</code>, 加载相对路径文件时就会失败!</p>
-<h1 id="查看源码"><a href="#查看源码" class="headerlink" title="查看源码"></a>查看源码</h1><p>这里就不分析了, 仅列出其文件结构</p>
-<table>
-<thead>
-<tr>
-<th>目录</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>led</td>
-<td>led的应用程序(很简单)</td>
-</tr>
-<tr>
-<td>framebuffer</td>
-<td>framebuffer底层实现</td>
-</tr>
-<tr>
-<td>gui</td>
-<td>自制gui</td>
-</tr>
-<tr>
-<td>lib</td>
-<td>腾讯QQ物联SDK的库文件存放位置</td>
-</tr>
-<tr>
-<td>include</td>
-<td>头文件</td>
-</tr>
-<tr>
-<td>… qq_dev_sdk</td>
-<td>腾讯QQ物联SDK的头文件存放位置</td>
-</tr>
-<tr>
-<td>initDevice</td>
-<td>设备初始化</td>
-</tr>
-<tr>
-<td>DataPoint</td>
-<td>实现 <code>tx_init_data_point</code> <code>tx_ack_data_point</code> <code>tx_report_data_point</code></td>
-</tr>
-<tr>
-<td>fileTransfer</td>
-<td>实现 <code>tx_init_file_transfer</code></td>
-</tr>
-<tr>
-<td>msg</td>
-<td>实现 <code>tx_send_text_msg</code> <code>tx_send_structuring_msg</code></td>
-</tr>
-<tr>
-<td>res</td>
-<td>存放图片文件, 音频文件, 视频文件</td>
-</tr>
-</tbody>
-</table>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1632,7 +1661,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">114</span>
+              <span class="site-state-item-count">116</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
