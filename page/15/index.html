@@ -261,143 +261,6 @@
             
               
                 
-                <a class="post-title-link" href="/2016/11/15/1616-python-ble/" itemprop="url">
-                  使用python实现BLE通讯
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-11-15T00:00:00+11:00" content="2016-11-15">
-              2016-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境与资源"><a href="#环境与资源" class="headerlink" title="环境与资源"></a>环境与资源</h1><ul>
-<li>windows 开发环境</li>
-<li>python 2.7</li>
-<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="noopener">pygatt</a></li>
-<li>Bluegiga 的 <a href="http://www.silabs.com/products/wireless/bluetooth/bluetooth-smart-modules/Pages/bled112-bluetooth-smart-dongle.aspx" target="_blank" rel="noopener">BLED112 Bluetooth Smart Dongle</a></li>
-</ul>
-<h1 id="闲扯"><a href="#闲扯" class="headerlink" title="闲扯"></a>闲扯</h1><ul>
-<li>背景, 需要在windows上做一款基于BLE通讯的软件. 第一反应, 痛苦.</li>
-<li>使用的是 Bluegiga 的BLE方案, 协议栈芯片内置, 串口通讯即可, 并寻得 <a href="https://github.com/jrowberg/bglib" target="_blank" rel="noopener">bglib</a> 这么一个python库, 还有范例!</li>
-<li>不幸的是, 自己功力不够, 基于此函数库开发出的BLE通讯, 非常不稳定… 没有痛下决心自己写, 于是继续尝试寻找资源.</li>
-<li>觅得 <a href="https://github.com/peplin/pygatt" target="_blank" rel="noopener">pygatt</a> 方案, 三平台全支持! windows 和 mac 下正是基于bglib实现的!</li>
-<li><a href="https://github.com/peplin/pygatt" target="_blank" rel="noopener">pygatt</a> 是python的第三方库, 说明文档比较少, 测试了一下非常好用!</li>
-</ul>
-<h1 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h1><ul>
-<li>DEVICE_ADDRESS, 默认的需要connect的BLE地址</li>
-<li>基于 Bluegiga 的 <code>cable_replacement</code> 范例, 其 characteristic uuid 为 <code>e7add780-b042-4876-aae1-112855353cc1</code></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygatt</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Many devices, e.g. Fitbit, use random addressing - this is required to connect.</span></span><br><span class="line">ADDRESS_TYPE = pygatt.BLEAddressType.random</span><br><span class="line">DEVICE_ADDRESS = <span class="string">"00:07:80:BF:6A:73"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">indication_callback</span><span class="params">(handle, value)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"indication, handle %d: %s "</span> % (handle, value)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pytest</span><span class="params">(address=DEVICE_ADDRESS, type=pygatt.BLEAddressType.public)</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        adapter = pygatt.BGAPIBackend()</span><br><span class="line">        adapter.start()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.scan() ====="</span></span><br><span class="line">        devices = adapter.scan()</span><br><span class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> devices:</span><br><span class="line">            <span class="comment"># print dev</span></span><br><span class="line">            <span class="keyword">print</span> <span class="string">"address: %s, name: %s "</span> % (dev[<span class="string">'address'</span>], dev[<span class="string">'name'</span>])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"===== adapter.connect() ====="</span></span><br><span class="line">        device = adapter.connect(address, address_type=type)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"address: "</span> + str(device._address)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"handle : "</span> + str(device._handle)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"rssi   : "</span> + str(device.get_rssi())</span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"====== device.discover_characteristics() ====="</span></span><br><span class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</span><br><span class="line">                      (uuid, device.get_handle(uuid), binascii.hexlify(device.char_read(uuid))))</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                print(<span class="string">"Read UUID %s (handle %d): %s"</span> %</span><br><span class="line">                      (uuid, device.get_handle(uuid), <span class="string">"!deny!"</span>))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_read() / device.char_read_handle() ====="</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read(<span class="string">"00002a00-0000-1000-8000-00805f9b34fb"</span>)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"2a00: "</span> + device.char_read_handle(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"====== device.subscribe() ====="</span></span><br><span class="line">        device.subscribe(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>,</span><br><span class="line">                         callback=indication_callback, indication=<span class="keyword">True</span>)</span><br><span class="line">        <span class="comment"># device.receive_notification(8, "test")</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"====== device.char_write_handle() ====="</span></span><br><span class="line">        in_buf = map(ord, <span class="string">"hello world, hello BLE!!!"</span>)</span><br><span class="line">        <span class="comment"># send via uuid &amp; handle, maximum is 20 bytes</span></span><br><span class="line">        device.char_write(<span class="string">"e7add780-b042-4876-aae1-112855353cc1"</span>, in_buf[:<span class="number">20</span>])</span><br><span class="line">        device.char_write_handle(<span class="number">0x08</span>, in_buf[<span class="number">20</span>:])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">True</span>):</span><br><span class="line">            time.sleep(<span class="number">0.1</span>)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        adapter.stop()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="comment"># logging.basicConfig()</span></span><br><span class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></span><br><span class="line">    pytest()</span><br></pre></td></tr></table></figure>
-<h1 id="BleDevice-类"><a href="#BleDevice-类" class="headerlink" title="BleDevice 类"></a>BleDevice 类</h1><ul>
-<li>为了方便使用, 自己基于 pygatt 再打包一层</li>
-<li>遗憾的是没有disconnect的通知. 可以参考 <a href="https://github.com/peplin/pygatt/issues/72" target="_blank" rel="noopener">Disconnect event not shown</a></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygatt</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BleDevice</span><span class="params">(pygatt.BGAPIBackend)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.device = <span class="keyword">None</span></span><br><span class="line">        self.adapter = pygatt.BGAPIBackend()</span><br><span class="line">        self.adapter.start()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">stop</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.adapter.stop()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">scan</span><span class="params">(self, timeout=<span class="number">5</span>)</span>:</span></span><br><span class="line">        self.devices = self.adapter.scan(timeout)</span><br><span class="line">        <span class="keyword">return</span> self.devices</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect_name</span><span class="params">(self, name, devices=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> devices <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            devices = self.devices</span><br><span class="line">        <span class="keyword">for</span> dev <span class="keyword">in</span> self.devices:</span><br><span class="line">            <span class="keyword">if</span> name == dev[<span class="string">'name'</span>]:</span><br><span class="line">                <span class="keyword">return</span> self.connect(dev[<span class="string">'address'</span>])</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">(self, address)</span>:</span></span><br><span class="line">        self.device = self.adapter.connect(address)</span><br><span class="line">        <span class="keyword">return</span> self.device</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">discover_characteristics</span><span class="params">(self, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        characteristics = []</span><br><span class="line">        <span class="keyword">for</span> uuid <span class="keyword">in</span> device.discover_characteristics().keys():</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                device.char_read(uuid)</span><br><span class="line">                characteristics.append(</span><br><span class="line">                    &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">True</span>&#125;)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="keyword">if</span> <span class="string">"unable to read"</span> <span class="keyword">in</span> str(e).lower():</span><br><span class="line">                    characteristics.append(</span><br><span class="line">                        &#123;<span class="string">'uuid'</span>: uuid, <span class="string">'handle'</span>: device.get_handle(uuid), <span class="string">'readable'</span>: <span class="keyword">False</span>&#125;)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">raise</span> e</span><br><span class="line">        <span class="keyword">return</span> characteristics</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_indication</span><span class="params">(self, uuid, device=None, callback=None, indication=True)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        device.subscribe(uuid, callback, indication)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics</span><span class="params">(self, uuid, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        <span class="keyword">return</span> device.char_read(uuid)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read_characteristics_handle</span><span class="params">(self, handle, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        <span class="keyword">return</span> device.char_read_handle(handle)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics</span><span class="params">(self, str, uuid, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        data = map(ord, str)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</span><br><span class="line">            device.char_write(uuid, data[i:i + <span class="number">20</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write_characteristics_handle</span><span class="params">(self, str, handle, device=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> device <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            device = self.device</span><br><span class="line">        data = map(ord, str)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(data), <span class="number">20</span>):</span><br><span class="line">            device.char_write_handle(handle, data[i:i + <span class="number">20</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="comment"># logging.basicConfig()</span></span><br><span class="line">    <span class="comment"># logging.getLogger('pygatt').setLevel(logging.DEBUG)</span></span><br><span class="line">    ble = BleDevice()</span><br><span class="line">    <span class="keyword">print</span> ble.scan()</span><br><span class="line">    device = ble.connect_name(<span class="string">"Bluegiga CR Demo"</span>)</span><br><span class="line">    <span class="keyword">print</span> device._address</span><br><span class="line">    chars = ble.discover_characteristics(device)</span><br><span class="line">    <span class="keyword">print</span> chars</span><br><span class="line">    <span class="comment"># print chars[0]['uuid']</span></span><br><span class="line">    <span class="keyword">print</span> ble.read_characteristics(chars[<span class="number">1</span>][<span class="string">'uuid'</span>])</span><br><span class="line">    ble.write_characteristics(<span class="string">"hello world"</span>, chars[<span class="number">0</span>][<span class="string">'uuid'</span>])</span><br></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2016/11/14/1615-software-thread/" itemprop="url">
                   协程/进程/线程资料收集
                 </a>
@@ -1600,6 +1463,323 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/12/1610-WinSoft-atompack/" itemprop="url">
+                  Windows 软件系列-atom插件
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-12T00:00:00+11:00" content="2016-10-12">
+              2016-10-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/windows/" itemprop="url" rel="index">
+                    <span itemprop="name">windows</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="atom简介"><a href="#atom简介" class="headerlink" title="atom简介"></a><a href="https://atom.io/" target="_blank" rel="noopener">atom</a>简介</h1><ul>
+<li>界面简洁, 基本上手可用, 无需复杂设置</li>
+<li>开源免费, 而且多平台支持, 有丰富的插件库</li>
+<li>和git的整合度很好! 直观明了好用</li>
+<li>启动相对较慢, 但可接受.</li>
+<li>懒人不想折腾, atom无明显短板, 就作为主力代码编辑器了</li>
+<li>定位是 Notepad++ 为快速处理文件, atom 处理项目</li>
+<li>此篇重点介绍 atom 插件的选择和安装, 以及配置快捷键. 基础介绍见<a href="https://draapho.github.io/2016/09/30/1603-WinSoft-editor/">Windows 软件系列-文本编辑</a></li>
+</ul>
+<h1 id="atom-插件的安装方式"><a href="#atom-插件的安装方式" class="headerlink" title="atom 插件的安装方式"></a>atom 插件的安装方式</h1><ul>
+<li><code>ctrl-,</code>-&gt;<code>Settings</code>-&gt;<code>Install</code>-&gt;选择要安装的插件</li>
+<li>终端下使用命令行 <code>apm install</code>, 装完后需要重启atom.<br>有些插件只能通过这个方式安装. 譬如要安装 <code>linter</code>, 命令行输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apm install linter</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="atom-通用插件"><a href="#atom-通用插件" class="headerlink" title="atom 通用插件"></a>atom 通用插件</h1><ul>
+<li><code>Sublime-Style-Column-Selection</code> 使用 <code>alt-鼠标左键</code> 进入列选模式</li>
+<li><code>atom-beautify</code> 自动格式化代码,<ul>
+<li>需设置 <code>ctrl-b</code> 美化</li>
+</ul>
+</li>
+<li><del><code>autocomplete-paths</code></del> 辅助完成路径</li>
+<li><code>block-comment-plus</code> 批量注释, 支持多种语言<ul>
+<li>需设置 <code>ctrl-shift-/</code> 和 <code>ctrl-shift-\</code></li>
+</ul>
+</li>
+<li><code>dash</code>  文档帮助, 配合 zeal (windows/linux) 或 dash(apple), 实现快速查询API<ul>
+<li>需设置 <code>F1</code> 帮助</li>
+</ul>
+</li>
+<li><del><code>disable-keybindings</code></del> 快速禁用atom的部分快捷键</li>
+<li><code>docblockr</code> 注释辅助, 快速添加函数的注释<ul>
+<li>支持 <code>tab</code> 键直接在参数间跳转</li>
+<li><code>Align tags</code>-&gt;<code>deep</code></li>
+<li><code>Auto add method tag</code></li>
+<li><del><code>Extend double slash</code></del></li>
+</ul>
+</li>
+<li><code>highlight-selected</code> 自动高亮匹配的词,</li>
+<li><code>hyperclick</code> 快速跳转到定义处, 仅限单文件, 但可由别的插件扩展<ul>
+<li><code>Trigger keys for Windows</code> <code>ctrl-shift-click</code>. 用ctrl键和系统多选冲突</li>
+</ul>
+</li>
+<li><code>last-cursor-position</code> 浏览历史跳转<ul>
+<li>需设置 <code>ctrl-shift-z</code> <code>ctrl-shift-y</code> 进行跳转</li>
+</ul>
+</li>
+<li><code>linter</code> 语法检查基础包</li>
+<li><code>minimap</code> 文件地图</li>
+<li><code>minimap-highlight-selected</code> 在文件地图中显示匹配的词</li>
+<li><code>platformio-ide-terminal</code> 终端软件 <ul>
+<li>支持 <code>ctrl-~</code> 快速打开, <code>ctrl-enter</code> 输入选中的文本</li>
+<li><code>Close Terminal on Exit</code></li>
+<li><code>Shell Override</code>-&gt;<code>git-cmd.exe</code> 没有配置环境变量则需要使用绝对路径</li>
+<li><code>Shell Arguments</code>-&gt;<code>--no-cd --command=usr/bin/bash.exe -l -i</code></li>
+<li><code>Working Directory</code>-&gt;<code>Project</code></li>
+<li><code>Theme</code>-&gt;<code>homebrew</code> 黑底绿字</li>
+</ul>
+</li>
+<li><del><code>Project Manager</code></del> 加入项目的概念, 纯快捷键操作. 与<code>project-viewer</code>二选一即可.</li>
+<li><code>project-viewer</code> 加入项目的概念,  带UI. 与<code>Project Manager</code>二选一即可.<ul>
+<li><code>Status Bar Visibility</code></li>
+<li><code>Autohide</code></li>
+<li><code>Positon of the panel</code>-&gt;<code>Left</code></li>
+<li><del><code>Convert Old Data</code></del></li>
+</ul>
+</li>
+<li><code>script</code> 一键执行, 支持多种代码, 不弹窗<ul>
+<li>需设置 <code>F5</code> 执行</li>
+</ul>
+</li>
+<li><code>symbols-tree-view</code> 显示类/变量/函数列表<ul>
+<li><code>Auto Hide</code></li>
+<li><code>Auto Toggle</code></li>
+</ul>
+</li>
+<li><code>tabs-to-spaces</code> tab空格互相转换</li>
+<li><del><code>vim-mode</code></del> vim操作方式. 需要屏蔽按键 <code>ctrl-f</code>, 恢复为搜索按键<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&apos;atom-text-editor.vim-mode:not(.insert-mode)&apos;:</span><br><span class="line">  &apos;ctrl-f&apos;: &apos;unset!&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="git-插件"><a href="#git-插件" class="headerlink" title="git 插件"></a>git 插件</h1><ul>
+<li><code>git-time-machine</code> 查看单文件的git历史<ul>
+<li>需设置 <code>f6</code> 查看比较</li>
+</ul>
+</li>
+<li><del><code>git-plus</code></del> git辅助, 我是通过 <code>platformio-ide-terminal</code> 打开终端敲git命令.</li>
+<li>merge-conflicts 查看git文件冲突<ul>
+<li>需设置 <code>ctrl-f6</code> 查看冲突</li>
+</ul>
+</li>
+</ul>
+<h1 id="python-插件"><a href="#python-插件" class="headerlink" title="python 插件"></a>python 插件</h1><ul>
+<li>配置 <code>atom-beautify</code> 之python语言<ul>
+<li>安装 <a href="https://www.python.org/" target="_blank" rel="noopener">python</a> </li>
+<li>安装 <a href="https://github.com/hhatto/autopep8" target="_blank" rel="noopener">autopep8</a>, 调用 <code>pip install --upgrade autopep8</code></li>
+<li>默认就是使用 <code>autopep8</code> 优化代码, 也推荐这个使用这个工具. <code>yapf</code>的优化结果无法满足<code>linter-flake8</code>的检查.</li>
+<li>测试. 打开一个 <code>.py</code> 文件, 右键选择 <code>Beautify editor contents</code> 看是否成功了.</li>
+</ul>
+</li>
+<li><del><code>atom-python-run</code></del> <code>F5</code>运行, 但是会弹cmd窗, 改用<code>script</code></li>
+<li><code>autocomplete-python</code> python辅助, 配合 <code>hyperclick</code> 跳转很方便<ul>
+<li>设置快捷键 <code>f4</code> 跳转</li>
+<li><code>Show Descriptions</code></li>
+<li><code>Autocomplete Function Parameters</code>-&gt;<code>all</code></li>
+</ul>
+</li>
+<li><code>linter-flake8</code> 代码规范检查, 检查很严, 配合 autopep8 的自动格式化就很完美了.<ul>
+<li>终端输入 <code>pip install flake8</code> python 安装 <code>flake8</code></li>
+<li>终端输入 <code>apm install linter-flake8</code> atom 安装 <code>linter-flake8</code></li>
+<li>插件配置 <code>Ignore Error</code>-&gt;<code>E501</code> 超过79列不要提示错误</li>
+</ul>
+</li>
+</ul>
+<h1 id="c-c-插件"><a href="#c-c-插件" class="headerlink" title="c/c++ 插件"></a>c/c++ 插件</h1><ul>
+<li>配置 <code>atom-beautify</code> 之c/c++语言<ul>
+<li>安装<a href="http://uncrustify.sourceforge.net/" target="_blank" rel="noopener">uncrustify</a>, 可以自动美化多种语言的格式.<ul>
+<li>下载<a href="https://sourceforge.net/projects/uncrustify/files/uncrustify/uncrustify-0.63/" target="_blank" rel="noopener">uncrustify-0.63.0-g44ce0f1-win32.zip</a></li>
+<li>解压后, 将uncrustify目录加入环境变量, 已 <code>D:\uncrustify\</code> 为例</li>
+<li>终端内输入 <code>uncrustify -v</code>, 测试是否配置好 uncrustify</li>
+</ul>
+</li>
+<li><code>atom-beautify</code> 插件的配置, 在c和c++下分别操作一次.<ul>
+<li><code>Default Beautifier</code>-&gt;<code>Uncrustify</code> . <del>另一个选项 <code>clang-format</code> 需要安装clang, 里面带有指令<code>clang-format.exe</code></del></li>
+<li><code>Config Path</code>-&gt;<code>D:\uncrustify\cfg\linux.cfg</code> 选择格式化模板</li>
+</ul>
+</li>
+<li>测试, 打开一个 <code>.c</code> 文件, 右键选择 <code>Beautify editor contents</code> 看是否成功了.</li>
+</ul>
+</li>
+<li><code>atom-gtags</code>, 能比较好的实现跳转<ul>
+<li>设置快捷键 <code>f4</code> 跳转</li>
+<li>右键项目根目录即可 <code>Build Gtags</code></li>
+<li>放弃 <del><code>atom-ctags</code></del> 实测效果很差!</li>
+<li>比较: <a href="https://github.com/OpenGrok/OpenGrok/wiki/Comparison-with-Similar-Tools" target="_blank" rel="noopener">https://github.com/OpenGrok/OpenGrok/wiki/Comparison-with-Similar-Tools</a></li>
+</ul>
+</li>
+<li>基于gcc编译的配置<ul>
+<li>下载 <a href="http://www.mingw.org/" target="_blank" rel="noopener">MinGW</a>, 安装并设置好环境变量<ul>
+<li>安装好后, 只是 <code>MinGW Installation Manager</code>, 实际上是个绿色软件. 打开后继续安装组件</li>
+<li><code>Basic Setup</code>-&gt;<code>mingw32-base</code> 和 <code>mingw32-gcc-g++</code>-&gt;左上 <code>Installation</code>-&gt;<code>Apply changes</code>-&gt;等待安装完成.</li>
+<li>这里只需要编译c和c++文件, 无需安装其它组件了.</li>
+<li>设置 <code>...\MinGW\bin</code> 文件夹到系统环境变量中</li>
+<li>复制一份 <code>mingw32-make.exe</code> 并重命名为 <code>make.exe</code>, 这样就能直接用 <code>make</code> 指令了</li>
+<li>测试. 终端中输入 <code>make -v</code> 和 <code>gcc -v</code>, 看是否可以识别到指令</li>
+</ul>
+</li>
+<li><del><code>gpp-compiler</code></del> <code>f5</code>运行, 但会弹cmd窗, 决定使用内置终端</li>
+<li><code>linter-gcc</code> 基于gcc进行语法检查<ul>
+<li><code>GCC Excutable Path</code>-&gt;<code>gcc</code> 或 <code>g++</code>, 没有配置环境变量的话, 使用绝对路径, 注意斜杠!</li>
+<li><code>GCC Include Paths</code>-&gt;<code>.../MinGW/include/*</code> 注意斜杠方向! 加入必要头文件.</li>
+<li>只在保存时, 才会进行语法检查</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><del>基于clang编译的配置</del><ul>
+<li>彻底放弃这个系列, 不用vs, 基于mingw的配置失败.</li>
+<li>相关软件和参考如下</li>
+<li><del><code>autocomplete-clang</code></del> 自动完成</li>
+<li><del><code>linter-clang</code></del> 语法检查</li>
+<li><a href="http://llvm.org/" target="_blank" rel="noopener">clang官网</a>. 官网进入的链接是找不到windows下编译好的版本的.</li>
+<li>下载特定版本的clang, 如 <code>LLVM-3.9.0</code>, 使用链接:<a href="http://llvm.org/releases/3.9.0/" target="_blank" rel="noopener">http://llvm.org/releases/3.9.0/</a></li>
+<li>参考 <a href="http://m.blog.csdn.net/article/details?id=49902519" target="_blank" rel="noopener">解决llvm/clang在windows下编译时找不到头文件和Lib的问题</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="markdown插件"><a href="#markdown插件" class="headerlink" title="markdown插件"></a>markdown插件</h1><ul>
+<li>atom已经支持markdown, 使用<code>ctrl-shift-m</code>即可预览. 如果要增强功能, 可以使用插件</li>
+<li><del><code>markdown-preview-enhanced</code></del> markdown, 导出为pdf时, 制图显示有问题<ul>
+<li><code>Break On Single Newline</code></li>
+<li><code>Enable Typographer</code></li>
+<li><code>Math Rendering Option</code>-&gt;<code>MathJax</code></li>
+<li><del><code>Enable Wiki Link Syntax</code></del></li>
+<li><del><code>Use GitHub.com syntax theme</code></del></li>
+<li><del><code>Print Background when generating pdf</code></del> 否则pdf不显示制图</li>
+<li><del><code>Use Github style when generating pdf</code></del> 否则pdf不显示制图</li>
+<li><del><code>Open preview pane automatically when opening a markdown file</code></del></li>
+<li><code>Image Uploader</code>-&gt;<code>sm.ms</code> 建议这个. <code>imgur</code> 有时限</li>
+<li><code>Mermaid Theme</code>-&gt;<code>mermaid.forest.css</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="atom快捷键配置"><a href="#atom快捷键配置" class="headerlink" title="atom快捷键配置"></a>atom快捷键配置</h1><ul>
+<li>使用 <code>ctrl-.</code> 查看按键冲突. 如果无效, 试试点到非编辑区(如目录树)试试.</li>
+<li><code>ctrl-,</code>-&gt;<code>Settings</code>-&gt;<code>Keybindings</code>-&gt;<code>your keymap file</code>-&gt;打开<code>keymap.cson</code></li>
+<li>自定义快捷键方式可参考 <a href="http://flight-manual.atom.io/using-atom/sections/basic-customization/#_customizing_keybindings" target="_blank" rel="noopener">Basic Customization</a></li>
+<li>很明显, 要备份自己的快捷键设置, 只需要保存这份 <code>keymap.cson</code> 文件</li>
+<li>最后禁用插件里不需要的快捷键, 或者使用 <code>disable-keybindings</code>.<ul>
+<li><code>Keybindings</code> -&gt; <del><code>Enable</code></del>. 屏蔽以下插件:</li>
+<li><code>atom-beautify</code>, <code>atom-gtags</code>, <code>autocomplete-python</code></li>
+<li><code>block-comment-plus</code>, <code>dash</code>, <code>git-time-machine</code></li>
+<li><code>highlight-selected</code>, <code>hyperclick</code>, </li>
+<li><code>script</code>, <code>symbols-tree-view</code>, <code>tabs-to-spaces</code></li>
+</ul>
+</li>
+<li><p>我的 <code>keymap.cson</code> 配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"># atom 大致原则是, 小窗口&gt;大窗口, 然后才是客户配置&gt;插件配置&gt;系统配置</span><br><span class="line"># 因此优先级 &apos;body&apos; &lt; &apos;atom-workspace&apos; &lt; &apos;atom-text-editor&apos; &lt; &apos;atom-text-editor:not([mini])&apos;</span><br><span class="line"></span><br><span class="line">&apos;atom-text-editor[data-grammar~=python]:not(.mini)&apos;:</span><br><span class="line">  &apos;f4&apos;: &apos;autocomplete-python:go-to-definition&apos;</span><br><span class="line">  &apos;shift-f4&apos;: &apos;autocomplete-python:go-to-definition&apos;</span><br><span class="line">  &apos;alt-shift-s&apos;: &apos;autocomplete-python:override-method&apos;</span><br><span class="line"></span><br><span class="line">&apos;atom-text-editor[data-grammar~=c]:not(.mini)&apos;:</span><br><span class="line">  &apos;f4&apos;: &apos;atom-gtags:get-definitions&apos;</span><br><span class="line">  &apos;shift-f4&apos;: &apos;atom-gtags:get-references&apos;</span><br><span class="line"></span><br><span class="line">&apos;.platform-win32 atom-workspace atom-text-editor:not([mini])&apos;:</span><br><span class="line"># character                            </span><br><span class="line">  &apos;ctrl-b&apos;: &apos;atom-beautify:beautify-editor&apos;</span><br><span class="line">  &apos;ctrl-d&apos;: &apos;core:delete&apos;</span><br><span class="line">  &apos;ctrl-shift-d&apos;: &apos;editor:delete-line&apos;</span><br><span class="line">  &apos;ctrl-j&apos;: &apos;core:move-down&apos; </span><br><span class="line">  &apos;ctrl-k&apos;: &apos;core:move-up&apos;   </span><br><span class="line">  &apos;ctrl-l&apos;: &apos;core:move-right&apos;</span><br><span class="line">  &apos;ctrl-h&apos;: &apos;core:move-left&apos;</span><br><span class="line">  &apos;ctrl-shift-j&apos;: &apos;editor:move-line-down&apos;</span><br><span class="line">  &apos;ctrl-shift-k&apos;: &apos;editor:move-line-up&apos;</span><br><span class="line">  &apos;ctrl-shift-l&apos;: &apos;editor:move-to-end-of-word&apos;</span><br><span class="line">  &apos;ctrl-shift-h&apos;: &apos;editor:move-to-beginning-of-word&apos;</span><br><span class="line">  &apos;alt-shift-j&apos;: &apos;editor:join-lines&apos;</span><br><span class="line">  &apos;ctrl-m&apos;: &apos;bookmarks:toggle-bookmark&apos;  </span><br><span class="line">  &apos;ctrl-r&apos;: &apos;core:redo&apos;</span><br><span class="line">  &apos;ctrl-u&apos;: &apos;core:undo&apos;</span><br><span class="line">  &apos;ctrl-shift-v&apos;: &apos;editor:duplicate-lines&apos;</span><br><span class="line">  &apos;ctrl-shift-W&apos;: &apos;tabs:close-other-tabs&apos;</span><br><span class="line">  &apos;ctrl-shift-x&apos;: &apos;editor:select-line&apos;</span><br><span class="line">  &apos;ctrl-shift-y&apos;: &apos;last-cursor-position:next&apos;</span><br><span class="line">  &apos;ctrl-shift-z&apos;: &apos;last-cursor-position:previous&apos;</span><br><span class="line"># special</span><br><span class="line">  &apos;ctrl-4&apos;: &apos;editor:move-to-end-of-screen-line&apos;         # ctrl-$</span><br><span class="line">  &apos;ctrl-6&apos;: &apos;editor:move-to-first-character-of-line&apos;    # ctrl-^</span><br><span class="line">  &apos;ctrl-$&apos;: &apos;editor:select-to-end-of-line&apos;              # ctrl-shift-$</span><br><span class="line">  &apos;ctrl-^&apos;: &apos;editor:select-to-first-character-of-line&apos;  # ctrl-shift-^</span><br><span class="line">  &apos;ctrl-?&apos;: &apos;block-comment-plus:toggle&apos;                 # ctrl-shift-/</span><br><span class="line">  &apos;ctrl-|&apos;: &apos;block-comment-plus:toggle&apos;                 # ctrl-shift-\</span><br><span class="line">  &apos;ctrl-]&apos;: &apos;bracket-matcher:select-inside-brackets&apos;</span><br><span class="line">  &apos;ctrl-[&apos;: &apos;bracket-matcher:go-to-matching-bracket&apos;</span><br><span class="line">  &apos;ctrl-.&apos;: &apos;tabs-to-spaces:untabify-all&apos;</span><br><span class="line">  &apos;ctrl-&gt;&apos;: &apos;tabs-to-spaces:tabify&apos;                     # ctrl-shift-.</span><br><span class="line"># alt</span><br><span class="line">  &apos;alt-0&apos;: &apos;editor:fold-all&apos;</span><br><span class="line">  &apos;alt-)&apos;: &apos;editor:unfold-all&apos;                          # alt-shift-0</span><br><span class="line">  &apos;alt-!&apos;: &apos;editor:unfold-all&apos;                          # alt-shift-1</span><br><span class="line">  &apos;alt-1&apos;: &apos;editor:fold-at-indent-level-1&apos;</span><br><span class="line">  &apos;alt-2&apos;: &apos;editor:fold-at-indent-level-2&apos;</span><br><span class="line">  &apos;alt-3&apos;: &apos;editor:fold-at-indent-level-3&apos;</span><br><span class="line">  &apos;alt-4&apos;: &apos;editor:fold-at-indent-level-4&apos;</span><br><span class="line">  &apos;alt-5&apos;: &apos;editor:fold-at-indent-level-5&apos;</span><br><span class="line">  &apos;alt-6&apos;: &apos;editor:fold-at-indent-level-6&apos;</span><br><span class="line">  &apos;alt-7&apos;: &apos;editor:fold-at-indent-level-7&apos;</span><br><span class="line">  &apos;alt-8&apos;: &apos;editor:fold-at-indent-level-8&apos;</span><br><span class="line">  &apos;alt-9&apos;: &apos;editor:fold-at-indent-level-9&apos;</span><br><span class="line"># f1-f6</span><br><span class="line">  &apos;f1&apos;: &apos;dash:shortcut&apos;</span><br><span class="line">  &apos;ctrl-f2&apos;: &apos;bookmarks:view-all&apos;</span><br><span class="line">  &apos;ctrl-shift-f2&apos;: &apos;bookmarks:clear-bookmarks&apos;</span><br><span class="line">  &apos;ctrl-f3&apos;: &apos;find-and-replace:select-all&apos;</span><br><span class="line">  &apos;f5&apos;: &apos;script:run&apos;</span><br><span class="line">  &apos;ctrl-f5&apos;: &apos;script:run-with-profile&apos;</span><br><span class="line">  &apos;shift-f5&apos;: &apos;script:run-options&apos;</span><br><span class="line">  &apos;f6&apos;: &apos;git-time-machine:toggle&apos;</span><br><span class="line">  &apos;ctrl-f6&apos;: &apos;merge-conflicts:detect&apos;</span><br><span class="line">  &apos;shift-f6&apos;: &apos;merge-conflicts:next-unresolved&apos;</span><br><span class="line">  &apos;ctrl-shift-f6&apos;: &apos;merge-conflicts:previous-unresolved&apos;</span><br><span class="line"></span><br><span class="line">&apos;body&apos;:</span><br><span class="line">  &apos;ctrl-j&apos;: &apos;core:move-down&apos;</span><br><span class="line">  &apos;ctrl-k&apos;: &apos;core:move-up&apos;</span><br><span class="line">  &apos;ctrl-r&apos;: &apos;core:redo&apos;</span><br><span class="line">  &apos;ctrl-u&apos;: &apos;core:undo&apos;</span><br><span class="line">  &apos;ctrl-shift-S&apos;: &apos;window:save-all&apos;</span><br><span class="line"># unset ctrl-k *</span><br><span class="line">  &apos;ctrl-k up&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k down&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k left&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k right&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-w&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-alt-w&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-p&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-n&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-up&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-down&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-left&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-right&apos;: &apos;unset!&apos;</span><br><span class="line">&apos;atom-workspace atom-text-editor&apos;:</span><br><span class="line">  &apos;ctrl-k ctrl-u&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-l&apos;: &apos;unset!&apos;</span><br><span class="line">&apos;atom-workspace atom-text-editor:not([mini])&apos;:</span><br><span class="line">  &apos;ctrl-k ctrl-0&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-1&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-2&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-3&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-4&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-5&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-6&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-7&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-8&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k ctrl-9&apos;: &apos;unset!&apos;</span><br><span class="line">&apos;.platform-win32, .platform-linux&apos;: </span><br><span class="line">  &apos;ctrl-k ctrl-b&apos;: &apos;unset!&apos;</span><br><span class="line">&apos;.platform-win32 .tree-view, .platform-linux .tree-view&apos;:</span><br><span class="line">  &apos;ctrl-k right&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k l&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k left&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k h&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k up&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k k&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k down&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-k j&apos;: &apos;unset!&apos;</span><br><span class="line">&apos;.platform-win32 atom-text-editor, .platform-linux atom-text-editor&apos;:</span><br><span class="line">  &apos;ctrl-k ctrl-d&apos;: &apos;unset!&apos;</span><br><span class="line">  &apos;ctrl-u&apos;: &apos;unset!&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="参考和资料"><a href="#参考和资料" class="headerlink" title="参考和资料"></a>参考和资料</h1><ul>
+<li><a href="http://flight-manual.atom.io/" target="_blank" rel="noopener">Atom Flight Manual</a>, atom手册</li>
+<li><a href="https://atom.io/packages" target="_blank" rel="noopener">atom Packages</a>, atom插件中心</li>
+<li>我的 <a href="https://draapho.github.io/2016/10/08/1607-CheatSheet-win/">Windows快捷键</a></li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -1645,7 +1825,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">116</span>
+              <span class="site-state-item-count">115</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
