@@ -261,6 +261,165 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/12/1743-drv-chr5/" itemprop="url">
+                  驱动之异步通知
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-12T00:00:00+11:00" content="2017-12-12">
+              2017-12-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="异步通知范例"><a href="#异步通知范例" class="headerlink" title="异步通知范例"></a>异步通知范例</h1><h2 id="范例源码"><a href="#范例源码" class="headerlink" title="范例源码"></a>范例源码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_signal</span><span class="params">(<span class="keyword">int</span> signum)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> cnt = <span class="number">0</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"signal=%d, %d times\n"</span>, signum, ++cnt);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"main start\n"</span>);</span><br><span class="line">	signal(SIGUSR1, get_signal);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"wait signal\n"</span>);</span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		sleep(<span class="number">1000</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="范例测试"><a href="#范例测试" class="headerlink" title="范例测试"></a>范例测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu主机端</span></span><br><span class="line">$ arm-linux-gcc signal.c -o signal</span><br><span class="line"></span><br><span class="line"><span class="comment"># jz2440端</span></span><br><span class="line">$ ./signal &amp;        <span class="comment"># 背景运行</span></span><br><span class="line">main start</span><br><span class="line"><span class="built_in">wait</span> signal         <span class="comment"># 程序顺序执行</span></span><br><span class="line">$ ps                <span class="comment"># 查看进程</span></span><br><span class="line">790 0          1312 S   ./signal</span><br><span class="line">$ <span class="built_in">kill</span> -SIGUSR1 790 <span class="comment"># 发送SIGUSR1信号</span></span><br><span class="line">signal=10, 1 <span class="built_in">times</span>  <span class="comment"># 直接调用的 get_signal, 打印信息</span></span><br><span class="line">$ <span class="built_in">kill</span> -10 790      <span class="comment"># 发送SIGUSR1信号</span></span><br><span class="line">signal=10, 1 <span class="built_in">times</span>  <span class="comment"># 直接调用的 get_signal, 打印信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里说明一下kill指令, 其本意是发送signal给进程, 而不是杀死进程.</span></span><br><span class="line"><span class="comment"># 但如果进程没有对应的signal处理, 其默认方式就是结束进程.</span></span><br><span class="line"><span class="comment"># 可以在ubuntu主机端查看详情:</span></span><br><span class="line">$ man <span class="built_in">kill</span>          <span class="comment"># kill的帮助信息</span></span><br><span class="line">$ <span class="built_in">kill</span> -l           <span class="comment"># 列出所有signal值, 其中:</span></span><br><span class="line">10) SIGUSR1</span><br></pre></td></tr></table></figure>
+<h2 id="异步机制核心点"><a href="#异步机制核心点" class="headerlink" title="异步机制核心点"></a>异步机制核心点</h2><ul>
+<li>异步机制使得应用层代码可以获得有如”中断”处理一般的能力!<ul>
+<li>注册好signal和函数</li>
+<li>主代码始终自己管自己运行</li>
+<li>signal触发后, 系统会自动调用注册好的函数.</li>
+</ul>
+</li>
+<li>异步通知的四个要点:<ul>
+<li>注册处理函数: 应用程序中注册</li>
+<li>谁来发? 驱动来发</li>
+<li>发给谁? 驱动发给应用程序</li>
+<li>怎么发? 驱动调用 <code>kill_fasyn()</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>驱动源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a><br>增加fasync函数, 发送SIGIO信号.<br>然后应用层的测试文件改动较大.</p>
+<h2 id="drv-key-async-c"><a href="#drv-key-async-c" class="headerlink" title="drv_key_async.c"></a>drv_key_async.c</h2><p>为了使设备支持异步通知机制, 驱动程序涉及以下3项工作:</p>
+<ul>
+<li>应用程序调用 <code>fcntl(fd, F_SETOWN, pid)</code> 时. 能在这个控制命令处理中设置 filp-&gt;f_owner为对应进程ID. 此工作已由内核完成</li>
+<li>应用程序调用 <code>fcntl(fd, F_SETFL, oflags | FASYNC)</code> 后, FASYNC标志改变, 会调用驱动的fasync函数. 驱动需要实现fasync. </li>
+<li>在设备资源可获得时, 调用 <code>kill_fasync()</code> 函数触发信号.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于 驱动之基于中断设计按键驱动 源码增加而来. 只显示新增和修改的部分. 这样更直观易懂.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_async.h"</span>                           <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_async"</span>           <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">fasync_struct</span> *<span class="title">keys_async</span>;</span>            <span class="comment">// 新增, kill_fasync使用</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> irqreturn_t <span class="title">keys_irq</span><span class="params">(<span class="keyword">int</span> irq, <span class="keyword">void</span> *dev_id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    ev_press = <span class="number">1</span>;                              </span><br><span class="line">    wake_up_interruptible(&amp;key_waitq);     </span><br><span class="line">    kill_fasync(&amp;keys_async, SIGIO, POLL_IN);           <span class="comment">// 新增, 发送SIGIO信号</span></span><br><span class="line">    <span class="keyword">return</span> IRQ_RETVAL(IRQ_HANDLED);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_key_fasync</span> <span class="params">(<span class="keyword">int</span> fd, struct file *filp, <span class="keyword">int</span> on)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"drv_key_fasync\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> fasync_helper (fd, filp, on, &amp;keys_async);   <span class="comment">// 初始化keys_async</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_key_int_fops</span>= &#123;</span></span><br><span class="line">	.owner				= THIS_MODULE,</span><br><span class="line">	.open				= drv_key_int_open,</span><br><span class="line">	.release			= drv_key_int_release,</span><br><span class="line">	.read				= drv_key_int_read,</span><br><span class="line">	.fasync             = drv_key_fasync,               <span class="comment">// 新增fasync</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="drv-key-async-h"><a href="#drv-key-async-h" class="headerlink" title="drv_key_async.h"></a>drv_key_async.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_async"</span>     <span class="comment">// 名称改一下</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_key_async.o          <span class="comment"># 目标名称改一下</span></span><br></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-async-c"><a href="#测试文件-test-drv-key-async-c" class="headerlink" title="测试文件 test_drv_key_async.c"></a>测试文件 test_drv_key_async.c</h2><p>为了使设备支持异步通知机制, 应用层程序涉及以下工作:</p>
+<ul>
+<li>调用 <code>fcntl(fd, F_SETOWN, getpid())</code>, 告诉内核, 发给谁 </li>
+<li>调用 <code>fcntl(fd, F_SETFL, oflags | FASYNC)</code>, 改变fasync标记.</li>
+<li>此时, 内核会调用驱动的fasync函数, 通过 <code>fasync_helper</code> 完成初始化.</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">keys_signal_handler</span><span class="params">(<span class="keyword">int</span> signum)</span>        <span class="comment">// 信号中断处理函数</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> key_val = <span class="number">0</span>;</span><br><span class="line">    read(fd,&amp;key_val,<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"key_val: 0x%x\n"</span>,key_val);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">int</span> oflags;</span><br><span class="line">    </span><br><span class="line">    fd = open(<span class="string">"/dev/key_async0"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    signal(SIGIO, keys_signal_handler);     <span class="comment">// 注册信号中断处理函数</span></span><br><span class="line">    fcntl(fd,F_SETOWN,getpid());            <span class="comment">// 告诉内核，发给本进程</span></span><br><span class="line">    oflags = fcntl(fd,F_GETFL);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"before fcntl\n"</span>);</span><br><span class="line">    fcntl(fd, F_SETFL, oflags | FASYNC);    <span class="comment">// 改变fasync标记, 内核会调用驱动fasync, 完成初始化</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"after fcntl\n"</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;                              <span class="comment">// 开始主任务</span></span><br><span class="line">        sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_async/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译测试代码</span></span><br><span class="line">$ arm-linux-gcc test_drv_key_async.c -o test_drv_key_async</span><br></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_async/KERN_SRC  # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key_async.ko           <span class="comment"># 加载模块</span></span><br><span class="line">drv_key_async:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_async              <span class="comment"># 运行测试代码</span></span><br><span class="line">drv_key_async:In char driver open() <span class="keyword">function</span></span><br><span class="line">before fcntl</span><br><span class="line">drv_key_async:drv_key_fasync        <span class="comment"># 运行fcntl后, 驱动调用async函数</span></span><br><span class="line">after fcntl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按下按键, 应用程序就会调用 keys_signal_handler 函数.</span></span><br><span class="line"><span class="comment"># 打印出按键信息, 譬如 key_val: 0x1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/11/1742-drv-chr4/" itemprop="url">
                   驱动之poll机制
                 </a>
@@ -1335,213 +1494,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/26/1736-linux-apt/" itemprop="url">
-                  linux软件的安装和管理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-26T00:00:00+11:00" content="2017-11-26">
-              2017-11-26
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>接触linux至今, 遇到的最大的坑就是软件的安装!<br>找不到包, 找不到指定版本的包, 包依赖关系出问题, 软件源要更新…<br>因此, 在这里集中整理一下上述问题的解决方式.</p>
-<h1 id="apt-命令"><a href="#apt-命令" class="headerlink" title="apt 命令"></a>apt 命令</h1><p>最新 Ubuntu推荐使用 <code>apt</code> 指令. 其常用功能如下</p>
-<table>
-<thead>
-<tr>
-<th>apt 命令</th>
-<th>功能说明</th>
-<th>对应的旧命令</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>apt list</code></td>
-<td>根据名称列出软件包</td>
-<td><code>dpkg list</code></td>
-</tr>
-<tr>
-<td><code>apt search</code></td>
-<td>搜索软件包描述</td>
-<td><code>apt-cache search</code></td>
-</tr>
-<tr>
-<td><code>apt show</code></td>
-<td>显示软件包细节</td>
-<td><code>apt-cache show</code></td>
-</tr>
-<tr>
-<td><code>apt install</code></td>
-<td>安装软件包</td>
-<td><code>apt-get install</code></td>
-</tr>
-<tr>
-<td><code>apt remove</code></td>
-<td>移除软件包</td>
-<td><code>apt-get remove</code></td>
-</tr>
-<tr>
-<td><code>apt update</code></td>
-<td>更新可用软件包列表</td>
-<td><code>apt-get update</code></td>
-</tr>
-<tr>
-<td><code>apt upgrade</code></td>
-<td>升级指定的软件</td>
-<td><code>apt-get upgrade</code></td>
-</tr>
-<tr>
-<td><code>apt full-upgrade</code></td>
-<td>升级指定的软件并安装或删除其依赖的软件</td>
-<td><code>apt-get dist-upgrade</code></td>
-</tr>
-<tr>
-<td><code>apt edit-sources</code></td>
-<td>编辑软件源信息文件</td>
-<td><code>vim /etc/apt/sources.list</code></td>
-</tr>
-</tbody>
-</table>
-<h1 id="软件源"><a href="#软件源" class="headerlink" title="软件源"></a>软件源</h1><p>就是存放Ubuntu可执行软件的网址. 分为官方软件源和PPA软件源<br>Ubuntu的软件源都记录在了 <code>/etc/apt/sources.list</code> 文件下面.</p>
-<h2 id="Ubuntu-官方软件源"><a href="#Ubuntu-官方软件源" class="headerlink" title="Ubuntu 官方软件源"></a>Ubuntu 官方软件源</h2><p>顾名思义, 就是官方提供的软件下载地址. 格式如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">deb http://us.archive.ubuntu.com/ubuntu/ xenial main restricted</span><br><span class="line"># deb-src http://us.archive.ubuntu.com/ubuntu/ xenial main restricted</span><br></pre></td></tr></table></figure></p>
-<p>由于众所周知的原因, 在国内经常是不能用的. 那么可以替换为如下网址, 是官方软件源的镜像.<br>更多可见 <a href="https://segmentfault.com/a/1190000000375848" target="_blank" rel="noopener">国内开源镜像站点汇总</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.zju.edu.cn/ubuntu/ xenial main restricted</span><br><span class="line"># deb-src http://mirrors.zju.edu.cn/ubuntu/ xenial main restricted</span><br></pre></td></tr></table></figure></p>
-<h2 id="PPA软件源"><a href="#PPA软件源" class="headerlink" title="PPA软件源"></a>PPA软件源</h2><p>PPA软件源, 即”Personal Package Archives”, 个人软件包集.<br>Ubuntu开设了一个开发者平台, 允许开发者建立自己的软件仓库并上传.<br>因此, 用PPA不能保证安全性.</p>
-<p>PPA的格式如下, 网址都是 <code>ppa.launchpad.net</code> 开头的</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">deb http://ppa.launchpad.net/wireshark-dev/stable/ubuntu trusty main</span><br><span class="line"><span class="comment"># deb-src http://ppa.launchpad.net/wireshark-dev/stable/ubuntu trusty main</span></span><br></pre></td></tr></table></figure>
-<h1 id="update-upgrade-dist-upgrade-的区别"><a href="#update-upgrade-dist-upgrade-的区别" class="headerlink" title="update upgrade dist-upgrade 的区别"></a><code>update</code> <code>upgrade</code> <code>dist-upgrade</code> 的区别</h1><p>update 更新的是软件源信息. 因此一般习惯在install之前, 使用update更新一下.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt edit-sources       <span class="comment"># 更改软件源列表</span></span><br><span class="line">sudo apt update             <span class="comment"># 根据软件源列表下载新的版本信息和包信息</span></span><br><span class="line">sudo apt install XXX        <span class="comment"># 可以下载了. 如果还是有问题, 说明这个软件在源列表中不存在或者是网络问题.</span></span><br></pre></td></tr></table></figure>
-<p>upgrade 更新的是指定的软件到最新版本. 但不去考虑依赖关系.<br>dist-upgrade 会判断软件新版本的依赖关系, 如果依赖关系变了, 它能自动升级依赖的软件.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt upgrade XXX        <span class="comment"># 只升级指定的软件, 不考虑其依赖关系</span></span><br><span class="line">sudo apt full-upgrade XXX   <span class="comment"># 字面意思: 全面升级! 就是会去自动安装/删除依赖的软件.</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="build-dep-自动建立编译环境"><a href="#build-dep-自动建立编译环境" class="headerlink" title="build-dep 自动建立编译环境"></a>build-dep 自动建立编译环境</h1><p>譬如要手工编译 apache2, 那么可以用 <code>apt-get build-dep</code> 来快速建立编译环境.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get build-dep apache2</span><br><span class="line"><span class="comment"># 会列出一系列会被安装的软件, 并询问是否要安装.</span></span><br><span class="line"><span class="comment"># 先回答NO.</span></span><br><span class="line"></span><br><span class="line">sudo apt-get build-dep apache2 | tee apache2.log </span><br><span class="line"><span class="comment"># 为了便于日后查看关系包, 建议先做个记录:</span></span><br></pre></td></tr></table></figure>
-<h1 id="查看依赖关系"><a href="#查看依赖关系" class="headerlink" title="查看依赖关系"></a>查看依赖关系</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apt-cache depends XXX</span><br><span class="line"><span class="comment"># 查看正向依赖, XXX依赖的软件</span></span><br><span class="line"></span><br><span class="line">apt-cache rdepends XXX</span><br><span class="line"><span class="comment"># 查看反向依赖, 依赖XXX的软件</span></span><br></pre></td></tr></table></figure>
-<h1 id="遇到错误"><a href="#遇到错误" class="headerlink" title="遇到错误"></a>遇到错误</h1><h2 id="找不到资源"><a href="#找不到资源" class="headerlink" title="找不到资源"></a>找不到资源</h2><ul>
-<li>检查网络, 是否需要翻墙. 必要的话, 更改软件源列表.</li>
-<li>检查网络, 是否安全性太高了. 有些公司网络容易产生这样的情况.</li>
-<li><code>sudo apt update</code>, 更新软件源在试试.</li>
-</ul>
-<h2 id="Java-安装失败"><a href="#Java-安装失败" class="headerlink" title="Java 安装失败"></a>Java 安装失败</h2><p>Java向下兼容, 建议直接安装java最新版<br><code>sudo apt-get install openjdk-8-jdk</code></p>
-<p>更复杂的情况, 参考这篇stackoverflow吧</p>
-<ul>
-<li><a href="https://stackoverflow.com/questions/32942023/ubuntu-openjdk-8-unable-to-locate-package" target="_blank" rel="noopener">Ubuntu: OpenJDK 8 - Unable to locate package</a></li>
-</ul>
-<h2 id="Could-not-get-lock"><a href="#Could-not-get-lock" class="headerlink" title="Could not get lock"></a>Could not get lock</h2><p><code>E:Could not get lock /var/lib/apt/lists/lock - open (11: Resource temporarily unavailable)</code><br>获取资源锁失败, 说明有另外一个apt-get在运行. 这种情况多发生在新装的Ubuntu中, 他会自动运行apt-get<br>解决方法:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 或者去查看进程</span></span><br><span class="line">ps -e | grep apt</span><br><span class="line"><span class="comment"># 看是否有进程在执行</span></span><br><span class="line"><span class="comment"># 6362 ? 00:00:00 apt</span></span><br><span class="line"><span class="comment"># 6934 ? 00:00:00 apt-get</span></span><br><span class="line"><span class="comment"># 7368 ? 00:00:00 synaptic</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 有的话, 直接杀掉</span></span><br><span class="line">sudo killall apt</span><br><span class="line">sudo killall apt-get</span><br><span class="line">sudo killall synaptic</span><br><span class="line"></span><br><span class="line"><span class="comment"># 还是不行的话, 直接移除锁</span></span><br><span class="line">sudo rm /var/cache/apt/archives/lock</span><br><span class="line">sudo rm /var/lib/dpkg/lock</span><br></pre></td></tr></table></figure></p>
-<h2 id="X-not-fully-installed-or-removed"><a href="#X-not-fully-installed-or-removed" class="headerlink" title="X not fully installed or removed"></a>X not fully installed or removed</h2><p>多发生在安装过程中, 发生意外错误, 导致部分软件没有安装好.<br>如果在Ubuntu下面修改过<code>/usr/bin/python</code>软链接, 改2.7版本到3.5的话,<br>安装某些依赖python软件也会发生这个问题!</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 此错误发生在安装 libsdl1.2-dev 过程中. libsdl1.2-dev 依赖另外两个软件</span></span><br><span class="line"><span class="comment"># 原因是, 我修改了  /usr/bin/python -&gt; python3.5*</span></span><br><span class="line"><span class="comment"># 解决方法就是改回来 /usr/bin/python -&gt; python2.7*</span></span><br><span class="line"></span><br><span class="line">$ sudo apt install libsdl1.2-dev</span><br><span class="line">......</span><br><span class="line">3 not fully installed or removed</span><br><span class="line">Do you want to <span class="built_in">continue</span>? [Y/n]</span><br><span class="line">......</span><br><span class="line">Errors were encountered <span class="keyword">while</span> processing:</span><br><span class="line">libglib2.0-dev</span><br><span class="line">libpulse-dev:i386</span><br><span class="line">libsdl1.2-dev</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 先解决没有完全安装或者删除的问题, 方法如下, 按照依赖关系, 倒过来逐一删除:</span></span><br><span class="line">$ sudo dpkg -r libsdl1.2-dev</span><br><span class="line">$ sudo dpkg -r libpulse-dev:i386</span><br><span class="line">$ sudo dpkg -r libglib2.0-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后尝试重新安装. 我这里的问题是python语法错误</span></span><br><span class="line"><span class="comment"># 只能改回来 /usr/bin/python -&gt; python2.7*</span></span><br><span class="line">sudo apt-get -f autoremove</span><br><span class="line">sudo apt-get -f install</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libglib2.0-dev</span><br></pre></td></tr></table></figure>
-<h2 id="软件版本问题"><a href="#软件版本问题" class="headerlink" title="软件版本问题"></a>软件版本问题</h2><p>先试试指定版本号安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">apt-get install package=version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 譬如</span></span><br><span class="line">apt-get install nautilus=2.2.4-1</span><br></pre></td></tr></table></figure>
-<p>如果更复杂的, 譬如依赖的软件需要指定版本, 直接参考stackoverflow吧<br><a href="https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies-after-adding-a-ppa" target="_blank" rel="noopener">How do I resolve unmet dependencies after adding a PPA?</a></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://www.jianshu.com/p/3dad50f452b6" target="_blank" rel="noopener">apt与apt-get的区别</a></li>
-<li><a href="http://www.jianshu.com/p/57a91bc0c594" target="_blank" rel="noopener">详解Ubuntu软件源</a></li>
-<li><a href="http://blog.csdn.net/wangyezi19930928/article/details/54928201" target="_blank" rel="noopener">apt-get update ，upgarde 和dist-upgrade 的区别</a></li>
-<li><a href="http://blog.csdn.net/mifangdebaise/article/details/50553596" target="_blank" rel="noopener">记一条好用的ubuntu命令: apt-get build-dep</a></li>
-<li><a href="http://blog.csdn.net/zwjsatan/article/details/8101712" target="_blank" rel="noopener">sudo apt-get update更新源失败</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1587,7 +1539,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">115</span>
+              <span class="site-state-item-count">116</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
