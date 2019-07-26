@@ -261,6 +261,554 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/23/1704-linux-source/" itemprop="url">
+                  Linux 0.11 源码阅读笔记-总览
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-23T00:00:00+11:00" content="2017-01-23">
+              2017-01-23
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
+<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
+<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
+<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
+<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
+<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
+<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
+</ul>
+<h2 id="Linux-发展背景"><a href="#Linux-发展背景" class="headerlink" title="Linux 发展背景"></a>Linux 发展背景</h2><p>Linux操作系统的诞生(1991年),发展和成长过程依赖于以下五个重要支柱</p>
+<ol>
+<li>UNIX操作系统 (诞生于1969年, 版权和专利问题不断, 大公司不愿公开操作系统原理和源码)</li>
+<li>MINIX操作系统 (诞生于1987年, 意为 Mini UNIX. 教学使用是开源免费的! linus从中学习了操作系统的工作原理)</li>
+<li>GNU计划 (诞生于1984年, 意为 GNU’s Not Unix 递归缩写. 宗旨是开发一个类Unix的自由软件操作系统)<br>有名的免费软件有: emacs, bash shell, gcc 编译程序, gdb 调试程序<br>因此, 目前许多人将Linux操作系统称之为 <a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="noopener">GNU/Linux 操作系统</a>.</li>
+<li>POSIX标准 (V1诞生于1988年, Portable Operating System Interface for Computing Systems)<br>描述了操作系统的调用服务接口标准, 便于应用程序在不同操作系统上的移植.<br>这为linux系统对应用程序的兼容提供了一套标准. 也是linux能流行起来的基础条件之一.</li>
+<li>Internet网络 (确保了linux系统由众人开发维护, 其发展和推广都离不开Internet!)</li>
+</ol>
+<h2 id="Linux-GNU-POSIX-的关系"><a href="#Linux-GNU-POSIX-的关系" class="headerlink" title="Linux, GNU, POSIX 的关系"></a>Linux, GNU, POSIX 的关系</h2><p><img src="https://draapho.github.io/images/1704/0-Linux_kernel_System_Call_Interface_and_glibc.png" alt="Linux_kernel_System_Call_Interface_and_glibc"></p>
+<h2 id="内核代码框图"><a href="#内核代码框图" class="headerlink" title="内核代码框图"></a>内核代码框图</h2><p><img src="https://draapho.github.io/images/1704/0-kernal-struct.png" alt="kernal-struct"></p>
+<h2 id="内核函数关系图"><a href="#内核函数关系图" class="headerlink" title="内核函数关系图"></a>内核函数关系图</h2><p><img src="https://draapho.github.io/images/1704/0-linux-kernal-map.png" alt="kernal-fucntion"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://oldlinux.org/download/linux-devel.pdf" target="_blank" rel="noopener">Linux 诞生和发展的五个重要支柱 - 赵炯</a></li>
+<li><a href="http://www.gnu.org/gnu/gnu-linux-faq.html#why" target="_blank" rel="noopener">GNU Operating System</a>.)</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/19/1703-linux-command/" itemprop="url">
+                  Unix/Linux 命令参考
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-01-19T00:00:00+11:00" content="2017-01-19">
+              2017-01-19
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="noopener">Unix/Linux 命令速查表</a></em></strong></p>
+<hr>
+<h1 id="搜索指令-find-grep"><a href="#搜索指令-find-grep" class="headerlink" title="搜索指令 find grep"></a>搜索指令 <code>find</code> <code>grep</code></h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">find -name april*                   <span class="comment"># 当前目录下查找以april开始的文件</span></span><br><span class="line">find -iname april*                  <span class="comment"># 忽略大小写</span></span><br><span class="line">find /home -size +512k              <span class="comment"># 查大于512k的文件</span></span><br><span class="line">find /home -size -512k              <span class="comment"># 查小于512k的文件</span></span><br><span class="line">find /home -links +2                <span class="comment"># 查硬连接数大于2的文件或目录</span></span><br><span class="line">find /home -perm 0700               <span class="comment"># 查权限为700的文件或目录</span></span><br><span class="line"></span><br><span class="line">find -name tom.txt -user kim        <span class="comment"># 查找名称为tom.txt且用户为kim的文件</span></span><br><span class="line">find -name ap* -or -name may*       <span class="comment"># 查找以ap或may开头的文件</span></span><br><span class="line">find -name wa* -not -<span class="built_in">type</span> l         <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></span><br><span class="line">find -name wa* ! -<span class="built_in">type</span> l            <span class="comment"># 查找名为wa开头且类型不为符号链接的文件</span></span><br><span class="line"><span class="comment"># 对于 -type, 有 b=block, d=dictory, c=character, p=pipe, l=link, f=file</span></span><br><span class="line"></span><br><span class="line">find / -iname <span class="string">"MyCProgram.c"</span> -<span class="built_in">exec</span> md5sum &#123;&#125; \; <span class="comment"># 对所有找到的文件进行MD5验证</span></span><br><span class="line">find / -name filename -ok rm -rf &#123;&#125; \;          <span class="comment"># 确认删除找到的文件</span></span><br><span class="line">find . -mtime +3 | xargs rm -rf                 <span class="comment"># 删除3天以前的文件</span></span><br><span class="line">find . -size +3000k -<span class="built_in">exec</span> ls -ld &#123;&#125; \;          <span class="comment"># 查找大于3M的文件</span></span><br><span class="line">find . -size -3000k | xargs <span class="built_in">echo</span> <span class="string">""</span> &gt;./file.log <span class="comment"># 查找小于3M的文件并写入file.log</span></span><br><span class="line">find . -<span class="built_in">type</span> f | xargs grep <span class="string">"hostname"</span>          <span class="comment"># 在普通文件中搜索hostname这个词</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ls -l | grep <span class="string">'^a'</span>                   <span class="comment"># 只显示以a开头的文件名。</span></span><br><span class="line">grep <span class="string">'test'</span> d*                      <span class="comment"># 显示所有以d开头的文件中包含test的行。</span></span><br><span class="line">grep <span class="string">'test'</span> aa bb cc                <span class="comment"># 显示在aa，bb，cc文件中匹配test的行。</span></span><br><span class="line">grep -i pattern files               <span class="comment"># 不区分大小写地搜索。默认情况区分大小写</span></span><br><span class="line">grep -l pattern files               <span class="comment"># 只列出匹配的文件名，</span></span><br><span class="line">grep -L pattern files               <span class="comment"># 列出不匹配的文件名，</span></span><br><span class="line">grep -w pattern files               <span class="comment"># 只匹配整个单词(如匹配‘magic’，而不是‘magical’)</span></span><br><span class="line">grep -C number pattern files        <span class="comment"># 匹配的上下文分别显示[number]行，</span></span><br><span class="line">grep pattern1 | pattern2 files      <span class="comment"># 显示匹配 pattern1 或 pattern2 的行，</span></span><br><span class="line">grep pattern1 files | grep pattern2 <span class="comment"># 显示既匹配 pattern1 又匹配 pattern2的行</span></span><br></pre></td></tr></table></figure>
+<h1 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h1><table>
+<thead>
+<tr>
+<th>文件命令</th>
+<th>指令说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ls</code></td>
+<td>列出目录</td>
+</tr>
+<tr>
+<td><code>ls -al</code></td>
+<td>使用格式化列出隐藏文件</td>
+</tr>
+<tr>
+<td><code>cd dir</code></td>
+<td>更改目录到 dir</td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>更改到 home 目录</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>显示当前目录</td>
+</tr>
+<tr>
+<td><code>mkdir dir</code></td>
+<td>创建目录 dir</td>
+</tr>
+<tr>
+<td><code>rm file</code></td>
+<td>删除 file</td>
+</tr>
+<tr>
+<td><code>rm -r dir</code></td>
+<td>删除目录 dir</td>
+</tr>
+<tr>
+<td><code>rm -f file</code></td>
+<td>强制删除 file</td>
+</tr>
+<tr>
+<td><code>rm -rf dir</code></td>
+<td>强制删除整个目录 dir (小心使用)</td>
+</tr>
+<tr>
+<td><code>cp file1 file2</code></td>
+<td>将 file1 复制到 file2</td>
+</tr>
+<tr>
+<td><code>cp -r dir1 dir2</code></td>
+<td>将 dir1 复制到 dir2; 如果 dir2 不存在则创建它</td>
+</tr>
+<tr>
+<td><code>mv file1 file2</code></td>
+<td>将 file1 重命名或移动到 file2;</td>
+</tr>
+<tr>
+<td><code>ln -s file link</code></td>
+<td>创建 file 的符号连接 link</td>
+</tr>
+<tr>
+<td><code>touch file</code></td>
+<td>创建 file</td>
+</tr>
+<tr>
+<td><code>cat &gt; file</code></td>
+<td>将标准输入添加到 file</td>
+</tr>
+<tr>
+<td><code>more file</code></td>
+<td>查看 file 的内容</td>
+</tr>
+<tr>
+<td><code>head file</code></td>
+<td>查看 file 的前 10 行</td>
+</tr>
+<tr>
+<td><code>tail file</code></td>
+<td>查看 file 的后 10 行</td>
+</tr>
+<tr>
+<td><code>tail -f file</code></td>
+<td>从后 10 行开始查看 file 的内容</td>
+</tr>
+<tr>
+<td><strong>进程管理</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>ps</code></td>
+<td>显示当前的活动进程</td>
+</tr>
+<tr>
+<td><code>top</code></td>
+<td>显示所有正在运行的进程</td>
+</tr>
+<tr>
+<td><code>kill pid</code></td>
+<td>杀掉进程 id pid</td>
+</tr>
+<tr>
+<td><code>killall proc</code></td>
+<td>杀掉所有名为 proc 的进程 (小心使用)</td>
+</tr>
+<tr>
+<td><code>bg</code></td>
+<td>列出已停止或后台的作业</td>
+</tr>
+<tr>
+<td><code>fg</code></td>
+<td>将最近的作业带到前台</td>
+</tr>
+<tr>
+<td><code>fg n</code></td>
+<td>将作业 n 带到前台</td>
+</tr>
+<tr>
+<td><strong>文件权限</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>chmod rwxrwxrwx file</code></td>
+<td>更改 file 的权限</td>
+</tr>
+<tr>
+<td><code>chmod 777</code></td>
+<td>为所有用户添加 rwx 权限</td>
+</tr>
+<tr>
+<td><code>chmod 755</code></td>
+<td>为所有者添加 rwx 权限, 为组和其他用户添加 rx 权限</td>
+</tr>
+<tr>
+<td><strong>SSH</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>ssh user@host</code></td>
+<td>以 user 用户身份连接到 host</td>
+</tr>
+<tr>
+<td><code>ssh -p port user@host</code></td>
+<td>在端口 port 以 user 用户身份连接到 host</td>
+</tr>
+<tr>
+<td><code>ssh-copy-id user@host</code></td>
+<td>将密钥添加到 host 以实现无密码登录</td>
+</tr>
+<tr>
+<td><strong>系统信息</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>显示当前日期和时间</td>
+</tr>
+<tr>
+<td><code>cal</code></td>
+<td>显示当月的日历</td>
+</tr>
+<tr>
+<td><code>uptime</code></td>
+<td>显示系统从开机到现在所运行的时间</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>显示登录的用户</td>
+</tr>
+<tr>
+<td><code>whoami</code></td>
+<td>查看你的当前用户名</td>
+</tr>
+<tr>
+<td><code>finger user</code></td>
+<td>显示 user 的相关信息</td>
+</tr>
+<tr>
+<td><code>uname -a</code></td>
+<td>显示内核信息</td>
+</tr>
+<tr>
+<td><code>cat /proc/cpuinfo</code></td>
+<td>查看 cpu 信息</td>
+</tr>
+<tr>
+<td><code>cat /proc/meminfo</code></td>
+<td>查看内存信息</td>
+</tr>
+<tr>
+<td><code>man command</code></td>
+<td>显示 command 的说明手册</td>
+</tr>
+<tr>
+<td><code>df</code></td>
+<td>显示磁盘占用情况</td>
+</tr>
+<tr>
+<td><code>du</code></td>
+<td>显示目录空间占用情况</td>
+</tr>
+<tr>
+<td><code>free</code></td>
+<td>显示内存及交换区占用情况</td>
+</tr>
+<tr>
+<td><strong>压缩</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>tar cf file.tar files</code></td>
+<td>创建包含 files 的 tar 文件 file.tar</td>
+</tr>
+<tr>
+<td><code>tar xf file.tar</code></td>
+<td>从 file.tar 提取文件</td>
+</tr>
+<tr>
+<td><code>tar czf file.tar.gz files</code></td>
+<td>使用 Gzip 压缩创建 tar 文件</td>
+</tr>
+<tr>
+<td><code>tar xzf file.tar.gz</code></td>
+<td>使用 Gzip 提取 tar 文件</td>
+</tr>
+<tr>
+<td><code>tar cjf file.tar.bz2</code></td>
+<td>使用 Bzip2 压缩创建 tar 文件</td>
+</tr>
+<tr>
+<td><code>tar xjf file.tar.bz2</code></td>
+<td>使用 Bzip2 提取 tar 文件</td>
+</tr>
+<tr>
+<td><code>gzip file</code></td>
+<td>压缩 file 并重命名为 file.gz</td>
+</tr>
+<tr>
+<td><code>gzip -d file.gz</code></td>
+<td>将 file.gz 解压缩为 file</td>
+</tr>
+<tr>
+<td><strong>网络</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>ping host</code></td>
+<td>ping host 并输出结果</td>
+</tr>
+<tr>
+<td><code>whois domain</code></td>
+<td>获取 domain 的 whois 信息</td>
+</tr>
+<tr>
+<td><code>dig domain</code></td>
+<td>获取 domain 的 DNS 信息</td>
+</tr>
+<tr>
+<td><code>dig -x host</code></td>
+<td>逆向查询 host</td>
+</tr>
+<tr>
+<td><code>wget file</code></td>
+<td>下载 file</td>
+</tr>
+<tr>
+<td><code>wget -c file</code></td>
+<td>断点续传</td>
+</tr>
+<tr>
+<td><strong>安装</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>./configure</code> <code>make</code> <code>make install</code></td>
+<td>从源码安装</td>
+</tr>
+<tr>
+<td><code>dpkg -i pkg.deb</code></td>
+<td>安装包 (Debian)</td>
+</tr>
+<tr>
+<td><code>rpm -Uvh pkg.rpm</code></td>
+<td>安装包 (RPM)</td>
+</tr>
+<tr>
+<td><code>yum install package</code></td>
+<td>安装包 (CentOS)</td>
+</tr>
+<tr>
+<td><code>sudo apt-get install package</code></td>
+<td>安装包 (Ubuntu)</td>
+</tr>
+<tr>
+<td><strong>快捷键</strong></td>
+<td><strong>指令说明</strong></td>
+</tr>
+<tr>
+<td><code>Ctrl+C</code></td>
+<td>停止当前命令</td>
+</tr>
+<tr>
+<td><code>Ctrl+Z</code></td>
+<td>停止当前命令，并使用 fg 恢复</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>注销当前会话，与 exit 相似</td>
+</tr>
+<tr>
+<td><code>Ctrl+W</code></td>
+<td>删除当前行中的字</td>
+</tr>
+<tr>
+<td><code>Ctrl+U</code></td>
+<td>删除整行</td>
+</tr>
+<tr>
+<td><code>!!</code></td>
+<td>重复上次的命令</td>
+</tr>
+<tr>
+<td><code>exit</code></td>
+<td>注销当前会话</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong><em>转载自 <a href="https://linuxtoy.org/pages/download.html" target="_blank" rel="noopener">Unix/Linux 命令速查表</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/01/18/1702-linux-hard/" itemprop="url">
                   Embedded Linux 入门有感
                 </a>
@@ -2177,608 +2725,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/15/1625-linux-cmd-disk/" itemprop="url">
-                  linux 系统文件及磁盘指令
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-15T00:00:00+11:00" content="2016-12-15">
-              2016-12-15
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="linux-系统文件简要说明"><a href="#linux-系统文件简要说明" class="headerlink" title="linux 系统文件简要说明"></a>linux 系统文件简要说明</h1><p>FHS是Filesystem Hierarchy Standard的简称.FHS定义了两层规范:<br>第一层是/目录下各个主要目录应该放什么文件数据, 例如/etc应该放配置文件,/bin与/sbin则应该放置可执行文件等.<br>第二层则是针对/usr和/var这两个目录的子目录来定义,例如/var/log放置系统登录文件,/usr/share放置共享数据等.<br>单一文件或目录的最大允许文件名为255个字符,包含完整路径的文件名或目录名最大允许为4096个字符.</p>
-<table>
-<thead>
-<tr>
-<th>目录</th>
-<th>说明</th>
-<th>文件内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>/</code></td>
-<td>root, 根目录</td>
-<td>一般建议只有目录,不要直接放文件. <code>/etc</code> <code>/bin</code> <code>/sbin</code> <code>/dev</code> <code>/lib</code> 必须与 <code>/</code> 同一分区</td>
-</tr>
-<tr>
-<td><code>/bin</code>, <code>/usr/bin</code>, <code>/usr/local/bin</code></td>
-<td>Essential command <strong>bin</strong>aries, 普通用户可执行的二进制文件</td>
-<td>如 <code>ls</code> <code>mv</code> <code>cat</code> 等指令</td>
-</tr>
-<tr>
-<td><code>/boot</code></td>
-<td>Static files of the <strong>boot</strong> loader,  启动时用到的文件</td>
-<td>包括 vmlinuz (就是kernel), grub (开机管理)</td>
-</tr>
-<tr>
-<td><code>/dev</code></td>
-<td><strong>Dev</strong>ice files, 设备文件</td>
-<td>任何设备与接口都是以文件的型态存放在此目录下. 分为<code>字符设备</code>和<code>块设备</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/null</code></td>
-<td>空设备</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/tty*</code></td>
-<td>串口设备</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/hd[a-d][1-63]</code></td>
-<td>IDE 硬盘</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/sd[a-p][1-20]</code></td>
-<td>SCSI硬盘,U盘</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/cdrom</code></td>
-<td>CDROM</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/fd[0-1]</code></td>
-<td>软盘</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/lp[0-2]</code></td>
-<td>并口打印机</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/dev/mouse</code></td>
-<td>鼠标</td>
-</tr>
-<tr>
-<td></td>
-<td>常见<code>sda1-3</code>(主分区),<del><code>sda4</code></del>(扩展分区),<code>sda5..</code>(逻辑分区)</td>
-<td>分析:硬盘支持4个主分区,1个扩展分区(占用主分区),16个逻辑分区(SCSI硬盘). 扩展分区文件名不显示.</td>
-</tr>
-<tr>
-<td><code>/etc</code></td>
-<td><strong>Etc</strong>etera, 杂项都在此处! 偏系统设置</td>
-<td>系统启动(<code>/etc/init</code> <code>/etc/init.d</code>), 账号密码(<code>/etc/passwd</code> <code>/etc/shadow</code>), 开机预设值(<code>/etc/sysconfig/*</code>)</td>
-</tr>
-<tr>
-<td><code>/home</code></td>
-<td>User <strong>home</strong> directories, 用户的家目录</td>
-<td>放置用户自有的数据, 如音乐图片等</td>
-</tr>
-<tr>
-<td><code>/lib</code> <code>/usr/lib</code> <code>/usr/local/lib</code></td>
-<td>Essential shared <strong>lib</strong>raries and kernel modules, 系统使用的函式库的目录</td>
-<td><code>/lib/modules</code> 放着kernel的相关模块</td>
-</tr>
-<tr>
-<td><code>/lost+found</code></td>
-<td>系统异常时,会将一些遗失的片段放于此目录</td>
-<td></td>
-</tr>
-<tr>
-<td><code>/mnt</code></td>
-<td><strong>Mount</strong> point for mounting a file system temporarily, 默认挂载点文件的目录</td>
-<td>通常软盘挂在<code>/mnt/floppy</code>下,光盘挂在<code>/mnt/cdrom</code>下</td>
-</tr>
-<tr>
-<td><code>/media</code></td>
-<td>Contains mount points for replaceable <strong>media</strong></td>
-<td><code>/media</code>目录功能与<code>/mnt</code>类似</td>
-</tr>
-<tr>
-<td><code>/opt</code></td>
-<td>Add-on application software packages, 主机自行安装软件默认放置的目录</td>
-<td>以前较多情况放置在<code>/usr/local</code>目录下</td>
-</tr>
-<tr>
-<td><code>/proc</code></td>
-<td>Virtual directory for system information, 虚拟档案系统. 数据都在内存当中,不占用硬盘空间.</td>
-<td>主要包括系统核心,接口设备状态,网络状态. 比较重要的档案例: <code>/proc/cpuinfo</code> <code>/proc/dma</code> <code>/proc/interrupts</code> <code>/proc/ioports</code> <code>/proc/net/*</code> 等</td>
-</tr>
-<tr>
-<td><code>/root</code></td>
-<td>Home directory for the <strong>root</strong> user 系统管理员的家目录。</td>
-<td>一般与根目录<code>/</code>在同一分区下</td>
-</tr>
-<tr>
-<td><code>/sbin</code>, <code>/usr/sbin</code>, <code>/usr/local/sbin</code></td>
-<td>Essential system binaries,<strong>S</strong>uper user <strong>bin</strong>aries, 放置系统管理员才会动用到的执行指令</td>
-<td>如： <code>fdisk</code> <code>mke2fs</code> <code>fsck</code> <code>mkswap</code> <code>mount</code> 等</td>
-</tr>
-<tr>
-<td><code>/sys</code></td>
-<td>Virtual directory for system information (2.6 kernels)</td>
-<td></td>
-</tr>
-<tr>
-<td><code>/srv</code></td>
-<td>Data for <strong>services</strong> provided by the system, 一些服务启动之后，这些服务所需要取用的数据目录</td>
-<td>如WWW 服务器需要的网页就可放在<code>/srv/www</code>内</td>
-</tr>
-<tr>
-<td><code>/tmp</code></td>
-<td><strong>Temp</strong>orary files, 这是让一般用户或是正在执行的程序暂时放置文件的目录</td>
-<td>这个目录任何人都能够存取的，所以需要定期清理</td>
-</tr>
-<tr>
-<td><code>/usr</code></td>
-<td><strong>U</strong>nix <strong>S</strong>hared <strong>R</strong>esources</td>
-<td>此目录下包含系统的主要程序,图形界面文件,额外的函式库、本机自行安装的软件，以及共享的目录与文件等</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/bin,/usr/sbin</code></td>
-<td>可执行的档案放置目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/include</code></td>
-<td>c/c++等程序语言的头文件放置目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/lib</code></td>
-<td>各应用软件的函数库档案放置目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/local</code></td>
-<td>本机自行安装及升级软件默认放置的目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/local/bin</code></td>
-<td>自行安装及升级软件后的可执行文件目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/share</code></td>
-<td>共享文件放置的目录, 如帮助文档(doc,man)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/src</code></td>
-<td>Linux系统相关的程序代码放置目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/src/linux</code></td>
-<td>为Linux Kernel的源码</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/usr/X11R6</code></td>
-<td>X Window System 所需的执行文件放置目录</td>
-</tr>
-<tr>
-<td><code>/var</code></td>
-<td><strong>Var</strong>iable data</td>
-<td>主要放置系统执行过程中经常变化的文件</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/var/cache</code></td>
-<td>程序文件在运作过程中的一些缓存数据</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/var/lib</code></td>
-<td>程序执行中，使用到的数据库文件放置的目录</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/var/log</code></td>
-<td>登录文件放置的目录(如/var/log/messages)</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/var/run</code></td>
-<td>某些程序或是服务启动后,会放置PID在此处</td>
-</tr>
-<tr>
-<td></td>
-<td><code>/var/spool</code></td>
-<td>是一些数据队列存放的目录,作用为缓冲</td>
-</tr>
-</tbody>
-</table>
-<p><img src="https://draapho.github.io/images/1625/LinuxFileSystem.jpg" alt="LinuxFileSystem"></p>
-<h1 id="linux系统分区建议"><a href="#linux系统分区建议" class="headerlink" title="linux系统分区建议"></a>linux系统分区建议</h1><table>
-<thead>
-<tr>
-<th>挂载目录</th>
-<th>说明</th>
-<th>类型</th>
-<th>台式机</th>
-<th>嵌入式</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>/boot</code></td>
-<td>启动程序等</td>
-<td>ext4</td>
-<td>100MB</td>
-<td>50MB</td>
-</tr>
-<tr>
-<td><code>/</code></td>
-<td>根目录</td>
-<td>ext4</td>
-<td>1GB-5GB</td>
-<td>150-250MB</td>
-</tr>
-<tr>
-<td><code>swap</code></td>
-<td>虚拟内存</td>
-<td>swap</td>
-<td>0/2*ram</td>
-<td>看情况</td>
-</tr>
-<tr>
-<td><code>/usr</code></td>
-<td>放置系统应用程序</td>
-<td>ext4</td>
-<td>5GB-20GB</td>
-<td>1-5GB</td>
-</tr>
-<tr>
-<td><code>/opt</code></td>
-<td>放置大型或测试软件, <strong>建议用户软件都放此处</strong></td>
-<td>ext4</td>
-<td>10-50GB</td>
-<td>使用<code>/usr/local</code></td>
-</tr>
-<tr>
-<td><code>/tmp</code></td>
-<td>临时文件</td>
-<td>ext4</td>
-<td>500M</td>
-<td>50-100M</td>
-</tr>
-<tr>
-<td><code>/var</code></td>
-<td>放置经常变化的文件</td>
-<td>ext4</td>
-<td>1GB</td>
-<td>300-500M</td>
-</tr>
-<tr>
-<td><code>/home</code></td>
-<td>用户家目录</td>
-<td>ext4</td>
-<td>100G/自定义</td>
-<td>看情况</td>
-</tr>
-</tbody>
-</table>
-<h1 id="linux磁盘常用指令"><a href="#linux磁盘常用指令" class="headerlink" title="linux磁盘常用指令"></a>linux磁盘常用指令</h1><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>df</code></td>
-<td><strong>disk free</strong>, 查看磁盘相关信息</td>
-</tr>
-<tr>
-<td>…… <strong><code>df -Th</code></strong></td>
-<td>查看磁盘容量信息</td>
-</tr>
-<tr>
-<td>…… <strong><code>df -iTh</code></strong></td>
-<td>查看磁盘inode信息</td>
-</tr>
-<tr>
-<td><code>du</code></td>
-<td><strong>disk usage</strong>, 查看磁盘文件使用情况</td>
-</tr>
-<tr>
-<td>…… <strong><code>du -h</code></strong></td>
-<td>列出当前文件夹下所有文件的容量</td>
-</tr>
-<tr>
-<td>…… <strong><code>du -sh file_dir</code></strong></td>
-<td>列出指定文件的容量</td>
-</tr>
-<tr>
-<td><code>fdisk</code></td>
-<td><strong>format disk</strong>, 磁盘查看及分区</td>
-</tr>
-<tr>
-<td>…… <strong><code>fdisk -l</code></strong></td>
-<td>查看整个系统的分区情况</td>
-</tr>
-<tr>
-<td>…… <strong><code>fdisk /dev/sda6</code></strong></td>
-<td>对指定磁盘进行配置(进入fdisk命令行模式)</td>
-</tr>
-<tr>
-<td><code>mkfs</code></td>
-<td><strong>make filesystem</strong>, 分区格式化</td>
-</tr>
-<tr>
-<td>…… <strong><code>mkfs -t ext4 /dev/sda6</code></strong></td>
-<td>格式化sda6分区格式为ext4</td>
-</tr>
-<tr>
-<td><code>fsck</code></td>
-<td><strong>filesystem check</strong>, 分区检验和修复</td>
-</tr>
-<tr>
-<td>…… <strong><code>unmount /dev/sda6</code></strong></td>
-<td>要检查的分区必须先umount</td>
-</tr>
-<tr>
-<td>…… <strong><code>fsck -y -t ext4 /dev/sda6</code></strong></td>
-<td>对sda6分区进行检验和修复</td>
-</tr>
-<tr>
-<td><code>mount</code></td>
-<td><strong>mount</strong> 查看和挂载分区</td>
-</tr>
-<tr>
-<td>…… <strong><code>mkdir /mnt/sda_data</code></strong></td>
-<td>必须先创建挂载点文件夹</td>
-</tr>
-<tr>
-<td>…… <strong><code>mount -t ext4 /dev/sda6 /mnt/sda_data</code></strong></td>
-<td>挂载指定设备sda6到文件夹</td>
-</tr>
-<tr>
-<td><code>umount</code></td>
-<td><strong>umount</strong>, 取消挂载点</td>
-</tr>
-<tr>
-<td>…… <strong><code>umount /dev/sda6</code> </strong></td>
-<td>两种写法都可以</td>
-</tr>
-<tr>
-<td>…… <strong><code>umount /mnt/sda_data</code></strong></td>
-<td>两种写法都可以</td>
-</tr>
-<tr>
-<td><code>quato</code></td>
-<td><strong>quato</strong>, 管理普通用户的分区配额,多用于服务器.</td>
-</tr>
-</tbody>
-</table>
-<h1 id="mount常见用法及开机自动挂载"><a href="#mount常见用法及开机自动挂载" class="headerlink" title="mount常见用法及开机自动挂载"></a>mount常见用法及开机自动挂载</h1><h2 id="挂载U盘"><a href="#挂载U盘" class="headerlink" title="挂载U盘"></a>挂载U盘</h2><ul>
-<li>插入U盘, 用 <code>fdisk -l</code> 或 <code>ll /dev/</code> 下查看U盘的硬件名称, 如 <code>sda11</code></li>
-<li>在mnt下建立usb目录 <code>mkdir /mnt/usb</code></li>
-<li>挂载U盘  <code>mount -t vfat /dev/sda11 /mnt/usb</code></li>
-<li>卸载U盘  <code>umount /mnt/usb</code></li>
-<li>拔出U盘</li>
-<li>删除mnt目录  <code>rm -fr /mnt/usb</code></li>
-</ul>
-<h2 id="挂载fat32分区"><a href="#挂载fat32分区" class="headerlink" title="挂载fat32分区"></a>挂载fat32分区</h2><p><code>mount -t vfat -o iocharset=cp936 /dev/sda6 /mnt/fat32</code></p>
-<h2 id="挂载ntfs分区"><a href="#挂载ntfs分区" class="headerlink" title="挂载ntfs分区"></a>挂载ntfs分区</h2><p><code>mount -t ntfs -o iocharset=uft8 /dev/sda6 /mnt/ntfs</code></p>
-<h2 id="挂载光驱"><a href="#挂载光驱" class="headerlink" title="挂载光驱"></a>挂载光驱</h2><p><code>mount -t iso9660 /dev/hdc /mnt/cdrom</code></p>
-<h2 id="重载分区为可读写"><a href="#重载分区为可读写" class="headerlink" title="重载分区为可读写"></a>重载分区为可读写</h2><p>将根目录改为可读写,系统维护时使用<br><code>mount -n -o remount,rw /</code></p>
-<h2 id="自动挂载分区"><a href="#自动挂载分区" class="headerlink" title="自动挂载分区"></a>自动挂载分区</h2><p>通过修改 <code>/etc/fstab</code> 实现. 根据规则自行添加行即可.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># &lt;file system&gt;   &lt;mount point&gt; &lt;type&gt; &lt;options&gt; &lt;dump&gt; &lt;pass&gt;</span><br><span class="line"># &lt;分区&gt;           &lt;挂载点&gt;      &lt;类型&gt;  &lt;配置&gt;     &lt;备份&gt;  &lt;检查&gt;</span><br><span class="line"></span><br><span class="line"># 以下是通过分区唯一的uuid进行挂载,优点是可绑定指定分区</span><br><span class="line"># 获取uuid指令: `ll /dev/disk/by-uuid/`</span><br><span class="line">  UUID=xxxx-xxxx  /             ext4   errors=..  0     1</span><br><span class="line">  UUID=xxxx-xxxx  /boot         ext4   defaults   0     2</span><br><span class="line">  UUID=xxxx-xxxx  /home         ext4   defaults   0     2</span><br><span class="line"></span><br><span class="line"># 以下是通过设备文件名进行挂载,优点是直观</span><br><span class="line"># 查看设备文件名指令: `sudo fdisk -l`  (sudo,获取管理员权限)</span><br><span class="line">  /dev/sda5       /mnt/data     ext4   defaults   0     2</span><br></pre></td></tr></table></figure></p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/14/1624-android-ipc/" itemprop="url">
-                  Android中Activity、Service和线程之间的通信
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-12-14T00:00:00+11:00" content="2016-12-14">
-              2016-12-14
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
-<hr>
-<h1 id="我的说明"><a href="#我的说明" class="headerlink" title="我的说明"></a>我的说明</h1><p>很全面的总结了几种通讯方式. 是Android深入学习的必经阶段.<br>其实 Activity 和 Activity 间也就下面一些通讯方式,<br>只是从软件结构上讲, 较为复杂的通讯机制是分层的, 一般采用 Activity 纯显示UI, Service后台处理及开线程, Broadcast辅助通讯.</p>
-<p>先转载此文作为备忘, 有时间自己在总结一下范例.</p>
-<h1 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h1><p>Activity、Service和线程应该是Android编程中最常见的几种类了，几乎大多数应用程序都会涉及到这几个类的编程，<br>自然而然的，也就会涉及到三者之间的相互通信，本文就试图简单地介绍一下这三者通信的方式。</p>
-<p>想写这篇文章的起因是，笔者跟几个同学在做一个Android上的应用，起初代码写得很凌乱，因为我在Activity中直接创建了线程，去执行某些任务。<br>但是我们知道线程可能需要运行的时间比较长，而Android在内存不足的时候，会将一些Activity销毁，<br>这样线程就会失去了管理的对象，从而使程序发生意想不到的结果。<br>此外，在Activity中创建线程，线程跟Activity的通信也比较麻烦，一般借助Handler类来进行通信</p>
-<p>与Activity相比，Service一般“默默”地运行在后台，生命周期比较长，所以它更合适去为主程序提供某些服务，创建线程并管理线程。<br>因此，笔者将原程序改成三层架构，从高到低分别为：Activity层–Service层–Thread层。<br>Activity将需要的服务“告诉”Service层，Service层创建Thread去完成服务。<br>Thread将任务的进度、状态、错误信息反馈给Service，Service将这些消息反馈给相关的Activity，<br>并且还可以利用Notification更新通知栏消息。大体的结构就是这样。</p>
-<h1 id="Activity和Service之间的通信"><a href="#Activity和Service之间的通信" class="headerlink" title="Activity和Service之间的通信"></a>Activity和Service之间的通信</h1><h2 id="利用Handler通信"><a href="#利用Handler通信" class="headerlink" title="利用Handler通信"></a>利用Handler通信</h2><p>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
-<h2 id="Activity调用startService"><a href="#Activity调用startService" class="headerlink" title="Activity调用startService"></a>Activity调用startService</h2><p>Activity调用startService (Intent service)方法，将消息添加到Intent对象中，<br>这样Service对象可以在调用onStartCommand (Intent intent, int flags, int startId)的时候可以得到这些消息。<br>这种方法很简单，但如果有大量的信息要传递的话，就很麻烦了。因为Service端还要判断一下消息是什么，才能作进一步的动作。</p>
-<h2 id="Activity调用bindService"><a href="#Activity调用bindService" class="headerlink" title="Activity调用bindService"></a>Activity调用bindService</h2><p>Activity调用bindService (Intent service, ServiceConnection conn, int flags)方法，<br>得到Service对象的一个引用，这样Activity可以直接调用到Service中的方法。<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6623924" target="_blank" rel="noopener">Notification使用详解之三：通过服务更新进度通知&amp;在Activity中监听服务进度</a></p>
-<h2 id="Service发送广播通知Activity"><a href="#Service发送广播通知Activity" class="headerlink" title="Service发送广播通知Activity"></a>Service发送广播通知Activity</h2><p>Service向Activity发送消息，除了可以利用Handler外，还可以使用广播，当然Activity要注册相应的接收器<br>比如Service要向多个Activity发送同样的消息的话，用这种方法就更好。具体方法可以看一下这篇文章：<br>参考 <a href="http://blog.csdn.net/liuhe688/article/details/6641806" target="_blank" rel="noopener">Notification使用详解之四：由后台服务向Activity发送进度信息</a></p>
-<h1 id="Service跟Thread之间的通信"><a href="#Service跟Thread之间的通信" class="headerlink" title="Service跟Thread之间的通信"></a>Service跟Thread之间的通信</h1><p>Service创建Thread后，如果要对线程进行控制（启动，暂停，停止等），那么Service中应该保留线程的引用，这不用多说。<br>那么有了这个引用，Service就可以直接调用Thread的其它方法了。运行的线程要向Service发送消息的话，通常使用Handler就可以了：<br>参考 <a href="http://blog.sina.com.cn/s/blog_3fe961ae0100mvc5.html" target="_blank" rel="noopener">Android在子线程中更新Activity中UI的方法</a></p>
-<h1 id="Activity和Thread之间的通信"><a href="#Activity和Thread之间的通信" class="headerlink" title="Activity和Thread之间的通信"></a>Activity和Thread之间的通信</h1><p>不用多想了，直接使用Handler吧。不推荐Activity直接去创建线程，因为不好管理线程。</p>
-<hr>
-<p><strong><em>转载自<a href="http://blog.sina.com.cn/s/blog_3fe961ae0100xkyt.html" target="_blank" rel="noopener">Android中Activity、Service和线程之间的通信</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2824,7 +2770,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">116</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2838,6 +2784,13 @@
             </div>
           
 
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
           
 
         </nav>
