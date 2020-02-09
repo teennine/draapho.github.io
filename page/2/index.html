@@ -261,6 +261,296 @@
             
               
                 
+                <a class="post-title-link" href="/2019/05/20/1905-python-pandas/" itemprop="url">
+                  Pandas Dataframe 入门
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-05-20T00:00:00+10:00" content="2019-05-20">
+              2019-05-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="1-创建DataFrame"><a href="#1-创建DataFrame" class="headerlink" title="1 创建DataFrame"></a>1 创建DataFrame</h1><p>对于一个用python做数据处理的人来说，pandas是必须要了解的。<br>对于一个数据处理工具来说，读写是最基本的，<br>下面是我最近整理的关于pandas一些基本本操作，主要包括以下内容：</p>
+<ul>
+<li>如何创建DataFrame</li>
+<li>如何读取DataFrame的值，读一行/列、读多行/列</li>
+<li>如何对DataFrame赋值</li>
+<li>如何对DataFrame插入一（多）行/列</li>
+<li>如何删除DataFrame的一（多）行/列</li>
+</ul>
+<p>开始前先引入两个库<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure></p>
+<h2 id="1-1-利用字典创建"><a href="#1-1-利用字典创建" class="headerlink" title="1.1 利用字典创建"></a>1.1 利用字典创建</h2><p>利用字典创建DataFrame:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line">df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">        one  two     three</span><br><span class="line"><span class="number">1</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>如果创建df时不指定索引，默认索引将是从0开时，步长为1的数组。</li>
+<li>df的行、列可以是不同的数据类型，同行也可以有多种数据类型。</li>
+<li>df创建完成好可以重新设置索引，通常用到3个函数：<code>set_index</code>、<code>reset_index</code>、<code>reindex</code></li>
+</ul>
+<h3 id="1-1-1-set-index"><a href="#1-1-1-set-index" class="headerlink" title="1.1.1 set_index"></a>1.1.1 <code>set_index</code></h3><p><code>set_index</code>用于将df中的一行或多行设置为索引. 用法:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">df.set_index(<span class="string">'one'</span>)</span><br><span class="line">df.set_index([<span class="string">'one'</span>],drop=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># 参数drop默认为True，意为将该列设置为索引后从数据中删除，如果设为False，将继续在数据中保留该行。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.set_index(<span class="string">'one'</span>)</span><br><span class="line">           two     three</span><br><span class="line">one</span><br><span class="line"><span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"> <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.set_index([<span class="string">'one'</span>],drop=<span class="keyword">False</span>)</span><br><span class="line">                one  two     three</span><br><span class="line">one</span><br><span class="line"><span class="number">-1.183802</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"> <span class="number">1.426724</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">-1.530958</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">-0.939147</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">df.set_index([<span class="string">'one'</span>,<span class="string">'two'</span>])</span><br><span class="line">df.index=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>]</span><br><span class="line"><span class="comment"># 如果要设置的索引不在数据中, 可以用index直接设置</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">        one  two     three</span><br><span class="line">a <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line">b  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line">c <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line">d <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.set_index([<span class="string">'one'</span>,<span class="string">'two'</span>])</span><br><span class="line">                  three</span><br><span class="line">one       two</span><br><span class="line"><span class="number">-1.183802</span> <span class="number">1.0</span>  zhangsan</span><br><span class="line"> <span class="number">1.426724</span> <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">-1.530958</span> <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">-0.939147</span> <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-1-2-reset-index"><a href="#1-1-2-reset-index" class="headerlink" title="1.1.2 reset_index"></a>1.1.2 <code>reset_index</code></h3><p><code>reset_index</code>用于将索引还原成默认值，即从0开始步长为1的数组。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">df.reset_index(drop=<span class="keyword">True</span>)</span><br><span class="line">df.set_index([<span class="string">'one'</span>],drop=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># 参数drop默认值为False，意为将原来的索引做为数据列保留，如果设为True，原来的索引会直接删除。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.reset_index()</span><br><span class="line">  index       one  two     three</span><br><span class="line"><span class="number">0</span>     a <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">1</span>     b  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">2</span>     c <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">3</span>     d <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.reset_index(drop=<span class="keyword">True</span>)</span><br><span class="line">        one  two     three</span><br><span class="line"><span class="number">0</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">1</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">2</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">3</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="1-1-3-reindex"><a href="#1-1-3-reindex" class="headerlink" title="1.1.3 reindex"></a>1.1.3 <code>reindex</code></h3><p><code>reindex</code>比较复杂，也不常用到，这里是基础篇，不做大量说明，感兴趣的朋友可以看 <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.reindex.html" target="_blank" rel="noopener">官方文档</a></p>
+<h2 id="1-2-利用数组创建"><a href="#1-2-利用数组创建" class="headerlink" title="1.2 利用数组创建"></a>1.2 利用数组创建</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">data=np.random.randn(<span class="number">6</span>,<span class="number">4</span>)       <span class="comment">#创建一个6行4列的数组</span></span><br><span class="line">df=pd.DataFrame(data,columns=list(<span class="string">'ABCD'</span>),index=[<span class="number">1</span>,<span class="number">2</span>,<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'2006-10-1'</span>,<span class="string">'第六行'</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">1</span>         <span class="number">-0.173690</span>  <span class="number">0.004300</span> <span class="number">-0.896126</span>  <span class="number">0.360287</span></span><br><span class="line"><span class="number">2</span>          <span class="number">1.493732</span>  <span class="number">0.784469</span> <span class="number">-0.799769</span> <span class="number">-1.828341</span></span><br><span class="line">a         <span class="number">-0.678492</span>  <span class="number">0.613644</span>  <span class="number">1.835787</span>  <span class="number">0.252200</span></span><br><span class="line">b         <span class="number">-1.347327</span>  <span class="number">0.134869</span> <span class="number">-0.595432</span> <span class="number">-0.533671</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>  <span class="number">0.178216</span> <span class="number">-0.690090</span> <span class="number">-0.625436</span>  <span class="number">1.377065</span></span><br><span class="line">第六行    <span class="number">-1.534302</span> <span class="number">-0.147462</span>  <span class="number">0.703847</span>  <span class="number">0.221454</span></span><br></pre></td></tr></table></figure>
+<h2 id="1-3-创建一个空DataFrame"><a href="#1-3-创建一个空DataFrame" class="headerlink" title="1.3 创建一个空DataFrame"></a>1.3 创建一个空DataFrame</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pd.DataFrame(columns=(<span class="string">'id'</span>,<span class="string">'name'</span>,<span class="string">'grade'</span>,<span class="string">'class'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pd.DataFrame(columns=(<span class="string">'id'</span>,<span class="string">'name'</span>,<span class="string">'grade'</span>,<span class="string">'class'</span>))</span><br><span class="line">Empty DataFrame</span><br><span class="line">Columns: [id, name, grade, <span class="class"><span class="keyword">class</span>]</span></span><br><span class="line"><span class="class"><span class="title">Index</span>:</span> []</span><br></pre></td></tr></table></figure>
+<h1 id="2-读DataFrame"><a href="#2-读DataFrame" class="headerlink" title="2 读DataFrame"></a>2 读DataFrame</h1><p>为了便于理解，以下面DataFrame为例，对其读写操作展开说明：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=np.random.randn(<span class="number">6</span>,<span class="number">4</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,columns=list(<span class="string">'ABCD'</span>),index=[<span class="number">1</span>,<span class="number">2</span>,<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'2006-10-1'</span>,<span class="string">'第六行'</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">1</span>         <span class="number">-0.173690</span>  <span class="number">0.004300</span> <span class="number">-0.896126</span>  <span class="number">0.360287</span></span><br><span class="line"><span class="number">2</span>          <span class="number">1.493732</span>  <span class="number">0.784469</span> <span class="number">-0.799769</span> <span class="number">-1.828341</span></span><br><span class="line">a         <span class="number">-0.678492</span>  <span class="number">0.613644</span>  <span class="number">1.835787</span>  <span class="number">0.252200</span></span><br><span class="line">b         <span class="number">-1.347327</span>  <span class="number">0.134869</span> <span class="number">-0.595432</span> <span class="number">-0.533671</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>  <span class="number">0.178216</span> <span class="number">-0.690090</span> <span class="number">-0.625436</span>  <span class="number">1.377065</span></span><br><span class="line">第六行    <span class="number">-1.534302</span> <span class="number">-0.147462</span>  <span class="number">0.703847</span>  <span class="number">0.221454</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="2-1-按列读取"><a href="#2-1-按列读取" class="headerlink" title="2.1 按列读取"></a>2.1 按列读取</h2><h3 id="2-1-1-df-列名"><a href="#2-1-1-df-列名" class="headerlink" title="2.1.1 df.列名"></a>2.1.1 <code>df.列名</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 该方法每次只能读取一列。</span></span><br><span class="line">df.A</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.A</span><br><span class="line"><span class="number">1</span>            <span class="number">1.787797</span></span><br><span class="line"><span class="number">2</span>            <span class="number">0.098504</span></span><br><span class="line">a           <span class="number">-0.361166</span></span><br><span class="line">b            <span class="number">0.337533</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>   <span class="number">-0.628970</span></span><br><span class="line">第六行          <span class="number">3.356526</span></span><br><span class="line">Name: A, dtype: float64</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-2-df-39-列名-39-df-39-列名-39-df-39-列名1-39-39-列名2-39-39-列名n-39"><a href="#2-1-2-df-39-列名-39-df-39-列名-39-df-39-列名1-39-39-列名2-39-39-列名n-39" class="headerlink" title="2.1.2 df[&#39;列名&#39;] df[[&#39;列名&#39;]] df[[&#39;列名1&#39;,&#39;列名2&#39;,&#39;列名n&#39;]]"></a>2.1.2 <code>df[&#39;列名&#39;]</code> <code>df[[&#39;列名&#39;]]</code> <code>df[[&#39;列名1&#39;,&#39;列名2&#39;,&#39;列名n&#39;]]</code></h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 该方法每次只能读取一列。</span></span><br><span class="line">df[<span class="string">'A'</span>]</span><br><span class="line">df[[<span class="string">'A'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>]]</span><br><span class="line"></span><br><span class="line"><span class="comment"># df['A']和 df[['A']] 返回结果的值相同，但数据结构有差异,</span></span><br><span class="line"><span class="comment"># 用 type(df['A']),type(df[['A']]) 查看。 前者为series, 后者为DataFrame.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'A'</span>]</span><br><span class="line"><span class="number">1</span>            <span class="number">1.787797</span></span><br><span class="line"><span class="number">2</span>            <span class="number">0.098504</span></span><br><span class="line">a           <span class="number">-0.361166</span></span><br><span class="line">b            <span class="number">0.337533</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>   <span class="number">-0.628970</span></span><br><span class="line">第六行       <span class="number">3.356526</span></span><br><span class="line">Name: A, dtype: float64</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[[<span class="string">'A'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>]]</span><br><span class="line">                  A         C         D</span><br><span class="line"><span class="number">1</span>          <span class="number">1.787797</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"><span class="number">2</span>          <span class="number">0.098504</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a         <span class="number">-0.361166</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line">b          <span class="number">0.337533</span>  <span class="number">0.378315</span>  <span class="number">0.485731</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span> <span class="number">-0.628970</span>  <span class="number">1.152818</span> <span class="number">-0.671454</span></span><br><span class="line">第六行     <span class="number">3.356526</span>  <span class="number">0.854735</span> <span class="number">-0.768296</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(df[<span class="string">'A'</span>]),type(df[[<span class="string">'A'</span>]])</span><br><span class="line">(&lt;class 'pandas.core.series.Series'&gt;, &lt;class 'pandas.core.frame.DataFrame'&gt;)</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-3-iloc-colNo-iloc-colNo1-colNo2"><a href="#2-1-3-iloc-colNo-iloc-colNo1-colNo2" class="headerlink" title="2.1.3 .iloc[:,colNo] .iloc[:,colNo1:colNo2]"></a>2.1.3 <code>.iloc[:,colNo]</code> <code>.iloc[:,colNo1:colNo2]</code></h3><p>按列号读取，有时候我们可能更希望通过列号（1，2，3…）读取数据而不是列名，<br>又或着我们要读取多行的时候一个一个输入列名是很麻烦的，<br>我们希望有最简单的代码读取我们最想要的内容，<br><code>.iloc</code> 方法可以让我们通过列号索引数据，具体如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df.iloc[:<span class="number">1</span>]         <span class="comment"># 读取第一列</span></span><br><span class="line">df.iloc[:,<span class="number">1</span>:<span class="number">3</span>]      <span class="comment"># 读取第1列到第3列</span></span><br><span class="line">df.iloc[:,<span class="number">2</span>:]       <span class="comment"># 读取第2列之后的数据</span></span><br><span class="line">df.iloc[:,:<span class="number">3</span>]       <span class="comment"># 读取前3列数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这其实是按单元格读取数据的特殊写法，如果有疑问请看 2.3 按单元格读取数据。</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-2-按行读取"><a href="#2-2-按行读取" class="headerlink" title="2.2 按行读取"></a>2.2 按行读取</h2><h3 id="2-2-1-loc-39-行标签-39-loc-39-行标签-39-loc-39-行标签1-39-39-行标签2-39-39-行标签n-39"><a href="#2-2-1-loc-39-行标签-39-loc-39-行标签-39-loc-39-行标签1-39-39-行标签2-39-39-行标签n-39" class="headerlink" title="2.2.1 .loc[&#39;行标签&#39;] .loc[[&#39;行标签&#39;]] .loc[[&#39;行标签1&#39;,&#39;行标签2&#39;,&#39;行标签n&#39;]]"></a>2.2.1 <code>.loc[&#39;行标签&#39;]</code> <code>.loc[[&#39;行标签&#39;]]</code> <code>.loc[[&#39;行标签1&#39;,&#39;行标签2&#39;,&#39;行标签n&#39;]]</code></h3><p><code>.loc</code>根据行标签索引数据，这里的行标签可以理解为索引（没有深入研究，但是在这里，行标签=索引）,<br>比如我们要分别读取第1行和第3行就是<code>df[[1]]</code>、<code>df[[&#39;a&#39;]]</code>，<br>如果该df的索引变为<code>[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;]</code>，分别读取第1行和第3行的操作将变成<code>df[[&#39;a&#39;]]</code>,<code>df[[&#39;c&#39;]]</code>，<br>也就是说.loc后面的’行标签’必须在索引中。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">df.loc[[<span class="number">1</span>]]</span><br><span class="line">df.loc[[<span class="number">1</span>,<span class="string">'a'</span>,<span class="string">'2006-10-1'</span>]]</span><br><span class="line"><span class="comment"># df.loc[1] 和 df.loc[[1]] 返回结果的值相同，但数据结构有差异</span></span><br><span class="line"><span class="comment"># 用 type(df.loc[1]),type(df.loc[[1]]) 查看。 前者为series, 后者为DataFrame.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>]]</span><br><span class="line">          A         B         C         D</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'a'</span>,<span class="string">'2006-10-1'</span>]]</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">1</span>          <span class="number">1.787797</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line">a         <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span> <span class="number">-0.628970</span> <span class="number">-1.219419</span>  <span class="number">1.152818</span> <span class="number">-0.671454</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(df.loc[<span class="number">1</span>]),type(df.loc[[<span class="number">1</span>]])</span><br><span class="line">(&lt;class 'pandas.core.series.Series'&gt;, &lt;class 'pandas.core.frame.DataFrame'&gt;)</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-2-iloc-39-行号-39-iloc-39-行号-39-iloc-39-行号1-39-39-行号2-39-39-行号n-39"><a href="#2-2-2-iloc-39-行号-39-iloc-39-行号-39-iloc-39-行号1-39-39-行号2-39-39-行号n-39" class="headerlink" title="2.2.2 .iloc[&#39;行号&#39;] .iloc[[&#39;行号&#39;]] .iloc[[&#39;行号1&#39;,&#39;行号2&#39;,&#39;行号n&#39;]]"></a>2.2.2 <code>.iloc[&#39;行号&#39;]</code> <code>.iloc[[&#39;行号&#39;]]</code> <code>.iloc[[&#39;行号1&#39;,&#39;行号2&#39;,&#39;行号n&#39;]]</code></h3><p><code>.iloc</code>根据行号索引数据，行号是固定不变的，不受索引变化的影响，<br>如果df的索引是默认值，则.loc和.iloc的用法没有区别，因为此时行号和行标签相同。</p>
+<p><code>.iloc</code>还可以通过切片的方式读取数据，所谓切片就是给出要读数据的首尾位置，<br>然后读取首尾中间这“一片”数据（个人理解，可能理解的不对或比较片面，对此有疑惑的朋友请自行查阅相关资料）<br>比如我们要读取第1行到第4行的数据，利用切片的方法就是 <code>df.iloc[1:5]</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">df.iloc[[<span class="number">1</span>]]</span><br><span class="line">df.iloc[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">5</span>]]</span><br><span class="line">df.iloc[<span class="number">1</span>:<span class="number">5</span>]        <span class="comment"># 切片形式</span></span><br><span class="line">df.iloc[:<span class="number">5</span>]         <span class="comment"># 读取第0行到第4行的数据；</span></span><br><span class="line">df.iloc[<span class="number">8</span>:]         <span class="comment"># 读取第8行后所有数据，包括第8行；</span></span><br><span class="line">df.iloc[<span class="number">3</span>,<span class="number">6</span>]        <span class="comment"># 读取第3行到第6行的数据，包括第3行但不包括第6行。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[[<span class="number">1</span>]]</span><br><span class="line">          A         B         C         D</span><br><span class="line"><span class="number">2</span>  <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以看到 df.loc[1] 和 df.iloc[1] 读到的内容是不一样的，</span></span><br><span class="line"><span class="comment"># df.loc[1] 读取的是索引号为1的那一行，df.iloc[1] 读取的是第1行。</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">5</span>]]</span><br><span class="line">            A         B         C         D</span><br><span class="line"><span class="number">2</span>    <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a   <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line">第六行  <span class="number">3.356526</span> <span class="number">-0.945234</span>  <span class="number">0.854735</span> <span class="number">-0.768296</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">1</span>:<span class="number">5</span>]</span><br><span class="line">                  A         B         C         D</span><br><span class="line"><span class="number">2</span>          <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a         <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line">b          <span class="number">0.337533</span>  <span class="number">1.770279</span>  <span class="number">0.378315</span>  <span class="number">0.485731</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span> <span class="number">-0.628970</span> <span class="number">-1.219419</span>  <span class="number">1.152818</span> <span class="number">-0.671454</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-2-3-ix"><a href="#2-2-3-ix" class="headerlink" title="2.2.3 .ix"></a>2.2.3 <del><code>.ix</code></del></h3><p><code>.ix</code> 已经不推荐使用, 所以就不举例分析了.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.ix[[<span class="number">1</span>]]</span><br><span class="line">__main__:<span class="number">1</span>: DeprecationWarning:</span><br><span class="line">.ix <span class="keyword">is</span> deprecated. Please use</span><br><span class="line">.loc <span class="keyword">for</span> label based indexing <span class="keyword">or</span></span><br><span class="line">.iloc <span class="keyword">for</span> positional indexing</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-4-at-iat"><a href="#2-2-4-at-iat" class="headerlink" title="2.2.4 at iat"></a>2.2.4 <code>at</code> <code>iat</code></h3><p><code>at</code>、<code>iat</code> 这里就不做介绍了，因为上面的方法完全够用了，感兴趣的话可以看 <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.at.html" target="_blank" rel="noopener">官方文档</a><br><code>.loc</code> <code>.iloc</code> 完全可以满足DataFrame的读取操作，所以<code>ix</code>,<code>at</code>,<code>iat</code>并不推荐使用。</p>
+<h2 id="2-3-按单元格读取"><a href="#2-3-按单元格读取" class="headerlink" title="2.3 按单元格读取"></a>2.3 按单元格读取</h2><h3 id="2-3-1-df-col-row"><a href="#2-3-1-df-col-row" class="headerlink" title="2.3.1 df[col][row]"></a>2.3.1 <code>df[col][row]</code></h3><p>读取一个单元格的数据时推荐使用，也可以写成 <code>df.col[row]</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">df[<span class="string">'A'</span>][<span class="number">1</span>]</span><br><span class="line">df.A[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'A'</span>][<span class="number">1</span>]</span><br><span class="line"><span class="number">1.7877970995354475</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.A[<span class="number">1</span>]</span><br><span class="line"><span class="number">1.7877970995354475</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="2-3-2-loc"><a href="#2-3-2-loc" class="headerlink" title="2.3.2 .loc"></a>2.3.2 <code>.loc</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一个单元格：</span></span><br><span class="line">df.loc[row][col]</span><br><span class="line">df.loc[row,col]</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一行多列：</span></span><br><span class="line">df.loc[row][[col1,col2]]</span><br><span class="line">df.loc[row,[col1,col2]]</span><br><span class="line">df.loc[row][firstCol:endCol]</span><br><span class="line">df.loc[row,firstCol:endCol]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>][[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>,[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>][<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[<span class="number">1</span>,<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行一列：</span></span><br><span class="line">df.loc[[row1,row2]][col]</span><br><span class="line">df.loc[[row1,row2]].col</span><br><span class="line">df.loc[[row1,row2],col]</span><br><span class="line"><span class="comment"># 行号不能用切片!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="number">2</span>]][<span class="string">'A'</span>]</span><br><span class="line"><span class="number">1</span>    <span class="number">1.787797</span></span><br><span class="line"><span class="number">2</span>    <span class="number">0.098504</span></span><br><span class="line">Name: A, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="number">2</span>,<span class="string">'b'</span>]].B</span><br><span class="line"><span class="number">1</span>    <span class="number">0.366138</span></span><br><span class="line"><span class="number">2</span>   <span class="number">-1.332709</span></span><br><span class="line">b    <span class="number">1.770279</span></span><br><span class="line">Name: B, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'a'</span>],<span class="string">'A'</span>]</span><br><span class="line"><span class="number">1</span>    <span class="number">1.787797</span></span><br><span class="line">a   <span class="number">-0.361166</span></span><br><span class="line">Name: A, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行多列:</span></span><br><span class="line">df.loc[[row1,row2],[col1,col2]]</span><br><span class="line">df.loc[[row1,row2]][[col1,col2]]</span><br><span class="line">df.loc[[row1,row3],firstCol:endCol]</span><br><span class="line"><span class="comment"># 行号不能用切片!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="number">2</span>]][[<span class="string">'A'</span>,<span class="string">'C'</span>]]</span><br><span class="line">          A         C</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span> <span class="number">-0.668013</span></span><br><span class="line"><span class="number">2</span>  <span class="number">0.098504</span> <span class="number">-0.420558</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'b'</span>],[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">          A         B</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span>  <span class="number">0.366138</span></span><br><span class="line">b  <span class="number">0.337533</span>  <span class="number">1.770279</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.loc[[<span class="number">1</span>,<span class="string">'b'</span>],<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">          A         B         C</span><br><span class="line"><span class="number">1</span>  <span class="number">1.787797</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span></span><br><span class="line">b  <span class="number">0.337533</span>  <span class="number">1.770279</span>  <span class="number">0.378315</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-3-iloc"><a href="#2-3-3-iloc" class="headerlink" title="2.3.3 .iloc"></a>2.3.3 <code>.iloc</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一个单元格：</span></span><br><span class="line">df.iloc[rowNo].col</span><br><span class="line">df.iloc[rowNo][col]</span><br><span class="line">df.iloc[rowNo,colNo]</span><br><span class="line"><span class="comment"># 不支持 df.iloc[rowNo,col]</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取一行多列：</span></span><br><span class="line">df.iloc[rowNo,firestColNo,endColNo]</span><br><span class="line">df.iloc[rowNo][[col1,col2]]</span><br><span class="line">df.iloc[rowNo][firesCol:endCol]</span><br><span class="line"><span class="comment"># 不支持 df.iloc[rowNo,[col1,col2]]</span></span><br><span class="line"><span class="comment"># 不支持 df.iloc[rowNo,firstColNo:endColNo]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>,<span class="number">1</span>:<span class="number">3</span>]</span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>][[<span class="string">'A'</span>,<span class="string">'B'</span>]]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>][<span class="string">'A'</span>:<span class="string">'C'</span>]</span><br><span class="line">A    <span class="number">1.787797</span></span><br><span class="line">B    <span class="number">0.366138</span></span><br><span class="line">C   <span class="number">-0.668013</span></span><br><span class="line">Name: <span class="number">1</span>, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行一列：</span></span><br><span class="line">df.iloc[[rowNo1,rowNo2],colNo]</span><br><span class="line">df.iloc[firstRowNo:endRowNo,colNo]</span><br><span class="line">df.iloc[[rowNo1,rowNo2]][col]</span><br><span class="line">df.iloc[firstRowNo,endRowNo][col]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>:<span class="number">3</span>,<span class="number">1</span>]</span><br><span class="line"><span class="number">1</span>    <span class="number">0.366138</span></span><br><span class="line"><span class="number">2</span>   <span class="number">-1.332709</span></span><br><span class="line">a   <span class="number">-0.427358</span></span><br><span class="line">Name: B, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">1</span>:<span class="number">3</span>][<span class="string">'A'</span>]</span><br><span class="line"><span class="number">2</span>    <span class="number">0.098504</span></span><br><span class="line">a   <span class="number">-0.361166</span></span><br><span class="line">Name: A, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">4</span>]][<span class="string">'A'</span>]</span><br><span class="line"><span class="number">2</span>            <span class="number">0.098504</span></span><br><span class="line">a           <span class="number">-0.361166</span></span><br><span class="line"><span class="number">2006</span><span class="number">-10</span><span class="number">-1</span>   <span class="number">-0.628970</span></span><br><span class="line">Name: A, dtype: float64</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取多行多列：</span></span><br><span class="line">df.iloc[firstRowNo:endRowNo,firstColNo:endColNo]</span><br><span class="line">df.iloc[[RowNo1,RowNo2],[ColNo1,ColNo2]]</span><br><span class="line">df.iloc[firstRowNo:endRowNo][[col1,col2]]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>:<span class="number">3</span>,<span class="number">1</span>:<span class="number">4</span>]</span><br><span class="line">          B         C         D</span><br><span class="line"><span class="number">1</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"><span class="number">2</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">0</span>:<span class="number">3</span>, [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]]</span><br><span class="line">          B         C         D</span><br><span class="line"><span class="number">1</span>  <span class="number">0.366138</span> <span class="number">-0.668013</span>  <span class="number">0.554594</span></span><br><span class="line"><span class="number">2</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span>  <span class="number">0.508395</span></span><br><span class="line">a <span class="number">-0.427358</span>  <span class="number">0.423340</span> <span class="number">-2.039099</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.iloc[<span class="number">1</span>:<span class="number">3</span>][[<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>]]</span><br><span class="line">          A         B         C</span><br><span class="line"><span class="number">2</span>  <span class="number">0.098504</span> <span class="number">-1.332709</span> <span class="number">-0.420558</span></span><br><span class="line">a <span class="number">-0.361166</span> <span class="number">-0.427358</span>  <span class="number">0.423340</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-4-ix-at-iat"><a href="#2-3-4-ix-at-iat" class="headerlink" title="2.3.4 .ix at iat"></a>2.3.4 <del><code>.ix</code> <code>at</code> <code>iat</code></del></h3><p><code>ix</code>,<code>at</code>,<code>iat</code>不推荐使用</p>
+<h1 id="3-写DataFrame-DataFrame赋值"><a href="#3-写DataFrame-DataFrame赋值" class="headerlink" title="3 写DataFrame/DataFrame赋值"></a>3 写DataFrame/DataFrame赋值</h1><h2 id="3-1-按列赋值"><a href="#3-1-按列赋值" class="headerlink" title="3.1 按列赋值"></a>3.1 按列赋值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">df.col=colList/colValue</span><br><span class="line">df[col]=colList/colValue</span><br><span class="line"><span class="comment"># 如果用一个列表或数组赋值，其长度必须和df的行数相同。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.A=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'A'</span>]=<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-2-按行赋值"><a href="#3-2-按行赋值" class="headerlink" title="3.2 按行赋值"></a>3.2 按行赋值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df.loc[row]=rowList</span><br><span class="line">df.loc[row]=rowValue</span><br></pre></td></tr></table></figure>
+<h2 id="3-3-给多行多列赋值"><a href="#3-3-给多行多列赋值" class="headerlink" title="3.3 给多行多列赋值"></a>3.3 给多行多列赋值</h2><p>DataFrame的读写操作是多变的，这里也仅仅列出了几种常用的方法，熟练一种方式即可。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df.loc[[row1,row2],[col1,col2]]=value/valueList</span><br><span class="line">df.iloc[[rowNo1,rowNo2],[colNo1,colNo2]]=value/valueList</span><br><span class="line">df.iloc[[rowNo1,rowNo2]][[col1,col2]]=value/valueList</span><br><span class="line">df.ix[firstRow:endRow,firstCol:endCol]=value/valueList</span><br></pre></td></tr></table></figure></p>
+<h1 id="4-DataFrame的插入"><a href="#4-DataFrame的插入" class="headerlink" title="4 DataFrame的插入"></a>4 DataFrame的插入</h1><p>初始化 DataFrame, 以下面DataFrame为例展开说明<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line">df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获得如下DataFrame</span></span><br><span class="line">        one  two     three</span><br><span class="line"><span class="number">1</span> <span class="number">-1.183802</span>  <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>  <span class="number">1.426724</span>  <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span> <span class="number">-1.530958</span>  <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span> <span class="number">-0.939147</span>  <span class="number">4.0</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="4-1-在任意位置插入"><a href="#4-1-在任意位置插入" class="headerlink" title="4.1 在任意位置插入"></a>4.1 在任意位置插入</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 插入一列</span></span><br><span class="line">insert(ioc,column,value)</span><br><span class="line"><span class="comment"># ioc:要插入的位置</span></span><br><span class="line"><span class="comment"># colunm:列名</span></span><br><span class="line"><span class="comment"># value:值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.insert(<span class="number">2</span>,<span class="string">'four'</span>,[<span class="number">11</span>,<span class="number">22</span>,<span class="number">33</span>,<span class="number">44</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">        one  two  four     three</span><br><span class="line"><span class="number">1</span> <span class="number">-1.417222</span>  <span class="number">1.0</span>    <span class="number">11</span>  zhangsan</span><br><span class="line"><span class="number">2</span>  <span class="number">1.251673</span>  <span class="number">2.0</span>    <span class="number">22</span>        李四</span><br><span class="line"><span class="number">3</span> <span class="number">-0.103710</span>  <span class="number">3.0</span>    <span class="number">33</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span> <span class="number">-1.237722</span>  <span class="number">4.0</span>    <span class="number">44</span>       <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 插入一行</span></span><br><span class="line">row=&#123;<span class="string">'one'</span>:<span class="number">111</span>,<span class="string">'two'</span>:<span class="number">222</span>,<span class="string">'three'</span>:<span class="number">333</span>&#125;</span><br><span class="line">df.loc[<span class="number">1</span>]=row       <span class="comment"># or</span></span><br><span class="line">df.iloc[<span class="number">1</span>]=row      <span class="comment"># or</span></span><br><span class="line">df.ix[<span class="number">1</span>]=row</span><br></pre></td></tr></table></figure>
+<h2 id="4-2-在末尾插入"><a href="#4-2-在末尾插入" class="headerlink" title="4.2 在末尾插入"></a>4.2 在末尾插入</h2><p>如果插入一行或一列，用上面的方法把插入位置改为末尾即可，下面给出插入多行多列的方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 按列合并, 插入多行</span></span><br><span class="line">df.append(df2)</span><br><span class="line"><span class="comment"># 效果等同于 pd.concat([df,df2],axis=0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="comment"># 初始化列表df, df2, 用于列合并</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:[<span class="number">222</span>,<span class="number">214</span>],<span class="string">"two"</span>:np.linspace(<span class="number">11</span>,<span class="number">22</span>,<span class="number">2</span>), <span class="string">"three"</span>:[<span class="string">'AAA'</span>, <span class="string">'BBB'</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2=pd.DataFrame(data)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.append(df2)</span><br><span class="line">          one   two     three</span><br><span class="line"><span class="number">1</span>    <span class="number">0.168605</span>   <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>    <span class="number">0.466244</span>   <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span>   <span class="number">-0.176716</span>   <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span>    <span class="number">1.066139</span>   <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"><span class="number">0</span>  <span class="number">222.000000</span>  <span class="number">11.0</span>       AAA</span><br><span class="line"><span class="number">1</span>  <span class="number">214.000000</span>  <span class="number">22.0</span>       BBB</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 插入多行多列</span></span><br><span class="line">pandas.concat(objs, axis=<span class="number">0</span>, join_axes=<span class="keyword">None</span>, ignore_index=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># objs:合并对象</span></span><br><span class="line"><span class="comment"># axis:合并方式，默认0表示按列合并，1表示按行合并</span></span><br><span class="line"><span class="comment"># ignore_index:是否忽略索引</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按行合并</span></span><br><span class="line">初始化列表df, df1, 用于行合并</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"four"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"five"</span>:np.linspace(<span class="number">1</span>,<span class="number">100</span>,<span class="number">4</span>)&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df1=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df1</span><br><span class="line">       four   five</span><br><span class="line"><span class="number">1</span> <span class="number">-0.119780</span>    <span class="number">1.0</span></span><br><span class="line"><span class="number">2</span> <span class="number">-0.290202</span>   <span class="number">34.0</span></span><br><span class="line"><span class="number">3</span>  <span class="number">1.209032</span>   <span class="number">67.0</span></span><br><span class="line"><span class="number">4</span>  <span class="number">0.997500</span>  <span class="number">100.0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pd.concat([df,df1],axis=<span class="number">1</span>)</span><br><span class="line">        one  two  four     three      four   five</span><br><span class="line"><span class="number">1</span> <span class="number">-1.417222</span>  <span class="number">1.0</span>    <span class="number">11</span>  zhangsan <span class="number">-0.119780</span>    <span class="number">1.0</span></span><br><span class="line"><span class="number">2</span>  <span class="number">1.251673</span>  <span class="number">2.0</span>    <span class="number">22</span>      李四 <span class="number">-0.290202</span>   <span class="number">34.0</span></span><br><span class="line"><span class="number">3</span> <span class="number">-0.103710</span>  <span class="number">3.0</span>    <span class="number">33</span>       <span class="number">999</span>  <span class="number">1.209032</span>   <span class="number">67.0</span></span><br><span class="line"><span class="number">4</span> <span class="number">-1.237722</span>  <span class="number">4.0</span>    <span class="number">44</span>       <span class="number">0.1</span>  <span class="number">0.997500</span>  <span class="number">100.0</span></span><br><span class="line"><span class="comment"># 若 df2 和 df 的列数不相同, 空缺的行内容会别填充为 NaN</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按列合并</span></span><br><span class="line"><span class="comment"># 初始化列表df, df2, 用于列合并</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:np.random.randn(<span class="number">4</span>),<span class="string">"two"</span>:np.linspace(<span class="number">1</span>,<span class="number">4</span>,<span class="number">4</span>),<span class="string">"three"</span>:[<span class="string">'zhangsan'</span>,<span class="string">'李四'</span>,<span class="number">999</span>,<span class="number">0.1</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df=pd.DataFrame(data,index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data=&#123;<span class="string">"one"</span>:[<span class="number">222</span>,<span class="number">214</span>],<span class="string">"two"</span>:np.linspace(<span class="number">11</span>,<span class="number">22</span>,<span class="number">2</span>), <span class="string">"three"</span>:[<span class="string">'AAA'</span>, <span class="string">'BBB'</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2=pd.DataFrame(data)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2</span><br><span class="line">   one   two three</span><br><span class="line"><span class="number">0</span>  <span class="number">222</span>  <span class="number">11.0</span>   AAA</span><br><span class="line"><span class="number">1</span>  <span class="number">214</span>  <span class="number">22.0</span>   BBB</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pd.concat([df,df2],axis=<span class="number">0</span>)                                                                 &#125;</span><br><span class="line">          one   two     three</span><br><span class="line"><span class="number">1</span>    <span class="number">0.034967</span>   <span class="number">1.0</span>  zhangsan</span><br><span class="line"><span class="number">2</span>   <span class="number">-1.888495</span>   <span class="number">2.0</span>        李四</span><br><span class="line"><span class="number">3</span>    <span class="number">1.045013</span>   <span class="number">3.0</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span>   <span class="number">-0.313027</span>   <span class="number">4.0</span>       <span class="number">0.1</span></span><br><span class="line"><span class="number">0</span>  <span class="number">222.000000</span>  <span class="number">11.0</span>       AAA</span><br><span class="line"><span class="number">1</span>  <span class="number">214.000000</span>  <span class="number">22.0</span>       BBB</span><br><span class="line"><span class="comment"># 若 df2 和 df 的列数不相同, 空缺的列内容会别填充为 NaN</span></span><br></pre></td></tr></table></figure>
+<h1 id="5-DataFrame的删除操作"><a href="#5-DataFrame的删除操作" class="headerlink" title="5 DataFrame的删除操作"></a>5 DataFrame的删除操作</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">drop(labels, axis=<span class="number">0</span>, level=<span class="keyword">None</span>, inplace=<span class="keyword">False</span>)</span><br><span class="line"><span class="comment"># lables：要删除数据的标签</span></span><br><span class="line"><span class="comment"># axis：0表示删除行，1表示删除列，默认0</span></span><br><span class="line"><span class="comment"># inplace:是否在当前df中执行此操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果演示</span></span><br><span class="line"><span class="comment"># 下述操作不会影响 df 本身, 因为没有被重新赋值.</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.drop([<span class="string">'one'</span>,<span class="string">'two'</span>],axis=<span class="number">1</span>)</span><br><span class="line">      three</span><br><span class="line"><span class="number">1</span>  zhangsan</span><br><span class="line"><span class="number">2</span>        李四</span><br><span class="line"><span class="number">3</span>       <span class="number">999</span></span><br><span class="line"><span class="number">4</span>       <span class="number">0.1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.drop([<span class="number">1</span>,<span class="number">3</span>],axis=<span class="number">0</span>)</span><br><span class="line">        one  two three</span><br><span class="line"><span class="number">2</span>  <span class="number">0.466244</span>  <span class="number">2.0</span>    李四</span><br><span class="line"><span class="number">4</span>  <span class="number">1.066139</span>  <span class="number">4.0</span>   <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<h1 id="6-DataFrame的高级操作"><a href="#6-DataFrame的高级操作" class="headerlink" title="6 DataFrame的高级操作"></a>6 DataFrame的高级操作</h1><h2 id="6-1-drop-duplicates-删除重复行"><a href="#6-1-drop-duplicates-删除重复行" class="headerlink" title="6.1 drop_duplicates 删除重复行"></a>6.1 <code>drop_duplicates</code> 删除重复行</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df.drop_duplicates()                    <span class="comment"># 删除重复行</span></span><br><span class="line">df.drop_duplicates([<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>])       <span class="comment"># 指定要判断的列, 删除重复内容的行.</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-2-fillnan-填充无效值"><a href="#6-2-fillnan-填充无效值" class="headerlink" title="6.2 fillnan 填充无效值"></a>6.2 <code>fillnan</code> 填充无效值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df.fillna(<span class="string">'我是无效值'</span>)                  <span class="comment"># 将 NaN 替换为 '我是无效值'</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>转载自 <a href="https://blog.csdn.net/xtfge0915/article/details/52938740#" target="_blank" rel="noopener">pandas 入门：DataFrame的创建，读写，插入和删除</a> 和 <a href="https://blog.csdn.net/xtfge0915/article/details/83477062" target="_blank" rel="noopener">pandas进阶：DataFrame高级操作</a>有删改</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/05/19/1904-python-error/" itemprop="url">
+                  Python 错误及解决方法
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-05-19T00:00:00+10:00" content="2019-05-19">
+              2019-05-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="UnicodeEncodeError-‘charmap’-codec-can’t-encode-characters"><a href="#UnicodeEncodeError-‘charmap’-codec-can’t-encode-characters" class="headerlink" title="UnicodeEncodeError: ‘charmap’ codec can’t encode characters"></a>UnicodeEncodeError: ‘charmap’ codec can’t encode characters</h1><ul>
+<li>此问题多发生在windows的区域和开发中用到在字符不匹配. 譬如英文区域的windows要编解码中文字符.</li>
+<li>原因及解决方法参考 <a href="https://blog.csdn.net/haiross/article/details/36189103" target="_blank" rel="noopener">代码页即地狱</a></li>
+</ul>
+<p>简单来说, 就是windows底层编码的问题. 要解决这个问题, 只能从windows系统着手.</p>
+<p><img src="https://draapho.github.io/images/1904/Region.png" alt="Region"></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2019/04/26/1903-wave-principle/" itemprop="url">
                   波浪理论
                 </a>
@@ -280,6 +570,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/market/" itemprop="url" rel="index">
+                    <span itemprop="name">market</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -640,6 +949,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/market/" itemprop="url" rel="index">
+                    <span itemprop="name">market</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -1063,6 +1391,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/thoughts/" itemprop="url" rel="index">
+                    <span itemprop="name">thoughts</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -1343,6 +1690,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/thoughts/" itemprop="url" rel="index">
+                    <span itemprop="name">thoughts</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -1873,6 +2239,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/thoughts/" itemprop="url" rel="index">
+                    <span itemprop="name">thoughts</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -2175,7 +2560,6 @@
 <li>但孔子作为源头, 是无需背负这些骂名的, 看看”缠中说禅”的《论语》, 或许能看到孔子的原意.</li>
 </ul>
 </li>
-<li>另外两个世界性宗教基本不允许质疑, 宣扬的东西有过于明显的内在矛盾, 实在入不了眼. 《圣经》和《古兰经》不看也罢.</li>
 </ul>
 <hr>
 <blockquote>
@@ -2209,572 +2593,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/07/08/1818-buddhism/" itemprop="url">
-                  佛教学习资料及一些感想
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-07-08T00:00:00+10:00" content="2018-07-08">
-              2018-07-08
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/10/09/1728-ultimatethink/">我的终极思考</a></li>
-<li><a href="https://draapho.github.io/2018/04/12/1815-suspend/">博客暂停更新</a></li>
-<li><a href="https://draapho.github.io/2018/07/08/1818-buddhism/">佛教学习资料及一些感想</a></li>
-<li><a href="https://draapho.github.io/2018/11/29/1819-start-meditation/">实修开始</a></li>
-<li><a href="https://draapho.github.io/2018/12/27/1820-meditation-LCP/">闻思修</a></li>
-<li><a href="https://draapho.github.io/2019/03/19/1901-tittle-tattle/">杂谈</a></li>
-<li><a href="https://draapho.github.io/2019/07/26/1910-satori/">开悟是怎样一种体验？</a></li>
-</ul>
-<h1 id="传承中的变异"><a href="#传承中的变异" class="headerlink" title="传承中的变异"></a>传承中的变异</h1><p>知识,理论, 宗教的传承中, 变异是时刻都存在的. 简单如拷贝不走样这种游戏, 奖励机制是如果信息传递过程中没有走样, 就算赢, 属于正向激励, 其结果都往往是严重走样, 更别说实际的知识和理论的传播者往往是带有强烈目的性的, 更容易选择性的删去不利于自己的东西, 加入一些有利于自己的东西. 最终到了当下, 看到的理论也就不可能是干净和纯粹的了, 其中不知夹杂了多少传播者的私货! 辨别这种变异很容易, 就是看有没有利益关系. 知识/理论/宗教的传播多半需要统治者支持才能在空间广度上扩大影响, 时间宽度上通向未来, 那么这些”文化”需要部分有利于统治阶级也非常可以理解了. 简单举几个例子:</p>
-<ul>
-<li>后世的儒教早已和孔子的儒家分道扬镳, 儒教将儒家利于帝王统治和愚民的部分发扬光大, 将孔子的本意或含糊其辞或略去不表, 从而到达自己的目的. 这种对比, 可以去看下<a href="http://blog.sina.com.cn/s/articlelist_1215172700_8_1.html" target="_blank" rel="noopener">缠中说禅的论语详解</a>, 至少我通读下来, 其解释更符合逻辑, 缠中说禅本人和论语也无什么明显的利害关系. 也可以去看看南怀瑾的<a href="http://www.quanxue.cn/CT_NanHuaiJin/LunYuIndex.html" target="_blank" rel="noopener">论语别裁</a>, 反正最不可信的就是御用文官的解释, 最可信的就是直接出自孔子的语句.</li>
-<li>马克思的资本论和马克思主义也是牛头不对马嘴的两套东西. 资本论分析了资本主义的发展过程, 并希望分析出社会的运动法则. 这是一套非常客观的分析, 当下的世界还没有跳出资本论的范畴. 苏维埃和中共, 都是将资本论作为革X命X的理论依据, 以此打天下(替资本论行道!). 到了坐天下时, 两者都走成了国家资本主义. 如果后世拿着中苏官方的研究文档去看资本论, 那就是南辕北辙!</li>
-<li>再说说当世最严谨的科学研究: 科研项目需要资金支持, 资金有利益倾向. 因而有不少研究成果对资金利益有明显的倾向性已经是不争的事实. 有些”科学家”成为企业御用笔手也越来越常态化, 这和御用文人如出一辙! 这在医用, 保健品, 农业公司尤其明显!</li>
-<li>佛教也是如此, 求神拜佛, 许愿放生自不用说, 哪怕想精进学习, 接触一点本质的东西, 也是真伪难辨. 粗看大乘小乘, 诸多流派, 就深深感受到传承中因自利而导致的变异. 大乘和禅的顿悟流行于中国一点都不奇怪, 国人向来好高骛远, 爱走捷径, 实修,  工匠精神之类的从来没有成为过主流(这里强调的是大乘和禅在中国广为流传的思想基础, 并不是说大乘和禅的高僧大德自身缺乏实修). 而印度本土佛教最终被印度教同化, 藏传佛教走上了政教合一. 这么多的演变, 什么是真, 什么是假, 具体门派的和尚们恐怕是只缘身在此山中, 门外汉更是茫茫然不知所措</li>
-</ul>
-<p>综上, 尽信书不如无书. 信不信一套东西, 最终还是要通过自己的思考, 辨别和选择. 非常可惜, 国内教育就是告诉你应该信这个, 不应该信那个. 独立性思维是从来没有提及的, 更不会去教授了. 当然这是自古以来的有意为之.</p>
-<h1 id="佛教参考资料"><a href="#佛教参考资料" class="headerlink" title="佛教参考资料"></a>佛教参考资料</h1><ul>
-<li><a href="http://www.hhfg.org/jcjx.html" target="_blank" rel="noopener">慧海佛光-基础教学</a><ul>
-<li><a href="http://www.hhfg.org/jcjx/f47.html" target="_blank" rel="noopener">印度佛教史</a>, 必看</li>
-</ul>
-</li>
-<li><a href="http://blog.sina.com.cn/s/articlelist_2570995211_0_1.html" target="_blank" rel="noopener">Aggavara的博客</a><ul>
-<li><a href="http://blog.sina.cn/dpool/blog/s/blog_993e460b0101alhp.html" target="_blank" rel="noopener">原始佛教修学指南（博客导读）</a>, 实修, 推荐看</li>
-<li><a href="http://blog.sina.cn/dpool/blog/s/blog_993e460b0101a70f.html?vt=4" target="_blank" rel="noopener">个人推荐的一些禅修书籍下载（含阅读指导）</a></li>
-<li><a href="http://blog.sina.com.cn/s/blog_993e460b01012hsp.html" target="_blank" rel="noopener">简述原始佛教核心思想</a></li>
-<li><a href="https://www.meiwen.com.cn/subject/twmdsftx.html" target="_blank" rel="noopener">一张简单图片演示的“甚深佛法”</a></li>
-<li><a href="http://blog.sina.com.cn/s/blog_6a0da51a0101asxu.html" target="_blank" rel="noopener">几年来深入思考和佛法禅修实践的总结</a>, 对上图的补充说明</li>
-</ul>
-</li>
-<li><a href="http://agama.buddhason.org/index.htm" target="_blank" rel="noopener">莊春江工作站</a>, 最接近原始佛教的内容, 必看.<ul>
-<li><a href="http://agama.buddhason.org/SN/index.htm" target="_blank" rel="noopener">汉译相应部</a>, 建议从此处开始看.</li>
-<li><a href="https://zh.wikipedia.org/wiki/%E9%98%BF%E5%90%AB%E7%B6%93" target="_blank" rel="noopener">阿含经与尼柯耶的关系</a></li>
-</ul>
-</li>
-<li><a href="https://wenku.baidu.com/view/72640dea172ded630b1cb6a0.html" target="_blank" rel="noopener">定慧之路-致光法师</a>, 介绍了定慧的关系, 定主要介绍的吐息法. 可看.</li>
-<li>大佛顶首楞严经, 心经, 金刚经. 自己还没看, 暂不推荐.</li>
-<li><a href="http://www.quanxue.cn/CT_NanHuaiJin/index.html" target="_blank" rel="noopener">南怀瑾全集</a>. 太杂, 不成体系, 不推荐</li>
-</ul>
-<h1 id="我对佛教的认识"><a href="#我对佛教的认识" class="headerlink" title="我对佛教的认识"></a>我对佛教的认识</h1><p>接触佛教一年不到, 洋洋洒洒粗看了一些佛教相关的书籍, 对佛教的认识肯定是粗浅的. 现在将入门阶段的心得写下一二, 若有缘, 希望能帮助与我有类似背景的人入门能快一些, 少走一些弯路.</p>
-<p>通读<a href="http://www.hhfg.org/jcjx/f47.html" target="_blank" rel="noopener">印度佛教史</a>. 有助于快速抓住佛教的发展脉络, 大致了解原始佛教, 上座部(小乘), 大众部(发展为大乘)的区别和联系. 两者起源于释迦摩尼时代的原始佛教, 因为一些认知的差别, 分裂了. 小乘是大乘佛教对上座部的称呼, 上座部本身是不承认这个叫法的. 在我看来, 上座部更完整的传承了原始佛教, 大乘则更注重于佛教的发展和进化. 中国是流行大乘佛教的, 可惜大乘佛教资料繁杂, 派别众多, 很容易感觉无从入手, 纵览群书而不得要领. 看看<a href="http://www.hhfg.org/jcjx.html" target="_blank" rel="noopener">慧海佛光-基础教学</a>里佛教的定义及分类, 便可知众人对佛教认知的多样性和复杂性了.</p>
-<p>释迦摩尼的原始佛教其实并不复杂, 有明确的目标, 清晰的学习方法. 释迦摩尼就是教师, 告知大家<strong>诸行无常、诸法无我、涅槃寂静</strong>. 诸行无常是佛教的世界观, 诸法无我是教学的方法和纲领, 涅槃寂静是学习的最终目标. 释迦摩尼在世时, 唯一关注的重点就是教众人”离苦得乐”的方法, 即实修的方法, 以此为核心, 会根据不同的人的根性, 做相应的说法. 而对于形而上的哲学问题, 他一概认为不重要, 可参考 <a href="https://baike.baidu.com/item/%E5%8D%81%E5%9B%9B%E6%97%A0%E8%AE%B0" target="_blank" rel="noopener">十四无记</a>, 另一个比喻是<a href="http://agama.buddhason.org/MA/MAsearch1.php?str=%E7%AE%AD%E5%96%BB&amp;path=MA221.htm" target="_blank" rel="noopener">中阿含221經/箭喻經</a>, 他将人生在世和轮回比喻为身中毒箭之人, 哪还需要去管什么箭从哪里来, 用什么做的, 给我看病的医生是谁这种不紧急的事.</p>
-<p>逻辑上讲, 人生在世和不断轮回是苦, 是等同于身中毒箭之人这一观念是主观的, 对释迦摩尼而言, 十四无记里的问题是舍本求末, 没有意义的, 但不等于这些问题不值得探索. 而且, 如果去探讨毒箭何处射来, 用何材质, 飞行原理如何, 毒性如何, 都是有助于帮助更多身中毒箭的人离苦的. 在我看来, 释迦摩尼是消极厌世的, 他看到了太多的苦难, 觉得一切皆苦, 所以他的教学目的就是非常明确的涅槃寂静: 看到一切都是变化无常的, 变化无常就是苦, 现在有一种方法(诸法无我, 戒定慧)不但让你认识到诸行无常, 还能让人们脱离这种变化无常, 到达涅槃寂静.</p>
-<p>还没完全信佛教, 那为什么还是想学佛法? 释迦摩尼时代的教徒, 也有很多人带着疑问在学佛, 并不是要全信了佛说的话才能学, 原始佛教是一门实修的课程, 有兴趣就能参加. 至于佛说的, 边学边去验证真伪不就行了, 释迦摩尼从来没说过学徒不能存疑. 进一步而言, 目的和方法是两回事情, 当下, 我无法认同原始佛教的最终目的, 但对佛教授的方法已经完全认同了. 如果用戒定慧的方法最终做到诸法无我, 相当于心无所执, 那无论做什么事情, 对个人对家庭对社会, 都是有百利而无一害, 看问题也会更通透. 至于神通, 轮回和诸行无常, 我已相信, 但没什么能力去证明. 而且对这些的信或不信, 丝毫不影响从戒定慧开始的实修.</p>
-<p>再说一说为何要从原始佛教开始, 以及如何开始实修. 整个佛教体系, 是动态发展到当下这种情况的, 佛教的内部派系之间, 和外部宗教之间, 都充满了利益冲突, 如果都如雪山部与世无争, 其结局就是灭亡. 因而存活下来的佛教, 都是某种与人文环境妥协的产物. 由于这种原因, 看现代的佛教有如乱麻, 各种说法, 各种相面都有. 而抓住原始佛教这个源头, 有了一定观念和实修的基础以后在去了解后续变化发展后的佛教, 选择自己感兴趣的, 无疑就是最正确的学习方式了. 原始佛教的核心思想可参考 <a href="http://blog.sina.com.cn/s/blog_993e460b01012hsp.html" target="_blank" rel="noopener">简述原始佛教核心思想</a>. 简单归纳如下:</p>
-<ul>
-<li>佛法实修的根本方法: 观察色法(物质现象)和名法(精神现象), 出发点都是<a href="https://baike.baidu.com/item/%E4%BA%94%E8%95%B4" target="_blank" rel="noopener">五蕴</a>(可以简单理解为感官, 并把整个感受的过程细化开来).</li>
-<li>佛法观察的对象: 四念处. 即: 身念处，受念处，心念处，法念处. 简单来说, 就是达到<a href="https://baike.baidu.com/item/%E5%9B%9B%E7%A6%85%E5%85%AB%E5%AE%9A#2_1" target="_blank" rel="noopener">四禅八定</a>中的某一级别后(初禅二禅三禅四禅, 每一禅内部又分近行定和安止定两种), 去客观观察自身的种种感受和想法. 重点是客观, 是无我. 不能有控制, 想要之类的念头, 也不是学了一些方法后, 觉得自己观察到了方法中暗示的内容.</li>
-<li>戒定慧的关系: 戒是身行, 人众时, 需要有明确的戒才能组织管理众人. 但行终究是给外人看的, 戒的重点在心而不在行. 定是通法而非佛法独有, 可以简单理解为心的专注程度, 练习定最简单的方法是以一念代万念, 难一点的是不生一念, 其它的如姿势等都没那么重要. 慧是佛法的重点, 这里的慧, 就是指通过观察四念处, 最终体悟到诸行无常、诸法无我. 没有定是观察不了四念的, 也就不可能有慧, 因而定是慧的基础. 但有一定程度的定以后, 则可以定慧相互促进. 定与慧的关系可参考 <a href="https://wenku.baidu.com/view/72640dea172ded630b1cb6a0.html" target="_blank" rel="noopener">定慧之路-致光法师</a>. 目前面主流的灵修类书籍和体验, 大多停留在教人如何定的范畴里面. 释迦摩尼时代, 已经得定者众多(当时印度教派众多且流行苦行), 因而听了释迦摩尼的教导去观慧得解脱也要容易的多, 别人戒和定的基础都非常好. 现代人做到戒, 练习定都比较困难, 更别说进一步的慧了.</li>
-<li>四念处直至涅槃的过程简述: 不用去详细了解, 实修到了哪个阶段, 再细细研判即可. 过程罗列如下<code>名色识别</code>-&gt;<code>生灭</code>-&gt;<code>缘起</code>-&gt;<code>厌离</code>-&gt;<code>舍</code>-&gt;<code>证悟</code></li>
-<li>如何开始实修: 我个人是看了艾克哈特·托勒的《当下的力量》体验到<a href="https://baike.baidu.com/item/%E5%9B%9B%E7%A6%85%E5%85%AB%E5%AE%9A" target="_blank" rel="noopener">四禅八定</a>里的细心住, 后来接触佛教后, 坚持了一阵打坐, 最多也就到初禅, 而且只要稍不练习, 就会明显退步. 但这已经足够升起自己的信心了, 把自己的体验和所说的初禅一对比, 就知道所言不虚. 我明确说, 不用拿世俗上的恋爱, 性交等体验去对比, 两者不是一个层次, 这还仅仅是初禅. 写在这里, 也算一个诱惑, 但千万别去贪恋和执着任何感受, 诸法无我!</li>
-</ul>
-<p>最后说说佛法的科学性. 维基百科对科学有如下定义: <code>科学是通过经验实证的方法，对现象（原来指自然现象，现泛指包括社会现象等现象）进行归因的学科。科学活动所得的知识是条件明确的（不能模棱两可或随意解读）、能经得起检验的，而且不能与任何适用范围内的已知事实产生矛盾。</code>. 我对科学的认知就是: 逻辑性的怀疑和批判精神, 如果一个理论在一定的认知范围内, 疑无可疑, 批无可批, 就是科学的理论. 而不科学并不一定就是错的, 其表达的内容为一个理论或想法, 或被证伪了(错的), 或存疑没有定论, 两者都是不科学. 因而可以这样说, 中医是不科学的, 但不意味着中医就是错的, 仅仅是因为当今的手段无法证伪或证真, 存疑而已. 而牛顿经典力学放在微观领域, 是不科学的, 这已经被证伪了.</p>
-<p>通过前文的介绍, 想必已经知道释迦摩尼真正关注只是教人实修的方法, 并加了自己厌世的观点而提出了一个终极目标. 去掉明显带有主观性的终极目标, 其教授的这套方法其实是非常科学而客观的. 首先要求的就是戒定慧和诸法无我(经验实证的方法), 要去掉主观判断来观察自身的客观身心表现(对现象进行归因, 即诸行无常). 这一整套方法和体验已经被非常多的人重复过了(条件明确, 经得起检验). 定是先决条件, 就好比研究粒子现象需要粒子加速器, 要观察自身就需要定! 个人没有定, 体验不到慧, 并不能说佛法不科学. 人们总不能说, 我没亲眼看到过粒子加速器里粒子的表现, 就直接说量子力学是不科学的吧? 再进一步追问, 我们自己明明没有做过任何关于量子力学的实验, 为什么很自然的就认为量子力学是科学的?</p>
-<p>综上, 只有从释迦摩尼亲自教导的实修方法出发, 才最少的受宗教, 神化, 利益等等世俗观念的影响, 最为客观, 最能直观佛法的核心, 方能自己去判断佛法的对错和真伪, 这也才是最科学的态度. 学习佛教, 千万别去纠结于流传于世的各种观念, 所有的这些观念都无助于实修.</p>
-<h1 id="一个妄想"><a href="#一个妄想" class="headerlink" title="一个妄想"></a>一个妄想</h1><p>在<a href="https://www.meiwen.com.cn/subject/twmdsftx.html" target="_blank" rel="noopener">一张简单图片演示的“甚深佛法”</a> 和 <a href="http://blog.sina.com.cn/s/blog_6a0da51a0101asxu.html" target="_blank" rel="noopener">几年来深入思考和佛法禅修实践的总结</a> 提出了这么一点: <strong>“当观察存在了，则有被观察者的存在。因为观察生起，则被观察者生起，当观察不存在了，则没有被观察者的存在，因为观察的灭去，则有被观察者的灭去。”</strong>, 后文是对前文的补充, 就是反之亦然, 观察者和被观察者同生同灭. 这就很有意思了, 而且我认为这非常接近世界的本源了. 量子力学, 多多少少也体现了这么一种可能性.</p>
-<p>这里, 我从交易市场出发, 来详细说明这里面的因果. 交易市场的最低级别是个人发出的一笔笔交易信息, 是断续的, 一份一份的. 最终走出的行情, 就如山峦一样起起伏伏. 请问, 交易市场这个事物, 是客观存在的吗? 是唯物的还是唯心的? 交易者(观察者)和股市市场(被观察者)是一种什么样的关系? 交易市场, 只要具有贪嗔的生命体在里面交易, 它就会一直客观的存在着! 当所有生命体不在关注股票市场时, 它就消亡了. 本质上, 交易市场诞生于人类的心念, 也可终结于人类的心念. 注意: 一二个个体的退出对股票市场毫无影响, 必须是参与其中的所有个体整体退出! 因而可以说: 交易市场诞生于人类的心念, 也可以由人类全体不参与股票市场而被终结! 这里可以进一步的说, 对应着由观察者心念生起而生起, 因观察者心念灭去而灭去! 而交易市场的灭去, 同样意味着所有观察交易市场的心念没了寄托之处, 也灭去了.</p>
-<p>然后, 交易市场和观察者是如何因缘互动的呢? 当你我真金实银炒股时, 只要看一眼股市, 你我就由于贪嗔痴, 在当下与股市产生了互动. 因为这意味着将来某个时候你必定会基于当下这一眼的观察和后续一些列的观察而产生买卖操作. 你我一旦进行了买卖操作, 就事实上对股市走动产生了影响. 进一步推论就是: 只要你我真金实银的在炒股, 那么哪怕就是看一眼股市, 都会对股市走动产生影响(影响发生在未来)! 要在交易市场里涅槃, 对个人而言就比较简单: 没有参与其中的心念. 这时候, 你看走势就是走势, 你的心态和股市都毫无影响. 而大乘的观点是, 佛要参与到交易市场, 但是佛的心态毫无波澜, 并去告知交易市场充满了不确定性和痛苦, 赶快离开交易市场吧(这就是大乘佛教提出的终极目标). 交易市场的结论: 诸势无常, 诸利无我, 涅槃寂灭. 交易市场的走势是无常的, 交易市场的盈亏与我无关, 那么对于交易市场, 我涅槃寂静, 玩笑了.</p>
-<p>分析好了交易市场, 那么再推广到人类创造的汽车, 轮船, 大楼, 城市, 以及不是由人创造的草木, 山水等事物, 又如何呢? 很难想象这些实物会因为人去而消失吧? 这里面有个级别问题. 学过缠论的话的知道, 走势有时空上的自相似性. 同一尺度下, 近期走势和历史走势有自相似性, 不同的时间层面上, 如15分钟, 60分钟, 天也有自相似性. 而所有这些自相似性, 我们是知道来源于那一笔笔包含着贪嗔痴的交易构成的. 假设那么一个炒股的人不知道股票的底细, 看着最低只提供到5分钟K线图的炒股软件, 那么这个人要如何去理解市场走势呢? 缠论给了明确的答案: 去理解级别的自相似性, 然后向下或向上推论即可.</p>
-<p>在<a href="https://draapho.github.io/2017/10/09/1728-ultimatethink/">“我的终极思考-从细胞到星球生命”</a>里, 列出了这种级别关系(见下表), 并相信里面有着自相似性. 这种自相似性就是生命的本源, 甚至是一切事物的本源, 等同于”诸行无常”,”道”,”空”,”一” 这种观念. 有可能和KK提出的造物九律相关, 一定和数学里的概率论, 博弈论, 信息论相关, 是一种描述众多事物动态变化发展的理论, 这种永不停歇的动态变化发展就是诸行无常.</p>
-<table>
-<thead>
-<tr>
-<th>人的进化</th>
-<th>人类的进化</th>
-<th>特性</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>细胞</td>
-<td>人</td>
-<td>低层次的基本单位</td>
-</tr>
-<tr>
-<td>细菌</td>
-<td>原始部落</td>
-<td>自给自足</td>
-</tr>
-<tr>
-<td>植物</td>
-<td>原始帝国</td>
-<td>职能分层</td>
-</tr>
-<tr>
-<td>动物</td>
-<td>现代社会</td>
-<td>高度特质化</td>
-</tr>
-<tr>
-<td>人</td>
-<td>星球生命</td>
-<td>高层次的基本单位</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>…(高分子, 分子, 原子, 粒子怎么来的?)</li>
-<li>…(细胞怎么来的?)</li>
-<li>在人体内, 充满了各种特质化的细胞, 细菌群落, 让人生存着, 发展着.</li>
-<li>在人类社会, 充满了各种专职化的个人, 让人类社会生存着, 发展着.</li>
-<li>在银河系内, 充满了各种专职化的星球, 让银河生命生存着, 发展着.</li>
-<li>…(宇宙之外又是什么?)</li>
-</ul>
-<p>如果理解了交易市场是由人心构建的, 至少不难理解人类世界是由人心和物质共同的构建的, 或再进一步, 地球生态是由生命的贪嗔痴疑慢和物质共同构建的. 基于这一点, 往上推论是很简单的: 如果能星际移民, 那么行星就有可能变成细胞级别的生命体, 在星系级别去构建一个个巨大的生命体. 难的是往下推论: 物质是哪里来的? 最前沿的物理学给的答案似乎是: 从能量而来, 到能量而去, 随机变化. 佛教则对这个世界给了明确的答案: 诸行无常. 在当下的科学理解下, 生命体由物质构成, 生命体又似乎是特殊的物质, 其实倒过来想更简单: 微观物质和生命体同源, 宏观物质是微观物质构建起的某种稳态的常规表现, 而生命体是微观物质构建起的特殊表现, 好比某些复杂数学方程的特殊解. 此时, 宏观的一切东西, 都是微观物质的某种表现, 而微观物质的存在与否, 受我们不知道的因素所影响. 若所有这些因素消失, 整个世界便轰然倒塌. 当然, 这只是猜测, 不能证真也不能证伪. 整个构想, 基于朴素的无处不在的级别自相似性. 这种时空级别的自相似性, 从微观世界到宏观宇宙, 从细菌到细胞到简单生命体到人到人类社会(譬如博弈论就能解释很多生命现象, 细菌的生长和城市的扩张路径是类似的), 无处不在!</p>
-<p>顺便一提, <a href="https://www.meiwen.com.cn/subject/twmdsftx.html" target="_blank" rel="noopener">一张简单图片演示的“甚深佛法”</a> 的作者提到, 突然体验到<code>快速的生灭</code>, 感到<code>抓也抓不着，躲也躲不掉，无比煎熬</code>, 其中快速的生灭是客观描述, 无比煎熬是主观描述. 我关注的是, 如果提前说清楚了这么一种状态的存在, 是否就可以减轻这种苦的感觉. 这如同人第一次接触死人, 总是会特别惊悚, 但习惯了也就习惯了, 并不能因为第一次的惊悚, 就觉得人生就是惊悚(我始终对”一切皆苦”存疑). 另外, 猜测这种快速生灭的本质是, 在无我的状态下, 感受到了人体内细胞甚至更底层物质的永不停歇的自主活动. 或者放大一个层面去理解, 在国家层面内观, 一个国家的执政体系往往自我感觉良好, 可以对外战争, 对内收税, 对诸多活动控制的有条不紊, 政治经济发展井井有序, 无一不是自己的功劳(一种我的观念). 如果有一天, 这个执政体系解散(无政府状态), 它会发现所有的人一样在那里忙忙碌碌, 组织有序, 社会运行平稳, 原来一切都不受执政体系影响, 自顾自的运行着. 如果一个执政体系突然意识到自己一点都不重要, 是可有可无的, 多半也会焦虑不堪.</p>
-<p>最后, 摘录Aggavara前辈在”原始佛教修学指南（博客导读）”里的语句:</p>
-<blockquote>
-<p>本人的观点仅供参考 读者应当保持足够的理性与怀疑态度<br>不要盲信任何观点包括本人的观点<br>本人观点是否正确, 需要每一位修行者严谨的通过理论学习以及禅修实践来判断</p>
-</blockquote>
-<p>理性的怀疑和批判, 亲力亲为的实验和实践, 这才是真正科学的态度. 释迦摩尼的佛法和科学, 并不冲突!</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/05/08/1817-interview-linux/" itemprop="url">
-                  面试之嵌入式Linux
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-05-08T00:00:00+10:00" content="2018-05-08">
-              2018-05-08
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/05/04/1714-expression/">逻辑|这样表达，事半功倍</a></li>
-<li><a href="https://draapho.github.io/2018/01/10/1805-interview-general/">面试之常规问题</a></li>
-<li><a href="https://draapho.github.io/2018/05/07/1816-interview-c/">面试之嵌入式C语言</a></li>
-<li><a href="https://draapho.github.io/2017/05/17/1715-c/">C语言知识巩固</a></li>
-<li><a href="https://draapho.github.io/2018/05/08/1817-interview-linux/">面试之嵌入式Linux</a></li>
-</ul>
-<p>我个人面试经验极少, 但这种能力都是需要培养的. 此系列总结一下面试中常见的技能要点. 侧重于技术面的准备.</p>
-<h1 id="common"><a href="#common" class="headerlink" title="common"></a>common</h1><h2 id="Q-What-Is-The-Difference-Between-Microprocessor-And-Microcontroller"><a href="#Q-What-Is-The-Difference-Between-Microprocessor-And-Microcontroller" class="headerlink" title="Q: What Is The Difference Between Microprocessor And Microcontroller?"></a>Q: What Is The Difference Between Microprocessor And Microcontroller?</h2><p>Microcontroller is a self-contained system with peripherals, memory and a processor that can be used as embedded system.</p>
-<p>Microprocessor is managers of the resources (I/O, memory) which lie outside of its architecture.</p>
-<h2 id="Q-Difference-btwn-Process-and-Thread"><a href="#Q-Difference-btwn-Process-and-Thread" class="headerlink" title="Q: Difference btwn Process and Thread"></a>Q: Difference btwn Process and Thread</h2><p>the threads are a part of a process<br>Process has a self-contained execution environment, each process has its own memory space. just can use IPC to communication<br>Threads share resources, which helps in efficient communication between threads.</p>
-<h2 id="Q-What-is-thread-safety-What-is-re-entrancy"><a href="#Q-What-is-thread-safety-What-is-re-entrancy" class="headerlink" title="Q: What is thread safety? What is re-entrancy?"></a>Q: What is thread safety? What is re-entrancy?</h2><p>线程安全的概念比较直观，一般来说，一个函数被称为线程安全的，当且仅当被多个并发线程反复调用时，它会一直产生正确的结果.<br>可重入函数一定是线程安全的. 但线程安全的函数不一定是可重入的.</p>
-<p>对于可重入函数, 有如下要求:</p>
-<ul>
-<li>不使用全局变量或静态变量；</li>
-<li>不使用用malloc或者new开辟出的空间；</li>
-<li>不调用不可重入函数；</li>
-</ul>
-<h2 id="Q-Explain-Interrupt-Latency-And-How-Can-We-Decrease-It"><a href="#Q-Explain-Interrupt-Latency-And-How-Can-We-Decrease-It" class="headerlink" title="Q: Explain Interrupt Latency And How Can We Decrease It?"></a>Q: Explain Interrupt Latency And How Can We Decrease It?</h2><ul>
-<li>Interrupt latency basically refers to the time span an interrupt is generated and it being serviced by an appropriate routine defined, usually the interrupt handler.</li>
-<li>External signals, some condition in the program or by the occurrence of some event, these could be the reasons for generation of an interrupt.</li>
-<li>Interrupts can also be masked so as to ignore them even if an event occurs for which a routine has to be executed.</li>
-<li>Following steps could be followed to reduce the latency<ul>
-<li>ISRs being simple and short.</li>
-<li>Interrupts being serviced immediately</li>
-<li>Avoiding those instructions that increase the latency period.</li>
-<li>Also by prioritizing interrupts over threads.</li>
-<li>Avoiding use of inappropriate APIs.</li>
-</ul>
-</li>
-</ul>
-<h2 id="Q-What-is-Top-half-amp-bottom-half-of-a-kernel"><a href="#Q-What-is-Top-half-amp-bottom-half-of-a-kernel" class="headerlink" title="Q: What is Top half &amp; bottom half of a kernel?"></a>Q: What is Top half &amp; bottom half of a kernel?</h2><p>Sometimes to handle an interrupt, a substantial amount of work has to be done. But it conflicts with the speed need for an interrupt handler.<br>To handle this situation, Linux splits the handler into two parts: Top half and Bottom half. </p>
-<ul>
-<li>The top half is the routine that actually responds to the interrupt. </li>
-<li>The bottom half on the other hand is a routine that is scheduled by the upper half to be executed later at a safer time.</li>
-</ul>
-<p>All interrupts are enabled during execution of the bottom half. The top half saves the device data into the specific buffer, schedules bottom half and exits. The bottom half does the rest. This way the top half can service a new interrupt while the bottom half is working on the previous.</p>
-<h2 id="Q-List-Out-Various-Uses-Of-Timers-In-Embedded-System"><a href="#Q-List-Out-Various-Uses-Of-Timers-In-Embedded-System" class="headerlink" title="Q: List Out Various Uses Of Timers In Embedded System?"></a>Q: List Out Various Uses Of Timers In Embedded System?</h2><ul>
-<li>Real Time Clock (RTC) for the system</li>
-<li>Initiating an event after a preset time delay</li>
-<li>Initiating an event after a comparison of preset times</li>
-<li>Capturing the count value in timer on an event</li>
-<li>Between two events finding the time interval</li>
-<li>Time slicing for various tasks</li>
-<li>Time division multiplexing</li>
-<li>Scheduling of various tasks in RTOS    </li>
-</ul>
-<h2 id="Q-Significance-of-watchdog-timer-in-Embedded-Systems"><a href="#Q-Significance-of-watchdog-timer-in-Embedded-Systems" class="headerlink" title="Q: Significance of watchdog timer in Embedded Systems."></a>Q: Significance of watchdog timer in Embedded Systems.</h2><p>The watchdog timer is a timing device with a predefined time interval. During that interval, some event may occur or else the device generates a time out signal. It is used to reset to the original state whenever some inappropriate events take place which can result in system malfunction. It is usually operated by counter devices.</p>
-<h2 id="Q-Difference-between-RISC-and-CISC-processor"><a href="#Q-Difference-between-RISC-and-CISC-processor" class="headerlink" title="Q: Difference between RISC and CISC processor."></a>Q: Difference between RISC and CISC processor.</h2><p>RISC (Reduced Instruction Set Computer) could carry out a few sets of simple instructions simultaneously. Fewer transistors are used to manufacture RISC, which makes RISC cheaper. RISC has uniform instruction set and those instructions are also fewer in number. Due to the less number of instructions as well as instructions being simple, the RISC computers are faster. RISC emphasise on software rather than hardware. RISC can execute instructions in one machine cycle.</p>
-<p>CISC (Complex Instruction Set Computer) is capable of executing multiple operations through a single instruction. CISC have rich and complex instruction set and more number of addressing modes. CISC emphasise on hardware rather that software, making it costlier than RISC. It has a small code size, high cycles per second and it is slower compared to RISC.</p>
-<h2 id="Q-What-is-RTOS-What-is-the-difference-between-hard-real-time-and-soft-real-time-OS"><a href="#Q-What-is-RTOS-What-is-the-difference-between-hard-real-time-and-soft-real-time-OS" class="headerlink" title="Q: What is RTOS? What is the difference between hard real-time and soft real-time OS?"></a>Q: What is RTOS? What is the difference between hard real-time and soft real-time OS?</h2><p>The scheduler in a Real Time Operating System (RTOS) is designed to provide a predictable execution pattern. In an embedded system, a certain event must be entertained in strictly defined time.<br>To meet real time requirements, the behaviour of the scheduler must be predictable. This type of OS which have a scheduler with predictable execution pattern is called Real Time OS(RTOS). </p>
-<p>A Hard real-time system strictly adheres to the deadline associated with the task. If the system fails to meet the deadline, even once, the system is considered to have failed.<br>In case of a soft real-time system, missing a deadline is acceptable. In this type of system, a critical real-time task gets priority over other tasks and retains that priority until it completes.</p>
-<h2 id="Q-What-type-of-scheduling-is-there-in-RTOS"><a href="#Q-What-type-of-scheduling-is-there-in-RTOS" class="headerlink" title="Q: What type of scheduling is there in RTOS?"></a>Q: What type of scheduling is there in RTOS?</h2><p>RTOS uses pre-emptive scheduling. In pre-emptive scheduling, the higher priority task can interrupt a running process and the interrupted process will be resumed later.</p>
-<h2 id="Q-What-is-priority-inversion-What-is-priority-inheritance"><a href="#Q-What-is-priority-inversion-What-is-priority-inheritance" class="headerlink" title="Q: What is priority inversion? What is priority inheritance?"></a>Q: What is priority inversion? What is priority inheritance?</h2><p>If two tasks share a resource, the one with higher priority will run first. However, if the lower-priority task is using the shared resource when the higher-priority task becomes ready, then the higher-priority task must wait for the lower-priority task to finish. In this scenario, even though the task has higher priority it needs to wait for the completion of the lower-priority task with the shared resource. This is called priority inversion.</p>
-<p>Priority inheritance is a solution to the priority inversion problem. The process waiting for any resource which has a resource lock will have the maximum priority. This is priority inheritance. When one or more high priority jobs are blocked by a job, the original priority assignment is ignored and execution of critical section will be assigned to the job with the highest priority in this elevated scenario. The job returns to the original priority level soon after executing the critical section.</p>
-<h2 id="Q-What-is-job-of-preprocessor-compiler-assembler-and-linker"><a href="#Q-What-is-job-of-preprocessor-compiler-assembler-and-linker" class="headerlink" title="Q: What is job of preprocessor, compiler, assembler and linker?"></a>Q: What is job of preprocessor, compiler, assembler and linker?</h2><p>The preprocessor commands are processed and expanded by the preprocessor before actual compilation. </p>
-<p>After preprocessing, the compiler takes the output of the preprocessor and the source code, and generates assembly code. </p>
-<p>Once compiler completes its work, the assembler takes the assembly code and produces an assembly listing with offsets and generate object files.</p>
-<p>The linker combines object files or libraries and produces a single executable file. It also resolves references to external symbols, assigns final addresses to functions and variables, and revises code and data to reflect new addresses.</p>
-<h2 id="Q-How-you-will-debug-the-memory-issues"><a href="#Q-How-you-will-debug-the-memory-issues" class="headerlink" title="Q: How you will debug the memory issues?"></a>Q: How you will debug the memory issues?</h2><ul>
-<li>First of all, double check the code source. Make sure already paired using <code>kmalloc</code> <code>kfree</code> and <code>vmalloc</code> <code>vfree</code></li>
-<li><code>free -m</code> to monitor memory using status.</li>
-<li><code>kmemleak</code> to log the possible problem</li>
-<li>oom or panic information from kernel</li>
-<li>Intercept all functions that allocate and deallocate memory.</li>
-</ul>
-<h2 id="Q-Debugging-techniques"><a href="#Q-Debugging-techniques" class="headerlink" title="Q: Debugging techniques"></a>Q: Debugging techniques</h2><p><code>GDB</code>, printk, led, <code>/var/log/</code></p>
-<h1 id="hardware"><a href="#hardware" class="headerlink" title="hardware"></a>hardware</h1><h2 id="Q-What-Does-Dma-Address-Will-Deal-With"><a href="#Q-What-Does-Dma-Address-Will-Deal-With" class="headerlink" title="Q: What Does Dma Address Will Deal With?"></a>Q: What Does Dma Address Will Deal With?</h2><p>DMA address deals with physical addresses. It is a device which directly drives the data and address bus during data transfer. So, it is purely physical address.</p>
-<h2 id="Q-What-is-virtual-memory"><a href="#Q-What-is-virtual-memory" class="headerlink" title="Q: What is virtual memory?"></a>Q: What is virtual memory?</h2><p>Virtual memory is a technique that allows processes to allocate memory in case of physical memory shortage using automatic storage allocation upon a request.<br>The advantage of the virtual memory is that the program can have a larger memory than the physical memory. It allows large virtual memory to be provided when only a smaller physical memory is available. </p>
-<p>Virtual memory can be implemented using paging.<br>A paging system is quite similar to a paging system with swapping. When we want to execute a process, we swap it into memory. Here we use a lazy swapper called pager rather than swapping the entire process into memory. When a process is to be swapped in, the pager guesses which pages will be used based on some algorithm, before the process is swapped out again. Instead of swapping whole process, the pager brings only the necessary pages into memory. By that way, it avoids reading in unnecessary memory pages, decreasing the swap time and the amount of physical memory.</p>
-<h2 id="Q-What-is-kernel-paging-What-is-page-frame"><a href="#Q-What-is-kernel-paging-What-is-page-frame" class="headerlink" title="Q: What is kernel paging? What is page frame?"></a>Q: What is kernel paging? What is page frame?</h2><p>Paging is a memory management scheme by which computers can store and retrieve data from the secondary memory storage when needed in to primary memory. In this scheme, the operating system retrieves data from secondary storage in same-size blocks called pages. The paging scheme allows the physical address space of a process to be non continuous. Paging allows OS to use secondary storage for data that does not fit entirely into physical memory.</p>
-<p>A page frame is a block of RAM that is used for virtual memory. It has its page frame number. The size of a page frame may vary from system to system, and it is in the power of 2 in bytes. Also, it is the smallest length block of memory in which an operating system maps memory pages.</p>
-<h2 id="Q-Virtual-Address-Linear-Address-Physical-Address"><a href="#Q-Virtual-Address-Linear-Address-Physical-Address" class="headerlink" title="Q: Virtual Address, Linear Address, Physical Address"></a>Q: Virtual Address, Linear Address, Physical Address</h2><p>32-bit CPU 3GB for user layer, 1GB for kernel layer<br><code>kmalloc</code> apply the physical address directly, so it is continuous but size limination<br><code>vmalloc</code> apply the virtual memory, in physical it is not continuous. need MMU to translate to physical memory.<br>Virtual Address – Segment(GDT LDT) – Linear Address – Paging (4 layer Page Directory, Page Table) – Physical Address</p>
-<h2 id="Q-How-to-decide-whether-given-processor-is-using-little-endian-format-or-big-endian-format"><a href="#Q-How-to-decide-whether-given-processor-is-using-little-endian-format-or-big-endian-format" class="headerlink" title="Q:How to decide whether given processor is using little endian format or big endian format ?"></a>Q:How to decide whether given processor is using little endian format or big endian format ?</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">check_for_endianness</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> x = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">char</span> *c = (<span class="keyword">char</span>*) &amp;x;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">int</span>)*c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Q-nand-vs-nor-flash"><a href="#Q-nand-vs-nor-flash" class="headerlink" title="Q: nand vs nor flash"></a>Q: nand vs nor flash</h2><ul>
-<li>使用复杂 vs 使用简单(same as sram)</li>
-<li>读取慢 vs 读取快</li>
-<li>写入快 vs 写入慢</li>
-<li>顺序读取快, 随机存取慢 vs 随机存取快</li>
-<li>容量大 vs 容量小</li>
-<li>擦写次数多 vs 擦写次数少</li>
-<li>yaffs2 vs jffs2</li>
-<li>存放引导程序, 参数区 vs 用户文件, 多媒体文件</li>
-</ul>
-<h2 id="Q-Definition-and-difference-between-Hardware-interrupt-Software-Interrupt-Exception-Trap-and-Signals"><a href="#Q-Definition-and-difference-between-Hardware-interrupt-Software-Interrupt-Exception-Trap-and-Signals" class="headerlink" title="Q: Definition and difference between Hardware interrupt, Software Interrupt, Exception, Trap and Signals?"></a>Q: Definition and difference between Hardware interrupt, Software Interrupt, Exception, Trap and Signals?</h2><ul>
-<li>Hardware Interrupts: may arrive anytime, typically IO interrupts.</li>
-<li>Exception: may only arrive after the execution of an instruction, for example when the cpu try to devide a number by 0 or a page fault</li>
-<li>Trap is a kind of exceptions, whose main purpose is for debugging</li>
-<li>Software Interrupt occurs at the request of the programmer. They are used to implement system calls, and handled by the CPU as trap.</li>
-<li>Signals are part of the IPC, not belong to interrupts or exceptions.</li>
-</ul>
-<h2 id="Q-Explain-MMU-in-Linux"><a href="#Q-Explain-MMU-in-Linux" class="headerlink" title="Q: Explain MMU in Linux"></a>Q: Explain MMU in Linux</h2><p>Paged memory management unit. Translation of virtual memory addresses to physical addresses</p>
-<h2 id="Q-What-are-high-memory-and-low-memory-on-Linux"><a href="#Q-What-are-high-memory-and-low-memory-on-Linux" class="headerlink" title="Q: What are high memory and low memory on Linux"></a>Q: What are high memory and low memory on Linux</h2><ul>
-<li>The High Memory is the segment of memory that user-space programs can address. It cannot touch Low Memory.</li>
-<li>Low Memory is the segment of memory that the Linux kernel can address directly. </li>
-<li>If the kernel must access High Memory, it has to map it into its own address space first.</li>
-<li><code>copy_from_user(&amp;val, data, 1);</code></li>
-</ul>
-<h2 id="Q-How-to-register-an-interrupt-handler"><a href="#Q-How-to-register-an-interrupt-handler" class="headerlink" title="Q: How to register an interrupt handler?"></a>Q: How to register an interrupt handler?</h2><ul>
-<li><code>request_irq(IRQ_ID, handler_irq, ...);</code></li>
-<li><code>irqreturn_t handler_irq(int irq, void *dev_id)</code> can get the IRQ_ID from <code>int irq</code></li>
-</ul>
-<h1 id="kernel"><a href="#kernel" class="headerlink" title="kernel"></a>kernel</h1><h2 id="Q-Linux驱动的一些基本概念"><a href="#Q-Linux驱动的一些基本概念" class="headerlink" title="Q: Linux驱动的一些基本概念"></a>Q: Linux驱动的一些基本概念</h2><ul>
-<li>主设备号. 可以人工指定, 也可以由系统动态分配. 理解为设备类型的id即可.</li>
-<li>子设备号. 譬如一个led灯的驱动设备, 可以实现多个led的控制. 子设备号可以提供针对特定的led进行控制</li>
-<li>mdev. 根据动态驱动模块的信息自动创建设备节点.</li>
-<li>地址映射. 这是与单片机的区别. 单片机操作寄存器可以直接使用物理地址. 但linux下使用的是虚拟地址!<ul>
-<li>地址转换使用 <code>ioremap</code> <code>iounmap</code> 函数.</li>
-<li>一般的芯片商也会提供操作寄存器的函数, 譬如 s3c2410_gpio_setpin</li>
-</ul>
-</li>
-<li>用户空间和内核空间. 两个空间的资源不能直接相互访问. <ul>
-<li>驱动程序内经常要用 <code>copy_to_user</code> 以及 <code>copy_from_user</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="Q-Linux-调度机制"><a href="#Q-Linux-调度机制" class="headerlink" title="Q: Linux 调度机制"></a>Q: Linux 调度机制</h2><ul>
-<li>轮转调度算法(Round Robin), 先来先服务(FIFC)策略, have a time slice</li>
-<li>优先级调度算法(Priority): preemptive(抢占式), static priority, dynamic priority</li>
-<li>Linux Sheduler: <ul>
-<li>pick next, staircase scheduler.</li>
-<li>using dynamic priority, and time slice</li>
-<li>rt_proirity(实时任务): SCHED_FIFO (just priority), SCHED_RR (time_slice)</li>
-</ul>
-</li>
-</ul>
-<h2 id="Q-linux-android-启动流程"><a href="#Q-linux-android-启动流程" class="headerlink" title="Q: linux android 启动流程"></a>Q: linux android 启动流程</h2><ul>
-<li>hardware bootloader, can load specific flash address to ram and run automatically</li>
-<li>uboot stage1 (start.s): 底层硬件初始化(register), copy stage2 code to ram, init stack, data segment</li>
-<li>uboot stage2 (main.c): 硬件初始化(flash, ui, net), load kernel image, copy parameter to specific address for linux</li>
-<li>kernel: decompress image, read parameter from uboot, init hardware(register, MMU, paging table)</li>
-<li>load filesystem, init environment(<code>etc/inittab</code>, <code>etc/init.d/rcS</code>, <code>bin/sh</code>)</li>
-<li>load dymatical drivers, run user application</li>
-<li>Then for android: <ul>
-<li>zygote (由 Linux init 启动)</li>
-<li>Dalvik VM</li>
-<li>SyetemServers</li>
-<li>Managers</li>
-<li>Launcher</li>
-</ul>
-</li>
-</ul>
-<h2 id="Q-linux-file-system"><a href="#Q-linux-file-system" class="headerlink" title="Q: linux file system"></a>Q: linux file system</h2><ul>
-<li>Linux下一切皆文件, 文件即inode.</li>
-<li>索引过程为: 目录inode-&gt;目录名/文件名-&gt;对应inode-&gt;具体内容</li>
-<li>BusyBox 是linux下的一个应用程序, 集成了最常用的Linux命令和工具.</li>
-<li>最小文件系统 <code>dev/console</code> <code>dev/null</code> init进程<code>bin/busybox</code> <code>etc/inittab</code> C库 <code>lib/</code> 系统程序或脚本 <code>/etc/init.d/rcS</code> <code>bin/sh</code></li>
-<li>mdev: 动态加载驱动时, 自动生成节点文件 <code>/dev</code></li>
-<li>file format yaffs2 for nand, jffs2 for nor</li>
-</ul>
-<h2 id="Q-What-do-you-understand-about-Linux-Kernel-and-can-you-edit-it"><a href="#Q-What-do-you-understand-about-Linux-Kernel-and-can-you-edit-it" class="headerlink" title="Q: What do you understand about Linux Kernel and can you edit it?"></a>Q: What do you understand about Linux Kernel and can you edit it?</h2><p>Linux Kernel is the component that manages the hardware resources for the user and that provides essential services and interact with the user commands.<br>Linux Kernel is an open source software and free, and it is released under General Public License so we can edit it and it is legal.</p>
-<h2 id="Q-What-are-the-different-types-of-Kernels-Explain"><a href="#Q-What-are-the-different-types-of-Kernels-Explain" class="headerlink" title="Q: What are the different types of Kernels? Explain"></a>Q: What are the different types of Kernels? Explain</h2><p>We can build kernels by many different types, but 3 of the types of kernels are most commonly used: monolithic, microkernel and hybrid.</p>
-<ul>
-<li><p>Microkernel: This type of kernel only manages CPU, memory, and IPC. This kind of kernel provides portability, small memory footprint and also security.</p>
-</li>
-<li><p>Monolithic Kernel: Linux is a monolithic kernel. So, this type of kernel provides file management, system server calls, also manages CPU, IPC as well as device drivers. It provides easier access to the process to communicate and as there is not any queue for processor time, so processes react faster.</p>
-</li>
-<li><p>Hybrid Kernel: In this type of kernels, programmers can select what they want to run in user mode and what in supervisor mode. So, this kernel provides more flexibility than any other kernel but it can have some latency problems.</p>
-</li>
-</ul>
-<h2 id="Q-Linux-operating-system-components"><a href="#Q-Linux-operating-system-components" class="headerlink" title="Q: Linux operating system components"></a>Q: Linux operating system components</h2><ul>
-<li>Kernel: Linux is a monolithic kernel</li>
-<li>System Library: GNU C Library. Library plays a vital role because application programs access Kernels feature using system library.</li>
-<li>System Utility: System Utility performs specific and individual level tasks.</li>
-</ul>
-<h2 id="Q-Where-is-password-file-located-in-Linux-and-how-can-you-improve-the-security-of-password-file"><a href="#Q-Where-is-password-file-located-in-Linux-and-how-can-you-improve-the-security-of-password-file" class="headerlink" title="Q: Where is password file located in Linux and how can you improve the security of password file?"></a>Q: Where is password file located in Linux and how can you improve the security of password file?</h2><p>This is an important question that is generally asked by the interviewers.<br>User information along with the passwords in Linux is stored in <code>/etc/passwd</code> that is a compatible format. But this file is used to get the user information by several tools. Here, security is at risk. So, we have to make it secured.</p>
-<p>To improve the security of the password file, instead of using a compatible format we can use <strong>shadow password format</strong>. </p>
-<p>So, in shadow password format, the password will be stored as single “x” character which is not <code>/etc/passwd</code>. This information is stored in another file instead with a file name <code>/etc/shadow</code>. So, to enhance the security, the file is made word readable and also, this file is readable only by the root user. Thus security risks are overcome to a great extent by using the shadow password format.</p>
-<h2 id="Q-Explain-system-calls-used-for-process-management"><a href="#Q-Explain-system-calls-used-for-process-management" class="headerlink" title="Q: Explain system calls used for process management?"></a>Q: Explain system calls used for process management?</h2><p>There are some system calls used in Linux for process management.<br>These are as follows:</p>
-<ul>
-<li><code>Fork()</code>: It is used to create a new process</li>
-<li><code>Exec()</code>: It is used to execute a new process</li>
-<li><code>Wait()</code>: It is used to make the process to wait</li>
-<li><code>Exit()</code>: It is used to exit or terminate the process</li>
-<li><code>Getpid()</code>: It is used to find the unique process ID</li>
-<li><code>Getppid()</code>: It is used to check the parent process ID</li>
-<li><code>Nice()</code>: It is used to bias the currently running process property</li>
-</ul>
-<h2 id="Q-Guess-the-output"><a href="#Q-Guess-the-output" class="headerlink" title="Q:Guess the output"></a>Q:Guess the output</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">main() &#123;</span><br><span class="line">	fork();</span><br><span class="line">	fork();</span><br><span class="line">	fork();</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>It will print “hello world’ 8 times.<br>The main() will print one time and creates 3 children, let us say Child_1, Child_2, Child_3. All of them printed once.<br>The Child_3 will not create any child.<br>Child2 will create one child and that child will print once.<br>Child_1 will create two children, say Child_4 and Child_5 and each of them will print once.<br>Child_4 will again create another child and that child will print one time.<br>A total of eight times the printf statement will be executed.</p>
-<h2 id="Q-What-is-the-difference-between-static-linking-and-dynamic-linking"><a href="#Q-What-is-the-difference-between-static-linking-and-dynamic-linking" class="headerlink" title="Q: What is the difference between static linking and dynamic linking ?"></a>Q: What is the difference between static linking and dynamic linking ?</h2><p>In static linking, all the library modules used in the program are placed in the final executable file making it larger in size. This is done by the linker. If the modules used in the program are modified after linking, then re-compilation is needed. The advantage of static linking is that the modules are present in an executable file. We don’t want to worry about compatibility issues.</p>
-<p>In case of dynamic linking, only the names of the module used are present in the executable file and the actual linking is done at run time when the program and the library modules both are present in the memory. That is why, the executables are smaller in size. Modification of the library modules used does not force re-compilation. But dynamic linking may face compatibility issues with the library modules used.</p>
-<h2 id="Q-How-a-user-mode-is-transferred-to-kernel-mode-Difference-between-kernerl-user-space"><a href="#Q-How-a-user-mode-is-transferred-to-kernel-mode-Difference-between-kernerl-user-space" class="headerlink" title="Q: How a user mode is transferred to kernel mode? Difference between kernerl/user space"></a>Q: How a user mode is transferred to kernel mode? Difference between kernerl/user space</h2><p>using System call<br>kernel mode: can do anything, cpu run in full function<br>user mode: safty purpose, cpu function is liminated.<br>kernel 访问用户层数据: <code>copy_to_user</code> <code>copy_from_user</code></p>
-<h2 id="Q-Main-difference-between-Tasklets-and-workqs"><a href="#Q-Main-difference-between-Tasklets-and-workqs" class="headerlink" title="Q: Main difference between Tasklets and workqs?"></a>Q: Main difference between Tasklets and workqs?</h2><ul>
-<li>Tasklets:<ul>
-<li>are old (around 2.3 I believe)</li>
-<li>have a straightforward, simple API</li>
-<li>are designed for low latency</li>
-<li>cannot sleep</li>
-</ul>
-</li>
-<li>Work queues:<ul>
-<li>are more recent (introduced in 2.5)</li>
-<li>have a flexible API (more options/flags supported)</li>
-<li>are designed for higher latency</li>
-<li>can sleep</li>
-</ul>
-</li>
-</ul>
-<h2 id="Q-Do-you-know-panic-and-oops-errors-in-kernel-crash"><a href="#Q-Do-you-know-panic-and-oops-errors-in-kernel-crash" class="headerlink" title="Q: Do you know panic and oops errors in kernel crash?"></a>Q: Do you know panic and oops errors in kernel crash?</h2><p>Oops is a way to debug kernel code, and there are utilities for helping with that.<br>A kernel panic means the system cannot recover and must be restarted.<br>However, with an Oops, the system can usually continue. You can configure klogd and syslogd to log oops messages to files, rather than to std out.</p>
-<h2 id="Q-What-is-the-name-and-path-of-the-main-system-log"><a href="#Q-What-is-the-name-and-path-of-the-main-system-log" class="headerlink" title="Q: What is the name and path of the main system log?"></a>Q: What is the name and path of the main system log?</h2><p>By default, the main system log is <code>/var/log/messages</code>.<br>This file contains all the messages and the script written by the user. By default, all scripts are saved in this file. This is the standard system log file, which contains messages from all system software, non-kernel boot issues, and messages that go to <code>dmesg</code>.<br><code>dmesg</code> is a system file that is written upon system boot.<br><code>dmesg | less</code> to review boot messages.</p>
-<h2 id="Q-Explain-what-happens-when-an-insmod-is-done-an-module"><a href="#Q-Explain-what-happens-when-an-insmod-is-done-an-module" class="headerlink" title="Q: Explain what happens when an insmod is done an module"></a>Q: Explain what happens when an insmod is done an module</h2><p>insmod is a user space utility to load a module into Linux kernel. It calls init_module system call to do the work.<br>init_module loads the kernel module in ELF format into kernel address space. Each section of the ELF are read and mapped using vmalloc().<br>Use of vmalloc is because kernel modules can be big and kernel might not have contiguous physical memory to accommodate for module text and data. </p>
-<p>Each .ko has a struct module section. This has relocatable address of init and exit routines (ones specified in module_init and module_exit). This goes as a separate section in ELF. Once all the relevant sections are loaded in memory, kernel calls init routine of the module.</p>
-<h2 id="Q-How-will-you-insert-a-module-statically-in-to-linux-kernel"><a href="#Q-How-will-you-insert-a-module-statically-in-to-linux-kernel" class="headerlink" title="Q: How will you insert a module statically in to linux kernel."></a>Q: How will you insert a module statically in to linux kernel.</h2><p>Using makefile <code>obj-y</code>. By the way <code>obj-m</code> will generate <code>.ko</code> file.<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">obj-y += mymodule.o</span><br><span class="line">mymodule-objs := src.o other.o</span><br></pre></td></tr></table></figure></p>
-<h2 id="Q-what-is-a-device-driver-and-write-a-simple-driver"><a href="#Q-what-is-a-device-driver-and-write-a-simple-driver" class="headerlink" title="Q: what is a device driver and write a simple driver"></a>Q: what is a device driver and write a simple driver</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/xxx.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/xxx.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_NAME <span class="meta-string">"drv_leds"</span>                      <span class="comment">// 设备类型名称, cat /proc/devices 可以看到</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> major;                                   <span class="comment">// 存储自动分配的主设备号</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">leds_class</span>;</span>                    <span class="comment">// 类, 供mdev用, ls /sys/class/ 可以看到</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">class_device</span>	*<span class="title">leds_class_devs</span>[4];</span>    <span class="comment">// 类下设备, ls /sys/class/class_name 可以看到</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 驱动的硬件实现部分, 和单片机类似 =====</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_open</span><span class="params">(struct inode *inode, struct file *file)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor = MINOR(inode-&gt;i_rdev);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 初始化对应的LED</span></span><br><span class="line">	gpio_init(minor);</span><br><span class="line">    printk(<span class="string">"drv_leds_open\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_leds_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *data, <span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *ppos)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor = MINOR(file-&gt;f_dentry-&gt;d_inode-&gt;i_rdev);</span><br><span class="line">    <span class="keyword">char</span> val;</span><br><span class="line">    copy_from_user(&amp;val, data, <span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 操作对应的LED</span></span><br><span class="line">    gpio_set(minor);</span><br><span class="line">    printk(<span class="string">"drv_leds_write, led%d=%d\n"</span>, minor, val);</span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此结构体指定了C库的文件操作函数需要调用的底层驱动的函数名.</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_leds_fops</span> = &#123;</span></span><br><span class="line">    .owner  =   THIS_MODULE,        <span class="comment">// 这是一个宏，指向编译模块时自动创建的__this_module变量. 和平台相关</span></span><br><span class="line">    .open   =   drv_leds_open,     </span><br><span class="line">    .write  =   drv_leds_write,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 加载和卸载内核时, 指定要调用的函数 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取寄存器起始地址的虚拟地址值. 其它寄存器基于此值再用偏移量.</span></span><br><span class="line">    <span class="comment">// gpio_base = ioremap(0x56000000, 0xD0);</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 注册驱动, 0表示动态分配主设备号</span></span><br><span class="line">    major = register_chrdev(<span class="number">0</span>, DEVICE_NAME, &amp;drv_leds_fops);    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 生成系统设备信息, 供mdev自动创建设备节点使用</span></span><br><span class="line">	leds_class = class_create(THIS_MODULE, <span class="string">"leds"</span>);             <span class="comment">// 创建 leds 类</span></span><br><span class="line">	<span class="keyword">if</span> (IS_ERR(leds_class))</span><br><span class="line">		<span class="keyword">return</span> PTR_ERR(leds_class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 0-3 表示4个独立的led, 名称为 led0, led1, led2, led3</span></span><br><span class="line">    <span class="keyword">for</span> (minor = <span class="number">0</span>; minor &lt; <span class="number">4</span>; minor++) &#123;</span><br><span class="line">		leds_class_devs[minor] = class_device_create(leds_class, <span class="literal">NULL</span>, MKDEV(major, minor), <span class="literal">NULL</span>, <span class="string">"led%d"</span>, minor);</span><br><span class="line">		<span class="keyword">if</span> (unlikely(IS_ERR(leds_class_devs[minor])))</span><br><span class="line">			<span class="keyword">return</span> PTR_ERR(leds_class_devs[minor]);</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    printk(DEVICE_NAME <span class="string">" initialized\n"</span>);                       <span class="comment">// 调试用</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">drv_leds_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (minor = <span class="number">0</span>; minor &lt; <span class="number">4</span>; minor++) &#123;                       </span><br><span class="line">		class_device_unregister(leds_class_devs[minor]);        <span class="comment">// 删除设备节点</span></span><br><span class="line">	&#125;</span><br><span class="line">	class_destroy(leds_class);                                  <span class="comment">// 删除设备类</span></span><br><span class="line">    unregister_chrdev(major, DEVICE_NAME);                      <span class="comment">// 卸载驱动</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// iounmap(gpio_base);</span></span><br><span class="line">    printk(DEVICE_NAME <span class="string">" deinitialized\n"</span>);     </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_leds_init);</span><br><span class="line">module_exit(drv_leds_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 描述驱动程序的一些信息，不是必须的 =====</span></span><br><span class="line">MODULE_AUTHOR(<span class="string">"draapho"</span>);</span><br><span class="line">MODULE_VERSION(<span class="string">"0.1.1"</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">"First Driver for LED"</span>);</span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br></pre></td></tr></table></figure>
-<h1 id="IPC"><a href="#IPC" class="headerlink" title="IPC"></a>IPC</h1><h2 id="Q-How-many-types-of-IPC-mechanism-you-know"><a href="#Q-How-many-types-of-IPC-mechanism-you-know" class="headerlink" title="Q: How many types of IPC mechanism you know?"></a>Q: How many types of IPC mechanism you know?</h2><ul>
-<li>Named pipes or FIFO</li>
-<li>Semaphores</li>
-<li>Shared memory</li>
-<li>Message queue</li>
-<li>Socket</li>
-</ul>
-<h2 id="Q-Explain-What-Is-Semaphore"><a href="#Q-Explain-What-Is-Semaphore" class="headerlink" title="Q: Explain What Is Semaphore?"></a>Q: Explain What Is Semaphore?</h2><p>A semaphore is an abstract datatype or variable that is used for controlling access, by multiple processes to a common resource in a concurrent system such as multiprogramming operating system.  </p>
-<p>Semaphores are commonly used for two purposes:</p>
-<ul>
-<li>To share a common memory space</li>
-<li>To share access to files</li>
-</ul>
-<p>Semaphores are of two types:</p>
-<ul>
-<li>Binary semaphore: It can have only two values (0 and 1). The semaphore value is set to 1 by the process in charge, when the resource is available.</li>
-<li>Counting semaphore: It can have value greater than one. It is used to control access to a pool of resources.</li>
-</ul>
-<h2 id="Q-What-is-difference-between-binary-semaphore-and-mutex"><a href="#Q-What-is-difference-between-binary-semaphore-and-mutex" class="headerlink" title="Q: What is difference between binary semaphore and mutex?"></a>Q: What is difference between binary semaphore and mutex?</h2><ul>
-<li>Mutual exclusion and synchronization can be used by binary semaphore while mutex is used only for mutual exclusion.</li>
-<li>A mutex can be released by the same thread which acquired it. Semaphore values can be changed by other thread also.</li>
-<li>From an ISR, a mutex can not be used.</li>
-<li>The advantage of semaphores is that, they can be used to synchronize two unrelated processes trying to access the same resource.</li>
-<li>Semaphores can act as mutex, but the opposite is not possible.</li>
-</ul>
-<h2 id="Q-What-is-spin-lock"><a href="#Q-What-is-spin-lock" class="headerlink" title="Q: What is spin lock?"></a>Q: What is spin lock?</h2><p>If a resource is locked, a thread that wants to access that resource may repetitively check whether the resource is available. During that time, the thread may loop and check the resource without doing any useful work. Suck a lock is termed as spin lock.</p>
-<h2 id="Q-Explain-Whether-We-Can-Use-Semaphore-Or-Mutex-Or-Spinlock-In-Interrupt-Context-In-Linux-Kernel"><a href="#Q-Explain-Whether-We-Can-Use-Semaphore-Or-Mutex-Or-Spinlock-In-Interrupt-Context-In-Linux-Kernel" class="headerlink" title="Q: Explain Whether We Can Use Semaphore Or Mutex Or Spinlock In Interrupt Context In Linux Kernel?"></a>Q: Explain Whether We Can Use Semaphore Or Mutex Or Spinlock In Interrupt Context In Linux Kernel?</h2><p>Mutex cannot be used for interrupt context in Linux Kernel.<br>Semaphore only can use <code>sema_post</code> in interrupt handler.<br>Spinlocks can be used for locking in interrupt context.</p>
-<h2 id="Q-What-is-shared-memory"><a href="#Q-What-is-shared-memory" class="headerlink" title="Q: What is shared memory?"></a>Q: What is shared memory?</h2><p>Shared memory is the fastest interprocess communication mechanism. The operating system maps a memory segment in the address space of several processes, so that several processes can read and write in that memory segment without calling operating system functions. However, we need some kind of synchronization between processes that read and write shared memory.</p>
-<h2 id="Q-How-to-come-out-of-deadlock"><a href="#Q-How-to-come-out-of-deadlock" class="headerlink" title="Q: How to come out of deadlock?"></a>Q: How to come out of deadlock?</h2><p>The most common error causing deadlock is self deadlock or recursive deadlock: </p>
-<ul>
-<li>a thread tries to acquire a lock it is already holding. </li>
-<li>Recursive deadlock is very easy to program by mistake.</li>
-</ul>
-<p>Here are some simple guidelines for locking.</p>
-<ul>
-<li>Try not to hold locks across long operations like I/O where performance can be adversely affected.</li>
-<li>Don’t hold locks when calling a function that is outside the module and that might reenter the module.</li>
-<li>In general, start with a coarse-grained approach, identify bottlenecks, and add finer-grained locking where necessary to alleviate the bottlenecks. Most locks are held for short amounts of time and contention is rare, so fix only those locks that have measured contention.</li>
-<li>When using multiple locks, avoid deadlocks by making sure that all threads acquire the locks in the same order.</li>
-</ul>
-<h2 id="Q-生产者-消费者写法"><a href="#Q-生产者-消费者写法" class="headerlink" title="Q: 生产者, 消费者写法"></a>Q: 生产者, 消费者写法</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">goods</span>  </span></span><br><span class="line"><span class="class">&#123;</span>  </span><br><span class="line">    <span class="keyword">int</span> id;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">next</span>;</span>  </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="keyword">pthread_mutex_t</span> m;  </span><br><span class="line"><span class="keyword">pthread_cond_t</span> has_product;  </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">head</span>;</span>  </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">producer</span><span class="params">(<span class="keyword">void</span> *argv)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">p</span> = <span class="title">NULL</span>;</span>  </span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)  </span><br><span class="line">    &#123;  </span><br><span class="line">        pthread_mutex_lock(&amp;m);  </span><br><span class="line">        p = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct goods));  </span><br><span class="line">        p-&gt;id = rand() % <span class="number">100</span>;  </span><br><span class="line">        p-&gt;next = head;  </span><br><span class="line">        head = p;  </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"produce %d\n"</span>, p-&gt;id);  </span><br><span class="line">        pthread_mutex_unlock(&amp;m);  </span><br><span class="line">        pthread_cond_signal(&amp;has_product);  </span><br><span class="line">        <span class="comment">//printf("produce %d\n", p-&gt;id);  </span></span><br><span class="line">        sleep(rand() % <span class="number">2</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">void</span> *)<span class="number">0</span>;  </span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">comsumer</span><span class="params">(<span class="keyword">void</span> *argv)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">p</span> = <span class="title">NULL</span>;</span>  </span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)  </span><br><span class="line">    &#123;  </span><br><span class="line">        pthread_mutex_lock(&amp;m);  </span><br><span class="line">        <span class="comment">//思考：pthread_cond_wait()的作用？  </span></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">NULL</span> == head)  </span><br><span class="line">            pthread_cond_wait(&amp;has_product, &amp;m);  </span><br><span class="line">        p = head;  </span><br><span class="line">        head = head-&gt;next;  </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"comsume %d\n"</span>, p-&gt;id);  </span><br><span class="line">        pthread_mutex_unlock(&amp;m);  </span><br><span class="line">        <span class="comment">//printf("comsume %d\n", p-&gt;id);  </span></span><br><span class="line">        <span class="built_in">free</span>(p);  </span><br><span class="line">        sleep(rand() % <span class="number">2</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">void</span> *)<span class="number">0</span>;  </span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"><span class="comment">// 开启两个线程作为生产者，三个线程作为消费者</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="keyword">int</span> i;  </span><br><span class="line">    <span class="comment">//初始化条件变量和互斥量  </span></span><br><span class="line">    pthread_mutex_init(&amp;m, <span class="literal">NULL</span>);  </span><br><span class="line">    pthread_cond_init(&amp;has_product, <span class="literal">NULL</span>);  </span><br><span class="line">    head = <span class="literal">NULL</span>;  </span><br><span class="line">    <span class="keyword">pthread_t</span> pro[<span class="number">2</span>], com[<span class="number">3</span>];  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++)  </span><br><span class="line">        pthread_create(&amp;pro[i], <span class="literal">NULL</span>, producer, <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)  </span><br><span class="line">        pthread_create(&amp;com[i], <span class="literal">NULL</span>, comsumer, <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++)  </span><br><span class="line">        pthread_join(pro[i], <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)  </span><br><span class="line">        pthread_join(com[i], <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="comment">//销毁条件变量和互斥量  </span></span><br><span class="line">    pthread_mutex_destroy(&amp;m);  </span><br><span class="line">    pthread_cond_destroy(&amp;has_product);  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="bash-command"><a href="#bash-command" class="headerlink" title="bash command"></a>bash command</h1><h2 id="Q-How-can-I-redirect-both-stderr-and-stdin-at-once"><a href="#Q-How-can-I-redirect-both-stderr-and-stdin-at-once" class="headerlink" title="Q: How can I redirect both stderr and stdin at once?"></a>Q: How can I redirect both stderr and stdin at once?</h2><p>command <code>&gt; file.log 2&gt;&amp;1</code> : Redirect stderr to “where stdout is currently going”. In this case, that is a file opened in append mode. In other words, the <code>&amp;1</code> reuses the file descriptor which stdout currently uses.</p>
-<h2 id="Q-what-is-proc-entry-and-how-it-is-useful"><a href="#Q-what-is-proc-entry-and-how-it-is-useful" class="headerlink" title="Q: what is /proc entry and how it is useful"></a>Q: what is <code>/proc</code> entry and how it is useful</h2><p>Virtual directory for system information, 虚拟档案系统. 数据都在内存当中,不占用硬盘空间.<br>主要包括系统核心,接口设备状态,网络状态.<br>比较重要的档案例: <code>proc/cpuinfo</code>  <code>/proc/interrupts</code>  <code>/proc/ioports</code></p>
-<h2 id="How-can-we-edit-a-file-without-opening-in-Linux"><a href="#How-can-we-edit-a-file-without-opening-in-Linux" class="headerlink" title="How can we edit a file without opening in Linux?"></a>How can we edit a file without opening in Linux?</h2><p><code>sed</code> command is used to edit a file without opening.<br><code>sed</code> command is used to modify or change the contents of a file.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># For example, we have a text file with below content</span></span><br><span class="line">&gt; cat file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># replace “sed” with “vi”</span></span><br><span class="line">&gt;sed ‘s/sed/vi/’ file.txt</span><br></pre></td></tr></table></figure>
-<h2 id="Q-How-can-you-find-out-how-much-memory-Linux-is-using"><a href="#Q-How-can-you-find-out-how-much-memory-Linux-is-using" class="headerlink" title="Q: How can you find out how much memory Linux is using?"></a>Q: How can you find out how much memory Linux is using?</h2><p><code>cat /proc/meminfo</code></p>
-<h2 id="Q-Explain-grep-command-and-its-use"><a href="#Q-Explain-grep-command-and-its-use" class="headerlink" title="Q: Explain grep command and its use."></a>Q: Explain grep command and its use.</h2><p><code>grep</code> command in Linux is used to search a specific pattern. Grep command will help you to explore the string in a file or multiple files.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">grep ‘word’ filename</span><br><span class="line">grep ‘word’ file1 file2 file3</span><br><span class="line"><span class="built_in">command</span> | grep ‘string’</span><br><span class="line"></span><br><span class="line"><span class="comment"># For example,</span></span><br><span class="line"></span><br><span class="line">grep “smith” passwd</span><br><span class="line">grep “smith” passwd shadow</span><br><span class="line">netstat -an | grep 8083</span><br><span class="line">cat /etc/passwd | grep smith</span><br></pre></td></tr></table></figure>
-<h2 id="Q-Explain-file-content-commands-along-with-the-description"><a href="#Q-Explain-file-content-commands-along-with-the-description" class="headerlink" title="Q: Explain file content commands along with the description."></a>Q: Explain file content commands along with the description.</h2><ul>
-<li><code>head</code>: to check the starting of a file.</li>
-<li><code>tail</code>: to check the ending of the file. It is the reverse of head command.</li>
-<li><code>cat</code>: used to view, create, concatenate the files.</li>
-<li><code>more</code>: used to display the text in the terminal window in pager form.</li>
-<li><code>less</code>: used to view the text in the backward direction and also provides single line movement.</li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="https://www.wisdomjobs.com/e-university/linux-embedded-systems-interview-questions.html" target="_blank" rel="noopener">Linux Embedded systems Interview Questions &amp; Answers</a></li>
-<li><a href="http://linuxdevicedrivercinterviewqs.blogspot.com.au/" target="_blank" rel="noopener">Linux Device Driver,Embedded C Interview Questions</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2815,7 +2638,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">120</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2823,7 +2646,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2832,7 +2655,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -2880,7 +2703,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2019</span>
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

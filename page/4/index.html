@@ -261,6 +261,358 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/26/1812-drv-nor/" itemprop="url">
+                  驱动之NOR Flash
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-26T00:00:00+11:00" content="2018-01-26">
+              2018-01-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/22/1809-drv-blk/">驱动之块设备-框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/24/1810-drv-nand1/">驱动之NAND Flash框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/25/1811-drv-nand2/">驱动之NAND Flash源码</a></li>
+<li><a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">驱动之NOR Flash</a></li>
+<li><a href="https://draapho.github.io/2018/02/06/1813-drv-net/">驱动之网卡驱动</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="NOR-Flash-基础知识"><a href="#NOR-Flash-基础知识" class="headerlink" title="NOR Flash 基础知识"></a>NOR Flash 基础知识</h1><h2 id="NAND-和-NOR-Flash的比较"><a href="#NAND-和-NOR-Flash的比较" class="headerlink" title="NAND 和 NOR Flash的比较"></a>NAND 和 NOR Flash的比较</h2><table>
+<thead>
+<tr>
+<th>NOR FLASH</th>
+<th>NAND FLASH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口时序同SRAM,易使用</td>
+<td>地址/数据线复用，数据位较窄</td>
+</tr>
+<tr>
+<td>读取速度较快</td>
+<td>读取速度较慢</td>
+</tr>
+<tr>
+<td>擦除速度慢，以64-128KB的块为单位</td>
+<td>擦除速度快，以8－32KB的块为单位</td>
+</tr>
+<tr>
+<td>写入速度慢</td>
+<td>写入速度快</td>
+</tr>
+<tr>
+<td>随机存取速度较快，支持XIP(eXecute In Place，芯片内执行)，适用于代码存储。在嵌入式系统中，常用于存放引导程序、根文件系统等。</td>
+<td>顺序读取速度较快，随机存取速度慢，适用于数据存储(如大容量的多媒体应用)。在嵌入式系统中，常用于存放用户文件系统等。</td>
+</tr>
+<tr>
+<td>单片容量较小，1-32MB</td>
+<td>单片容量较大，8-128MB，提高了单元密度</td>
+</tr>
+<tr>
+<td>最大擦写次数10万次</td>
+<td>最大擦写次数100万次</td>
+</tr>
+</tbody>
+</table>
+<h2 id="硬件接口"><a href="#硬件接口" class="headerlink" title="硬件接口"></a>硬件接口</h2><p>看相关数据手册, 以jz2440v3开发板为例:</p>
+<ul>
+<li><code>MX29LV160DBTI-70G.pdf</code> NOR Flash 数据手册</li>
+<li><code>S3C2440A_UserManual_Rev13.pdf</code> CPU 数据手册</li>
+</ul>
+<p><img src="https://draapho.github.io/images/1812/nor1.JPG" alt="nor1.png"></p>
+<p>注意几点:</p>
+<ul>
+<li>NOR Flash 的特性和RAM一样, 可以直接用物理地址来操作.<ul>
+<li>当开发板以NOR Flash启动时, 0开始的地址就是指向NOR Flash的.</li>
+</ul>
+</li>
+<li>NOR Flash 数据位宽有两种接法, 16bit 和 8bit. jz2440用的16bit接法<ul>
+<li>因此, 用uboot测试时, 需要使用 <code>mw.w</code> <code>md.w</code> 来操作内存地址</li>
+<li><code>mw</code> Memory Write. uboot下的写内存指令</li>
+<li><code>md</code> Memory Display. uboot下的读内存指令</li>
+<li>使用16bit接法时, CPU的地址线0是不接的. 因而指令上有个错位.</li>
+<li>譬如: jz2440发出 (555h&lt;&lt;1), NOR Flash才能收到555h这个地址.</li>
+</ul>
+</li>
+<li>NOR Flash 有两种模式, jedec, cfi<ul>
+<li>jedec, 无法直接从芯片内读取详细信息, 需要根据芯片ID软件查表.</li>
+<li>cfi, Common Flash Interface, 可以直接查询芯片详细信息.</li>
+<li>目前大多数 NOR Flash 都支持 cfi 规范.</li>
+</ul>
+</li>
+</ul>
+<h2 id="读写实验"><a href="#读写实验" class="headerlink" title="读写实验"></a>读写实验</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot 命令行, 确保是从 NOR Flash 启动的uboot!</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取 ID. 2440的A1接到NOR的A0，所以2440发出的地址全部要左移一位</span></span><br><span class="line">mw.w aaa aa             <span class="comment"># Addr = 555&lt;&lt;1</span></span><br><span class="line">mw.w 554 55             <span class="comment"># Addr = 2AA&lt;&lt;1</span></span><br><span class="line">mw.w aaa 90             <span class="comment"># Addr = 555&lt;&lt;1</span></span><br><span class="line">md.w 0 1</span><br><span class="line"><span class="comment"># 显示 00c2, Manifacture ID</span></span><br><span class="line">md.w 2 1                <span class="comment"># Addr = 1&lt;&lt;1</span></span><br><span class="line"><span class="comment"># 显示 2249, 表示型号 MX29LV160DB</span></span><br><span class="line">mw.w 0 f0               <span class="comment"># Reset Mode, 退出读ID</span></span><br></pre></td></tr></table></figure>
+<h1 id="NOR-Flash-系统框架"><a href="#NOR-Flash-系统框架" class="headerlink" title="NOR Flash 系统框架"></a>NOR Flash 系统框架</h1><h2 id="系统自带驱动"><a href="#系统自带驱动" class="headerlink" title="系统自带驱动"></a>系统自带驱动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                                       <span class="comment"># 增加对NOR Flash的支持</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment">#   -&gt; Memory Technology Device (MTD) support</span></span><br><span class="line"><span class="comment">#     -&gt; Mapping drivers for chip access</span></span><br><span class="line"><span class="comment">#       &lt;M&gt; CFI Flash device in physical memory map     # CFI NOR Flash, 直接做物理映射就可以了</span></span><br><span class="line"><span class="comment">#       (0x0) Physical start address of flash mapping   # 物理基地址, 从0开始的</span></span><br><span class="line"><span class="comment">#       (0x2000000) Physical length of flash mapping    # 要映射的长度, 就是芯片的大小</span></span><br><span class="line"><span class="comment">#       (2)   Bank width in octets (NEW)                # 数据线位宽, 2就是2字节,  16bit</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 比较 .config 会发现多了如下配置. 从而可以找到文件 "drivers/mtd/chips/phram.c"</span></span><br><span class="line"><span class="comment"># CONFIG_MTD_PHYSMAP=m</span></span><br><span class="line"><span class="comment"># CONFIG_MTD_PHYSMAP_START=0</span></span><br><span class="line"><span class="comment"># CONFIG_MTD_PHYSMAP_LEN=0x2000000</span></span><br><span class="line"><span class="comment"># CONFIG_MTD_PHYSMAP_BANKWIDTH=2</span></span><br><span class="line"></span><br><span class="line">$ make modules                                          <span class="comment"># 会生成 physmap.ko</span></span><br><span class="line">cp ./drivers/mtd/maps/physmap.ko ~/share/jz2440/drivers/nor/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nor/                     # NOR flash驱动目录, nfs</span></span><br><span class="line">$ ls /dev/mtd*                                          <span class="comment"># 查看一下mtd现有设备</span></span><br><span class="line">$ insmod physmap.ko                                     <span class="comment"># 加载驱动</span></span><br><span class="line">$ ls /dev/mtd*                                          <span class="comment"># 增加了若干mtd设备</span></span><br><span class="line">$ cat /proc/mtd</span><br></pre></td></tr></table></figure>
+<h2 id="框架分析"><a href="#框架分析" class="headerlink" title="框架分析"></a>框架分析</h2><p>其基本框架和 NAND Flash 是一样的</p>
+<p><img src="https://draapho.github.io/images/1812/nor2.png" alt="nor2.png"></p>
+<p>下面, 分析一下 CFI NOR Flash 的内核代码框架</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// -----&gt; /drivers/mtd/maps/physmap.c</span></span><br><span class="line">module_init(physmap_init)</span><br><span class="line">    platform_driver_register(&amp;physmap_flash_driver);    <span class="comment">// 上来就是自己玩platform框架</span></span><br><span class="line">    platform_device_register(&amp;physmap_flash);</span><br><span class="line"></span><br><span class="line"># 匹配后, 自然是调用probe函数</span><br><span class="line">physmap_flash_probe</span><br><span class="line">    probe_type = rom_probe_types;                       <span class="comment">// "cfi_probe" "jedec_probe" 都是用于NOR Flash的</span></span><br><span class="line">    do_map_probe(*probe_type, &amp;info-&gt;<span class="built_in">map</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /drivers/mtd/chips/chipreg.c</span></span><br><span class="line">    do_map_probe</span><br><span class="line">        drv = get_mtd_chip_driver(name);</span><br><span class="line">            list_entry(pos, typeof(*<span class="keyword">this</span>), <span class="built_in">list</span>)        <span class="comment">// this 是 mtd_chip_driver 类型</span></span><br><span class="line">        drv-&gt;probe(<span class="built_in">map</span>);</span><br><span class="line">        <span class="comment">// 搜索 mtd_chip_driver 查看来源. 可以猜出和文件 cfi_probe.c 有关.</span></span><br><span class="line">        <span class="comment">// 实际调用了 cfi_probe      // -----&gt; drivers/mtd/chips/cfi_probe.c</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, chipreg.c</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// add_mtd_partitions                               // 有分区则进行分区, 最终也会调用 add_mtd_device</span></span><br><span class="line">    add_mtd_device                                      <span class="comment">// 添加mtd设备</span></span><br><span class="line">    <span class="comment">// 然后就会跳到 mtdcore.c 后面和 NAND Flash 一样了. 或参考下面的一个例子</span></span><br><span class="line">    <span class="comment">// 最终会去注册 字符设备 和 块设备</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, physmap.c</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/chips/cfi_probe.c</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_chip_driver</span> <span class="title">cfi_chipdrv</span>;</span>              <span class="comment">// .probe = cfi_probe</span></span><br><span class="line">cfi_probe</span><br><span class="line">    mtd_do_chip_probe(<span class="built_in">map</span>, &amp;cfi_chip_probe);            <span class="comment">// 识别cfi设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; drivers/mtd/chips/gen_probe.c</span></span><br><span class="line">    mtd_do_chip_probe</span><br><span class="line">        genprobe_ident_chips</span><br><span class="line">            cp-&gt;probe_chip                              <span class="comment">// 调用 cfi_chip_probe.probe_chip</span></span><br><span class="line">            <span class="comment">// 实际调用函数 cfi_probe_chip</span></span><br><span class="line">        check_cmd_set                                   <span class="comment">// 初始化 mtd_info 结构体</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, gen_probe.c</span></span><br><span class="line"></span><br><span class="line">cfi_probe_chip</span><br><span class="line">    cfi_send_gen_cmd                                    <span class="comment">// 发送CFI指令, 获取芯片信息</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, cfi_probe.c</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// drivers/mtd/chips/jedec_probe.c 有 jedec_probe. 用于jedec设备</span></span><br><span class="line"><span class="comment">// drivers/mtd/chips/map_rom.c 有 map_rom_probe. 应该是用于CPU内置的ROM.</span></span><br></pre></td></tr></table></figure>
+<p>这样就比较清楚了, 整个Linux代码尽可能的做到功能上的(代码上没有完全做到)分层分离.<br>大框架下有小框架. 譬如 NOR Flash 属于整个MTD大框架的一部分. 但其内部也有自己的一套小框架.</p>
+<p>在 NOR Flash 这个例子里面,<br>将通用的底层驱动代码放在文件 <code>/drivers/mtd/maps/physmap.c</code><br>然后probe时, 具体的硬件操作被拆分三个部分 <code>cfi_probe.c</code> <code>jedec_probe.c</code> <code>map_rom.c</code><br>由于probe里面也有共性的东西, 又被提炼成 <code>gen_probe.c</code> 放在一起.</p>
+<p>最后, 看一个最简单的例子, ram模拟mtd设备. 将底层硬件相关操作减到了最少.<br>这个RAM mtd设备和 NAND/NOR Flash 平级, 挂在 <code>mtdcore.c</code> 下.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// -----&gt; /drivers/mtd/devices/phram.c</span></span><br><span class="line">module_param_call(phram, phram_setup, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">000</span>);         <span class="comment">// 由uboot传递参数进来</span></span><br><span class="line">phram_setup</span><br><span class="line">    register_device(name, start, len);</span><br><span class="line">        <span class="keyword">new</span>-&gt;mtd.XXX = XXX;                                     <span class="comment">// 初始化 mtd_info 结构体</span></span><br><span class="line">        add_mtd_device                                          <span class="comment">// 添加 mtd设备</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// -----&gt; /drivers/mtd/mtdcore.c                        // mtd 设备核心</span></span><br><span class="line">        add_mtd_device</span><br><span class="line">            <span class="keyword">not</span> = list_entry(<span class="keyword">this</span>, struct mtd_notifier, <span class="built_in">list</span>);  <span class="comment">// struct mtd_notifier 结构体是关键</span></span><br><span class="line">            <span class="keyword">not</span>-&gt;add(mtd);                                      <span class="comment">// 调用了add</span></span><br><span class="line">            <span class="comment">// 搜索 mtd_notifier 查看来源, 可知:</span></span><br><span class="line">            <span class="comment">// 实际调用了 mtd_notify_add         // -----&gt; drivers/mtd/mtdchar.c</span></span><br><span class="line">            <span class="comment">// 实际调用了 blktrans_notify_add    // -----&gt; drivers/mtd/mtd_blkdevs.c</span></span><br><span class="line">        <span class="comment">// -----&gt; 结束, mtdcore.c</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//可见, 核心内容就是 初始化mtd_info结构体, 然后 add_mtd_device</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, phram.c</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/mtdchar.c                                 // 将mtd设备挂载成字符设备</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_notifier</span> <span class="title">notifier</span>;</span>                            <span class="comment">// .add = mtd_notify_add</span></span><br><span class="line">mtd_notify_add</span><br><span class="line">    class_device_create(<span class="string">"mtd%d"</span>)                                <span class="comment">// mtd字符设备, 可读写</span></span><br><span class="line">    class_device_create(<span class="string">"mtd%dro"</span>)                              <span class="comment">// mtd只读字符设备</span></span><br><span class="line">init_mtdchar                                                    <span class="comment">// mtdchar.c 的 module_init</span></span><br><span class="line">    register_chrdev(MTD_CHAR_MAJOR, <span class="string">"mtd"</span>, &amp;mtd_fops)           <span class="comment">// 注册为字符设备</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, mtdchar.c 完成了字符设备的核心步骤.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/mtd_blkdevs.c                             // 将mtd设备挂载成块设备</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_notifier</span> <span class="title">blktrans_notifier</span>;</span>                   <span class="comment">// .add = blktrans_notify_add</span></span><br><span class="line">blktrans_notify_add</span><br><span class="line">    tr = list_entry(<span class="keyword">this</span>, struct mtd_blktrans_ops, <span class="built_in">list</span>);       <span class="comment">// 一样的, 搜索 mtd_blktrans_ops</span></span><br><span class="line">    tr-&gt;add_mtd(tr, mtd);</span><br><span class="line">    <span class="comment">// 可以找到两个文件有初始化, 很明显是块设备读写还是只读的区别. 选取 /drivers/mtd/mtdblock.c</span></span><br><span class="line">    <span class="comment">// 实际调用了 mtdblock_add_mtd</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /drivers/mtd/mtdblock.c</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_blktrans_ops</span> <span class="title">mtdblock_tr</span>;</span>                 <span class="comment">// .add_mtd = mtdblock_add_mtd</span></span><br><span class="line">    mtdblock_add_mtd</span><br><span class="line">        add_mtd_blktrans_dev</span><br><span class="line">            alloc_disk                                          <span class="comment">// 分配 gendisk</span></span><br><span class="line">            add_disk                                            <span class="comment">// 注册为块设备</span></span><br><span class="line">    init_mtdblock                                               <span class="comment">// mtdblock.c 的 module_init</span></span><br><span class="line">        register_mtd_blktrans</span><br><span class="line">            register_blkdev                                     <span class="comment">// 获得主设备号</span></span><br><span class="line">            blk_init_queue                                      <span class="comment">// 设置缓冲队列</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, mtdblock.c 完成了块设备的核心步骤.</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, mtd_blkdevs</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><h2 id="s3c-nor-c"><a href="#s3c-nor-c" class="headerlink" title="s3c_nor.c"></a>s3c_nor.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 参考 drivers\mtd\maps\physmap.c</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/mtd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/map.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/partitions.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">map_info</span> *<span class="title">s3c_nor_map</span>;</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_info</span> *<span class="title">s3c_nor_mtd</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_partition</span> <span class="title">s3c_nor_parts</span>[] = &#123;</span>             <span class="comment">// 复杂一点, 做一个分区信息</span></span><br><span class="line">    [<span class="number">0</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"bootloader_nor"</span>,</span><br><span class="line">        .size   = <span class="number">0x00040000</span>,</span><br><span class="line">        .offset = <span class="number">0</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">1</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"root_nor"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = MTDPART_SIZ_FULL,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_nor_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* 1. 分配map_info结构体 */</span></span><br><span class="line">    s3c_nor_map = kzalloc(<span class="keyword">sizeof</span>(struct map_info), GFP_KERNEL);;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 设置: 物理基地址(phys), 大小(size), 位宽(bankwidth), 虚拟基地址(virt) */</span></span><br><span class="line">    s3c_nor_map-&gt;name = <span class="string">"s3c_nor"</span>;</span><br><span class="line">    s3c_nor_map-&gt;phys = <span class="number">0</span>;                                              <span class="comment">// 对应的物理地址</span></span><br><span class="line">    s3c_nor_map-&gt;size = <span class="number">0x2000000</span>;                                      <span class="comment">// NOR的容量</span></span><br><span class="line">    s3c_nor_map-&gt;bankwidth = <span class="number">2</span>;                                         <span class="comment">// 数据线位宽, 单位字节</span></span><br><span class="line">    s3c_nor_map-&gt;virt = ioremap(s3c_nor_map-&gt;phys, s3c_nor_map-&gt;size);  <span class="comment">// 对应的虚拟地址</span></span><br><span class="line">    simple_map_init(s3c_nor_map);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 使用: 调用NOR FLASH协议层提供的函数来识别 */</span></span><br><span class="line">    printk(<span class="string">"use cfi_probe\n"</span>);</span><br><span class="line">    s3c_nor_mtd = do_map_probe(<span class="string">"cfi_probe"</span>, s3c_nor_map);               <span class="comment">// 直接去调用 .probe = cfi_probe</span></span><br><span class="line">    <span class="keyword">if</span> (!s3c_nor_mtd) &#123;</span><br><span class="line">        printk(<span class="string">"use jedec_probe\n"</span>);</span><br><span class="line">        s3c_nor_mtd = do_map_probe(<span class="string">"jedec_probe"</span>, s3c_nor_map);         <span class="comment">// 失败, 尝试 jedec 模式</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!s3c_nor_mtd) &#123;</span><br><span class="line">        iounmap(s3c_nor_map-&gt;virt);</span><br><span class="line">        kfree(s3c_nor_map);</span><br><span class="line">        <span class="keyword">return</span> -EIO;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4. add_mtd_partitions */</span></span><br><span class="line">    add_mtd_partitions(s3c_nor_mtd, s3c_nor_parts, <span class="number">2</span>);                  <span class="comment">// 里面调用 add_mtd_device</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c_nor_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    del_mtd_partitions(s3c_nor_mtd);</span><br><span class="line">    iounmap(s3c_nor_map-&gt;virt);</span><br><span class="line">    kfree(s3c_nor_map);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(s3c_nor_init);</span><br><span class="line">module_exit(s3c_nor_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := s3c_nor.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nor/         # NOR flash驱动目录</span></span><br><span class="line">$ make modules                              <span class="comment"># 生成s3c_nor.ko</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nor/         # NOR flash驱动目录, nfs</span></span><br><span class="line">$ ls /dev/mtd*                              <span class="comment"># 查看现有的mtd设备</span></span><br><span class="line">$ insmod s3c_nor.ko                         <span class="comment"># 加载驱动</span></span><br><span class="line">$ ls /dev/mtd*                              <span class="comment"># 查看新增的mtd设备</span></span><br><span class="line">$ flash_eraseall -j /dev/mtd5               <span class="comment"># 格式化为 jffs2, 注意新增的不一定是mtd5</span></span><br><span class="line">$ mount -t jffs2 /dev/mtdblock5 /mnt        <span class="comment"># 挂载这个设备到 /mnt</span></span><br><span class="line"><span class="comment"># 在 /mnt 下进行文件的创建和操作, 测试该文件系统.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果没有 flash_eraseall 指令, 则需要编译mtd格式化工具 mtd-utils</span></span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line">$ tar xjf mtd-utils-05.07.23.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> mtd-utils-05.07.23/util</span><br><span class="line">$ vim Makefile</span><br><span class="line">    <span class="comment"># ===== 文件内容, 修改如下内容: =====</span></span><br><span class="line">    <span class="comment">#CROSS=arm-linux-   # 需要交叉编译, 取消注释</span></span><br><span class="line">    CROSS=arm-linux-</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line">$ make</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line"><span class="comment"># 通过nfs拷贝到bin目录下即可.</span></span><br><span class="line"><span class="comment"># pwd = ./mtd-utils-05.07.23/util           # nfs文件</span></span><br><span class="line">$ cp flash_erase flash_eraseall /bin</span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/01/25/1811-drv-nand2/" itemprop="url">
+                  驱动之NAND Flash源码
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-25T00:00:00+11:00" content="2018-01-25">
+              2018-01-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/22/1809-drv-blk/">驱动之块设备-框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/24/1810-drv-nand1/">驱动之NAND Flash框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/25/1811-drv-nand2/">驱动之NAND Flash源码</a></li>
+<li><a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">驱动之NOR Flash</a></li>
+<li><a href="https://draapho.github.io/2018/02/06/1813-drv-net/">驱动之网卡驱动</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>由 <strong>nand flash 系统框架</strong> 分析可知, Linux内核系统以及完成了Nand Flash设备的绝大部分的核心工作.<br>因此Nand Flash驱动真正要做的工作主要就是:</p>
+<ul>
+<li>分配并初始化 <code>nand_chip</code> 结构体</li>
+<li>初始化硬件</li>
+<li>调用 <code>nand_scan</code></li>
+<li>调用 <code>add_mtd_partitions</code></li>
+</ul>
+<p>可以参考内核文件的相关源码, 学着写.</p>
+<ul>
+<li><code>drivers\mtd\nand\at91_nand.c</code></li>
+<li><code>drivers\mtd\nand\s3c2410.c</code></li>
+</ul>
+<p>流程如下图:<br><img src="https://draapho.github.io/images/1810/nand3.jpg" alt="nand3"></p>
+<h2 id="s3c-nand-c"><a href="#s3c-nand-c" class="headerlink" title="s3c_nand.c"></a>s3c_nand.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/mtd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/nand.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/partitions.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/clk.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-nand.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/nand.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">s3c_nand_regs</span> &#123;</span>                              <span class="comment">// 2440芯片NAND Flash相关寄存器</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfconf  ;                         <span class="comment">// 物理地址 0x4E000000</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfcont  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfcmd   ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfaddr  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfdata  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd0 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd1 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfstat  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfestat0;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfestat1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfmecc0 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfmecc1 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfsecc  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfsblk  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeblk  ;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">nand_chip</span> *<span class="title">s3c_nand</span>;</span>                  <span class="comment">// NAND Flash操作的核心结构体</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_info</span> *<span class="title">s3c_mtd</span>;</span>                    <span class="comment">// 给两个系统函数使用的结构体</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">s3c_nand_regs</span> *<span class="title">s3c_nand_regs</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_partition</span> <span class="title">s3c_nand_parts</span>[] = &#123;</span>    <span class="comment">// 分区信息</span></span><br><span class="line">    [<span class="number">0</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"bootloader"</span>,</span><br><span class="line">        .size   = <span class="number">0x00040000</span>,</span><br><span class="line">        .offset = <span class="number">0</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">1</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"params"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = <span class="number">0x00020000</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">2</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"kernel"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = <span class="number">0x00200000</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">3</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"root"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = MTDPART_SIZ_FULL,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不能用Linux默认的片选函数(nand_set_defaults), 自己根据数据手册写一下.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c2440_select_chip</span><span class="params">(struct mtd_info *mtd, <span class="keyword">int</span> chipnr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (chipnr == <span class="number">-1</span>) &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcont |= (<span class="number">1</span>&lt;&lt;<span class="number">1</span>);            <span class="comment">// NFCONT bit1=1, 取消片选</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcont &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">1</span>);           <span class="comment">// NFCONT bit1=0, 使能片选</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c2440_cmd_ctrl</span><span class="params">(struct mtd_info *mtd, <span class="keyword">int</span> dat, <span class="keyword">unsigned</span> <span class="keyword">int</span> ctrl)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (ctrl &amp; NAND_CLE) &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcmd = dat;                 <span class="comment">// NFCMMD=dat, 发送命令</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfaddr = dat;                <span class="comment">// NFADDR=dat, 发送地址</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c2440_dev_ready</span><span class="params">(struct mtd_info *mtd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (s3c_nand_regs-&gt;nfstat &amp; (<span class="number">1</span>&lt;&lt;<span class="number">0</span>));        <span class="comment">// NFSTAT bit0=0, Busy else Ready</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_nand_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">clk</span> *<span class="title">clk</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 1. 分配nand_chip 和 mtd_info 结构体 */</span></span><br><span class="line">    s3c_nand = kzalloc(<span class="keyword">sizeof</span>(struct nand_chip), GFP_KERNEL);</span><br><span class="line">    s3c_mtd = kzalloc(<span class="keyword">sizeof</span>(struct mtd_info), GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获得寄存器的虚拟地址. 0x4E000000是这些寄存器的起始物理地址</span></span><br><span class="line">    s3c_nand_regs = ioremap(<span class="number">0x4E000000</span>, <span class="keyword">sizeof</span>(struct s3c_nand_regs));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 设置nand_chip */</span></span><br><span class="line">    <span class="comment">/* nand_chip 需要提供 NAND Flash 操作的基本函数. 通用的函数已经由 nand_set_defaults 设置好了.</span></span><br><span class="line"><span class="comment">     * 需要自己设置的函数主要有: 片选,发指令,发地址,发数据,读数据,判断状态的功能</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    s3c_nand-&gt;select_chip = s3c2440_select_chip;    <span class="comment">// 片选函数</span></span><br><span class="line">    s3c_nand-&gt;cmd_ctrl    = s3c2440_cmd_ctrl;       <span class="comment">// 发送指令/地址</span></span><br><span class="line">    s3c_nand-&gt;IO_ADDR_R   = &amp;s3c_nand_regs-&gt;nfdata; <span class="comment">// 读数据的虚拟地址</span></span><br><span class="line">    s3c_nand-&gt;IO_ADDR_W   = &amp;s3c_nand_regs-&gt;nfdata; <span class="comment">// 发数据的虚拟地址</span></span><br><span class="line">    s3c_nand-&gt;dev_ready   = s3c2440_dev_ready;      <span class="comment">// 芯片Busy/Ready的状态反馈</span></span><br><span class="line">    s3c_nand-&gt;ecc.mode    = NAND_ECC_SOFT;          <span class="comment">// ECC校验方式. 软件或硬件.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 硬件相关的设置: 根据NAND FLASH的手册设置时间参数 */</span></span><br><span class="line">    <span class="comment">// 使能NAND控制器的时钟</span></span><br><span class="line">    clk = clk_get(<span class="literal">NULL</span>, <span class="string">"nand"</span>);                    <span class="comment">// 由名称"nand"获得时钟</span></span><br><span class="line">    clk_enable(clk);                                <span class="comment">// 实际上就是 CLKCON bit[4]=1</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 NFCONF 寄存器. 由启动的打印信息可获得 HCLK=100MHz, 设置时序要求.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TACLS    0  <span class="comment">// 发出CLE/ALE之后多长时间才发出nWE信号, 从NAND手册可知CLE/ALE与nWE可以同时发出,所以TACLS=0</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TWRPH0   1  <span class="comment">// nWE的脉冲宽度, HCLK x ( TWRPH0 + 1 ), 从NAND手册可知它要&gt;=12ns, 所以TWRPH0&gt;=1</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TWRPH1   0  <span class="comment">// nWE变为高电平后多长时间CLE/ALE才能变为低电平, 从NAND手册可知它要&gt;=5ns, 所以TWRPH1&gt;=0</span></span></span><br><span class="line">    s3c_nand_regs-&gt;nfconf = (TACLS&lt;&lt;<span class="number">12</span>) | (TWRPH0&lt;&lt;<span class="number">8</span>) | (TWRPH1&lt;&lt;<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 NFCONT 寄存器. BIT1=1, 取消片选. BIT0=1, 使能NAND控制器</span></span><br><span class="line">    s3c_nand_regs-&gt;nfcont = (<span class="number">1</span>&lt;&lt;<span class="number">1</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4. 使用: nand_scan */</span></span><br><span class="line">    s3c_mtd-&gt;owner = THIS_MODULE;</span><br><span class="line">    s3c_mtd-&gt;priv  = s3c_nand;</span><br><span class="line">    nand_scan(s3c_mtd, <span class="number">1</span>);                          <span class="comment">// 识别NAND FLASH, 构造mtd_info. 硬件只有1块NAND Flash.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 5. add_mtd_partitions</span></span><br><span class="line"><span class="comment">     * 增加 add_mtd_partitions 函数后,</span></span><br><span class="line"><span class="comment">     * 内核必须去掉自带的NAND Flash驱动, 从NFS启动系统.</span></span><br><span class="line"><span class="comment">     * 确认要做这个实验的时候, 再取消下面的注释, 编译测试</span></span><br><span class="line"><span class="comment">     * 如果不需要分区, 只需调用 add_mtd_device(s3c_mtd);</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// add_mtd_partitions(s3c_mtd, s3c_nand_parts, 4);  // 告知分区要求, 调用 add_mtd_partitions</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c_nand_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    del_mtd_partitions(s3c_mtd);</span><br><span class="line">    iounmap(s3c_nand_regs);</span><br><span class="line">    kfree(s3c_mtd);</span><br><span class="line">    kfree(s3c_nand);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(s3c_nand_init);</span><br><span class="line">module_exit(s3c_nand_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := s3c_nand.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<h2 id="测试1"><a href="#测试1" class="headerlink" title="测试1"></a>测试1</h2><p>源码没有调用 <code>add_mtd_partitions</code> 时, 简单测试一下NAND Flash是否正常工作了.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成s3c_nand.ko, 忽略 s3c_nand_parts 没有使用的警告信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录, nfs</span></span><br><span class="line">$ insmod s3c_nand.ko                            <span class="comment"># 加载驱动</span></span><br><span class="line">NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)</span><br><span class="line">Scanning device <span class="keyword">for</span> bad blocks</span><br><span class="line">......</span><br><span class="line"><span class="comment"># 打印信息正确识别了 Nand Flash, 说明底层操作都成功了.</span></span><br></pre></td></tr></table></figure>
+<h2 id="测试2"><a href="#测试2" class="headerlink" title="测试2"></a>测试2</h2><p>源码调用 <code>add_mtd_partitions</code> 时, 测试过程比较复杂.</p>
+<ol>
+<li>卸载内核自带的NAND Flash驱动</li>
+<li>导致无法从本地Flash启动, 必须设置为从nfs启动</li>
+<li>从nfs启动后, 加载 s3c_nand.ko 驱动.</li>
+<li>使用工具 <code>mtd-utils</code> 格式化 NAND Flash</li>
+<li>格式化后, 就能挂载测试了.</li>
+<li>恢复原来的开发环境.</li>
+</ol>
+<p><strong>这个实验我没有实际去做, 设置和恢复都太麻烦. 而且正常的开发过程是不会这样去操作的.</strong><br>下面给出实验步骤:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 卸载内核自带的NAND Flash驱动</span></span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6_custom  复制一个新的内核源码目录</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                               <span class="comment"># 去掉自带的HID USB驱动程序</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment">#   -&gt; Memory Technology Device (MTD) support</span></span><br><span class="line"><span class="comment">#     -&gt; NAND Device Support</span></span><br><span class="line"><span class="comment">#       &lt; &gt; NAND Flash support for S3C2410/S3C2440 SoC  # 取消内置的NAND Flash驱动</span></span><br><span class="line"></span><br><span class="line">$ make uImage</span><br><span class="line"><span class="comment"># 烧录新的uImage</span></span><br><span class="line"><span class="comment"># 重启开发板进入uboot烧录界面, 按k准备烧录内核. 略过不表</span></span><br><span class="line">$ sudo dnw ./arch/arm/boot/uImage</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2. 导致无法从本地Flash启动, 必须设置为从nfs启动.</span><br><span class="line"><span class="comment"># 可参考 "嵌入式linux环境搭建-jz2440开发板" 一文</span></span><br><span class="line"><span class="comment"># 开发板, uboot命令行下</span></span><br><span class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址, 并且Ubuntu端正确设置了nfs</span></span><br><span class="line"></span><br><span class="line">printenv                                        <span class="comment"># 看下现有的uboot环境, 记好bootargs, 恢复的时候要用的.</span></span><br><span class="line"><span class="comment"># bootargs=noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</span></span><br><span class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</span><br><span class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></span><br><span class="line">save        <span class="comment"># 保存修改</span></span><br><span class="line">reset       <span class="comment"># 重启.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数简要说明:</span></span><br><span class="line"><span class="comment"># 'root=/dev/nfs' 加载nfs文件系统</span></span><br><span class="line"><span class="comment"># 'nfsroot=10.0.0.98:/fs' nfs文件系统的来源, 此处是由Ubuntu当nfs服务器, 共享出/fs文件夹</span></span><br><span class="line"><span class="comment"># 'ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off' 分别表示:</span></span><br><span class="line"><span class="comment">#  ip= 开发板ip : nfs服务器ip: 网关ip : 子网掩码 :: 开发板网口 : off</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">3. 从nfs启动后, 加载 s3c_nand.ko 驱动.</span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成s3c_nand.ko</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录, nfs</span></span><br><span class="line">$ insmod s3c_nand.ko                            <span class="comment"># 加载驱动</span></span><br><span class="line">NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">4. 使用工具 mtd-utils 格式化 NAND Flash</span><br><span class="line"><span class="comment"># Ubuntu 主机端, 需要先编译mtd-utils</span></span><br><span class="line">$ tar xjf mtd-utils-05.07.23.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> mtd-utils-05.07.23/util</span><br><span class="line">$ vim Makefile</span><br><span class="line">    <span class="comment"># ===== 文件内容, 修改如下内容: =====</span></span><br><span class="line">    <span class="comment">#CROSS=arm-linux-   # 需要交叉编译, 取消注释</span></span><br><span class="line">    CROSS=arm-linux-</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line">$ make</span><br><span class="line"><span class="comment"># 拷贝可执行文件到挂载的nfs文件系统的bin目录下</span></span><br><span class="line">$ cp flash_erase flash_eraseall /home/draapho/share/jz2440/nfs/fs_mini_mdev/bin</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">5. 格式化后, 就能挂载测试了.</span><br><span class="line"><span class="comment"># 开发板端 bash</span></span><br><span class="line">$ ls -l /dev/mtd*                               <span class="comment"># 查看一下分区情况, 有0-3共四个分区</span></span><br><span class="line"><span class="comment"># 应该是用 "flash_eraseall /dev/mtd1" 格式化 "params" 分区, 恢复起来最方便.</span></span><br><span class="line">$ flash_eraseall /dev/mtd3                      <span class="comment"># 格式化 root分区 (用的字符设备), 文件格式为yaffs</span></span><br><span class="line">$ mount -t yaffs /dev/mtdblock3 /tmp            <span class="comment"># 以yaffs格式挂载 root分区</span></span><br><span class="line">$ ls /tmp                                       <span class="comment"># 应该只有一个 lost+found 文件.</span></span><br><span class="line"><span class="comment"># 然后可以对这个分区进行文件创建, 读写的操作了.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">6. 恢复原来的开发环境</span><br><span class="line"><span class="comment"># 开发板 uboot:</span></span><br><span class="line"><span class="comment"># 破坏了root区的话, 就恢复root区, 重新烧写文件系统到flash就行了. 猜测使用 params 区做测试是没有影响的.</span></span><br><span class="line"><span class="comment"># 烧录原来的 uImage 到 kernel.</span></span><br><span class="line"><span class="comment"># 改回 uboot 的 bootargs 参数</span></span><br><span class="line"><span class="comment"># 重启, 从NAND Flash正常启动.</span></span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://www.cnblogs.com/TaigaCon/archive/2012/11/17/2775057.html" target="_blank" rel="noopener">Linux操作系统下 NAND FLASH驱动程序框架</a></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/01/24/1810-drv-nand1/" itemprop="url">
                   驱动之NAND Flash框架
                 </a>
@@ -280,6 +632,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -527,6 +898,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -719,6 +1109,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -867,6 +1276,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -1092,6 +1520,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -1219,429 +1666,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/10/1805-interview-general/" itemprop="url">
-                  面试之常规问题
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-10T00:00:00+11:00" content="2018-01-10">
-              2018-01-10
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/05/04/1714-expression/">逻辑|这样表达，事半功倍</a></li>
-<li><a href="https://draapho.github.io/2018/01/10/1805-interview-general/">面试之常规问题</a></li>
-<li><a href="https://draapho.github.io/2018/05/07/1816-interview-c/">面试之嵌入式C语言</a></li>
-<li><a href="https://draapho.github.io/2017/05/17/1715-c/">C语言知识巩固</a></li>
-<li><a href="https://draapho.github.io/2018/05/08/1817-interview-linux/">面试之嵌入式Linux</a></li>
-</ul>
-<p>我个人面试经验极少, 但这种能力都是需要培养的.<br>此系列总结一下面试中常见的技能要点. 侧重于技术面的准备.</p>
-<h1 id="中介面试"><a href="#中介面试" class="headerlink" title="中介面试"></a>中介面试</h1><p>中介面试, 更多的是对个人整体的一个考量. 特别是对你是否适合某雇主的评估.<br>一般而言, 中介是不懂技术的, 所以不用担心他问技术问题; 中介是八面玲珑的, 要小心自己的嘴巴<br>(<strong>有些中介是专门做技术人才的, 所以会问非常专业的问题</strong>, 这里只是说一般情况)<br>如果是电话面试 正常的语速, 有条理的回答, 适当的反问.<br>总之, 个人的看法是要从整体上让对方觉得你是一个思路清晰, 反应敏捷的专业人士.</p>
-<p>在澳洲, 工作多集中在几个大城市, 跨地区申请很正常.<br>个人的经验是不跨地区申请 contract 的工作. 跨地区申请时一定要有充足的理由.</p>
-<h1 id="雇主面试"><a href="#雇主面试" class="headerlink" title="雇主面试"></a>雇主面试</h1><p>一般来说, 能拿到雇主面试, 机会就比较大了. 分为技术面试和情商面试.</p>
-<h2 id="技术面试"><a href="#技术面试" class="headerlink" title="技术面试"></a>技术面试</h2><p>紧扣中介给你的职位说明做准备, 那就是考试大纲!<br>联系自己提交的个人简历, 那就是应试宝典!<br>做过的项目, 时间, 地点, 流程, 型号, 配置, 记忆要具体到最微小的细节.</p>
-<p>如果被问到不懂的地方, 直接坦白, 大家都是出来混的. 然后退一步:<br><code>But I do have some experience in XXX, for example XXX</code>, 把话题引到相关的自己熟悉的领域.</p>
-<p>如果被问到半懂不懂的地方, 就说 <code>I am major in XXX, so not a XXX guru. But I like learning new staff</code>.<br>然后坦白的谈你对 XXX 的理解.</p>
-<p>如果被问到细节自己又想不起来, 就告诉对方暂时记不起来了. 但在自己每天做的工作笔记中有(闪光点), 而且我现在可以把解决该问题的流程(闪光点)讲给你听.<br>总之, 一说实话, 二反应要快.</p>
-<p>此处需要注意, 学会换位思考, 见人说人话, 见鬼说鬼话 (国内的技术人员普遍缺乏此种能力).</p>
-<ul>
-<li>Team Leader 希望你是一个技术专才.</li>
-<li>CEO 或 Manager 则希望你的面要广一些.</li>
-</ul>
-<h2 id="情商面试"><a href="#情商面试" class="headerlink" title="情商面试"></a>情商面试</h2><p>其实这是最不好过的关, 因为主观性实在太强, 加之用非母语表达, 很容易因为紧张而影响反应和思维.<br>在这里只是与大家分享一下个人觉得不错的问题.</p>
-<h3 id="你的弱点是什么"><a href="#你的弱点是什么" class="headerlink" title="你的弱点是什么"></a>你的弱点是什么</h3><p>第一种回答. 因为英语毕竟不是我的母语, 所以有时候语言上还会碰到问题, 但我一直在努力.<br>第二个回答. 是工作文化的差异. 因为在中国 Hard working 被认为是一种美德, 所以有时候自己在工作中表现的有些 Aggressive, 但会注意和同事的配合; 面试官的回答是 No Problem. 这个也是以退为进.</p>
-<p>语言和文化, 是新一名的两座大山, 我们勇于承认问题, 面对问题, 解决问题, 保持自信. 这样的人才, 能不招人爱么!</p>
-<h3 id="你的优点是什么"><a href="#你的优点是什么" class="headerlink" title="你的优点是什么"></a>你的优点是什么</h3><p>Like challenge, Hard working, 还有谁能比我们这些移民有资格这样说. Full of enthusiasm.</p>
-<p>When you briefly explain to an employer what you have achived since you arrived in this new country, their reaction would be one of admiration. This says many things about you that make you an attractive candidate for a job - your technical skills and experience are just one of many things that you can offer.</p>
-<h3 id="当你和上级意见不统一时怎么办"><a href="#当你和上级意见不统一时怎么办" class="headerlink" title="当你和上级意见不统一时怎么办"></a>当你和上级意见不统一时怎么办</h3><p>Firstly, have a full communication with him/her, demostrate/make clear my opinions and reasons.<br>But I know that generally speaking, the director’s scale of view is large and deep than me, and the finally decision is made by him/her.</p>
-<h3 id="你更注重公司的氛围还是所在的团队氛围"><a href="#你更注重公司的氛围还是所在的团队氛围" class="headerlink" title="你更注重公司的氛围还是所在的团队氛围"></a>你更注重公司的氛围还是所在的团队氛围</h3><p>The atmosphere is deeply influenced by the company’s founder. In small company, I think it would be decided by the company atmosphere and in large company, I will pay more attention to the group atmosphere.</p>
-<h3 id="你在X年内的职业发展规划"><a href="#你在X年内的职业发展规划" class="headerlink" title="你在X年内的职业发展规划"></a>你在X年内的职业发展规划</h3><p>事先注意收集对方公司的资料, 使自己的发展规划与对方公司的情况以及对你的期望契合.</p>
-<h3 id="举一个你职业生涯中失败的例子"><a href="#举一个你职业生涯中失败的例子" class="headerlink" title="举一个你职业生涯中失败的例子"></a>举一个你职业生涯中失败的例子</h3><p>我想每个人都有自己的故事. 单但重要的不是失败, 而是But, 是你在随后的描述, 退一步进二步的策略. (ITT70)</p>
-<h3 id="举一个你为过去公司带来实际效益的例子"><a href="#举一个你为过去公司带来实际效益的例子" class="headerlink" title="举一个你为过去公司带来实际效益的例子"></a>举一个你为过去公司带来实际效益的例子</h3><p>这个事情要先想清楚, 不然容易晕. 我举个两个例子:<br>一, 给xx公司做了一个调优, 使其不必升级系统而用现有资源满足了需求.<br>二, 建议xx公司取消了xx选购计划, 因为再过x个月下一代产品就上市了. 目前可以通过别的手段暂时满足需求. 面试官接着就追问我为什么会知道. 就可以说因为我定期看技术网站, 技术期刊(Technical magazine), 参加研讨会(seminar).</p>
-<h1 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h1><h2 id="Tell-me-about-yourself"><a href="#Tell-me-about-yourself" class="headerlink" title="Tell me about yourself"></a>Tell me about yourself</h2><p>Work out what the THREE most important qualities are for the job.<br>Say where you last worked and pick one or two things you achieved at that job<br>Say why you want to work for the particular company you are applying for.<br>Show specific knowledge about the industry and the company that you are applying for.<br>Show enthusiasm about the company.</p>
-<h2 id="Work-experience-and-how-to-solve-problems-工作经验-工作遇到什么问题-怎么解决的"><a href="#Work-experience-and-how-to-solve-problems-工作经验-工作遇到什么问题-怎么解决的" class="headerlink" title="Work experience and how to solve problems (工作经验, 工作遇到什么问题, 怎么解决的)"></a>Work experience and how to solve problems (工作经验, 工作遇到什么问题, 怎么解决的)</h2><p>Initiative, Positive, can-do, innovative, work hard<br>先概括一下自己的工作经验. 然后对具体项目展开说.<br>譬如, 改善开发流程，加入敏捷开发思路在嵌入式系统，提升开发效率。</p>
-<h2 id="Overtime，Take-home-work-with-you-对于加班的看法。"><a href="#Overtime，Take-home-work-with-you-对于加班的看法。" class="headerlink" title="Overtime，Take home work with you  对于加班的看法。"></a>Overtime，Take home work with you  对于加班的看法。</h2><p>To be honest, I hope to get a good balance between life and work. However, sometimes, overtime work is inevitable with some positions or projects in some emergency, like a problem from client desperately asking, I can understand that well and would solve these problem as quick as possible. I can prioritize well.<br>Furthermore, I am interesting in learning new knowledge and technique, this is a part of my life.<br>业余时间也会自己充电学习.</p>
-<h2 id="Over-qualification-应聘的职位过低，容易被问-（隐去管理经验即可）"><a href="#Over-qualification-应聘的职位过低，容易被问-（隐去管理经验即可）" class="headerlink" title="Over qualification, 应聘的职位过低，容易被问 （隐去管理经验即可）"></a>Over qualification, 应聘的职位过低，容易被问 （隐去管理经验即可）</h2><p>I would say , I am well-qualified for the job. My qualification will help me do the job better and bring valuable contribution to your organization. For me, This job is a good chance to rebuild my career in Australia.</p>
-<h2 id="did-you-find-this-place-easily？（热身题）"><a href="#did-you-find-this-place-easily？（热身题）" class="headerlink" title="did you find this place easily？（热身题）"></a>did you find this place easily？（热身题）</h2><p>I drive here and it is easy for me to find here. I just paid some time to park my car. Traffic is never a problem to me. I am used to study route in advance and leave enough time for a place I never visited.</p>
-<h2 id="Do-you-have-some-questions？（面试结束时）"><a href="#Do-you-have-some-questions？（面试结束时）" class="headerlink" title="Do you have some questions？（面试结束时）"></a>Do you have some questions？（面试结束时）</h2><p>一般我是看人的。</p>
-<ul>
-<li>如果对方是engineer，将来的team mate，就问些日常需要用到的东西， 比如development process，用git还是svn，怎么test，之类的。或者team相关的。比较有共同语言。</li>
-<li>有时候会问些跟工作不太相关的问题，比如为啥不用某某技术等等，不过这些容易引起讨论，最好自己要有点知识，或者有办法漂亮地收尾打住。</li>
-<li>如果对方是manager，那当然就是大家据说的那些，比如career path，culture，大方面的projects等等。</li>
-<li>如果对方是HR，就问些公司的大概情况，发展等等。</li>
-<li>如果对方是再高层甚至CEO，那就灵活变通了。这个可能就以挣印象分为主。事先的功课非常重要。</li>
-<li>问公司发展方向。或问些人家以前做过的东西，不管对方说啥一概是点头称是，yeah, right, yes, absolutely, ahha I didn’t know that等等。</li>
-</ul>
-<p>常见提问如下:</p>
-<ul>
-<li>what’s your expectation of the position holder in the first 3 months？</li>
-<li>部门里有几个员工? structure如何? 一共有几个员工? 这些问题很重要,特别是公司的组织. 所在TEAM的人数和分工,有助于你进一步分析这个职位的前景和吸引度.</li>
-<li>What characteristic would you define a great employee in this role?</li>
-<li>How will success be measured in this role?</li>
-<li>How would I report to you in this role, what is your management style?</li>
-<li>What are some of the objectives you would like to see completed in the next 3 to 6 months?</li>
-<li>What are some of the longer term objectives you would like to see completed?</li>
-<li>How would you describe the culture of the organization?</li>
-<li>Are there any advancement opportunities available for me in this role</li>
-<li>What are the goals of the organisation during the next 3 years?</li>
-<li>What new technologies or systems are you looking to adopt in the near future?</li>
-</ul>
-<h2 id="What-are-your-greatest-weaknesses-（弱点）"><a href="#What-are-your-greatest-weaknesses-（弱点）" class="headerlink" title="What are your greatest weaknesses?（弱点）"></a>What are your greatest weaknesses?（弱点）</h2><p>secondary language<br>cultural barrier</p>
-<h2 id="What-can-you-contribuet-to-this-role-our-company-和what’s-your-stength"><a href="#What-can-you-contribuet-to-this-role-our-company-和what’s-your-stength" class="headerlink" title="What can you contribuet to this role (our company)? 和what’s your stength?"></a>What can you contribuet to this role (our company)? 和what’s your stength?</h2><ul>
-<li>What is one of your greatest achievements to date?</li>
-<li>Why do you want to work for our company?</li>
-<li>Why should we employ you to work at our company? Why should we hire you?</li>
-</ul>
-<p>面试的基本准则是show your match。 就是要让对方信服你是最合适的人选。所以在回答问题的时候一定要注意不断突出这点。如果你说了半天你自己的特长都不是人家appreciate的，那就没有用了。</p>
-<ul>
-<li>问题一让你说说你过去的功绩。注意说的时候要挑选match此职位要求的地方说。</li>
-<li>问题二主要是考你对公司的了解，为什么要应聘此公司，此公司为什么吸引你。这不是吹公司的优点。而是要突出吸引你的地方。也就是match你的职业发展的地方。</li>
-<li>问题三出发点是你的特长，所以要说明你的什么特长对该公司有用。</li>
-</ul>
-<h2 id="如果你加入了我们公司，你觉得你面临的最大的挑战是什么"><a href="#如果你加入了我们公司，你觉得你面临的最大的挑战是什么" class="headerlink" title="如果你加入了我们公司，你觉得你面临的最大的挑战是什么?"></a>如果你加入了我们公司，你觉得你面临的最大的挑战是什么?</h2><p>说基本要求以外的缺点。技术上没有任何问题，主要还是culture-barrier</p>
-<h2 id="did-you-fell-pressure-in-your-previous-job-How-did-you-release-those-pressure-（压力）"><a href="#did-you-fell-pressure-in-your-previous-job-How-did-you-release-those-pressure-（压力）" class="headerlink" title="did you fell pressure in your previous job? How did you release those pressure?（压力）"></a>did you fell pressure in your previous job? How did you release those pressure?（压力）</h2><p>有时, 我确实在会感到压力，但我认为适当的压力是正常的也是有益的(benefit, advantage), improve us to achieve self-break. 首先我会分析我说感到的压力，为什么我会感到压力。压力来自于何方(deadline, new knowledge)。这样有助于我了解自己的思维和正视问题。 在分析了压力以后，我会去想有什么解决产生这样压力根本问题的途径，而不是仅仅去想如何对付压力。<br>Too much pressure will become anxious, we should relief ourselves by psychological analysis<br>心理上，我会努力分析worst case的可能，如果把worst case都分析清楚了，就没有什么可以恐怖的了。 在解决问题的过程中，我会努力注重解决的过程，而不是可能的结果，这样有助于减轻我感到的压力。<br>只要我尽力去做了。所谓的压力，只是怕失败而已。 另外，我很喜欢冥想(meditation)，运动(rope skipping, biking)也是我缓解压力的一种日常手段。</p>
-<h2 id="work-to-a-deadline"><a href="#work-to-a-deadline" class="headerlink" title="work to a deadline"></a>work to a deadline</h2><ul>
-<li>process control: Monitor progress and communicate with all stakeholder Set milestones</li>
-<li>team communication Encourage and push team member</li>
-<li>Risk control identify and avoid potenial risk set contigency plan</li>
-<li>be careful to make simple example to explain the above points.</li>
-</ul>
-<h2 id="你过去工作中遇到的最大的挑战是什么？"><a href="#你过去工作中遇到的最大的挑战是什么？" class="headerlink" title="你过去工作中遇到的最大的挑战是什么？"></a>你过去工作中遇到的最大的挑战是什么？</h2><p>我面试人的时候也喜欢问这个问题，</p>
-<ul>
-<li>一来可以进一步了解工作背景和经验，</li>
-<li>二来可以考察面试者对业务的全面掌握程度，</li>
-<li>三来考察处理问题的能力。</li>
-</ul>
-<p>做产品和项目, 最重要的目标就是 fulfill the goal.<br>最大的挑战就是风险控制。。。The Devil’s in the Details，魔鬼藏在细节中。</p>
-<p>I’m a very focused person.<br>I divide whole task into smaller tasks then achieve and test them step by step.<br>Then I set time line for those tasks and start working as soon as possible.<br>I’m a kind of can-do person.  (work style)</p>
-<h2 id="你如何不小心犯技术错误导致重大故障并且如何recovery"><a href="#你如何不小心犯技术错误导致重大故障并且如何recovery" class="headerlink" title="你如何不小心犯技术错误导致重大故障并且如何recovery?"></a>你如何不小心犯技术错误导致重大故障并且如何recovery?</h2><p>自己很严谨，开发软硬件都会模块化的自我测试，不会允许这种严重错误发生在项目中后期。<br>再强调一下process，然后才是沟通和技术上的细节处理</p>
-<h2 id="how-do-you-avoid-mistake"><a href="#how-do-you-avoid-mistake" class="headerlink" title="how do you avoid mistake?"></a>how do you avoid mistake?</h2><ul>
-<li>(事前) Before the event Good planning-list critical point Risk analysis Decide procedure Communication</li>
-<li>(事中) During the event Keep tracking, double check in every step by using different method or different thinking style, ask third party to check Communication</li>
-<li>(事后) After the events Learn the lessons, Improve the procedure</li>
-</ul>
-<h2 id="为什么跳槽。"><a href="#为什么跳槽。" class="headerlink" title="为什么跳槽。"></a>为什么跳槽。</h2><p>也有些人会问, 你现在工作中最不喜欢的事情是什么，（其实就是在问你什么要跳槽）</p>
-<p>可以说因为公司内部要RESTRUCTURE,<br>目前公司没有发展的空间了  （应聘更高职位才说）<br>如果在一个公司工作很长时间了, 可以说, TIME FOR A CHANGE TO EXPERIENCE DIFFERENT STYLE AND HAVING EXPOSURES TO VARIETY<br>结合长期职业发展来阐述，从自己长期职业规划来说明自己需要什么样的机会，<br>同时贵公司（这个职位）有什么吸引我的地方，如何符合我的长期职业规划。<br>同时要表现出原公司也是不错的地方，只是不符合你长期的职业道路规划，<br>这样就更有说服力了。</p>
-<h2 id="你是如何处理和老板间的矛盾冲突的"><a href="#你是如何处理和老板间的矛盾冲突的" class="headerlink" title="你是如何处理和老板间的矛盾冲突的"></a>你是如何处理和老板间的矛盾冲突的</h2><p>我的回答是这样的，和老板的冲突，大部分应该是对具体某件事情的不同看法，而不会是大原则性的问题，<br>而有不同的看法是很正常的，也是你在这个公司存在的价值的体现，<br>continuously communication很重要，从出现不同的看法，到如何解决这个差异，必须要懂得倾听，也要懂得适时和恰当的表达，<br>老板站在他决策层面上考虑问题，肯定和你在某些实际操作层面上考虑问题有些不同的，但大家都应是为了达到相同的目标。<br>作为team member，我们更应该服从老板在strategy上的思路，respect大家team共同的目标，<br>但在具体的执行层面提出自己的见解，这些见解可能更具有实际操作性和价值。</p>
-<h2 id="说说你工作中不喜欢的同事"><a href="#说说你工作中不喜欢的同事" class="headerlink" title="说说你工作中不喜欢的同事"></a>说说你工作中不喜欢的同事</h2><p>当你的同事很难相处时,你是如何处理的?<br>If you want others respect you and kind to you,you must respect to others and kind to others.<br>Thus we can  easy to get  along with each other.<br>自己举个例子吧。设计师不理解程序员，程序员不理解设计师。事实上，大多是因为缺乏理解，多沟通保持尊重。</p>
-<h2 id="如果你和collegue意见不一致时你怎样处理"><a href="#如果你和collegue意见不一致时你怎样处理" class="headerlink" title="如果你和collegue意见不一致时你怎样处理"></a>如果你和collegue意见不一致时你怎样处理</h2><p>先分析自己的观点是否正确，是否和团队目标一致。<br>如果我认为自己的观点正确，则和同事交流，尽量达成一致。<br>如果和同事不能达成一致，而且对团队目标影响较大时，主管交流，征求主管意见</p>
-<h2 id="你喜欢亲自lead一个项目，还是喜欢将它break-down给不同的人？"><a href="#你喜欢亲自lead一个项目，还是喜欢将它break-down给不同的人？" class="headerlink" title="你喜欢亲自lead一个项目，还是喜欢将它break down给不同的人？"></a>你喜欢亲自lead一个项目，还是喜欢将它break down给不同的人？</h2><p>不在于我是否喜欢，而取决于TEAM的工作模式。<br>我一直是搞网络的，擅长网络设计，而网络往往是任何项目的核心部分.<br>在我以前公司，作为solution design的重要成员，我会把项目break down给不同的人，让各人发挥他们的专长(服务器、EMAIL、DC…..)，<br>而我作为项目的owner，负责整体协调和集成，包括技术审核、整体proposal，几乎充当了PM的角色，<br>所以，我不但有很强的技术背景，而且有丰富的项目组织协调能力。<br>若我能加入这个新的TEAM，我会follow这里的working model和文化，按照team leade规定的方式很好的完成我的职责。</p>
-<h2 id="如果你加入了我们公司，你一年之内的计划是什么"><a href="#如果你加入了我们公司，你一年之内的计划是什么" class="headerlink" title="如果你加入了我们公司，你一年之内的计划是什么"></a>如果你加入了我们公司，你一年之内的计划是什么</h2><p>1年内的计划无疑是问你如何准备适应这个环境。<br>除非对方明确说明短期内的机会，否则绝大多数职位一年内应该没有promotion或job transfer的机会的。<br>所以在回答这个问题的时候，要着重阐述自己如何在此职位上发挥自己的能力，独档一面。<br>建议分入公司3个月，半年，1年三点来回答。着重于link职位的job responsibility阐述自己准备如何做好。</p>
-<ul>
-<li>Team member</li>
-<li>try to merge yourself into the team</li>
-<li>understanding of all corp processes involved</li>
-<li>take over job and achieve required KPI</li>
-</ul>
-<h2 id="五年计划"><a href="#五年计划" class="headerlink" title="五年计划"></a>五年计划</h2><p>5年计划其实就是在问你长期职业规划。<br>这道题目的回答也可以注重soft 方面，而不是基于职位来回答。<br>比如你说5年后你要成为某个技术方面的专家，并在组织中起技术权威的作用，作为team leader引导组员等等。<br>这样既显示了自己的理想，又回避了具体的职位。</p>
-<p>举个例子:<br>我笑笑说：我没有特别的计划，如果有，就是希望在今后的几年里有机会去塔斯马尼亚，珀斯，布里斯班旅游，最好能周游澳洲。<br>到了我这个年龄，已经不相信什么雄心壮志了，我只知道，工作自己会一一回报我的。或许回报我职位，或许回报我要的生活。 当时，我们大家都笑了。这的确是我当时真实的想法。面试者还说，对啊，工作就是为了生活。</p>
-<h2 id="manage-internal-expectations（老板期望）-vs-external-expectations（客户期望）"><a href="#manage-internal-expectations（老板期望）-vs-external-expectations（客户期望）" class="headerlink" title="manage internal expectations（老板期望） vs. external expectations（客户期望）"></a>manage internal expectations（老板期望） vs. external expectations（客户期望）</h2><p>you boss probablay expect you to be cost efficent，improve bottom line， promote corp brand or image，custome relations<br>your client probably expect cheapest price with the best quality of service (usually is the case) ，time efficient ，instantaneous response （俗称随传随到）</p>
-<h2 id="你喜欢工作在team里还是独立工作"><a href="#你喜欢工作在team里还是独立工作" class="headerlink" title="你喜欢工作在team里还是独立工作"></a>你喜欢工作在team里还是独立工作</h2><p>应该说，I can handle  both of them. 但是呢，应该偏向Team Work一点。<br>好象是说，我自己可以独立解决问题，比如说，Urgent Production Issue。<br>不过，Team Work那种Brain Storm的气氛也很不错，可以让问题被解决得更全面，而且本身的能力业务能更快提高。<br>当我们做大型项目的时候，Team Work绝对是必须的。</p>
-<h2 id="你喜欢自己工作还是按照policy工作"><a href="#你喜欢自己工作还是按照policy工作" class="headerlink" title="你喜欢自己工作还是按照policy工作"></a>你喜欢自己工作还是按照policy工作</h2><p>Policy重要！ Policy不科学，那就改进它！Policy不灵活，那就使它灵活！ Policy是人制定的，为我们服务的，不是用来限制和框住大家的。</p>
-<h2 id="你期望薪水是多少"><a href="#你期望薪水是多少" class="headerlink" title="你期望薪水是多少?"></a>你期望薪水是多少?</h2><p>Money is never a priority over knowledge and the role you would offer me.<br>Give me around the average rate in the market.<br>As the only earner member of my family , my purpose is XXX</p>
-<h2 id="How-do-you-evaluate-Success"><a href="#How-do-you-evaluate-Success" class="headerlink" title="How do you evaluate Success?"></a>How do you evaluate Success?</h2><ul>
-<li>When do some hard work, pay more attention to the process instead of the result and enjoy the process, and usually I will get a good result. This is success in work method.</li>
-<li>Balance between work and life, pay attention to spiritual satisfaction instead of material requirement. This is success in life.</li>
-<li>Be able to contribute back to society and improve the world better, This is the biggest success and one of my dream.</li>
-</ul>
-<h2 id="Are-you-willing-to-relocate-or-travel"><a href="#Are-you-willing-to-relocate-or-travel" class="headerlink" title="Are you willing to relocate or travel ?"></a>Are you willing to relocate or travel ?</h2><ul>
-<li>Sure, I am willing to relocate as well as travel as required by my role. I am practical enough to understand the requirements of business.</li>
-</ul>
-<h2 id="Why-don’t-you-start-your-own-business"><a href="#Why-don’t-you-start-your-own-business" class="headerlink" title="Why don’t you start your own business?"></a>Why don’t you start your own business?</h2><p>Currently my family condition does not allow me to even think about taking higher risk and start my own business.<br>I also feel that if one is committed to the work, it always feel like you’re doing business.</p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/09/1804-drv-lcd/" itemprop="url">
-                  驱动之LCD驱动框架和实现
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-09T00:00:00+11:00" content="2018-01-09">
-              2018-01-09
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
-<li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
-<li><a href="https://draapho.github.io/2018/02/08/1814-drv-rtc/">驱动之RTC分析</a></li>
-<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
-<li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
-<li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/19/1808-drv-usb2/">驱动之USB设备驱动程序</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="LCD驱动框架分析"><a href="#LCD驱动框架分析" class="headerlink" title="LCD驱动框架分析"></a>LCD驱动框架分析</h1><h2 id="字符驱动基本步骤"><a href="#字符驱动基本步骤" class="headerlink" title="字符驱动基本步骤"></a>字符驱动基本步骤</h2><p>根据之前写的驱动, 已经对linux驱动基本步骤比较熟悉了.</p>
-<ul>
-<li>所有的驱动都会调用 <code>module_init</code> 和 <code>module_exit</code>, 从 <code>module_init</code> 开始看比较好.</li>
-<li>定义并设置 <code>file_operations</code> 结构体, 然后实现里面的函数, 如open等.</li>
-<li>获取<code>主设备号</code>, 可以手动分配, 也可以由系统自动分配</li>
-<li>用 <code>register_chrdev</code> 注册字符设备. 核心过程如下:<ul>
-<li><code>__register_chrdev_region</code> 注册/申请主设备号, 并申请子设备号范围.</li>
-<li><code>cdev_init</code> 用 <code>file_operations</code> 结构体初始化一个字符设备</li>
-<li><code>cdev_add</code> 用设备号向系统添加字符设备.</li>
-</ul>
-</li>
-<li>如果要用mdev自动加载驱动, 还需要在init里实现如下函数<ul>
-<li><code>class_create</code>, 创建一个设备类. 可以在 <code>/sys/class/</code> 看到设备类名称</li>
-<li><code>device_create</code>, 创建和注册设备. 可以在 <code>/dev/</code> 看到设备名称</li>
-<li><code>class_device_create</code> 是低版本Linux的函数. 本质就是 <code>device_create</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="LCD驱动框架分析-1"><a href="#LCD驱动框架分析-1" class="headerlink" title="LCD驱动框架分析"></a>LCD驱动框架分析</h2><p>Linux的LCD驱动用了分层分离的思想, 用到了platform框架.</p>
-<ul>
-<li><code>/drivers/video/fbmem.c</code> frame buffer memory, 显存操作相关<ul>
-<li><code>subsys_initcall(fbmem_init);</code> fbmem的初始化.<ul>
-<li><code>register_chrdev(FB_MAJOR,&quot;fb&quot;,&amp;fb_fops)</code> 注册字符设备,</li>
-<li><code>fb_class = class_create(THIS_MODULE, &quot;graphics&quot;);</code> 注册 graphics 设备类</li>
-<li>可以去<code>/sys/class/graphics</code> 看看, 下面有 fb0 和 fbcon 两个文件.</li>
-<li><strong>这里没有注册设备, 因为视频控制器和具体硬件相关</strong></li>
-</ul>
-</li>
-<li><code>registered_fb</code> 是具体设备给fbmem.c提供信息的关键!<ul>
-<li><code>fb_read</code> <code>fb_write</code> 里都可以看到 <code>struct fb_info *info = registered_fb[fbidx];</code></li>
-<li>然后, 函数根据 info 信息, 决定是进一步调用具体设备的 read write等函数, 还是使用默认代码.</li>
-</ul>
-</li>
-<li><code>register_framebuffer(struct fb_info *fb_info)</code> 供LCD设备调用, 提交<code>registered_fb</code>信息并注册设备.<ul>
-<li><code>device_create(fb_class, fb_info-&gt;device, MKDEV(FB_MAJOR, i), &quot;fb%d&quot;, i)</code></li>
-<li>真正注册一个LCD设备, 名字是fb0, fb1这样递加上去. 可以在 <code>/dev/</code> 里找到.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>/drviers/video/s3c2410fb.c</code> 具体硬件的LCD驱动.<ul>
-<li>这里用到了platform框架. <code>s3c2410fb.c</code> 是硬件相关的通用操作, 属于 <code>platform_driver</code></li>
-<li><code>module_init</code> 里, 直接就是 <code>platform_driver_register</code>.</li>
-<li>我们知道platform框架里, <code>probe</code>函数是很关键的, 在drive和device匹配时, 就会调用它.</li>
-<li><code>probe</code>函数里, 初始化后, 可看到 <code>register_framebuffer(fbinfo);</code> 将LCD设备信息提交给fbmem.c, 并注册设备.</li>
-</ul>
-</li>
-<li><code>/arch/arm/mach-s3c2440/mach-smdk2440.c</code> 配置硬件参数的地方.<ul>
-<li>这里是platform框架的 <code>platform_device</code>.</li>
-<li><code>smdk2440_machine_init</code> 初始化里<ul>
-<li><code>s3c24xx_fb_set_platdata(&amp;smdk2440_lcd_cfg);</code> 将LCD配置信息拷贝到 <code>s3c_device_lcd</code></li>
-<li><code>platform_add_devices(smdk2440_devices, ARRAY_SIZE(smdk2440_devices));</code> 注册 platform_device 设备.</li>
-<li><code>smdk2440_devices</code> 里就包含了 <code>s3c_device_lcd</code></li>
-</ul>
-</li>
-<li>如果硬件平台不变, 只是换屏的话, 只需要修改 <code>mach-smdk2440.c</code> 即可. 这就是分层分离概念的意义所在.</li>
-</ul>
-</li>
-</ul>
-<p>补充说明 <code>fbmem.c</code> 的上层:</p>
-<ul>
-<li><code>/drivers/video/console/fbcon.c</code> 在lcd上显示终端, 此文件和tty1关联.<ul>
-<li><code>class_device_create(fb_class, NULL, MKDEV(0, 0), NULL, &quot;fbcon&quot;);</code> 注册 <code>fbcon</code> 设备</li>
-<li><code>fbcon_start</code>  和 fb设备对接, 开始显示.</li>
-</ul>
-</li>
-<li>app层调用 <code>open(&quot;/dev/fb0&quot;, ...)</code>, 主设备号为29, 次设备号为0<ul>
-<li>会对应到kernel层 <code>fbmem.c</code> 的 <code>fb_open</code>函数:</li>
-<li><code>int fbidx = iminor(inode);</code></li>
-<li><code>struct fb_info *info = = registered_fb[0];</code></li>
-</ul>
-</li>
-<li>app层调用 <code>read()</code><ul>
-<li>会对应到kernel层 <code>fbmem.c</code> 的 <code>fb_read</code>函数:</li>
-<li><code>registered_fb</code> 由 <code>register_framebuffer</code> 设置.</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">fb_read(struct file *file, <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *ppos) &#123;</span><br><span class="line">    <span class="keyword">int</span> fbidx = iminor(inode);                              <span class="comment">// 子设备号</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fb_info</span> *<span class="title">info</span> = <span class="title">registered_fb</span>[<span class="title">fbidx</span>];</span>            <span class="comment">// LCD硬件信息.</span></span><br><span class="line">    <span class="keyword">if</span> (info-&gt;fbops-&gt;fb_read)                               <span class="comment">// 如果硬件由自己的read函数</span></span><br><span class="line">        <span class="keyword">return</span> info-&gt;fbops-&gt;fb_read(info, buf, count, ppos);<span class="comment">// 调用后, 直接返回</span></span><br><span class="line"></span><br><span class="line">    src = (u32 __iomem *) (info-&gt;screen_base + p);          <span class="comment">// 获取显存地址</span></span><br><span class="line">    dst = buffer;</span><br><span class="line">    *dst++ = fb_readl(src++);</span><br><span class="line">    copy_to_user(buf, buffer, c)                            <span class="comment">// 将值返回给应用层. 获取显存内容</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="LCD驱动源码"><a href="#LCD驱动源码" class="headerlink" title="LCD驱动源码"></a>LCD驱动源码</h1><p>现在尝试忽略 <code>/drviers/video/s3c2410fb.c</code> 使用的platform框架.<br>直接自己写一个 LCD 驱动, 和 <code>/drivers/video/fbmem.c</code> 进行对接.<br><strong>此处只是为了练习, 实际项目不建议这样使用</strong></p>
-<p>驱动的核心步骤如下:</p>
-<ol>
-<li>分配一个fb_info: <code>s3c_lcd = framebuffer_alloc(0, NULL);</code></li>
-<li>设置fb_info<br> 2.1 设置固定的参数, <code>struct fb_fix_screeninfo</code><br> 2.2 设置可变的参数, <code>struct fb_var_screeninfo</code><br> 2.3 设置操作函数, <code>fbops</code><br> 2.4 其他的设置</li>
-<li>硬件相关的操作<br> 3.1 配置GPIO用于LCD<br> 3.2 根据LCD手册设置LCD控制器, 比如VCLK的频率等<br> 3.3 分配显存(framebuffer), 并把地址告诉LCD控制器</li>
-<li>注册 <code>register_framebuffer(s3c_lcd);</code></li>
-</ol>
-<h2 id="测试-原系统"><a href="#测试-原系统" class="headerlink" title="测试, 原系统"></a>测试, 原系统</h2><p>在使用自己写的LCD驱动源码之前, 先用系统提供的LCD框架驱动测试一下显示屏</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line">$ vi /etc/inittab</span><br><span class="line">    <span class="comment"># ===== 设置为如下内容 =====</span></span><br><span class="line">    ::sysinit:/etc/init.d/rcS</span><br><span class="line">    s3c2410_serial0::askfirst:-/bin/sh</span><br><span class="line">    <span class="comment"># 增加了下面一行, 用于屏幕打开终端</span></span><br><span class="line">    tty1::askfirst:-/bin/sh</span><br><span class="line">    ::ctrlaltdel:/sbin/reboot</span><br><span class="line">    ::shutdown:/bin/umount -a -r</span><br><span class="line">    <span class="comment"># ===== wq保存, 退出 =====</span></span><br><span class="line">$ reboot</span><br><span class="line"><span class="comment"># 重启终端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启后, 屏幕就会显示终端信息了. 提示输入Enter键来触发终端.</span></span><br><span class="line"><span class="comment"># 加载 "驱动之input子系统" 里的驱动</span></span><br><span class="line">$ insmod input_keys.ko</span><br><span class="line"><span class="comment"># 按下S4按键, 相当于输入了 Enter</span></span><br><span class="line"><span class="comment"># 依次按下 S2, S3, S4, 就是输入了ls指令, 屏幕上会列出文件列表.</span></span><br></pre></td></tr></table></figure>
-<h2 id="lcd-c"><a href="#lcd-c" class="headerlink" title="lcd.c"></a>lcd.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mm.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/delay.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fb.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/dma-mapping.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/workqueue.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/clk.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/div64.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/mach/map.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-lcd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/fb.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_lcdfb_setcolreg</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> regno, <span class="keyword">unsigned</span> <span class="keyword">int</span> red,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> green, <span class="keyword">unsigned</span> <span class="keyword">int</span> blue,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> transp, struct fb_info *info)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">lcd_regs</span> &#123;</span>                                   <span class="comment">// LCD相关寄存器, 方便操作</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon2;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon3;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon4;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon5;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsaddr1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsaddr2;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsaddr3;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   redlut;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   greenlut;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   bluelut;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   reserved[<span class="number">9</span>];</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   dithmode;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   tpal;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdintpnd;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsrcpnd;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdintmsk;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lpcsel;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">fb_ops</span> <span class="title">s3c_lcdfb_ops</span> = &#123;</span></span><br><span class="line">    .owner          = THIS_MODULE,</span><br><span class="line">    .fb_setcolreg   = s3c_lcdfb_setcolreg,          <span class="comment">// 设置调色板, 用于色域转换(RGB-&gt;RGB565)</span></span><br><span class="line">    <span class="comment">/* 下面三个函数, 需要用 make modules 获得ko文件. 路径 "/drivers/video/cfb*.ko" */</span></span><br><span class="line">    .fb_fillrect    = cfb_fillrect,                 <span class="comment">// 理解为画矩形</span></span><br><span class="line">    .fb_copyarea    = cfb_copyarea,                 <span class="comment">// 理解为拷贝区域</span></span><br><span class="line">    .fb_imageblit   = cfb_imageblit,                <span class="comment">// 理解为画图</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">fb_info</span> *<span class="title">s3c_lcd</span>;</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpbcon;              <span class="comment">// GPIO口的操作</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpbdat;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpccon;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpdcon;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpgcon;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="class"><span class="keyword">struct</span> <span class="title">lcd_regs</span>* <span class="title">lcd_regs</span>;</span></span><br><span class="line"><span class="keyword">static</span> u32 pseudo_palette[<span class="number">16</span>];                      <span class="comment">// 假调色板</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* from pxafb.c */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="title">chan_to_field</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> chan, struct fb_bitfield *bf)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    chan &amp;= <span class="number">0xffff</span>;</span><br><span class="line">    chan &gt;&gt;= <span class="number">16</span> - bf-&gt;length;</span><br><span class="line">    <span class="keyword">return</span> chan &lt;&lt; bf-&gt;offset;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置调色板, 用于色域转换(RGB-&gt;RGB565)</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_lcdfb_setcolreg</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> regno, <span class="keyword">unsigned</span> <span class="keyword">int</span> red,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> green, <span class="keyword">unsigned</span> <span class="keyword">int</span> blue,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> transp, struct fb_info *info)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> val;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (regno &gt; <span class="number">16</span>)                                 <span class="comment">// 一个调色板里, 最多有16个小碟子</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 用red,green,blue三原色构造出val */</span>             <span class="comment">// 这里是压缩作用, 将红绿蓝压缩成16位真彩色.</span></span><br><span class="line">    val  = chan_to_field(red,   &amp;info-&gt;var.red);</span><br><span class="line">    val |= chan_to_field(green, &amp;info-&gt;var.green);</span><br><span class="line">    val |= chan_to_field(blue,  &amp;info-&gt;var.blue);</span><br><span class="line"></span><br><span class="line">    pseudo_palette[regno] = val;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">lcd_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* 1. 分配一个fb_info */</span></span><br><span class="line">    s3c_lcd = framebuffer_alloc(<span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 设置 */</span></span><br><span class="line">    <span class="comment">/* 2.1 设置固定的参数, struct fb_fix_screeninfo */</span></span><br><span class="line">    <span class="built_in">strcpy</span>(s3c_lcd-&gt;fix.id, <span class="string">"mylcd"</span>);</span><br><span class="line">    s3c_lcd-&gt;fix.smem_len = <span class="number">480</span>*<span class="number">272</span>*<span class="number">16</span>/<span class="number">8</span>;           <span class="comment">// 显存大小(字节), 长*宽*位宽/8 (这里用的RGB565, 2字节)</span></span><br><span class="line">    s3c_lcd-&gt;fix.type     = FB_TYPE_PACKED_PIXELS;  <span class="comment">// 压缩格式. 另外有 逐行/隔行/VGA等等</span></span><br><span class="line">    s3c_lcd-&gt;fix.visual   = FB_VISUAL_TRUECOLOR;    <span class="comment">// 真彩, 即65536色.</span></span><br><span class="line">    s3c_lcd-&gt;fix.line_length = <span class="number">480</span>*<span class="number">2</span>;               <span class="comment">// 一行占用的字节</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2.2 设置可变的参数, struct fb_var_screeninfo */</span></span><br><span class="line">    s3c_lcd-&gt;var.xres           = <span class="number">480</span>;              <span class="comment">// 实际的屏幕分辨率(像素点)</span></span><br><span class="line">    s3c_lcd-&gt;var.yres           = <span class="number">272</span>;</span><br><span class="line">    s3c_lcd-&gt;var.xres_virtual   = <span class="number">480</span>;              <span class="comment">// 虚拟分辨率</span></span><br><span class="line">    s3c_lcd-&gt;var.yres_virtual   = <span class="number">272</span>;</span><br><span class="line">    s3c_lcd-&gt;var.bits_per_pixel = <span class="number">16</span>;               <span class="comment">// 每个像素点的位宽</span></span><br><span class="line">    s3c_lcd-&gt;var.red.offset     = <span class="number">11</span>;               <span class="comment">// RGB565的位和位偏移</span></span><br><span class="line">    s3c_lcd-&gt;var.red.length     = <span class="number">5</span>;</span><br><span class="line">    s3c_lcd-&gt;var.green.offset   = <span class="number">5</span>;</span><br><span class="line">    s3c_lcd-&gt;var.green.length   = <span class="number">6</span>;</span><br><span class="line">    s3c_lcd-&gt;var.blue.offset    = <span class="number">0</span>;</span><br><span class="line">    s3c_lcd-&gt;var.blue.length    = <span class="number">5</span>;</span><br><span class="line">    s3c_lcd-&gt;var.activate       = FB_ACTIVATE_NOW;  <span class="comment">// 实时显示</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2.3 设置操作函数, fbops */</span></span><br><span class="line">    s3c_lcd-&gt;fbops              = &amp;s3c_lcdfb_ops;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2.4 其他的设置 */</span></span><br><span class="line">    <span class="comment">/* 调色板, 可以理解为色域转换用, 譬如输入是8位, 输出是16位的颜色, 就需要用到调色板 */</span></span><br><span class="line">    s3c_lcd-&gt;pseudo_palette = pseudo_palette;       <span class="comment">// 真彩屏需要使用假调色板, 用于色域转换</span></span><br><span class="line">    <span class="comment">//s3c_lcd-&gt;screen_base  = ;                     // 3.3处会设置, 显存的虚拟地址</span></span><br><span class="line">    s3c_lcd-&gt;screen_size   = <span class="number">480</span>*<span class="number">272</span>*<span class="number">16</span>/<span class="number">8</span>;          <span class="comment">// Amount of ioremapped VRAM or 0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 硬件相关的操作 */</span></span><br><span class="line">    <span class="comment">/* 3.1 配置GPIO用于LCD */</span>                        <span class="comment">// 看原理图和数据手册. 此处不详述了.</span></span><br><span class="line">    gpbcon = ioremap(<span class="number">0x56000010</span>, <span class="number">8</span>);</span><br><span class="line">    gpbdat = gpbcon+<span class="number">1</span>;</span><br><span class="line">    gpccon = ioremap(<span class="number">0x56000020</span>, <span class="number">4</span>);</span><br><span class="line">    gpdcon = ioremap(<span class="number">0x56000030</span>, <span class="number">4</span>);</span><br><span class="line">    gpgcon = ioremap(<span class="number">0x56000060</span>, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    *gpccon  = <span class="number">0xaaaaaaaa</span>;                          <span class="comment">/* GPIO管脚用于VD[7:0],LCDVF[2:0],VM,VFRAME,VLINE,VCLK,LEND */</span></span><br><span class="line">    *gpdcon  = <span class="number">0xaaaaaaaa</span>;                          <span class="comment">/* GPIO管脚用于VD[23:8] */</span></span><br><span class="line">    *gpbcon &amp;= ~(<span class="number">3</span>);                                <span class="comment">/* GPB0设置为输出引脚 */</span></span><br><span class="line">    *gpbcon |= <span class="number">1</span>;</span><br><span class="line">    *gpbdat &amp;= ~<span class="number">1</span>;                                  <span class="comment">/* 输出低电平 */</span></span><br><span class="line">    *gpgcon |= (<span class="number">3</span>&lt;&lt;<span class="number">8</span>);                              <span class="comment">/* GPG4用作LCD_PWREN */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3.2 根据LCD手册设置LCD控制器, 比如VCLK的频率等 */</span></span><br><span class="line">    lcd_regs = ioremap(<span class="number">0x4D000000</span>, <span class="keyword">sizeof</span>(struct lcd_regs));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* bit[17:8]: VCLK = HCLK / [(CLKVAL+1) x 2], LCD手册P14</span></span><br><span class="line"><span class="comment">     *            10MHz(100ns) = 100MHz / [(CLKVAL+1) x 2]</span></span><br><span class="line"><span class="comment">     *            CLKVAL = 4</span></span><br><span class="line"><span class="comment">     * bit[6:5]: 0b11, TFT LCD</span></span><br><span class="line"><span class="comment">     * bit[4:1]: 0b1100, 16 bpp for TFT</span></span><br><span class="line"><span class="comment">     * bit[0]  : 0 = Disable the video output and the LCD control signal.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon1  = (<span class="number">4</span>&lt;&lt;<span class="number">8</span>) | (<span class="number">3</span>&lt;&lt;<span class="number">5</span>) | (<span class="number">0x0c</span>&lt;&lt;<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 1</span></span><br><span class="line">    <span class="comment">/* 垂直方向的时间参数</span></span><br><span class="line"><span class="comment">     * bit[31:24]: VBPD, VSYNC之后再过多长时间才能发出第1行数据</span></span><br><span class="line"><span class="comment">     *             LCD手册 T0-T2-T1=4</span></span><br><span class="line"><span class="comment">     *             VBPD=3</span></span><br><span class="line"><span class="comment">     * bit[23:14]: 多少行, 320, 所以LINEVAL=320-1=319</span></span><br><span class="line"><span class="comment">     * bit[13:6] : VFPD, 发出最后一行数据之后，再过多长时间才发出VSYNC</span></span><br><span class="line"><span class="comment">     *             LCD手册T2-T5=322-320=2, 所以VFPD=2-1=1</span></span><br><span class="line"><span class="comment">     * bit[5:0]  : VSPW, VSYNC信号的脉冲宽度, LCD手册T1=1, 所以VSPW=1-1=0</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon2  = (<span class="number">1</span>&lt;&lt;<span class="number">24</span>) | (<span class="number">271</span>&lt;&lt;<span class="number">14</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">6</span>) | (<span class="number">9</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 水平方向的时间参数</span></span><br><span class="line"><span class="comment">     * bit[25:19]: HBPD, VSYNC之后再过多长时间才能发出第1行数据</span></span><br><span class="line"><span class="comment">     *             LCD手册 T6-T7-T8=17</span></span><br><span class="line"><span class="comment">     *             HBPD=16</span></span><br><span class="line"><span class="comment">     * bit[18:8]: 多少列, 240, 所以HOZVAL=240-1=239</span></span><br><span class="line"><span class="comment">     * bit[7:0] : HFPD, 发出最后一行里最后一个象素数据之后，再过多长时间才发出HSYNC</span></span><br><span class="line"><span class="comment">     *             LCD手册T8-T11=251-240=11, 所以HFPD=11-1=10</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon3 = (<span class="number">1</span>&lt;&lt;<span class="number">19</span>) | (<span class="number">479</span>&lt;&lt;<span class="number">8</span>) | (<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 水平方向的同步信号</span></span><br><span class="line"><span class="comment">     * bit[7:0] : HSPW, HSYNC信号的脉冲宽度, LCD手册T7=5, 所以HSPW=5-1=4</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon4 = <span class="number">40</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    lcd_regs-&gt;lcdcon2 = S3C2410_LCDCON2_VBPD(<span class="number">5</span>) | \</span><br><span class="line">        S3C2410_LCDCON2_LINEVAL(<span class="number">319</span>) | \</span><br><span class="line">        S3C2410_LCDCON2_VFPD(<span class="number">3</span>) | \</span><br><span class="line">        S3C2410_LCDCON2_VSPW(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    lcd_regs-&gt;lcdcon3 = S3C2410_LCDCON3_HBPD(<span class="number">10</span>) | \</span><br><span class="line">        S3C2410_LCDCON3_HOZVAL(<span class="number">239</span>) | \</span><br><span class="line">        S3C2410_LCDCON3_HFPD(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    lcd_regs-&gt;lcdcon4 = S3C2410_LCDCON4_MVAL(<span class="number">13</span>) | \</span><br><span class="line">        S3C2410_LCDCON4_HSPW(<span class="number">0</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 信号的极性</span></span><br><span class="line"><span class="comment">     * bit[11]: 1=565 format</span></span><br><span class="line"><span class="comment">     * bit[10]: 0 = The video data is fetched at VCLK falling edge</span></span><br><span class="line"><span class="comment">     * bit[9] : 1 = HSYNC信号要反转,即低电平有效</span></span><br><span class="line"><span class="comment">     * bit[8] : 1 = VSYNC信号要反转,即低电平有效</span></span><br><span class="line"><span class="comment">     * bit[6] : 0 = VDEN不用反转</span></span><br><span class="line"><span class="comment">     * bit[3] : 0 = PWREN输出0</span></span><br><span class="line"><span class="comment">     * bit[1] : 0 = BSWP</span></span><br><span class="line"><span class="comment">     * bit[0] : 1 = HWSWP 2440手册P413</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon5 = (<span class="number">1</span>&lt;&lt;<span class="number">11</span>) | (<span class="number">0</span>&lt;&lt;<span class="number">10</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">9</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">8</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3.3 分配显存(framebuffer), 并把地址告诉LCD控制器 */</span></span><br><span class="line">    <span class="comment">/* dma_alloc_writecombine 会分配一段连续的内存地址给内核, 返回的是虚拟地址, 因此此处直接赋值给 s3c_lcd-&gt;screen_base</span></span><br><span class="line"><span class="comment">     * s3c_lcd-&gt;fix.smem_start, 表示显存的物理起始地址, 同样由函数 dma_alloc_writecombine 设置.</span></span><br><span class="line"><span class="comment">     * 关于分配函数的比较, 可以参考 http://blog.sina.com.cn/s/blog_4770ef020101oy2e.html 看最后一张图</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    s3c_lcd-&gt;screen_base = dma_alloc_writecombine(<span class="literal">NULL</span>, s3c_lcd-&gt;fix.smem_len, &amp;s3c_lcd-&gt;fix.smem_start, GFP_KERNEL);</span><br><span class="line">    lcd_regs-&gt;lcdsaddr1  = (s3c_lcd-&gt;fix.smem_start &gt;&gt; <span class="number">1</span>) &amp; ~(<span class="number">3</span>&lt;&lt;<span class="number">30</span>);</span><br><span class="line">    lcd_regs-&gt;lcdsaddr2  = ((s3c_lcd-&gt;fix.smem_start + s3c_lcd-&gt;fix.smem_len) &gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x1fffff</span>;</span><br><span class="line">    lcd_regs-&gt;lcdsaddr3  = (<span class="number">480</span>*<span class="number">16</span>/<span class="number">16</span>);                 <span class="comment">/* 一行的长度(单位: 2字节) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 启动LCD */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon1 |= (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);                        <span class="comment">/* 使能LCD控制器 */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon5 |= (<span class="number">1</span>&lt;&lt;<span class="number">3</span>);                        <span class="comment">/* 使能LCD本身 */</span></span><br><span class="line">    *gpbdat |= <span class="number">1</span>;                                       <span class="comment">/* 输出高电平, 使能背光 */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4. 注册 */</span></span><br><span class="line">    register_framebuffer(s3c_lcd);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">lcd_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    unregister_framebuffer(s3c_lcd);</span><br><span class="line">    lcd_regs-&gt;lcdcon1 &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">0</span>);                       <span class="comment">/* 关闭LCD本身 */</span></span><br><span class="line">    *gpbdat &amp;= ~<span class="number">1</span>;                                      <span class="comment">/* 关闭背光 */</span></span><br><span class="line">    dma_free_writecombine(<span class="literal">NULL</span>, s3c_lcd-&gt;fix.smem_len, s3c_lcd-&gt;screen_base, s3c_lcd-&gt;fix.smem_start);</span><br><span class="line">    iounmap(lcd_regs);</span><br><span class="line">    iounmap(gpbcon);</span><br><span class="line">    iounmap(gpccon);</span><br><span class="line">    iounmap(gpdcon);</span><br><span class="line">    iounmap(gpgcon);</span><br><span class="line">    framebuffer_release(s3c_lcd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(lcd_init);</span><br><span class="line">module_exit(lcd_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := lcd.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>这个测试比较复杂, 需要去掉自带的LCD驱动, 重新编译和烧录内核.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6_no_lcd  复制一个新的内核源码目录</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                       <span class="comment"># 去掉原来的S3C2410驱动程序</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment"># -&gt; Graphics support</span></span><br><span class="line"><span class="comment"># &lt;M&gt; S3C2410 LCD framebuffer support</span></span><br><span class="line"><span class="comment"># 改为 M, 因为我们需要编译出里面的 "/drivers/video/cfb*.ko" 三个文件</span></span><br><span class="line"></span><br><span class="line">$ make uImage</span><br><span class="line">$ make modules</span><br><span class="line">$ cp ./drivers/video/cfb*.ko ~/share/jz2440/drivers/lcd/    <span class="comment"># 拷贝到lcd驱动目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 烧录新的uImage</span></span><br><span class="line"><span class="comment"># 重启开发板进入uboot烧录界面, 按k准备烧录内核. 略过不表</span></span><br><span class="line">$ sudo dnw ./arch/arm/boot/uImage</span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/lcd/     # lcd驱动目录</span></span><br><span class="line">$ make modules                          <span class="comment"># 生成lcd.ko</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line"><span class="comment"># pwd = ./share/jz2440/drivers/lcd/    # lcd驱动源码目录, nfs文件</span></span><br><span class="line">$ insmod cfbcopyarea.ko</span><br><span class="line">$ insmod cfbfillrect.ko</span><br><span class="line">$ insmod cfbimgblt.ko</span><br><span class="line">$ insmod lcd.ko</span><br><span class="line"><span class="comment"># 如果 /etc/inittab 已经增加过 tty1::askfirst:-/bin/sh 这么一行, 屏幕就会显示终端信息了.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = ./share/jz2440/drivers/input_keys/KERN_SRC  # input_keys源码路径, nfs文件</span></span><br><span class="line">$ insmod input_keys.ko</span><br><span class="line"><span class="comment"># 按下 S4 输入Enter, 使能屏幕终端(即tty1),</span></span><br><span class="line"><span class="comment"># 依次按下 S2, S3, S4, 就是输入了ls指令, 屏幕上会列出文件列表.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 其它测试方法</span></span><br><span class="line"><span class="built_in">echo</span> hello &gt; /dev/tty1  // 可以在LCD上看见hello, tty1会用到 fbcon.c文件</span><br><span class="line">cat lcd.ko &gt; /dev/fb0   // 花屏</span><br></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="http://daydreamer.idv.tw/rewrite.php/read-42.html" target="_blank" rel="noopener">Framebuffer兩三事-Test On QT2410</a></li>
-<li><a href="http://blog.sina.com.cn/s/blog_4770ef020101oy2e.html" target="_blank" rel="noopener">常见的Linux内核中内存分配函数</a> 看最后一张图</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1682,7 +1711,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">120</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1690,7 +1719,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -1699,7 +1728,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -1747,7 +1776,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2019</span>
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

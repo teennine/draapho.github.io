@@ -261,6 +261,453 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/10/1711-web-spider/" itemprop="url">
+                  使用网络爬虫抓取商品价格并分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-10T00:00:00+10:00" content="2017-04-10">
+              2017-04-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>基于 <a href="http://www.chemistwarehouse.com.au/" target="_blank" rel="noopener">Chemist Warehouse</a> 的商品, 抓取其每天的价格变化. 并根据历史信息, 判断其价格变化规律, 以便在打折时购买.</p>
+<p>因此, 用户需求有如下几点:</p>
+<ul>
+<li>抓取网站价格, 需要知道其商品全名, 原价, 打折价, 打折日期, 持续时间</li>
+<li>存储这些数据, 供日后分析使用</li>
+<li>数据挖掘和分析, 已直观的方式多维度显示出来(譬如单品的打折规律, 打折力度, 打折持续时间. 全年的打折规律)</li>
+</ul>
+<p>进一步, 技术分析如下:</p>
+<ul>
+<li>全程使用python即可满足全部需求.</li>
+<li>网络爬虫难度不高, 仅需针对特定商品, 每天抓一次, 无需多线程/进程, 无需登录, 无验证码, 无需考虑反爬虫, 无需额外加载JS程序.</li>
+<li>数据存储, 使用MySQL, 数据需要去重, 仅记录关键信息. 以便减少数据存储量, 简化数据挖掘和分析的工作</li>
+<li>搜索指定产品, 展示历史数据, 使用 pyqt + matplotlib.</li>
+</ul>
+<h1 id="网络爬虫"><a href="#网络爬虫" class="headerlink" title="网络爬虫"></a>网络爬虫</h1><p>花了二天时间, 简单过了一遍网络爬虫的关键技术. 参考资料如下:</p>
+<ul>
+<li><a href="http://cuiqingcai.com/1052.html" target="_blank" rel="noopener">Python爬虫学习系列教程-静觅</a></li>
+<li><a href="https://github.com/lining0806/PythonSpiderNotes" target="_blank" rel="noopener">Python入门网络爬虫之精华版</a></li>
+<li><a href="http://www.w3school.com.cn/xpath/xpath_syntax.asp" target="_blank" rel="noopener">XPath 语法</a></li>
+</ul>
+<p>本着项目导向, 做出结果为先的思路, 没有一步步的实验. 上来先看了几个爬虫框架.</p>
+<ul>
+<li><code>pyspider</code> 基于web UI, 感觉很直观, 适合于随便玩玩. 个人不喜欢, 二次开发不方便.</li>
+<li>python 下另外一个很有名的框架就是 <code>scrapy</code>, 可惜我连配置安装都没有成功的做完. 适合二次开发.<br>应该是公司网络安全机制比较高, 遇到的问题基本都是SSL相关的, 解决了2-3个, 剩下的实在没有思路去解决了…<br>另外scrapy依赖的库也比较多, 因此初装也就比较麻烦. 安装推荐参考<a href="https://docs.scrapy.org/en/latest/intro/install.html#" target="_blank" rel="noopener">官网的 Installation guide</a></li>
+<li>使用 <code>requests</code> <code>urllib</code> <code>lxml</code> 库. 简单项目直接用这个就够了.</li>
+<li>最终抓数据只用了 <code>lxml</code> 一个库就完成了数据抓取, 去重的工作. 关键源码如下:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="comment"># pip --trusted-host pypi.python.org install lxml</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取url的原始数据</span></span><br><span class="line">doc = html.parse(<span class="string">'http://www.chemistwarehouse.com.au/search?searchtext=blackmores%20bone&amp;searchmode=allwords'</span>)</span><br><span class="line"><span class="comment"># 获取指定的数据值</span></span><br><span class="line">names = doc.xpath(<span class="string">'//a[@class="product-container search-result"]/@title'</span>)</span><br><span class="line"><span class="comment"># 处理数据, 准备存入数据库即可.</span></span><br><span class="line">name = map(string.strip, names)</span><br><span class="line"><span class="keyword">print</span> name</span><br></pre></td></tr></table></figure>
+<p>另:<br>遇到过了错误 <code>There was a problem confirming the ssl certificate: [SSL: CERTIFICATE_VERIFY_FAILED]</code><br>使用 <code>pip --trusted-host pypi.python.org install lxml</code> 即可避免. 也是安全性问题导致的.</p>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><p>同样地, 该项目对数据存储的要求也很低. 直接选择使用MySQL.</p>
+<p>参考资料如下:</p>
+<ul>
+<li><a href="http://www.runoob.com/python/python-mysql.html" target="_blank" rel="noopener">python操作mysql数据库</a></li>
+<li><a href="http://www.crazyant.net/686.html" target="_blank" rel="noopener">Python操作Mysql实例代码教程（查询手册）</a></li>
+<li><a href="http://www.cnblogs.com/mr-wid/archive/2013/05/09/3068229.html" target="_blank" rel="noopener">21分钟 MySQL 入门教程</a></li>
+<li><a href="http://blog.csdn.net/heizistudio/article/details/8234185" target="_blank" rel="noopener">Windows下更改MySQL数据库的存储位置</a></li>
+</ul>
+<p>Windows 下配置使用MySQL:</p>
+<ul>
+<li>下载运行 <a href="https://dev.mysql.com/downloads/windows/" target="_blank" rel="noopener">MySQL Installer</a></li>
+<li>必须安装 <code>MySQL Server</code>. 建议安装 <code>MySQL Workbench</code>, 为可视化图像, 便于管理查看.</li>
+<li>可视化工具也可以使用别的软件. 如 <a href="https://www.heidisql.com/" target="_blank" rel="noopener">heidisql</a></li>
+<li>将<code>mysql.exe</code>的路径添加<code>PATH</code>环境变量.</li>
+<li><p>创建新的数据库(Workbecn下, 英文为<code>schema</code>), 命名为 <code>chemistwarehouse</code>. 或者输入指令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p      <span class="comment"># 登录本机的MySQL数据库服务</span></span><br><span class="line"><span class="comment"># mysql&gt;              # 成功后, 提示符变为 mysql&gt;</span></span><br><span class="line">create database chemistwarehouse; <span class="comment"># 创建一个数据库</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装 <a href="https://sourceforge.net/projects/mysql-python/" target="_blank" rel="noopener">MySQL for Python</a><br>然后, 在python下面测试一下是否可以成功连接到刚建立的 <code>chemistwarehouse</code> 数据库.<br>成功的话, 会打印版本信息.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">initDatabase</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 连接mysql的方法：connect('ip','user','password','dbname')</span></span><br><span class="line">        connect_db = db.connect(</span><br><span class="line">            <span class="string">'localhost'</span>, <span class="string">'root'</span>, <span class="string">'root'</span>, <span class="string">'chemistwarehouse'</span>)</span><br><span class="line">        <span class="comment"># 所有的查询，都在连接con的一个模块cursor上面运行的</span></span><br><span class="line">        cur = connect_db.cursor()</span><br><span class="line">        <span class="comment"># 执行一个查询</span></span><br><span class="line">        cur.execute(<span class="string">"SELECT VERSION()"</span>)</span><br><span class="line">        <span class="comment"># 取得上个查询的结果，是单个结果</span></span><br><span class="line">        data = cur.fetchone()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"Database version : %s "</span> % data</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logging.error(e)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">if</span> connect_db:</span><br><span class="line">            <span class="comment"># 无论如何，连接记得关闭</span></span><br><span class="line">            connect_db.close()</span><br><span class="line"></span><br><span class="line">initDatabase()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>至此, 就可以在python下正常使用MySQL数据库了.<br>将提取出来的数据去重后, 按一定的格式保存进数据库即可.</p>
+</li>
+<li><p>默认安装在C盘, 而且数据存储也是在C盘. 这个没法接受! 需要把数据存储位置修改到空间更大的E盘.</p>
+<ul>
+<li>停止MySQL服务, 命令行 <code>net stop MySQL57</code> 或者使用 <code>MySQL Workbench</code> 停止服务</li>
+<li>打开 <code>C:\ProgramData\MySQL\MySQL Server 5.7\my.ini</code></li>
+<li>修改为 <code>datadir=E:/MySQLdata</code>, 即设置数据库的新目录</li>
+<li>复制 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code> 下所有文件到 <code>E:/MySQLdata</code></li>
+<li>开启MySQL服务 命令行 <code>net start MySQL57</code> 或者使用 <code>MySQL Workbench</code> 开启服务</li>
+<li>检查 MySQL 服务器状态, 确定数据库目录已更新</li>
+<li>删除 <code>C:\ProgramData\MySQL\MySQL Server 5.7\Data</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="数据显示"><a href="#数据显示" class="headerlink" title="数据显示"></a>数据显示</h1><p>参考资料如下:</p>
+<ul>
+<li><a href="http://blog.topspeedsnail.com/archives/814" target="_blank" rel="noopener">Python 中用 matplotlib 绘制直方图</a> 这个博客有对 matplotlib 制图有一个系列的文章</li>
+<li><a href="http://ningning.today/2015/04/17/python/%E7%94%A8matplotlib%E7%BB%98%E5%88%B6%E6%9F%B1%E7%8A%B6%E5%9B%BE%E5%92%8C%E9%A5%BC%E5%9B%BE/" target="_blank" rel="noopener">用python的matplotlib库绘制柱状图和饼图</a></li>
+<li><a href="http://www.jdon.com/idea/matplotlib.html" target="_blank" rel="noopener">使用Python matplotlib绘制股票走势图</a></li>
+<li><a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-1/" target="_blank" rel="noopener">Building a Matplotlib GUI with Qt Designer: Part 1</a>, 由三部分组成, 还有<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-2/" target="_blank" rel="noopener">Part2</a>和<a href="http://blog.rcnelson.com/building-a-matplotlib-gui-with-qt-designer-part-3/" target="_blank" rel="noopener">Part3</a></li>
+<li><a href="http://eli.thegreenplace.net/2009/01/20/matplotlib-with-pyqt-guis" target="_blank" rel="noopener">matplotlib with PyQt GUIs</a>, 有 <a href="https://github.com/eliben/code-for-blog/blob/master/2009/qt_mpl_bars.py" target="_blank" rel="noopener">github 范例</a></li>
+<li>pyqt的使用可参考我的博客 <a href="https://draapho.github.io/2016/11/16/1617-python-terminal/">python的第一个小程序, 蓝牙及串口终端</a></li>
+</ul>
+<p>设计思路和注意事项</p>
+<ul>
+<li>使用pip安装 matplotlib: <code>pip --trusted-host pypi.python.org install matplotlib</code></li>
+<li>数据显示和数据抓取是完全独立的, 因此数据抓取单独生成了一个exe文件, 数据显示也单独生成一个文件.</li>
+<li>数据显示exe可以打开多个, 以便分析比较. 数据抓取仅可打开一个.</li>
+</ul>
+<h1 id="源码及性能"><a href="#源码及性能" class="headerlink" title="源码及性能"></a>源码及性能</h1><p>最终源码见 <a href="https://github.com/draapho/chemistwarehouse-spider" target="_blank" rel="noopener">github</a></p>
+<p>爬虫最终性能:<br>抓取效率一般, 每1000条数据大概要2分钟. 要提高效率可以考虑使用多进程!<br>但一天抓取一次即可, 因此这个速度可以接受. 暂时保持单进程不变.</p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/10/1712-ezos/" itemprop="url">
+                  ezos简要用户手册
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-10T00:00:00+10:00" content="2017-04-10">
+              2017-04-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="ezos开发历史"><a href="#ezos开发历史" class="headerlink" title="ezos开发历史"></a>ezos开发历史</h1><p>ezos最早的思想起源于TCS德国的带有任务性质的超循环方式(前后台方式), 为使用方便, 作者将增减任务的方式直接和函数名相关, 加入延时功能.<br>并写了核心代码 ezos_schedule();  ezos_add(); ezos_delete();  ezos_delay(); 这样一个外表酷似RTOS, 内核为超循环任务的OS就诞生了, 版本V1.0.0.<br>由于使用起来非常方便, 代码为纯C语言, 简单易懂, 因此命名为 ezos, 即easy OS.</p>
+<p>后续由 TCS 胡工加入了任务参数, 静态任务, 可实例化任务的概念.<br>整合这些概念后, 重写了部分代码, 将ezos的版本升级至较为实用的V1.3.1.在这个阶段, 使用ezos做了功能较为复杂的项目, 并发现一些任务通讯和同步的问题,<br>在借鉴了抢占式RTOS的一些特性后, 决心重写ezos, 将其变为真正的协作式RTOS. 同时要求代码依旧清晰简洁, 可适用于资源较少的8位单片机应用.</p>
+<p>基于以上想法, 将ezos的提升到了V2开始的主版本. 将代码改为linux书写规范, 进化为协作式OS, 支持254级优先级. 使用了链表, 重写所有系统函数.<br>还有, 非常重要的是, 增加了任务间的通讯方式, 支持信号量, 互斥量, 事件, 邮箱, 消息队列.
+ </p>
+<h1 id="ezos-原理介绍"><a href="#ezos-原理介绍" class="headerlink" title="ezos 原理介绍"></a>ezos 原理介绍</h1><p>ezos是协作式的操作系统, 即支持优先级, 支持任务间通讯. 但任务的轮询调度不是抢占式的, 而必须由任务自己放弃CPU的控制权.<br>即当有一更高优先级的任务需要运行时, ezos并不会马上剥夺现有任务CPU的控制权, 必须等待现有任务自己放弃CPU的控制权, 更高优先级的任务才会被运行.</p>
+<p>一个软件系统是否需要使用操作系统, 操作系统的好坏, 个人明确强调, 没有最好只有最合适!<br>这是嵌入式行业的原则之一, 如果有最好最合适的, 那就成了通用的PC行业软件开发, 而非嵌入式软件开发了.</p>
+<p>对于软件功能非常简单的嵌入式系统, 前后台/超循环模式可能就是最好的! 资源开销小, 代码直观, 易于调试.<br>对于有一定复杂度的嵌入式系统, 就需要使用操作系统了, 否则软件会变得难以开发, 难以理解和阅读, 难以维护和升级……<br>对于一般复杂度的嵌入式软件, 使用协作式的操作系统是个不错的选择, 相对于抢占式的操作系统, 其缺点为响应时间较慢(但并非不可控制). 优点为系统代码和占用资源很小, 任务流程容易预测, 便于调试和开发.<br>抢占式操作系统的一个最大特点是: 任务随时随地都可能被优先级更高的任务剥夺运行权, 因此也就需要程序员充分考虑任务的原子性要求, 但这是需要培训和经验积累的.<br>问题的严重性更在于, 此类问题很难跟踪调试, 容易让产品是不稳定的. 因此使用协作式的操作系统, 对程序员的要求较低, 也更易于开发出稳定可靠的产品.</p>
+<h2 id="ezos的任务数据"><a href="#ezos的任务数据" class="headerlink" title="ezos的任务数据"></a>ezos的任务数据</h2><p>ezos的任务数据存放在 ezos_task_t task_link[__EZOS_TASK_NUM];<br>ezos内置一个idle任务数据, 取名idle, 优先级最低, 为255. 可以简单理解为它是任务数据的表头.<br>当调用ezos_add(), ezos_delete()时, 会自行分配或释放此数据空间.</p>
+<h2 id="任务链表和回收链表"><a href="#任务链表和回收链表" class="headerlink" title="任务链表和回收链表"></a>任务链表和回收链表</h2><p>ezos核心思想是两组单向链表: <code>任务链表</code> 和 <code>回收链表</code></p>
+<ul>
+<li><code>任务链表</code>为单向循环链表, 链表起始节点存放着系统空闲任务.<br>后面的节点按照任务优先级的先后顺序进行排序.<br>对于同优先级的任务, 任务添加或任务改变自身状态时, 会将该任务节点放到同优先级链表节点的末尾.<br>因此, 任务链表从idle往后, 一定是按照优先级顺序排列好的!</li>
+</ul>
+<p>举例来说, 任务列表如下: 优先级1 -&gt; 优先级3 -&gt; 优先级3 -&gt; 优先级10 -&gt; 优先级11 -&gt; idle(255)<br>则ezos 会按照顺序依次查询任务列表中任务的状态. 更根据状态确定是执行任务还是跳过任务.<br>上表中, 如果新增一个优先级为2的任务, 则此任务会被放在优先级1和优先级3之间.<br>如果新增一个优先级为3的任务, 则此任务会被放在优先级10之前.<br>另外, 如果第一个优先级3的任务运行过后, 也会被放在优先级10之前, 以便让同优先级的其它任务运行.</p>
+<ul>
+<li><code>回收链表</code>为单向非循环链表, 被删除的任务节点放到到回收链表中.<br>而被添加的任务节点从回收链表取出并分配到任务链表中.</li>
+</ul>
+<h2 id="ezos的任务状态"><a href="#ezos的任务状态" class="headerlink" title="ezos的任务状态:"></a>ezos的任务状态:</h2><p>源码见 <a href="https://github.com/draapho/ezos" target="_blank" rel="noopener">github-ezos</a></p>
+<ol>
+<li>任务删除状态(EZOS_DELETE), 即终止状态. 任务不在任务链表中, 不会运行.</li>
+<li>任务阻塞状态(EZOS_SUSPEND), 任务已在任务链表中, 但被阻塞, 不会被运行. 任务延时也属于阻塞状态.</li>
+<li>任务就绪状态(EZOS_READY), 任务已在任务队列中, 可以运行, 但未必正在运行.</li>
+<li>任务运行状态(EZOS_RUNNING), 任务已在任务列表中, 并正在运行.</li>
+</ol>
+<h2 id="ezos任务调度"><a href="#ezos任务调度" class="headerlink" title="ezos任务调度"></a>ezos任务调度</h2><p>借助于ezos任务链表的良好设计, ezos任务调度非常简单, 每次都是从头开始寻找处于就绪态的任务,运行完某个任务后就从头重新开始搜寻.<br>由于任务链表是按照优先级顺序排序的,这样就实现了高优先级任务的快速响应. 而同优先级任务则是轮询处理的.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ezos_schedule</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        task = idle.next;</span><br><span class="line"><span class="comment">// 寻找就绪的任务</span></span><br><span class="line">        <span class="keyword">while</span> (task-&gt;status != EZOS_READY)  task = task-&gt;next;</span><br><span class="line">        run = task;</span><br><span class="line">        run-&gt;status = EZOS_RUNNING;</span><br><span class="line">        ezos_enable_int(mask);</span><br><span class="line"><span class="comment">// 运行任务函数</span></span><br><span class="line">        task-&gt;pfun(&amp;task-&gt;state, &amp;task-&gt;para);</span><br><span class="line">        mask = ezos_disable_int();</span><br><span class="line"><span class="comment">// 自动删除任务</span></span><br><span class="line">        <span class="keyword">if</span> (run-&gt;status == EZOS_RUNNING) ezos_delete_cur();</span><br><span class="line">        run = &amp;idle;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="任务的重载"><a href="#任务的重载" class="headerlink" title="任务的重载"></a>任务的重载</h1><p>由于加入了任务的命名体系, 对于可重载的函数就可以添加多个任务了. 而所有的任务操作依据就是任务的名称.<br>任务的名称是不可重复的.对于静态任务函数, 一般将其函数名命名为任务名称即可,<br>方便又好记.对于可重载函数的多个任务, 建议使用 <code>函数名+0</code>, <code>函数名+1</code> 的方式来命名任务名称.</p>
+<h1 id="ezos-使用方法"><a href="#ezos-使用方法" class="headerlink" title="ezos 使用方法"></a>ezos 使用方法</h1><h2 id="ezos-基础函数"><a href="#ezos-基础函数" class="headerlink" title="ezos 基础函数"></a>ezos 基础函数</h2><p>为了让ezos工作起来, 相关的基础函数有3个.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ezos_init();        <span class="comment">// ezos初始化函数, main函数尽早调用</span></span><br><span class="line">ezos_scan_1ms();    <span class="comment">// 1ms定时函数, 1ms定时中断调用</span></span><br><span class="line">ezos_schedule();    <span class="comment">// ezos调度函数, 为死循环. main函数最后调用</span></span><br></pre></td></tr></table></figure>
+<h2 id="ezos调试函数"><a href="#ezos调试函数" class="headerlink" title="ezos调试函数"></a>ezos调试函数</h2><p>主要有两个调试函数.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ezos_trash_num_min_get();   <span class="comment">// 获取系统最小的剩余任务空间</span></span><br><span class="line">ezos_idle_tick_max_get();   <span class="comment">// 获取idle任务运行间隔最大时间</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p><code>ezos_trash_num_min_get</code> 获取系统最小的剩余任务空间.<br>可用来判断设置的任务数量是否合适, 太小会让任务添加失败, 太大会造成RAM的浪费(但不会造成运算效率的浪费).<br>在稳定运行系统一定的时间后, 根据观察结构, 调整 <code>__EZOS_TASK_NUM</code> 值即可, 建议根据结果, 再预留2-5个任务较为合理</p>
+</li>
+<li><p><code>ezos_idle_tick_max_get</code> 获取idle任务运行间隔最大时间.<br>可用来判断CPU是否任务过重, 以及任务切换最慢响应时间(最低优先级任务的最差情况).</p>
+</li>
+<li><p>而最高优先级任务的最差情况. 根据协作式的特点分析可知:<br>最高优先级任务的响应时间 = 某个独占CPU时间最长的ezos任务<br>因此, 在ezos任务中, 不要使用独占CPU的长延时!!! 如果任务过重, 可手动拆分成多个小任务, 完成一次小任务就主动放弃一次CPU的控制权.</p>
+</li>
+</ul>
+<h2 id="常用的任务函数"><a href="#常用的任务函数" class="headerlink" title="常用的任务函数"></a>常用的任务函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ezos_t</span> ezos_add(<span class="keyword">void</span> *name,                 <span class="comment">// 任务名称(ID), 该任务的唯一标识</span></span><br><span class="line">    <span class="keyword">void</span> (*pfun)(<span class="keyword">ezos_s_t</span>*, <span class="keyword">ezos_p_t</span>*),     <span class="comment">// 任务函数</span></span><br><span class="line">    <span class="keyword">ezos_p_t</span> para,                          <span class="comment">// 任务初始参数</span></span><br><span class="line">    <span class="keyword">int32_t</span> delay_time,                     <span class="comment">// 任务延时时间</span></span><br><span class="line">    <span class="keyword">uint8_t</span> priority);                      <span class="comment">// 任务优先级</span></span><br><span class="line"></span><br><span class="line">quick_add();                <span class="comment">// 快速添加任务, 用的较多, 输入参数只需pfun和priority.</span></span><br><span class="line">force_add();                <span class="comment">// 强制添加任务, 会先删除该任务, 再重新添加</span></span><br><span class="line"></span><br><span class="line">ezos_delay(<span class="keyword">int32_t</span> time);   <span class="comment">// 任务延时函数</span></span><br></pre></td></tr></table></figure>
+<h2 id="ezos编程范例"><a href="#ezos编程范例" class="headerlink" title="ezos编程范例"></a>ezos编程范例</h2><p>源码见 <a href="https://github.com/draapho/ezos" target="_blank" rel="noopener">github-ezos</a></p>
+<ol>
+<li>单次任务, 见范例 <code>app_lcd</code> 之 <code>task_lcd</code></li>
+<li>循环任务, 见范例 <code>app_rtc</code> 之 <code>task_rtc_1s</code></li>
+<li>状态机任务, 见范例 <code>app_race_led</code> 之 <code>task_race_led</code></li>
+<li>复杂任务, 见范例 <code>app_bell</code> 之 <code>task_bell_1s</code></li>
+<li>可重入任务, 见范例 <code>app_sem</code> 之 <code>task_led</code></li>
+<li>任务的拆分, 见范例 <code>ITT100 dv_pic</code> 之 <code>SavePIPtoSPI</code></li>
+</ol>
+<p> </p>
+<h1 id="ezos之任务通讯"><a href="#ezos之任务通讯" class="headerlink" title="ezos之任务通讯"></a>ezos之任务通讯</h1><p>ezos的任务通讯相关函数统一放在 <code>ezos_ipc.c</code> 文件下.<br>ezos会将所有的添加的ipc串成一个链表. 其数据结构如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">ezos_ipc</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">void</span> *next;         <span class="comment">// 下个IPC指针</span></span><br><span class="line">    <span class="keyword">void</span> *name;         <span class="comment">// 当前IPC指针</span></span><br><span class="line">    <span class="keyword">ezos_t</span> type;        <span class="comment">// IPC类型</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> __<span class="title">ezos_ipc</span>   <span class="title">ezos_ipc_t</span>;</span></span><br></pre></td></tr></table></figure>
+<p>此数据结构相当于ipc的父类, 基于此父类, 下面会衍生出各个IPC子类,<br>如信号量:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">ezos_ipc_t</span> ipc; <span class="comment">// IPC父类</span></span><br><span class="line">    <span class="keyword">uint8_t</span> value;  <span class="comment">// 信号量值</span></span><br><span class="line">&#125; <span class="keyword">ezos_sem_t</span>;</span><br></pre></td></tr></table></figure>
+<p>所有IPC的添加与删除都是对此链表的操作, 使用函数为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ezos_t</span> ezos_ipc_add(<span class="keyword">void</span> *name, <span class="keyword">ezos_t</span> type)</span><br><span class="line"><span class="keyword">ezos_t</span> ezos_ipc_delete(<span class="keyword">void</span> *name)</span><br></pre></td></tr></table></figure>
+<h2 id="IPC的使用"><a href="#IPC的使用" class="headerlink" title="IPC的使用"></a>IPC的使用</h2><p>IPC的释放/发送较简单, IPC的获取/接收使用稍有复杂, 主要是需要判断IPC的返回值, 并进行相关操作.此处已信号量(sem)为例.<br>原函数见:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ezos_t</span> ezos_sem_release(<span class="keyword">ezos_sem_t</span> *sem)</span><br><span class="line"><span class="keyword">ezos_t</span> ezos_sem_take(<span class="keyword">ezos_sem_t</span> *sem, <span class="keyword">int32_t</span> timeout)</span><br></pre></td></tr></table></figure>
+<p>对于 ezos_sem_take, 返回值种类有4种! 依次为:</p>
+<ol>
+<li><code>EZOS_OK</code>,      获取信号量成功</li>
+<li><code>EZOS_WAIT</code>,    需要等待信号量, 返回此值后, 原函数需要return</li>
+<li><code>EZOS_TIMEOUT</code>, 信号量等待超时</li>
+<li><code>EZOS_ERROR</code>,   指定信号量有错误, 说明代码有误</li>
+</ol>
+<p>使用信号量时, 基本格式为:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">EZOS_TASK(task_sem)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">ezos_t</span> val;</span><br><span class="line">    val = ezos_sem_take(lock, <span class="number">10</span>);</span><br><span class="line">    <span class="keyword">if</span> (val == EZOS_WAIT) <span class="keyword">return</span>;                       <span class="comment">// 直接返回等待</span></span><br><span class="line">    <span class="keyword">if</span> (val == EZOS_OK)           &#123;do_something();&#125;     <span class="comment">// 成功获取信号量</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (val == EZOS_TIMEOUT) &#123;do_something();&#125;     <span class="comment">// 信号量超时处理</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (val == EZOS_ERROR)   &#123;exception();&#125;        <span class="comment">// 异常处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="IPC编程范例"><a href="#IPC编程范例" class="headerlink" title="IPC编程范例"></a>IPC编程范例</h2><ol>
+<li>信号量(sem), 见范例 <code>app_sem</code></li>
+<li>互斥量(mutex) 及 事件(event) 与 信号量类型, 略</li>
+<li>邮箱(mailbox),  见范例 <code>app_mail</code></li>
+<li>消息队列(message),  见范例 <code>app_message</code></li>
+</ol>
+<h1 id="ezos-源码"><a href="#ezos-源码" class="headerlink" title="ezos 源码"></a>ezos 源码</h1><p>已将源码放在了 <a href="https://github.com/draapho/ezos" target="_blank" rel="noopener">github-ezos</a><br>该源码是一个针对stm32f1xx系列的工程模板文件.<br>分层非常清楚, 整个代码结构框架如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">         --------------- 最高层 ----------------</span><br><span class="line">        |                                       |</span><br><span class="line">层一    |        applications (应用层)          |</span><br><span class="line">        |                                       |</span><br><span class="line">         ---------------------------------------</span><br><span class="line">        |                                       |</span><br><span class="line">层二    |          components (组件层)          |</span><br><span class="line">        |                                       |</span><br><span class="line"> --------------------------------------------------------</span><br><span class="line">|                  API (应用程序编程接口)                |</span><br><span class="line"> --------------------------------------------------------</span><br><span class="line">        |                                       |</span><br><span class="line">层三    |             OS (操作系统)             |</span><br><span class="line">        |                                       |</span><br><span class="line">         ---------------------------------------</span><br><span class="line">        |                                       |</span><br><span class="line">层四    |            drivers (驱动层)           |</span><br><span class="line">        |                                       |</span><br><span class="line"> --------------------------------------------------------</span><br><span class="line">|                CMSIS （Cortex软件标准接口）            |</span><br><span class="line"> --------------------------------------------------------</span><br><span class="line">        |                                       |</span><br><span class="line">层五    |           libraries (芯片库)          |</span><br><span class="line">        |                                       |</span><br><span class="line">         --------------- 最低层 ----------------</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>applications：应用层</p>
+<ul>
+<li>包含了main文件, 中断处理文件, 系统配置文件</li>
+<li>不建议直接调用最底层 Libraries</li>
+<li>放在bsp中, 有利于使用不同的开发板开发应用</li>
+</ul>
+</li>
+<li><p>components：组件层</p>
+<ul>
+<li>按大功能划分的软件组件。如音频组件、UI组件</li>
+<li>不建议直接调用最底层 Libraries</li>
+<li>用户可在此处添加特定工程的组件层</li>
+<li>用户可在此处添加常用的组件层(完善模板)</li>
+</ul>
+</li>
+<li><p>OS：操作系统</p>
+<ul>
+<li>有些操作系统需要提供标准接口函数, 比drivers层高.</li>
+<li>ezos操作系统与drivers同层，相互不得调用</li>
+</ul>
+</li>
+<li><p>drivers：PCB板级驱动</p>
+<ul>
+<li>如按键、EEPROM、模拟I2C等等</li>
+<li>该层要能对上屏蔽掉最底层 Libraries<br>这样起到承上启下的作用,方便跨平台移植</li>
+<li>用户可在此处添加特定的驱动</li>
+<li>用户可在此处添加常用的驱动(完善模板)</li>
+</ul>
+</li>
+<li><p>libraries：MCU外设库</p>
+<ul>
+<li>此部分由芯片厂商提供，是标准库</li>
+<li>用户不得修改此层</li>
+</ul>
+</li>
+<li><p>bsp：板级支持包</p>
+<ul>
+<li>applications应用层放在此包中</li>
+<li>components特定工程组件层放在此包中</li>
+<li>提供开发板工程模板</li>
+</ul>
+</li>
+<li><p>documents：文档说明</p>
+<ul>
+<li>提供 doxygen 注释风格的模板，说明，软件</li>
+<li>STM32工程模板说明</li>
+<li>用户可在此处添加其它说明性文件</li>
+</ul>
+</li>
+<li><p>API：Application Programming Interface，应用程序编程接口</p>
+<ul>
+<li>API旨在提供软件抽象层，加快项目的开发和移植速度</li>
+<li>层一、层二的应用都应该基于API函数来使用</li>
+<li>API函数由 Drivers 和 OS 提供, Libraries不得提供函数到应用接口</li>
+<li>API函数必须使用标准C书写，与软件平台和硬件完全无关</li>
+</ul>
+</li>
+<li><p>CMSIS：Cortex Microcontroller Software Interface Standard，Cortex软件标准接口</p>
+<ul>
+<li>CMSIS是ARM公司发布的一个标准接口，旨在提供Cortex-M处理器系列硬件抽象层</li>
+<li>仅 Drivers 和 OS 可直接调用 CMSIS 的函数</li>
+<li>目前仅提供了芯片核心部分的CMSIS，芯片外设标准库仍是由ST官方书写的</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/05/1710-jz2440-led/" itemprop="url">
                   jz2440 裸板程序的开发
                 </a>
@@ -280,6 +727,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -419,6 +885,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -565,6 +1050,25 @@
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -727,6 +1231,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -880,6 +1403,25 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -971,266 +1513,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/19/1706-linux-centos7/" itemprop="url">
-                  嵌入式linux环境搭建2-CentOS7
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-19T00:00:00+11:00" content="2017-02-19">
-              2017-02-19
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
-<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
-<li>gateway ip <code>10.0.0.138</code></li>
-<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
-<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
-<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
-</ul>
-</li>
-<li>目的是尝试不同linux系统下的环境搭建</li>
-<li>使用环境: CentOS7 64bit (安装在win10的虚拟机内)</li>
-<li>kernel make 失败</li>
-<li>彻底死机一次</li>
-<li>没法直接安装 u-boot-tools</li>
-<li>彻底放弃! 转战Ubuntu</li>
-<li>不知是 centos 做 2440 的交叉编译兼容性不好, 还是64bit linux的兼容性不好. 或者两者皆有!</li>
-</ul>
-<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><p>静态ip, 安装向导时, 就设置了.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">yum install net-tools 	<span class="comment"># to use ifconfig  or use ip addr</span></span><br><span class="line">yum install bzip2		<span class="comment"># bz2压缩格式</span></span><br><span class="line">yum install patch</span><br><span class="line">yum install gcc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 64位系统要安装了32位程序, 安装如下软件</span></span><br><span class="line">yum install glibc.i686</span><br><span class="line">yum install libstdc++.so.6</span><br></pre></td></tr></table></figure>
-<h1 id="安装nfs客户端"><a href="#安装nfs客户端" class="headerlink" title="安装nfs客户端"></a>安装nfs客户端</h1><p>可以参考: <a href="https://www.howtoforge.com/nfs-server-and-client-on-centos-7" target="_blank" rel="noopener">NFS server and client installation on CentOS 7</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装nfs工具, 服务器和客户端都装这个</span></span><br><span class="line">yum install nfs-utils</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建用于mount的节点</span></span><br><span class="line">mkdir -p /mnt/nfs/study</span><br><span class="line">mkdir -p /mnt/nfs/work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">systemctl <span class="built_in">enable</span> rpcbind</span><br><span class="line">systemctl <span class="built_in">enable</span> nfs-server</span><br><span class="line">systemctl <span class="built_in">enable</span> nfs-lock       <span class="comment"># No such file or directory, 但没影响</span></span><br><span class="line">systemctl <span class="built_in">enable</span> nfs-idmap      <span class="comment"># No such file or directory</span></span><br><span class="line">systemctl start rpcbind</span><br><span class="line">systemctl start nfs-server</span><br><span class="line">systemctl start nfs-lock</span><br><span class="line">systemctl start nfs-idmap</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动mount</span></span><br><span class="line">mount -t nfs 10.0.0.98:/study /mnt/nfs/study/</span><br><span class="line">mount -t nfs 10.0.0.98:/work /mnt/nfs/work/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认结果</span></span><br><span class="line">df -kh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置为开机自动加载</span></span><br><span class="line">vi /etc/fstab</span><br><span class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></span><br><span class="line">    10.0.0.98:/study   /mnt/nfs/study  nfs defaults 0 0</span><br><span class="line">    10.0.0.98:/work    /mnt/nfs/work   nfs defaults 0 0</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line">// 建立软连接(快捷方式)</span><br><span class="line"><span class="built_in">cd</span> /home/user/</span><br><span class="line">sudo ln -s /mnt/nfs/study study</span><br><span class="line">sudo ln -s /mnt/nfs/work work</span><br></pre></td></tr></table></figure>
-<h1 id="安装-mkyaffs2image"><a href="#安装-mkyaffs2image" class="headerlink" title="安装 mkyaffs2image"></a>安装 mkyaffs2image</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></span><br><span class="line">chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></span><br><span class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></span><br></pre></td></tr></table></figure>
-<h1 id="安装及使用交叉编译工具gcc"><a href="#安装及使用交叉编译工具gcc" class="headerlink" title="安装及使用交叉编译工具gcc"></a>安装及使用交叉编译工具gcc</h1><h2 id="安装-arm-linux-gcc-3-4-5"><a href="#安装-arm-linux-gcc-3-4-5" class="headerlink" title="安装 arm-linux-gcc-3.4.5"></a>安装 arm-linux-gcc-3.4.5</h2><p>使用指定的 <code>arm-linux-gcc-3.4.5-glibc-2.3.6</code>. 不要用新版本, 有坑.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 gcc</span></span><br><span class="line">mv arm-linux-gcc-3.4.5-glibc-2.3.6.tar.bz2 /usr/<span class="built_in">local</span>/arm/</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/arm/</span><br><span class="line">tar -xjf arm-linux-gcc-3.4.5-glibc-2.3.6.tar.bz2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加路径到环境变量</span></span><br><span class="line">vi /etc/bashrc</span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="keyword">if</span> [ -d /usr/<span class="built_in">local</span>/arm/gcc-3.4.5-glibc-2.3.6 ] ; <span class="keyword">then</span></span><br><span class="line">        PATH=/usr/<span class="built_in">local</span>/arm/gcc-3.4.5-glibc-2.3.6/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line">    </span><br><span class="line"><span class="comment"># 测试安装结果</span></span><br><span class="line"><span class="built_in">source</span> /etc/bashrc							<span class="comment"># 不重启更新PATH</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>									<span class="comment"># 查看PATH</span></span><br><span class="line">arm-linux-gcc -v							<span class="comment"># 测试是否安装成功</span></span><br></pre></td></tr></table></figure>
-<h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>在centos下, 内核 make clean 会报错: Makefile‘混和的隐含和普通规则’<br>我想还是因为 2440 内核文件使用的makefile太老了. 和centos兼容性不好.<br>按下述方法改了一点后, 最后make还是失败了. 因而放弃 centos 系统.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改根目录下的 Makefile</span></span><br><span class="line">/ %/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line"><span class="comment"># 改成： -----&gt;</span></span><br><span class="line">/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line">%/: prepare scripts FORCE</span><br><span class="line">    $(Q)$(MAKE) KBUILD_MODULES=$(<span class="keyword">if</span> $(CONFIG_MODULES),1) \</span><br><span class="line">    $(build)=$(build-dir)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把：</span></span><br><span class="line">config %config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br><span class="line"><span class="comment"># 改成： -----&gt;</span></span><br><span class="line">config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br><span class="line">%config: scripts_basic outputmakefile FORCE</span><br><span class="line">    $(Q)mkdir -p include/linux include/config</span><br><span class="line">    $(Q)$(MAKE) $(build)=scripts/kconfig <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/18/1706-linux-ubuntu14/" itemprop="url">
-                  嵌入式linux环境搭建1-Ubuntu14.04
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-18T00:00:00+11:00" content="2017-02-18">
-              2017-02-18
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
-<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
-<li>gateway ip <code>10.0.0.138</code></li>
-<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
-<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
-<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
-</ul>
-</li>
-<li>探索嵌入式linux环境搭建的各方案可行性.</li>
-<li>使用环境: Ubuntu 14.04.5 LTS 32bit 桌面版 (安装在win10的虚拟机内)</li>
-<li>成功验证了win10作为NFS服务器. 两个linux作为NFS客户端, 三者文件共享的方案</li>
-<li>最终遇到了gcc编译器的坑, 就决定换到CentOS系统练练手.</li>
-<li>在win 10 下使用虚拟机安装在win10下, 略过不表.</li>
-<li>实验结论:<ul>
-<li>win10(非企业版)下, 没有找到nfs客户端. 因此没法使用 <strong>ubuntu做NFS服务器</strong> 的方案</li>
-<li>ubuntu下安装samba来支持windows文件共享, 失败告终. 因此没法使用 <strong>ubuntu使用samba来支持windows文件共享</strong> 的方案</li>
-<li>linux不允许把NFS挂载过来的文件再使用NFS服务共享出去. 因此没法使用 <strong>交叉使用上述方案</strong></li>
-<li>还好, 最终 <strong>windows做NFS服务器</strong> 成功了</li>
-</ul>
-</li>
-</ul>
-<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 make 和 gcc 工具 (非交叉编译用)</span></span><br><span class="line">make -v                     <span class="comment"># GNU Make 3.81</span></span><br><span class="line">gcc -v                      <span class="comment"># gcc version 4.8.4</span></span><br></pre></td></tr></table></figure>
-<h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><p>个人更喜欢用静态IP, 这样putty的设置更直观方便.<br>如果要使用动态IP, 可以设置 windwos 的 HaneWIN, 用<code>-range</code>来指定nfs客户端的网址段</p>
-<p>刚开始怎么样都不能上外网, 突然按照下面的顺序就好了… 原因不明<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/network/interfaces</span><br><span class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></span><br><span class="line">    auto lo</span><br><span class="line">    iface lo inet loopback</span><br><span class="line"></span><br><span class="line">    auto eth0</span><br><span class="line"></span><br><span class="line">    iface eth0 inet static</span><br><span class="line">    address  10.0.0.100</span><br><span class="line">    netmask  255.255.255.0</span><br><span class="line">    gateway  10.0.0.138</span><br><span class="line">    dns-nameservers   8.8.8.8  10.0.0.138</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure></p>
-<h1 id="安装nfs服务-服务器-客户端"><a href="#安装nfs服务-服务器-客户端" class="headerlink" title="安装nfs服务(服务器/客户端)"></a>安装nfs服务(服务器/客户端)</h1><p>最终方案里, windows下用了HaneWIN 做NFS服务器, 虚拟机ubuntu下安装客户端就可以了.<br>这里为了做实验, nfs服务器和客户端都安装了, 可以参考:<br><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04" target="_blank" rel="noopener">How To Set Up an NFS Mount on Ubuntu 14.04</a></p>
-<h2 id="nfs-客户端的安装"><a href="#nfs-客户端的安装" class="headerlink" title="nfs 客户端的安装"></a>nfs 客户端的安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 nfs 客户端软件</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install nfs-common</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立空文件夹用于挂载nfs</span></span><br><span class="line">sudo mkdir -p /mnt/nfs/study</span><br><span class="line">sudo mkdir -p /mnt/nfs/work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开机自动挂载(参考文章中的客户端自动挂载方法没有起作用)</span></span><br><span class="line">sudo vim /etc/rc.local</span><br><span class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></span><br><span class="line">    sudo mount 10.0.0.98:/study /mnt/nfs/study</span><br><span class="line">    sudo mount 10.0.0.98:/work /mnt/nfs/work</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立软连接(快捷方式), 可忽略此步骤</span></span><br><span class="line">sudo ln -s /mnt/nfs/study /home/user/study</span><br><span class="line">sudo ln -s /mnt/nfs/work /home/user/work</span><br></pre></td></tr></table></figure>
-<h2 id="nfs-服务器的安装"><a href="#nfs-服务器的安装" class="headerlink" title="nfs 服务器的安装"></a><del>nfs 服务器的安装</del></h2><p>实际上没有用到linux的nfs服务器功能, 最终用的是windows下的HaneWIN给开发板提供的nfs服务!!!<br>因为最后测试下来, <strong>linux不允许把NFS挂载过来的文件再使用NFS服务共享出去</strong>.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 虚拟机ubuntu 安装服务器, 供开发板端使用nfs.</span></span><br><span class="line">apt-get install nfs-kernel-server</span><br><span class="line">sudo vim /etc/exports</span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="comment"># 加入要共享的文件夹, 一个文件夹一行即可</span></span><br><span class="line">    <span class="comment"># 注意! 由windows 共享过来的目录无法再由ubuntu共享出去</span></span><br><span class="line">    /home/draapho 10.0.0.*(rw,no_root_squash,async,no_subtree_check)</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启服务</span></span><br><span class="line">sudo exportfs -a</span><br><span class="line">sudo /etc/init.d/nfs-kernel-server restart</span><br></pre></td></tr></table></figure>
-<h2 id="其它实验"><a href="#其它实验" class="headerlink" title="其它实验"></a><del>其它实验</del></h2><p>win10(非企业版)下, 没有找到nfs客户端. 因此无法让linux当nfs服务器, win10做nfs客户端.<br>ubuntu下安装samba来支持windows文件共享, 失败告终</p>
-<h1 id="安装ssh服务-用putty远程登录"><a href="#安装ssh服务-用putty远程登录" class="headerlink" title="安装ssh服务, 用putty远程登录"></a>安装ssh服务, 用putty远程登录</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ssh服务</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openssh-server</span><br><span class="line"><span class="comment"># 如果有依赖包冲突, 执行如下指令</span></span><br><span class="line">sudo apt-get install openssh-client=1:6.6p1-2ubuntu1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否已经运行</span></span><br><span class="line">sudo ps -e | grep ssh</span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">sudo service ssh start</span><br></pre></td></tr></table></figure>
-<h1 id="安装-u-boot-tools-工具"><a href="#安装-u-boot-tools-工具" class="headerlink" title="安装 u-boot-tools 工具"></a>安装 u-boot-tools 工具</h1><p>安装 u-boot-tools, 内核编译后生成uImage使用.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 mkimage</span></span><br><span class="line">sudo apt-get install u-boot-tools</span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">mkimage -V</span><br></pre></td></tr></table></figure></p>
-<h1 id="安装-mkyaffs2image-工具"><a href="#安装-mkyaffs2image-工具" class="headerlink" title="安装 mkyaffs2image 工具"></a>安装 mkyaffs2image 工具</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></span><br><span class="line">sudo chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></span><br><span class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></span><br></pre></td></tr></table></figure>
-<h1 id="安装及使用交叉编译工具gcc"><a href="#安装及使用交叉编译工具gcc" class="headerlink" title="安装及使用交叉编译工具gcc"></a>安装及使用交叉编译工具gcc</h1><p>在 arm-linux-gcc 4.3.2 上走的比较远, 结果证明遇到坑了!<br>建议不要尝试最新版本的编译器, 老老实实使用开发板提供的 <code>gcc-3.4.5-glibc-2.3.6</code> 编译器版本.</p>
-<h2 id="安装-arm-linux-gcc-4-3-2"><a href="#安装-arm-linux-gcc-4-3-2" class="headerlink" title="安装 arm-linux-gcc 4.3.2"></a><del>安装 arm-linux-gcc 4.3.2</del></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接拷贝解压 arm-linux-gcc-4.3.2.tar.bz2</span></span><br><span class="line"><span class="comment"># 事后证明, gcc-4.3.2 不能正确编译(但能成功编译)2440的linux内核和驱动</span></span><br><span class="line">sudo tar xjvf arm-linux-gcc-4.3.2.tar.bz2 -C /usr/<span class="built_in">local</span>/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加路径到环境变量</span></span><br><span class="line">sudo vim /etc/bash.bashrc</span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="keyword">if</span> [ -d /usr/<span class="built_in">local</span>/arm/4.3.2 ] ; <span class="keyword">then</span></span><br><span class="line">        PATH=/usr/<span class="built_in">local</span>/arm/4.3.2/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试安装结果</span></span><br><span class="line"><span class="built_in">source</span> /etc/bash.bashrc                             <span class="comment"># 不重启更新PATH</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>                                          <span class="comment"># 查看PATH</span></span><br><span class="line">arm-linux-gcc -v                                    <span class="comment"># 测试是否安装成功</span></span><br></pre></td></tr></table></figure>
-<p>如果希望sudo超级账户也能用 make 指令 (没有测试过)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo -s                                             <span class="comment"># 登录超级账户</span></span><br><span class="line">vi /etc/profile                                     <span class="comment"># 打开profile</span></span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/arm/4.3.2/bin</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br></pre></td></tr></table></figure>
-<h2 id="遇到问题并解决-结果是坑"><a href="#遇到问题并解决-结果是坑" class="headerlink" title="遇到问题并解决, 结果是坑"></a><del>遇到问题并解决, 结果是坑</del></h2><p>下面列出使用 <code>arm-linux-gcc 4.3.2</code> 编译u-boot遇到问题时的解决方法<br>所谓顺利, 是因为没有报错, 生成的文件可以烧录, 启动.<br>加上引号, 是因为最后证明这些生成文件是有问题的, 会导致整个嵌入式系统某些部分无法正常工作.<br>最后在编译测试驱动用的C文件时, 编译出来的可执行文件在开发板上不可执行,<br>才想到可能是编译器问题而尝试着换回到 3.4.5 版本. 并连同内核全部重新编译了.<br>换回去后, 之前一度认为的源码有问题的fs也能成功加载了, 真是个巨坑…</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果用gcc 4.3.2, 则版本太新, 编译错误. 可以使用自带的arm-none-linux-gnueabi</span></span><br><span class="line"><span class="comment"># 解决方法如下:</span></span><br><span class="line"><span class="comment"># 修改Makefile文件中的PLATFORM_LIBS, 将:</span></span><br><span class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -<span class="built_in">print</span>-libgcc-file-name`) -lgcc</span><br><span class="line"><span class="comment"># 修改成:</span></span><br><span class="line">PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -<span class="built_in">print</span>-libgcc-file-name`) -lgcc -lc -L /usr/<span class="built_in">local</span>/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/usr/lib</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改 cpu /arm920t/config.mk 文件, 将:</span></span><br><span class="line">PLATFORM_CPPFLAGS +=$(call cc-option,-mapcs-32,-mabi=apcs-gnu)</span><br><span class="line">PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))</span><br><span class="line"><span class="comment"># 修改成:</span></span><br><span class="line">PLATFORM_CPPFLAGS +=$(call cc-option,)</span><br><span class="line">PLATFORM_RELFLAGS +=$(call cc-option,$(call cc-option,))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新make, 即可生成 u-boot.bin</span></span><br></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1271,7 +1558,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">120</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1279,7 +1566,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -1288,7 +1575,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
@@ -1336,7 +1623,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2019</span>
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
