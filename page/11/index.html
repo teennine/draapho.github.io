@@ -261,6 +261,335 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/19/1713-ble/" itemprop="url">
+                  BLE基础概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-19T00:00:00+10:00" content="2017-04-19">
+              2017-04-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="ble-架构"><a href="#ble-架构" class="headerlink" title="ble 架构"></a>ble 架构</h1><p><img src="https://draapho.github.io/images/1713/ble-architecture.jpg" alt="ble architecture"></p>
+<ul>
+<li>PHY, Physical Layer:<br>物理层, 控制无线电信号的收发</li>
+<li>LL, Link Layer:<br>链路层, 定义数据包结构, 包括状态信息和收发控制, 以及链路层的加密</li>
+<li>HCI, Host-Controller Interface:<br>通过此标准接口, Host层和Controller层进行通讯</li>
+<li>L2CAP, Logical Link Control and Adaptation Protocol. 可以理解为一个协议多路复用和分配器(功能上类似于TCPIP的端口).<br><strong>一般而言, BLE应用层开发者无需了解L2CAP层的细节</strong></li>
+<li>ATT, Attribute Protocol:<br>该协议将单一的数值(信息)以Attribute(属性)的形式抽象出来，并提供一些方法，供远端设备读取和修改</li>
+<li>GATT, Generic Attribute Protocol:<br>基于ATT提供的数值, 将有用的数值组打包好, 已服务(service)的方式开放给上层应用. 它相当于提供一套数据打包框架/规则.</li>
+<li>GAP, Generic Access Profile:<br>通用访问服务, 是对LL层的广播,监听,建立连接功能的抽象, 便于开发人员来理解和开发</li>
+<li>SM, Security Manager<br>负责BLE通信中有关安全的内容.</li>
+</ul>
+<h1 id="Physical-Layer"><a href="#Physical-Layer" class="headerlink" title="Physical Layer"></a>Physical Layer</h1><p>物理层, 控制无线电信号的收发</p>
+<p><img src="https://draapho.github.io/images/1713/ble-channel.png" alt="ble channel"><br>一图胜千言. 如图所示:</p>
+<ul>
+<li>BLE占用的频段为 2402Mhz-2480Mhz, 划分为40个Channel(频道), 每个频段2Mhz</li>
+<li>3个广播频段被放在了干扰冲突最少的频段, 并被命名为 37,38,39 频道</li>
+<li>其余的频段用作数据通讯, 并会采用调频技术来避免干扰和冲突.</li>
+<li>BLE和wifi的重合频段还是比较严重的! 和 wifi 的 1,6,11 三个频道完全重合.</li>
+</ul>
+<h1 id="Link-Layer"><a href="#Link-Layer" class="headerlink" title="Link Layer"></a>Link Layer</h1><p>链路层, 定义数据包结构, 包括状态信息和收发控制, 以及链路层的加密</p>
+<p>Link Layer 链路层有5个基本状态:</p>
+<ul>
+<li>Standby: 睡觉省电.</li>
+<li>Advertising: 广播模式, 周期性地发送数据, 使用的是 37-39的广播频道</li>
+<li>Scanning: 扫描模式, 扫描/接收广播数据；</li>
+<li>Initiating: 连接发起方，扫描带有“可连接”标志的广播数据,一旦发现,则发起连接请求.</li>
+<li>Connection: 建立点对点的通讯模式, 此后就开始使用 0-36频道开始通讯了!</li>
+</ul>
+<p>设备的几种角色</p>
+<ul>
+<li>Advertiser: 广播者, 处于 Advertising 模式即广播者</li>
+<li>Scanner: 扫描者, 处于 Scanning 模式即扫描者</li>
+<li>Initiator: 扫描者, 处于 Initiating 模式的扫描, 用于准备建立连接</li>
+<li>Slave: 建立通讯后 (Connection 模式), 之前的广播者就变成了Slave从机</li>
+<li>Master: 建立通讯后 (Connection 模式), 之前的扫描者/发起者就变成了Master主机</li>
+<li>混合模式: 一个设备可以同时是 Advertiser &amp; Scanner 或者 Advertiser &amp; Master 等等. 但需要供应商的软件支持!</li>
+</ul>
+<p><strong>关于蓝牙设备的角色名称问题, 无力吐槽, 各个分层都有一套自己的术语, 看的时候注意其对应的架构层次再来理解</strong></p>
+<h2 id="Advertisement"><a href="#Advertisement" class="headerlink" title="Advertisement"></a>Advertisement</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Advertisement interval</td>
+<td>20 ms to 10240 ms</td>
+<td>定义广播时间间隔</td>
+</tr>
+<tr>
+<td>Advertisement channels</td>
+<td>CH37-CH39</td>
+<td>默认值, 不可修改. BLE5新增了第二广播频道</td>
+</tr>
+<tr>
+<td>Discoverability mode</td>
+<td>ADV_IND</td>
+<td>可被连接的广播</td>
+</tr>
+<tr>
+<td></td>
+<td>ADV_DIRECT_IND</td>
+<td>可被连接的定向广播</td>
+</tr>
+<tr>
+<td></td>
+<td>ADV_NONCONN_IND</td>
+<td>不可连接的广播</td>
+</tr>
+<tr>
+<td></td>
+<td>ADV_SCAN_IND</td>
+<td>可接受SCAN_REQ请求的广播数据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Scanning"><a href="#Scanning" class="headerlink" title="Scanning"></a>Scanning</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scan interval</td>
+<td>2.5 ms to 10240 ms</td>
+<td>定义扫描时间间隔</td>
+</tr>
+<tr>
+<td>Scan window</td>
+<td>2.5 ms to 10240 ms</td>
+<td>定义扫描时间窗口</td>
+</tr>
+<tr>
+<td>Scan mode</td>
+<td>Active / Passive</td>
+<td>主动扫描(会发送Scan Request)</td>
+</tr>
+</tbody>
+</table>
+<p>上图:<br><img src="https://draapho.github.io/images/1713/ble-scan.PNG" alt="ble scan"></p>
+<h2 id="Connections"><a href="#Connections" class="headerlink" title="Connections"></a>Connections</h2><ul>
+<li>建立通讯后, 设备的角色被分为 Master 和 Slave</li>
+<li>发起建立通讯的设备, 即 Initiating 状态的扫描者, 为 Master</li>
+<li>之前在广播状态的设备, 即 Advertising 状态的广播者, 为 Slave</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Minimum Connection Interval</td>
+<td>7.5 ms</td>
+<td>允许的最小连接间隔</td>
+</tr>
+<tr>
+<td>Maximum Connection Interval</td>
+<td>4000 ms</td>
+<td>允许的最大连接间隔</td>
+</tr>
+<tr>
+<td>Connection (slave) latency</td>
+<td>0 to 500</td>
+<td>Slaver允许的延迟次数</td>
+</tr>
+<tr>
+<td>Supervision timeout</td>
+<td>100 ms to 32000 ms</td>
+<td>设置一个失败超时时间</td>
+</tr>
+</tbody>
+</table>
+<p>对于 <code>Connection latency</code>, 就是Master会持续发送多个数据包来等待Slaver的回应.</p>
+<p>BLE点对点连接的数据交换示意图, 也同时说明了频道的变化:<br><img src="https://draapho.github.io/images/1713/ble-connect.png" alt="ble connect.png"></p>
+<h1 id="GAP"><a href="#GAP" class="headerlink" title="GAP"></a>GAP</h1><p>通用访问服务, 是对LL层的广播,监听,建立连接功能的抽象, 便于开发人员来理解和开发</p>
+<p>GAP的主要作用:</p>
+<ul>
+<li>Broadcast mode and observation procedure，实现单向的、无连接的通信方式；</li>
+<li>Discovery modes and procedures，实现蓝牙设备的发现操作；</li>
+<li>Connection modes and procedures，实现蓝牙设备的连接操作；</li>
+<li>Bonding modes and procedures，实现蓝牙设备的配对操作.</li>
+</ul>
+<p>GAP层的蓝牙设备角色:</p>
+<ul>
+<li>Broadcaster Role，设备正在发送广播；</li>
+<li>Observer Role，设备正在扫描广播；</li>
+<li>Peripheral Role， 对应Link Layer的slave角色, 可广播和被连接</li>
+<li>Central Role，对应Link Layer的master角色, 扫描和发起连接的一方</li>
+</ul>
+<p><strong>关于蓝牙设备的角色名称问题, 无力吐槽, 各个分层都有一套自己的术语, 看的时候注意其对应的架构层次再来理解</strong></p>
+<h1 id="ATT"><a href="#ATT" class="headerlink" title="ATT"></a>ATT</h1><p>该协议将单一的数值(信息)以Attribute(属性)的形式抽象出来，并提供一些方法，供远端设备读取和修改</p>
+<p>一个Attribute由Attribute Type、Attribute Handle和Attribute Value组成</p>
+<ul>
+<li>Attribute Type用于标示Attribute的类型, 譬如温度/湿度等.<br>Attribute Type使用 <code>UUID</code> (Universally Unique IDentifier)区分, 有 16-bit, 32-bit, 128-bit</li>
+<li>Attribute Handle是一个16-bit的数值, 简称 <code>Handle</code>. 用作唯一识别Attribute server上的所有Attribute<br>Attribute Handle可理解为Attribute的地址, 有如下意义：<ul>
+<li>一个server上可能存在多个相同类型的Attribute, 显然, client有区分这些Attribute的需要</li>
+<li>同一类型的多个Attribute, 可以组成一个Group, client可以通过这个Group中的起, 始handle访问所有的Attributes</li>
+</ul>
+</li>
+<li>Attribute Value代表Attribute的值，可以是任何固定长度或者可变长度的octet array （理解为字节类型的数组即可）。</li>
+<li>Attribute Permission代表Attribute的权限. 是否可读写, 是否加密等等.</li>
+</ul>
+<p>ATT设备角色, 采用client-server的形式.</p>
+<ul>
+<li>Server: 提供信息(即Attribute)的一方为服务方, 一般是传感器节点 (大多数情况是Advertiser / Slaver / Peripheral)</li>
+<li>Client: 访问信息(即Attribute)的一方为客户端, 一般是手机等终端 (大多数情况是Scanner / Master / Central)</li>
+</ul>
+<p><strong>关于蓝牙设备的角色名称问题, 无力吐槽, 各个分层都有一套自己的术语, 看的时候注意其对应的架构层次再来理解</strong></p>
+<h1 id="GATT"><a href="#GATT" class="headerlink" title="GATT"></a>GATT</h1><p>基于ATT提供的数值, 将有用的数值组打包好, 已服务(service)的方式开放给上层应用. 它相当于提供一套数据打包框架/规则.</p>
+<p>看框架图:<br><img src="https://draapho.github.io/images/1713/ble-gatt1.png" alt="ble gatt.png"><br><img src="https://draapho.github.io/images/1713/ble-gatt.gif" alt="ble gatt.gif"></p>
+<p>GATT profile的层次结构依次是： Profile—&gt;Service—&gt;characteristic</p>
+<ul>
+<li><code>Profile</code> 是基于GATT所派生出的真正的Profile， 由一个或者多个和某一应用场景有关的 <code>Service</code> 组成</li>
+<li><code>Service</code> 包含一个或者多个 <code>Characteristic</code>, 也可以通过Include的方式, 包含其它 <code>Service</code></li>
+<li><code>Characteristic</code> 则是GATT profile中最基本的数据单位, 由一个 <code>Properties / Declaration</code>, 一个 <code>Value</code>, 一个或者多个<code>Descriptor</code>组成</li>
+<li><code>Characteristic Properties / Declaration</code> 定义了characteristic的Value如何被使用，以及characteristic的Descriptor如何被访问。</li>
+<li><code>Characteristic Value</code> 是特征的实际值，例如一个温度特征，其Characteristic Value就是温度值就。</li>
+<li><code>Characteristic Descriptor</code> 则保存了一些和Characteristic Value相关的信息</li>
+</ul>
+<p>UUID 的分配</p>
+<ul>
+<li><a href="https://www.bluetooth.com/specifications/gatt/services" target="_blank" rel="noopener">GATT Services 官方标准</a></li>
+<li><a href="https://www.bluetooth.com/specifications/gatt/characteristics" target="_blank" rel="noopener">GATT Characteristics 官方标准</a></li>
+<li><a href="http://www.itu.int/en/ITU-T/asn1/Pages/UUID/uuids.aspx" target="_blank" rel="noopener">UUID Generation UUID 生成器</a></li>
+</ul>
+<h1 id="Security"><a href="#Security" class="headerlink" title="Security"></a>Security</h1><p>负责BLE通信中有关安全的内容.</p>
+<p>主要技术有:</p>
+<ul>
+<li>配对, pairing</li>
+<li>认证, authentication</li>
+<li>加密, encryption</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://www.silabs.com/documents/login/user-guides/ug103-14-fundamentals-ble.pdf" target="_blank" rel="noopener">UG103.14: Application Development Fundamentals: Bluetooth® Smart Technology</a></li>
+<li><a href="http://www.wowotech.net/bluetooth/bt_overview.html" target="_blank" rel="noopener">蓝牙协议分析(1)_基本概念</a>,<br>简单介绍了标准蓝牙和低功耗蓝牙. 正如作者所说, 蓝牙的架构设计很不”美”, 给人一种拆拆补补, 各自为政的感觉. 但不可否认, 商业上, 蓝牙是成功的!</li>
+<li><a href="http://www.wowotech.net/bluetooth/bt_protocol_arch.html" target="_blank" rel="noopener">蓝牙协议分析(2)_协议架构</a><br>从全局概念介绍了蓝牙架构的设计, 并对各个分层进行了简单的介绍.</li>
+<li><a href="http://www.wowotech.net/bluetooth/ble_stack_overview.html" target="_blank" rel="noopener">蓝牙协议分析(3)_蓝牙低功耗(BLE)协议栈介绍</a><br>对快速理解低功耗蓝牙(BLE) 非常有帮助! 也是从架构说起, 逐步深入细节的叙事风格</li>
+<li><a href="http://www.wowotech.net/bluetooth/ipv6_over_ble_intro.html" target="_blank" rel="noopener">蓝牙协议分析(4)_IPv6 Over BLE介绍</a><br>说明了加入IPv6协议的重大意义. 物联网大势所趋, 而IPv6必将成为数据传输的最终标准! (Zigbee也支持了IPv6, Thread天生就采用6LowPAN协议)</li>
+<li><a href="http://www.wowotech.net/bluetooth/ble_broadcast.html" target="_blank" rel="noopener">蓝牙协议分析(5)_BLE广播通信相关的技术分析</a></li>
+<li><a href="http://www.wowotech.net/bluetooth/ble_address_type.html" target="_blank" rel="noopener">蓝牙协议分析(6)_BLE地址类型</a></li>
+<li><a href="http://www.wowotech.net/bluetooth/ble_connection.html" target="_blank" rel="noopener">蓝牙协议分析(7)_BLE连接有关的技术分析</a></li>
+<li><a href="http://www.wowotech.net/bluetooth/ble_white_list.html" target="_blank" rel="noopener">蓝牙协议分析(8)_BLE安全机制之白名单</a></li>
+<li><a href="http://www.wowotech.net/bluetooth/ble_ll_privacy.html" target="_blank" rel="noopener">蓝牙协议分析(9)_BLE安全机制之LL Privacy</a></li>
+<li><a href="http://www.wowotech.net/bluetooth/le_encryption.html" target="_blank" rel="noopener">蓝牙协议分析(10)_BLE安全机制之LE Encryption</a><br>渐渐就由浅入深, 探讨技术细节了.</li>
+</ul>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/10/1711-web-spider/" itemprop="url">
                   使用网络爬虫抓取商品价格并分析
                 </a>
@@ -1362,157 +1691,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/20/1706-linux-ubuntu16/" itemprop="url">
-                  嵌入式linux环境搭建3-Ubuntu16.04
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-20T00:00:00+11:00" content="2017-02-20">
-              2017-02-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="环境及结论"><a href="#环境及结论" class="headerlink" title="环境及结论"></a>环境及结论</h1><ul>
-<li>大环境的搭建思路可参考<a href="https://draapho.github.io/2017/02/16/1705-linux-env/">嵌入式linux环境搭建-主机端</a><ul>
-<li>gateway ip <code>10.0.0.138</code></li>
-<li>PC windows: win10 64bit, ip <code>10.0.0.98</code></li>
-<li>PC linux(最终版本): ubuntu server 16.04 32 bit, ip <code>10.0.0.100</code></li>
-<li>Embedded Linux: jz2440v3 ip <code>10.0.0.111</code></li>
-</ul>
-</li>
-<li>使用环境: Ubuntu server 16.04 32bit (安装在win10的虚拟机内)</li>
-<li>在经历了两次失败后, 成功搭建了整个环境. 服务器版去掉了UI, 给虚拟机用很好.</li>
-<li>补充一点, 刚开始用的是 ubuntu server 16.04 64 bit, 也遇到点问题.<br>由于是要做交叉编译的开发环境, 所以 PC linux 和 embedded linux 用一样的带宽才好.</li>
-</ul>
-<h1 id="apt-get使用摘要"><a href="#apt-get使用摘要" class="headerlink" title="apt-get使用摘要"></a>apt-get使用摘要</h1><ul>
-<li>软件升级: <code>sudo apt-get update</code></li>
-<li>普通安装: <code>apt-get install softname1 softname2 ...</code></li>
-<li>修复安装： <code>apt-get -f install softname1 softname2...</code>  (-f Atemp to correct broken dependencies)</li>
-<li>重新安装： <code>apt-get --reinstall install softname1 softname2...</code></li>
-<li>移除式卸载(保留配置)： <code>apt-get remove softname1 softname2 ...</code></li>
-<li>清除式卸载(删除配置)： <code>apt-get --purge remove softname1 softname2...</code><br>或 <code>apt-get purge sofname1 softname2...</code></li>
-</ul>
-<h1 id="安装必要的软件"><a href="#安装必要的软件" class="headerlink" title="安装必要的软件"></a>安装必要的软件</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 make</span></span><br><span class="line">sudo apt-get install make</span><br><span class="line">make -v                     <span class="comment"># GNU Make 4.1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装gcc, 非交叉编译用</span></span><br><span class="line">sudo apt-get install gcc</span><br><span class="line">gcc -v                      <span class="comment"># gcc version 5.4.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置时区</span></span><br><span class="line">sudo dpkg-reconfigure tzdata</span><br></pre></td></tr></table></figure>
-<h1 id="安装32bit兼容库"><a href="#安装32bit兼容库" class="headerlink" title="安装32bit兼容库"></a><del>安装32bit兼容库</del></h1><p>不要安装 64bit 的ubuntu作为交叉编译的linux环境. 我最后换回到了32bit</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ia32-libs      <span class="comment"># 提示不可用, 替代方案如下</span></span><br><span class="line">sudo apt-get install lib32ncurses5</span><br></pre></td></tr></table></figure>
-<h1 id="设置静态IP"><a href="#设置静态IP" class="headerlink" title="设置静态IP"></a>设置静态IP</h1><p>个人更喜欢用静态IP, 这样putty的设置更直观方便.<br>如果要使用动态IP, 可以设置 windwos 的 HaneWIN, 用<code>-range</code>来指定nfs客户端的网址段</p>
-<p>刚开始怎么样都不能上外网, 突然按照下面的顺序就好了… 原因不明<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/network/interfaces</span><br><span class="line">    <span class="comment"># ===== 文件内容, 大致修改如下: =====</span></span><br><span class="line">    auto lo</span><br><span class="line">    iface lo inet loopback</span><br><span class="line"></span><br><span class="line">    auto eth0</span><br><span class="line"></span><br><span class="line">    iface eth0 inet static</span><br><span class="line">    address  10.0.0.100</span><br><span class="line">    netmask  255.255.255.0</span><br><span class="line">    gateway  10.0.0.138</span><br><span class="line">    dns-nameservers   8.8.8.8  10.0.0.138</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可装完ssh服务再重启. 然后验证putty是否可用.</span></span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure></p>
-<h1 id="安装ssh服务-用putty远程登录"><a href="#安装ssh服务-用putty远程登录" class="headerlink" title="安装ssh服务, 用putty远程登录"></a>安装ssh服务, 用putty远程登录</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ssh服务</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openssh-server</span><br><span class="line"><span class="comment"># 如果有依赖包冲突, 执行如下指令</span></span><br><span class="line">sudo apt-get install openssh-client=1:6.6p1-2ubuntu1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否已经运行</span></span><br><span class="line">sudo ps -e | grep ssh</span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">sudo service ssh start</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启后, 验证是否能用putty功能</span></span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
-<h1 id="nfs-客户端的安装"><a href="#nfs-客户端的安装" class="headerlink" title="nfs 客户端的安装"></a>nfs 客户端的安装</h1><p>参考: <a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04" target="_blank" rel="noopener">How To Set Up an NFS Mount on Ubuntu 14.04</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 nfs 客户端软件</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install nfs-common</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立空文件夹用于挂载nfs</span></span><br><span class="line">sudo mkdir -p /mnt/nfs/study</span><br><span class="line">sudo mkdir -p /mnt/nfs/work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开机自动挂载(参考文章中的客户端自动挂载方法没有起作用)</span></span><br><span class="line">sudo vim /etc/rc.local</span><br><span class="line">    <span class="comment"># ===== 文件内容, 加入如下两句 =====</span></span><br><span class="line">    sudo mount 10.0.0.98:/study /mnt/nfs/study</span><br><span class="line">    sudo mount 10.0.0.98:/work /mnt/nfs/work</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立软连接(快捷方式), 可忽略此步骤</span></span><br><span class="line"><span class="built_in">cd</span> /home/user/</span><br><span class="line">sudo ln -s /mnt/nfs/study study</span><br><span class="line">sudo ln -s /mnt/nfs/work work</span><br></pre></td></tr></table></figure>
-<h1 id="安装交叉编译工具gcc"><a href="#安装交叉编译工具gcc" class="headerlink" title="安装交叉编译工具gcc"></a>安装交叉编译工具gcc</h1><p>老老实实使用开发板提供的 <code>gcc-3.4.5-glibc-2.3.6</code> 编译器版本.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接拷贝解压 gcc-3.4.5-glibc-2.3.6.tar.bz2</span></span><br><span class="line">sudo tar xjf arm-linux-gcc-3.4.5-glibc-2.3.6.tar.bz2 -C /usr/<span class="built_in">local</span>/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加路径到环境变量</span></span><br><span class="line">sudo vim /etc/bash.bashrc</span><br><span class="line">    <span class="comment"># ===== 文件内容, 末尾加入如下语句 =====</span></span><br><span class="line">    <span class="keyword">if</span> [ -d /usr/<span class="built_in">local</span>/gcc-3.4.5-glibc-2.3.6 ] ; <span class="keyword">then</span></span><br><span class="line">        PATH=/usr/<span class="built_in">local</span>/gcc-3.4.5-glibc-2.3.6/bin:<span class="string">"<span class="variable">$&#123;PATH&#125;</span>"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试安装结果</span></span><br><span class="line"><span class="built_in">source</span> /etc/bash.bashrc                             <span class="comment"># 不重启更新PATH</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>                                          <span class="comment"># 查看PATH</span></span><br><span class="line">arm-linux-gcc -v                                    <span class="comment"># 测试是否安装成功</span></span><br></pre></td></tr></table></figure>
-<h1 id="安装-u-boot-tools-工具"><a href="#安装-u-boot-tools-工具" class="headerlink" title="安装 u-boot-tools 工具"></a>安装 u-boot-tools 工具</h1><p>安装 u-boot-tools, 内核编译后生成uImage使用.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 mkimage</span></span><br><span class="line">sudo apt-get install u-boot-tools</span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">mkimage -V              <span class="comment"># mkimage version 2016.01+dfsg1-2ubuntu1</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="安装-mkyaffs2image-工具"><a href="#安装-mkyaffs2image-工具" class="headerlink" title="安装 mkyaffs2image 工具"></a>安装 mkyaffs2image 工具</h1><p>该工具用于制作文件系统镜像文件<br>文件系统烧录到开发板flash时需要使用镜像文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp mkyaffs2image /bin/                         <span class="comment"># 拷贝到bin</span></span><br><span class="line">sudo chmod +x /bin/mkyaffs2image                    <span class="comment"># 增加可执行权限</span></span><br><span class="line">mkyaffs2image                                       <span class="comment"># 测试是否可用</span></span><br></pre></td></tr></table></figure>
-<h1 id="安装-dnw-工具"><a href="#安装-dnw-工具" class="headerlink" title="安装 dnw 工具"></a>安装 dnw 工具</h1><p>该工具用于配合uboot进行烧录, 无需驱动, 无需额外烧录器, 简单方便</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp dnw /bin/                                   <span class="comment"># 拷贝到bin</span></span><br><span class="line">sudo chmod +x /bin/dnw                              <span class="comment"># 增加可执行权限</span></span><br><span class="line">dnw                                                 <span class="comment"># 测试是否可用</span></span><br></pre></td></tr></table></figure>
-<h1 id="安装-ncurses-基本库"><a href="#安装-ncurses-基本库" class="headerlink" title="安装 ncurses 基本库"></a>安装 ncurses 基本库</h1><p>ncurses是字符终端下屏幕控制的基本库, <code>make menuconfig</code> 需要使用</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ncurses</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libncurses5-dev libncursesw5-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看是否成功</span></span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1558,7 +1736,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">120</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
