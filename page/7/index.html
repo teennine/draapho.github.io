@@ -261,6 +261,170 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/11/1742-drv-chr4/" itemprop="url">
+                  驱动之poll机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-12-11T00:00:00+11:00" content="2017-12-11">
+              2017-12-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2017/11/22/1733-drv-chr1/">驱动之字符设备-框架</a></li>
+<li><a href="https://draapho.github.io/2017/11/30/1740-drv-chr2/">驱动之基于LinK+设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a></li>
+<li><a href="https://draapho.github.io/2017/12/11/1742-drv-chr4/">驱动之poll机制</a></li>
+<li><a href="https://draapho.github.io/2017/12/12/1743-drv-chr5/">驱动之异步通知</a></li>
+<li><a href="https://draapho.github.io/2017/12/13/1744-drv-chr6/">驱动之同步互斥阻塞</a></li>
+<li><a href="https://draapho.github.io/2018/01/04/1801-drv-chr7/">驱动之定时器按键防抖</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="POLL机制分析"><a href="#POLL机制分析" class="headerlink" title="POLL机制分析"></a>POLL机制分析</h1><h2 id="三种按键驱动的比较"><a href="#三种按键驱动的比较" class="headerlink" title="三种按键驱动的比较"></a>三种按键驱动的比较</h2><ul>
+<li>查询方式: 依赖于应用程序的编写方式, 写的不好会非常耗费CPU资源</li>
+<li>中断方式: 解决了CPU资源问题, 但是应用程序会阻塞在读取函数上</li>
+<li>poll方式: 应用程序上, 实现了非阻塞读取. 先poll判断是否发生事件, 有事件处理, 无事件可以做其它事情.</li>
+</ul>
+<h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><p>基本流程如下:</p>
+<ul>
+<li>应用程序调用poll &gt; sys_poll &gt; <code>do_sys_poll</code> &gt; do_poll &gt; do_pollfd &gt; 驱动程序poll</li>
+<li>从 <code>do_sys_poll</code> 函数深入分析:<ul>
+<li>先调用 <code>poll_initwait</code>, 注册一下 <code>__pollwait</code> 函数.</li>
+<li>再调用 <code>do_poll</code> 判断条件. 这里会调用驱动函数的poll<ul>
+<li>调用 <code>do_pollfd</code> 函数, 实际上就是调用驱动的poll函数</li>
+<li>返回值为1或等待超时或触发信号, 执行 <code>__set_current_state</code> 继续运行当前进程.</li>
+<li>返回值为0, 则执行 <code>schedule_timeout</code> 当前进程睡眠, 切换到其它进程.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>驱动函数里的poll会调用 <code>poll_wait</code>, 只是把当前的进程加入到 button_waitq 队列里去, 并没有立刻切换进程<ul>
+<li><code>poll_wait</code> 调用 <code>p-&gt;qproc(filp, wait_address, p);</code>, 实际就是调用了 <code>__pollwait</code> 函数</li>
+<li>进程并不会阻塞在 <code>poll_wait</code> 函数. (这个函数的命名容易让人误解, 因此特此强调!)</li>
+<li>整个进程会根据驱动的poll返回值确定是休眠还是继续运行.</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">app: poll, 会去调用 sys_poll. 共三个参数</span><br><span class="line">    <span class="comment">// 1. *ufds, 文件指针. 需要查询的驱动文件列表</span></span><br><span class="line">    <span class="comment">// 2. nfds, 文件个数.</span></span><br><span class="line">    <span class="comment">// 3. timeout_msecs, 超时时间.</span></span><br><span class="line">kernel: sys_poll    <span class="comment">// 位于 /fs/select.c</span></span><br><span class="line">            do_sys_poll(..., timeout_jiffies)</span><br><span class="line">                poll_initwait(&amp;table);</span><br><span class="line">                    init_poll_funcptr(&amp;pwq-&gt;pt, __pollwait);</span><br><span class="line">                    <span class="comment">// table-&gt;pt-&gt;qproc = __pollwait. 相当于注册一下 __pollwait.</span></span><br><span class="line">                    <span class="comment">// __pollwait 是系统函数, 用于初始化一个 poll_wqueues 的 table</span></span><br><span class="line">                    <span class="comment">// 驱动程序的poll函数会调用__pollwait函数.</span></span><br><span class="line">                do_poll(nfds, head, &amp;table, timeout)</span><br><span class="line">                    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (do_pollfd(ftd, pt)) &#123;</span><br><span class="line">                            <span class="comment">// 进入函数 do_pollfd, 有如下两句:</span></span><br><span class="line">                            mask = file-&gt;f_op-&gt;poll(file, pwait);</span><br><span class="line">                                <span class="comment">// 实际上, 就是调用驱动代码里的poll, 驱动代码里会调用</span></span><br><span class="line">                                pollwait(filp, &amp;button_waitq, p) &#123;</span><br><span class="line">                                    <span class="comment">// 把当前的进程挂到button_waitq队列里去</span></span><br><span class="line">                                    <span class="comment">// 整个进程并不会阻塞在 pollwait 这里!</span></span><br><span class="line">                                    p-&gt;qproc(filp, wait_address, p);    <span class="comment">// 相当于调用 __pollwait</span></span><br><span class="line">                                    <span class="comment">// 这里我有过疑惑, 为何不直接指定 __pollwait 这么一个系统函数, 而是用初始化函数指针再调用的晦涩方法.</span></span><br><span class="line">                                    <span class="comment">// 搜索 init_poll_funcptr 后, 就可以知道, 这也是一个系统架构, 不同的地方会有不同的函数.</span></span><br><span class="line">                                &#125;</span><br><span class="line">                                <span class="comment">// 驱动poll函数给出返回值. 赋值给mask</span></span><br><span class="line">                                <span class="comment">// 因此整个进程会在调用完驱动poll函数后, 根据返回值进行休眠或继续运行.</span></span><br><span class="line">                            <span class="keyword">return</span> mask;</span><br><span class="line">                            count++; <span class="comment">// 如果驱动的poll返回非0值, 那么count++</span></span><br><span class="line">                            pt = <span class="literal">NULL</span>;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// break的条件: count非0, 超时, 有信号在等待处理</span></span><br><span class="line">                        <span class="keyword">if</span> (count || !*timeout || signal_pending(current))</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 休眠 __timeout</span></span><br><span class="line">                        __timeout = schedule_timeout(__timeout);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 设置当前进程为运行态</span></span><br><span class="line">                    __set_current_state(TASK_RUNNING);</span><br></pre></td></tr></table></figure>
+<h1 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h1><ul>
+<li><a href="http://blog.csdn.net/rockrockwu/article/details/7310518" target="_blank" rel="noopener">linux poll 和 等待队列休眠的关系</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568964" target="_blank" rel="noopener">select(poll)系统调用实现解析(一)</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568968" target="_blank" rel="noopener">select(poll)系统调用实现解析(二)</a></li>
+<li><a href="http://blog.csdn.net/lizhiguo0532/article/details/6568969" target="_blank" rel="noopener">select(poll)系统调用实现解析(三)</a></li>
+<li><a href="http://www.cnblogs.com/jack204/archive/2011/10/30/2229331.html" target="_blank" rel="noopener">linux的poll的工作机制</a></li>
+<li><a href="http://blog.csdn.net/czg13548930186/article/details/77825262" target="_blank" rel="noopener">字符设备驱动-poll机制</a></li>
+</ul>
+<h1 id="驱动源码"><a href="#驱动源码" class="headerlink" title="驱动源码"></a>驱动源码</h1><p>驱动源码基于 <a href="https://draapho.github.io/2017/12/07/1741-drv-chr3/">驱动之基于中断设计按键驱动</a> 增加poll函数即可.<br>然后应用层的测试文件改动较大.<br><strong>注意驱动层和应用层的poll函数写法就可以了, 都是固定的结构</strong></p>
+<h2 id="drv-key-poll-c"><a href="#drv-key-poll-c" class="headerlink" title="drv_key_poll.c"></a>drv_key_poll.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基于 驱动之基于中断设计按键驱动 源码增加而来. 只显示新增和修改的部分. 这样更直观易懂.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"drv_key_poll.h"</span>                    <span class="comment">// 头文件改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRV_KEY_INT_NODE_NAME <span class="meta-string">"key_poll"</span>    <span class="comment">// 名称改一下</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="title">drv_key_poll</span><span class="params">(struct file *file, poll_table *wait)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> mask = <span class="number">0</span>;</span><br><span class="line">    poll_wait(file, &amp;key_waitq, wait);      <span class="comment">// 这里不会休眠. 进程不阻塞</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ev_press)</span><br><span class="line">        mask |= POLLIN | POLLRDNORM;        <span class="comment">// 关键是返回值, 返回值为0, 进程可能休眠.</span></span><br><span class="line">        <span class="comment">// POLLIN, 是标准的事件值, 测试程序就基于此判断.</span></span><br><span class="line">        <span class="comment">// POLLRDNORM, Normal data may be read without blocking. 作用应该是告知应用程序类型和后续动作.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mask;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_key_int_fops</span>= &#123;</span></span><br><span class="line">    .owner              = THIS_MODULE,</span><br><span class="line">    .open               = drv_key_int_open,</span><br><span class="line">    .release            = drv_key_int_release,</span><br><span class="line">    .read               = drv_key_int_read,</span><br><span class="line">    .poll               = drv_key_poll,     <span class="comment">// 新增这一行</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="drv-key-poll-h"><a href="#drv-key-poll-h" class="headerlink" title="drv_key_poll.h"></a>drv_key_poll.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"drv_key_poll"</span>          <span class="comment">// 名称改一下</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/poll.h&gt;                     // 新增poll头文件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/irq.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch-s3c2410/irqs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/hardware.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">obj-m		:= drv_key_poll.o </span><br><span class="line">KERN_SRC	:= /home/draapho/share/kernel/linux-2.6.22.6/</span><br><span class="line">PWD			:= <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">	depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<h2 id="测试文件-test-drv-key-int-c"><a href="#测试文件-test-drv-key-int-c" class="headerlink" title="测试文件 test_drv_key_int.c"></a>测试文件 test_drv_key_int.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd, ret;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> keys_val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">fds</span>[1];</span>                   <span class="comment">// poll 关联的文件, 可多个文件</span></span><br><span class="line"></span><br><span class="line">    fd = open(<span class="string">"/dev/key_poll0"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fds[<span class="number">0</span>].fd     = fd;                     <span class="comment">// 关联的驱动文件</span></span><br><span class="line">    fds[<span class="number">0</span>].events = POLLIN;                 <span class="comment">// 事件类型</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        ret = poll(fds, <span class="number">1</span>, <span class="number">5000</span>);           <span class="comment">// 执行poll. 最多阻塞5s (有按键事件会立刻返回)</span></span><br><span class="line">        <span class="keyword">if</span> (ret == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"time out\n"</span>);           <span class="comment">// 5s后超时</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            read(fd, &amp;keys_val, <span class="number">1</span>);         <span class="comment">// 有按键, 读取按键值</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"keys_val = 0x%x\n"</span>, keys_val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="编译并测试"><a href="#编译并测试" class="headerlink" title="编译并测试"></a>编译并测试</h1><h2 id="Ubuntu主机端"><a href="#Ubuntu主机端" class="headerlink" title="Ubuntu主机端"></a>Ubuntu主机端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主机端, 编译源码</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译驱动</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules                      <span class="comment"># 也可以在LinK+里面直接编译, 更方便</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译测试代码</span></span><br><span class="line">$ arm-linux-gcc test_drv_key_poll.c -o test_drv_key_poll</span><br></pre></td></tr></table></figure>
+<h2 id="开发板端"><a href="#开发板端" class="headerlink" title="开发板端"></a>开发板端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端, 测试驱动功能</span></span><br><span class="line"><span class="comment"># pwd = /home/draapho/share/drv/drv_key_poll/KERN_SRC   # 驱动源码路径, share是nfs共享文件夹</span></span><br><span class="line"></span><br><span class="line">$ insmod drv_key_poll.ko            <span class="comment"># 加载模块</span></span><br><span class="line">drv_key_int:INIT</span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_poll               <span class="comment"># 检测按键中断</span></span><br><span class="line">drv_key_poll:In char driver open() <span class="keyword">function</span></span><br><span class="line"><span class="comment"># 无按键时, 每5s打印 time out</span></span><br><span class="line"><span class="comment"># 有按键时, 立刻打印按键值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按ctrl+c 终止进程</span></span><br><span class="line"></span><br><span class="line">$ ./test_drv_key_poll &amp;             <span class="comment"># 后台运行</span></span><br><span class="line">$ top                               <span class="comment"># 查看系统资源情况</span></span><br><span class="line"><span class="comment"># 可以看到 ./test_drv_key_poll 进程占用很少的资源.</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/07/1741-drv-chr3/" itemprop="url">
                   驱动之基于中断设计按键驱动
                 </a>
@@ -1378,223 +1542,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/11/24/1735-jz2440-basic/" itemprop="url">
-                  jz2440分区及启动的基础概念
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-11-24T00:00:00+11:00" content="2017-11-24">
-              2017-11-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2017/11/24/1735-jz2440-basic/">jz2440分区及启动的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/07/07/1719-uboot-makefile/">uboot之makefile分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/25/1720-uboot-source/">uboot之源码分析</a></li>
-<li><a href="https://draapho.github.io/2017/08/30/1721-uboot-modify/">uboot之定制指令</a></li>
-<li>大致了解一下linux软件层次, 以及jz2440的分区情况, 启动流程.</li>
-</ul>
-<h1 id="linux软件层次"><a href="#linux软件层次" class="headerlink" title="linux软件层次"></a>linux软件层次</h1><ul>
-<li>引导程序: 分为两部分 硬件中的固化boot代码 和 BootLoader代码, 其中固化的boot代码可有可无, BootLoader是烧写上去的<ul>
-<li>PC linux: 分为 BIOS (固件程序) 和 BootLoader(GRUB等程序)</li>
-<li>执行过程: BIOS执行硬件检测 和 资源分配, 之后将BootLoader读取到内存中, 开始执行BootLoader内容</li>
-<li>执行作用: 将内核读取到内存中, 跳转到内核的入口运行, 正式执行操作系统程序</li>
-<li>嵌入式 linux: BootLoader与硬件的依赖性很强, S3C2440 使用的是u-boot</li>
-<li>执行过程: 初始化基本硬件, 加载BootLoader, 读取uboot环境变量, 启动uboot.</li>
-<li>执行作用: 和 pc linux 是一样的. 读取内核并执行.</li>
-</ul>
-</li>
-<li>Linux内核 (kernel): 嵌入式开发板定制的内核 和 其启动参数</li>
-<li>文件系统 (file system): 即Linux中的文件系统</li>
-<li>应用程序: 即用户执行的应用程序</li>
-</ul>
-<h2 id="jz2440的分区和启动"><a href="#jz2440的分区和启动" class="headerlink" title="jz2440的分区和启动"></a>jz2440的分区和启动</h2><p>s3c2440 的线性地址分配:<br><img src="https://draapho.github.io/images/1707/address-mapping.jpg" alt="address mapping"></p>
-<p>jz2440 的分区: (在uboot下, 用 <code>mtdparts</code> 查看分区情况)</p>
-<table>
-<thead>
-<tr>
-<th>jz2440 物理设备</th>
-<th>大小(byte)</th>
-<th>线性地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SFR Area</td>
-<td>寄存器</td>
-<td>0x4800_0000 - 0x5B00_0020</td>
-</tr>
-<tr>
-<td>SDRAM</td>
-<td>64M</td>
-<td>0x3000_0000 - 0x3400_0000</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Nor Flash</td>
-<td>2M</td>
-<td>0x0000_0000 - 0x0020_0000</td>
-</tr>
-<tr>
-<td>- u-boot</td>
-<td>-</td>
-<td>0x0000_0000 开始</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Nand Flash</td>
-<td>256M</td>
-<td>非总线设备, 无法映射地址</td>
-</tr>
-<tr>
-<td>- bootloader</td>
-<td>256K</td>
-<td>0x0000_0000 - 0x0004_0000</td>
-</tr>
-<tr>
-<td>- params</td>
-<td>128K</td>
-<td>0x0004_0000 - 0x0006_0000</td>
-</tr>
-<tr>
-<td>- kernel</td>
-<td>2M</td>
-<td>0x0006_0000 - 0x0026_0000</td>
-</tr>
-<tr>
-<td>- root</td>
-<td>253.6M</td>
-<td>0x0026_0000 - 0x1000_0000</td>
-</tr>
-</tbody>
-</table>
-<p>jz2440开发板启动方式:</p>
-<ul>
-<li>Nor flash: JLink 只能烧录 Nor flash. 默认使用这种方式! 使用nfs文件系统<br><img src="https://draapho.github.io/images/1707/nor-flash-boot.png" alt="Nor flash boot"></li>
-<li>Nand flash: 使用本地文件系统启动. 也可用于裸跑测试. (Steppingstone 就是 BootSRAM)<br><img src="https://draapho.github.io/images/1707/nand-flash-boot.png" alt="Nand flash boot"></li>
-<li><strong>以下部分初学先忽略! </strong></li>
-<li><p>如果是通过uboot的内核命令行给MTD层传递MTD分区信息, 内核读取到的分区信息始终和u-boot中的保持一致(推荐的做法)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot</span></span><br><span class="line">setenv bootargs noinitrd console=ttySAC0 root=/dev/mtdblock3 rootfstype=jffs2 mtdparts=nand_flash:128k(u-boot)ro,64k(u-boot envs),3m(kernel),30m(root.jffs2),30m(root.yaffs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ubuntu shell, 内核配置时使能</span></span><br><span class="line">Device Drivers -&gt; Memory Technology Device (MTD) support -&gt; Command line partition table parsing</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果是把分区信息写在内核源代码MTD里定义好的方法, 要保证它和u-boot中的保持一致,即同步修改uboot及内核的相关部分</p>
-</li>
-<li><strong>参考</strong>: <a href="http://laokongzhuang.blog.51cto.com/2404494/858788" target="_blank" rel="noopener">嵌入式linux flash分区配置</a></li>
-<li><strong>以上部分初学先忽略! </strong></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1640,7 +1587,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">121</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
