@@ -261,6 +261,186 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/23/1708-docker/" itemprop="url">
+                  Docker 初学笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-23T00:00:00+11:00" content="2017-02-23">
+              2017-02-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Docker-总览"><a href="#Docker-总览" class="headerlink" title="Docker 总览"></a>Docker 总览</h1><h2 id="几个重要概念"><a href="#几个重要概念" class="headerlink" title="几个重要概念"></a>几个重要概念</h2><ul>
+<li>Docker: 是一种容器技术, 可以提供虚拟服务. 物理上共享主机的硬件和网络资源.<br>相比于虚拟机技术, 它轻巧, 快速, 便捷, 跨平台, 易于分配发布. 又同时拥有虚拟机的优点!<br>由于以上特点, 目前docker的容器有蚕食传统软件的趋势: 提供服务时, 给的是docker镜像或容器而非传统的安装软件!<br>譬如, 我学习docker的初衷就是: <strong>一劳永逸的制作一个用于开发2440系列编译环境的pc linux系统</strong><br>可以看出, 我需求就是提供编译服务. 传统的安装软件无法简单的实现, 但docker可以! (目前用的vm, 太重太麻烦)</li>
+<li>Union FS (分层存储): 本质是增量管理. 基于原有的运行系统, 执行某些命令后, 把新产生的文件作为增量新建一层文件.<br>直观感受一下, 是这样的:<br><img src="https://draapho.github.io/images/1708/docker-aufs.jpg" alt="docker-aufs"></li>
+<li><strong>images (镜像)</strong>: docker 以镜像为基础. 镜像是只读的, 不包含任何动态数据, 内容不可更改!<br>基于基础镜像, 可以在加入自己需要的app和服务后, 打包成自己的具有特殊功能的镜像.</li>
+<li><strong>container (容器)</strong>: 容器就是镜像运行时的实体 (类似于类和实例的关系).<br>容器必须基于镜像运行. 可以基于同一个镜像创建多个容器, 来实现不同的功能或服务.<br>容器可以被创建, 启动, 停止, 删除, 暂停等等<br>容器的本质就是进程, 运行时实现某种功能, 只是这个进程的上下文用的是虚拟化的镜像环境.</li>
+<li><strong>Docker Registry (仓库)</strong>: 用于存储, 分发镜像的仓库.<br>其中 <a href="https://hub.docker.com/" target="_blank" rel="noopener">Docker Hub</a> 就是官方的镜像仓储服务.<br>其运行模式和 <a href="https://github.com/" target="_blank" rel="noopener">github</a> 一样, 公开资料免费, 私有资料收费<br>当然, 也可以建立自己的私有 Docker Registry</li>
+<li><strong>Docker Volume</strong>, Docker的数据服务.<br>docker 体系要让自己表现更像应用程序, 就离不开对数据的存储和隔离.<br>而docker容器是非持久化的, 可以随时创建和删除, 无法满足数据存储的基本要求.<br>因此提供了Docker Volume. 包括 data volume 和 data volume container</li>
+</ul>
+<h2 id="docker的技术架构"><a href="#docker的技术架构" class="headerlink" title="docker的技术架构"></a>docker的技术架构</h2><p><img src="https://draapho.github.io/images/1708/docker-structure.jpg" alt="docker-structure"></p>
+<ul>
+<li>Docker Client / Docker Daemon: 用户和Docker的交互使用的是C/S模式.<br>用户作为客户端使用 http 服务和 Docker Daemon 进行交互</li>
+<li>Engine 和 Job: Job本质就是进程. 基于容器, 运行任务.<br>譬如, 对 Docker Registry 的操作就是作为一个job任务实现的.</li>
+<li>Docker Registry: 用于存储, 分发镜像的仓库</li>
+<li>Graph: Graph对已下载Docker镜像进行保管, 并对已下载容器镜像之间关系进行记录.<br>Graph不但要存储本地具有版本信息的文件系统镜像,<br>而且还要通过GraphDB记录所有文件系统镜像彼此之间的关系</li>
+<li>Driver: 驱动模块. Driver驱动主要作用是实现对Docker容器进行环境的定制</li>
+<li>Docker container: Docker容器是Docker架构中服务交付的最终体现形式<br>Docker按照业务的需求, 依赖关系和配置文件打包相应的Docker容器</li>
+</ul>
+<h2 id="初步评估结论"><a href="#初步评估结论" class="headerlink" title="初步评估结论"></a>初步评估结论</h2><ul>
+<li>感觉docker 的野心和潜力都很大. 如镜像管理, 跨平台, 容器应用化, 功能化, 服务化.</li>
+<li>可以看出主要发展方向是网络和云方面的 (新的项目都是针对网络集群的).</li>
+<li>基本已经可以跨平台使用(Docker machine).</li>
+<li>我的初衷就是: <strong>一劳永逸的制作一个用于开发2440系列编译环境的pc linux系统</strong><br>就此而言, docker可用, 但初始配置并不轻松.<br>因此暂不急于使用docker来配置这么一个主机编译环境.  </li>
+</ul>
+<h1 id="Docker-的安装"><a href="#Docker-的安装" class="headerlink" title="Docker 的安装"></a>Docker 的安装</h1><p>全程参考官网<br><a href="https://docs.docker.com/engine/getstarted/" target="_blank" rel="noopener">Get started with Docker</a></p>
+<h2 id="Windows-10-64bit-直接安装"><a href="#Windows-10-64bit-直接安装" class="headerlink" title="Windows 10 64bit 直接安装"></a>Windows 10 64bit 直接安装</h2><p>可直接下载安装 docker, 无需安装在虚拟机下面. 家中的win10是家庭版, 但也能正常安装运行docker.</p>
+<p>使用默认设置就能运行, 说一下文件共享. 譬如勾选 <code>E</code> 盘共享后, shell 应该这样用:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker下, 显示E盘全部内容</span></span><br><span class="line">docker run -v e:/:/data alpine ls /data</span><br><span class="line"><span class="comment"># e:/       表示使能的windows e盘.</span></span><br><span class="line"><span class="comment"># :/data    docker容器下, 加载为 /data 目录</span></span><br><span class="line"><span class="comment"># alpine    一个小巧的linux内核, 基于此内核运行指令. 改为ubuntu效果也是一样的</span></span><br><span class="line"><span class="comment"># ls /data  在屏幕上列出 /data (就是e盘) 的内容</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 因此, 官网范例表示, 显示 c:/Users 下的内容</span></span><br><span class="line">docker run -v c:/Users:/data alpine ls /data</span><br></pre></td></tr></table></figure></p>
+<h2 id="ToolBox-基于虚拟机的安装"><a href="#ToolBox-基于虚拟机的安装" class="headerlink" title="ToolBox 基于虚拟机的安装"></a>ToolBox 基于虚拟机的安装</h2><p>参考<a href="https://docs.docker.com/toolbox/toolbox_install_windows/" target="_blank" rel="noopener">Install Docker Toolbox on Windows</a></p>
+<ul>
+<li>机器要求: 64bit 操作系统, 支持并使能IVT虚拟技术</li>
+<li>Windows Vista 及以上版本, 安装默认的 NDIS6 driver 即可.</li>
+<li>Windows 7 和 Windows XP, 安装时勾选 <strong>NDIS5 driver</strong></li>
+<li>里面也提到了卸载ToolBox时, 如何先删除虚拟机里的 dock-machine</li>
+</ul>
+<p>使用虚拟机后的文件共享很简单, 在 <code>VirtualBox</code>-&gt;<code>Settings</code>-&gt;<code>Shared Folders</code> 直接修改好就行了.</p>
+<p>使用 putty 登录docker虚拟机</p>
+<ul>
+<li>不太喜欢 Docker Quickstart Terminal 提供的终端, 用起来不顺手(不能用鼠标, 不能复制黏贴)<br>不过只有在这个终端里, 能直接使用 <code>docker-machine</code> 相关的指令</li>
+<li>自己使用ConEmu统一了终端, 里面集成好putty. 因此需要使用ssh.</li>
+<li>获取 boot2docker 的IP地址.<br>运行 Docker Quickstart Terminal 成功后, 终端上可以找到这样一句话<br><code>docker is configured to use the default machine with IP 10.0.0.100</code><br>或者, 输入 <code>docker-machine ls</code>, 找到其IP地址. 譬如 <code>tcp://10.0.0.100:2376</code><br>或者, 直接登录boot2docker虚拟机, 输入指令 <code>ifconfig</code> 查看IP地址.<code>10.0.0.100</code></li>
+<li>boot2docker的登录名默认就是 <code>docker</code>. 如果需要密码的话, 应该是 <code>tcuser</code></li>
+<li>运行过 Docker Quickstart Terminal 后, docker自动生成了ssh密钥.<br>一般存储在 <code>C:\Users\my_name\.docker\machine\machines\default\</code> 或者 <code>%HOMEPATH%\.ssh</code>下面<br><code>id_rsa</code> 是私钥, <code>id_rsa.pub</code> 是公钥</li>
+<li>打开 <code>puttygen.exe</code>-&gt;<code>Load an existing private key file</code>-&gt;<code>Load</code>-&gt;选择文件格式为 <code>All Files (*.*)</code>-&gt;选择<code>id_rsa</code>-&gt;弹出框 <code>OK</code><br>接着 <code>puttygen.exe</code> 主界面下-&gt;<code>Save private key</code>-&gt;保存为<code>id_rsa.ppk</code></li>
+<li>打开 <code>putty.exe</code>-&gt;左边<code>Connection</code>-&gt;<code>SSH</code>-&gt;<code>Auth</code>-&gt;右边<code>Private key file for authentication</code>-&gt;<code>Browse...</code>-&gt;选择<code>id_rsa.ppk</code><br>接着 <code>putty.exe</code>-&gt;左边<code>Session</code>-&gt;右边<code>Connection type:</code>点选<code>SSH</code>-&gt;<code>Host Name (or IP address)</code>填如<code>docker@10.0.0.100</code>-&gt;<code>Port</code>填入<code>22</code><br>最后 <code>Saved Sessions</code> 填入期望的名称如 <code>boot2docker</code>-&gt;<code>Save</code>-&gt;<code>Open</code>-&gt;连接成功!</li>
+</ul>
+<h1 id="Docker-常用指令"><a href="#Docker-常用指令" class="headerlink" title="Docker 常用指令"></a>Docker 常用指令</h1><p>可参考:</p>
+<ul>
+<li><a href="http://www.dockerinfo.net/341.html" target="_blank" rel="noopener">Docker命令指令详情-持续更新</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/install/ubuntu.html" target="_blank" rel="noopener">Docker — 从入门到实践</a></li>
+</ul>
+<h2 id="镜像指令"><a href="#镜像指令" class="headerlink" title="镜像指令"></a>镜像指令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从 Docker Hub 获取 ubuntu 16.04 的镜像</span></span><br><span class="line">docker pull ubuntu:16.04</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有镜像</span></span><br><span class="line">docker images</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行 ubuntu</span></span><br><span class="line">docker run -it --rm ubuntu:16.04 bash</span><br><span class="line"><span class="comment"># -it： -i, 交互式操作; -t, 显示终端</span></span><br><span class="line"><span class="comment"># --rm： 容器退出后随之将其删除 (不建议)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在容器里输入一些指令后, 查看容器的变化</span></span><br><span class="line">docker diff ubuntu:16.04</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用commit制作的进行成为黑箱镜像, 如果开源发布, 人们会有安全性的担忧(无法知道到底做了什么)</span></span><br><span class="line"><span class="comment"># 将当前容器制作为镜像 (会把容器内的变动新增一层文件)</span></span><br><span class="line">docker commit --message <span class="string">"2440 compiler"</span> container_ID_or_name ubuntu:2440</span><br><span class="line"><span class="comment"># --message: 可省, 记录本次修改的内容</span></span><br><span class="line"><span class="comment"># contain_ID_or_name: 使用 'docker ps -a' 可查看所有容器信息</span></span><br><span class="line"><span class="comment"># ubuntu:2440 目标镜像:标签</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看镜像历史记录</span></span><br><span class="line">docker <span class="built_in">history</span> ubuntu:2440</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存镜像 (本地文件)</span></span><br><span class="line">docker save ubuntu:2440 | gzip &gt; ubuntu-2440.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载镜像 (本地文件)</span></span><br><span class="line">docker load -i ubuntu-2440.tar.gz</span><br><span class="line"><span class="comment"># 相比后面的 'docker import', 镜像存储文件保存完整记录, 体积要大.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除镜像</span></span><br><span class="line">docker rmi ubuntu:2440</span><br><span class="line"><span class="comment"># ubuntu:2440 目标镜像:标签. 这里也可以用镜像ID代替(短ID也行)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除所有在 'mongo:3.2' 之前的镜像 (windows下不可用)</span></span><br><span class="line">docker rmi $(docker images -q -f before=mongo:3.2)</span><br></pre></td></tr></table></figure>
+<h2 id="容器指令"><a href="#容器指令" class="headerlink" title="容器指令"></a>容器指令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输出 "hello world"</span></span><br><span class="line">docker run ubuntu <span class="built_in">echo</span> <span class="string">'Hello world'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行 ubuntu</span></span><br><span class="line">docker run -it ubuntu:16.04 bash</span><br><span class="line"><span class="comment"># -it： -i, 交互式操作; -t, 显示终端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 后台运行</span></span><br><span class="line">docker run -d ubuntu sh -c <span class="string">"while true; do echo hello world; sleep 1; done"</span></span><br><span class="line"><span class="comment"># 会返回container的ID号</span></span><br><span class="line"><span class="comment"># -d: 后台运行, 不输出结果到主机界面上</span></span><br><span class="line"><span class="comment"># sh -c: 作为sh文件执行</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取容器的输出信息</span></span><br><span class="line">docker logs container_ID_or_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看容器信息 (print server)</span></span><br><span class="line">docker ps -a</span><br><span class="line"><span class="comment"># -a 表示显示所有容器状态(包括终止状态)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 容器的终止,启动和重启</span></span><br><span class="line">docker stop container_ID_or_name</span><br><span class="line">docker start container_ID_or_name </span><br><span class="line">docker restart container_ID_or_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入指定容器</span></span><br><span class="line">docker attach container_ID_or_name</span><br><span class="line"><span class="comment"># attach 在多窗口时很不方便. 参考资料推荐的是nsenter (windows下不可用)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出容器</span></span><br><span class="line">docker <span class="built_in">export</span> container_ID_or_name &gt; ubuntu.tar</span><br><span class="line"><span class="comment"># 导入容器快照到本地镜像库</span></span><br><span class="line">cat ubuntu.tar | docker import - <span class="built_in">test</span>/ubuntu:v1.0</span><br><span class="line"><span class="comment"># 相比前面的 'docker load', 容器快照将丢弃历史记录. 另外, 可以重新指定标签.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除容器</span></span><br><span class="line">docker rm container_ID_or_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除所有容器 (windows下不可用)</span></span><br><span class="line">docker rm $(docker ps -qa)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取某个容器的PID信息 (windows下不可用)</span></span><br><span class="line">docker inspect --format <span class="string">'&#123;&#123; .State.Pid &#125;&#125;'</span> container_ID_or_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取某个容器的 IP 地址 (windows下不可用)</span></span><br><span class="line">docker inspect --format <span class="string">'&#123;&#123; .NetworkSettings.IPAddress &#125;&#125;'</span> container_ID_or_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 目前 Docker 并没有提供直接的对容器 IP 地址的管理支持</span></span><br></pre></td></tr></table></figure>
+<h2 id="其它指令和功能"><a href="#其它指令和功能" class="headerlink" title="其它指令和功能"></a>其它指令和功能</h2><p><a href="https://yeasy.gitbooks.io/docker_practice/content/install/ubuntu.html" target="_blank" rel="noopener">Docker — 从入门到实践</a></p>
+<ul>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/image/build.html" target="_blank" rel="noopener">使用 Dockerfile 定制镜像</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/image/dockerfile/" target="_blank" rel="noopener">Dockerfile 指令详解</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/repository/dockerhub.html" target="_blank" rel="noopener">Docker Hub 基本操作及自动创建</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/repository/local_repo.html" target="_blank" rel="noopener">Docker Registry 构建私有仓库</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/data_management/volume.html" target="_blank" rel="noopener">Docker Volumn 数据卷的操作</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/data_management/container.html" target="_blank" rel="noopener">Docker Volumn Container 数据卷容器的操作</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/network/port_mapping.html" target="_blank" rel="noopener">使用网络-外部访问容器</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/network/linking.html" target="_blank" rel="noopener">使用网络-容器互联</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/advanced_network/" target="_blank" rel="noopener">高级网络配置</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/advanced_network/quick_guide.html" target="_blank" rel="noopener">高级网络配置-网络相关命令列表</a></li>
+<li><a href="https://yeasy.gitbooks.io/docker_practice/content/appendix/faq/" target="_blank" rel="noopener">常见问题总结</a></li>
+</ul>
+<h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><p><a href="https://yeasy.gitbooks.io/docker_practice/content/install/ubuntu.html" target="_blank" rel="noopener">Docker — 从入门到实践</a><br><a href="http://www.dockerinfo.net/2117.html" target="_blank" rel="noopener">Docker技术架构详细分析 Docker模块分析</a><br><a href="http://wiki.jikexueyuan.com/project/docker/installation/windows.html" target="_blank" rel="noopener">Microsoft Windows 安装docker</a><br><a href="http://www.dockerinfo.net/341.html" target="_blank" rel="noopener">Docker命令指令详情-持续更新</a></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/21/1707-jz2440-env/" itemprop="url">
                   嵌入式linux环境搭建-jz2440开发板
                 </a>
@@ -1259,211 +1439,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/13/1704-linux-source5/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-文件系统
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-13T00:00:00+11:00" content="2017-02-13">
-              2017-02-13
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><p><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></p>
-</li>
-<li><p>推荐阅读 <a href="https://mp.weixin.qq.com/s?__biz=MzI5ODExMDQzNw==&amp;mid=2650737282&amp;idx=1&amp;sn=07a3fc491dbd06ea61afe4c7108cf7b9&amp;chksm=f4a17608c3d6ff1e7bb2b1168efa53f39db5c77b474296ba6086c1cf6612a452a6d234766b52&amp;scene=0&amp;key=7b81aac53bd2393d2edc7d94c6241745fd19b9a63b96f3683b767fbe2d367bd483fac89816919a23882f7bb13be77dc2&amp;ascene=7&amp;uin=MTUzODYxOTg2MQ%3D%3D&amp;devicetype=android-19&amp;version=26031933&amp;nettype=live.vodafone.com&amp;pass_ticket=MhcadpuflaJvGcaLNh0HQ3y1Ae%2FL2WCKStoj0RjDWXVN6c001WFeoX4HFyF1KE51" target="_blank" rel="noopener">我是一块硬盘-码农翻身-刘欣</a><br>通俗易懂的介绍了硬盘及文件系统的管理方式, 也简单提了一下inode. 可以作为此部分的入门.</p>
-</li>
-</ul>
-<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p>本人手工制作的 <strong>Linux 0.11 文件系统图解</strong><br><img src="https://draapho.github.io/images/1704/5-fs-map.jpg" alt="fs"></p>
-<p>几个核心点:</p>
-<ul>
-<li>Linux下<strong>一切皆文件, 文件即i节点!</strong></li>
-<li>文件名和i节点的关联, 在目录项结构中实现.<br>索引过程为: <strong>目录inode-&gt;目录名/文件名-&gt;对应inode-&gt;具体内容</strong></li>
-<li>任何读写硬盘的过程都是通过内存的buffer(高速缓冲)实现的, 系统不能直接读写硬盘! 由此产生同步问题.<br>调用过程为: <strong>系统函数-&gt;buffer-&gt;硬盘</strong></li>
-<li>Linux对内存条的分配和使用. <code>Buffer</code> <code>Memory</code> 的概念和用途. <code>Buffer Head</code> <code>Buffer Hash List</code>.<br><code>Buffer</code> 介于高速的CPU指令和低速的硬盘之间, 用于缓存CPU对硬盘的读写内容, 提高CPU执行效率.<br><code>Memory</code> 是系统可用的内存. 系统变量, <code>malloc</code> 都是用的这块空间.<br><code>虚拟内存</code> 把使用频率低的 <code>Memory</code> 暂时搬到硬盘, 以便存放使用频率更高的内存数据. 依赖于硬盘读写操作!</li>
-</ul>
-<h2 id="硬盘设备分区"><a href="#硬盘设备分区" class="headerlink" title="硬盘设备分区"></a>硬盘设备分区</h2><p>硬盘设备上的分区和文件系统<br><img src="https://draapho.github.io/images/1704/5-fs-hard-disk.jpg" alt="hard disk"></p>
-<ul>
-<li>主引导扇区: 存放硬盘引导程序和分区表信息.</li>
-<li>分区表: 标明了每个分区的类型, 起止位置以及占用的扇区数.</li>
-<li>相关文件: <code>kernel/blk_drv/hd.c</code></li>
-</ul>
-<p>下面, 将以MINIX1.0为例说明文件系统的基本概念.<br>Linux使用的其它的文件系统核心概念都是一样的! 只是支持的大小, 寻址速度, 文件上限有区别.</p>
-<h2 id="MINIX1-0-文件系统"><a href="#MINIX1-0-文件系统" class="headerlink" title="MINIX1.0 文件系统"></a>MINIX1.0 文件系统</h2><p>MINIX1.0 文件系统布局示意图<br><img src="https://draapho.github.io/images/1704/5-fs-minix.jpg" alt="minix"></p>
-<ul>
-<li>引导块: 上电时, BISO自动读入的部分. 有了引导块内引导程序, BIOS才能启动系统</li>
-<li>Super Block(超级块): 存放文件系统的结构信息, 说明各部分的大小. <code>super_block[8]</code>, 可加载8个文件系统</li>
-<li>Inode Bitmap(i节点位图): 记录i节点的使用情况, 1bit代表一个i节点. <code>s_imap[8]</code>, 占用8个块, 可表示8191个i节点情况</li>
-<li>Zone Bitmap(逻辑块位图): 记录数据区的使用情况, 1bit代表一个盘块(block). <code>s_zmap[8]</code>, 占用8个块, 最大支持64M的硬盘</li>
-<li>Inode(i节点): 每个文件或目录名唯一对应一个i节点, 在i节点中, 储存 id信息, 文件长度, 时间信息, 实际数据所在位置等等</li>
-<li>Zone Data(数据区): <code>8 (bit/byte)  * 1024 (byte/block) * 8(zmap blocks) * 1024 (byte/block)= 64M byte</code></li>
-</ul>
-<p>MINIX1.0 的超级块数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-super-block.jpg" alt="super block"></p>
-<h1 id="一切皆文件"><a href="#一切皆文件" class="headerlink" title="一切皆文件"></a>一切皆文件</h1><h2 id="inode-详解"><a href="#inode-详解" class="headerlink" title="inode 详解"></a>inode 详解</h2><p>MINIX1.0 的i节点数据结构<br><img src="https://draapho.github.io/images/1704/5-fs-inode.jpg" alt="inode"></p>
-<ul>
-<li><code>i_nlinks</code>: <strong>硬链接</strong>计数器. 因此硬连接具有相同的inode号, 硬连接不能跨文件系统!</li>
-</ul>
-<p>命令 <code>ls -l</code> 显示的文件信息, 多数信息读取i节点就可获得<br><img src="https://draapho.github.io/images/1704/5-fs-file-info.jpg" alt="file info"></p>
-<ul>
-<li>符号连接 <code>s</code>: 就是常说的<strong>软连接</strong>, 类似于windows下的快捷方式, 占用i节点, 在对应的数据块内存放路径</li>
-</ul>
-<p><code>i_zone[9]</code> i节点的逻辑块数组功能.<br><img src="https://draapho.github.io/images/1704/5-fs-izone.jpg" alt="izone"></p>
-<ul>
-<li><code>i_zone[0-6]</code> 直接块号: 存放文件开始的7个磁盘块号. 此时文件大小: <code>7*1024(byte/block)=7K byte</code></li>
-<li><code>i_zone[7]</code> 一次间接块号: 地址占用2byte, 因此一个数据块可存放512个地址. 此时可寻块 <code>7+512 blocks</code></li>
-<li><code>i_zone[8]</code> 二次间接块号: 此时可寻块 <code>7+512+512*512 blocks</code>, 文件的最大可达 <code>512M byte</code></li>
-<li><code>/dev/</code>下设备文件的 <code>i_zone[0]</code>: 设备文件不占用硬盘, 因此i节点仅保存设备的属性和设备号.</li>
-</ul>
-<h2 id="文件名的存储及查找"><a href="#文件名的存储及查找" class="headerlink" title="文件名的存储及查找"></a>文件名的存储及查找</h2><p>Linux 0.11 的目录项结构<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义在 include/linux/fs.h 文件中</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NAME_LEN 14                 <span class="comment">// 名字长度值</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ROOT_INO 1                  <span class="comment">// 根i节点</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 文件目录项结构</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dir_entry</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> inode;           <span class="comment">// i节点号</span></span><br><span class="line">    <span class="keyword">char</span> name[NAME_LEN];            <span class="comment">// 文件名</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>可见, linux下的文件名称都存在了目录项的数据里面, 并且唯一关联其i节点号.</li>
-<li>每个目录项占用16字节, 因此, 一个盘块可以存放 <code>1024/16=64</code> 个目录项</li>
-<li>对于空目录, 也至少会有名称未 <code>.</code> 和 <code>..</code> 两项, 指向 <code>当前目录inode</code> 和 <code>上级目录inode</code></li>
-<li>因此, 空目录的硬连接计数值<code>i_nlinks</code>为2, 每多一个文件, <code>i_nlinks</code>再加1.</li>
-</ul>
-<p>通过文件名最终找到对应文件盘块位置的示意图<br><img src="https://draapho.github.io/images/1704/5-fs-inode-find.jpg" alt="inode find"></p>
-<p>整个搜索过程是根据<code>目录项结构</code>及对应的<code>inode 号</code>, 逐步深入路径的过程.<br>以路径名 <code>/usr/bin/vi</code> 搜索对应的i节点, 然后读取文件内容为例:</p>
-<ol>
-<li>根目录 <code>/</code> 具有固定的 inode号 <code>1</code>.</li>
-<li>读取<code>inode 1</code>的数据块, 搜索名为<code>usr</code>的目录项, 从而得到<code>/usr</code>的inode号, 假设为 <code>23</code></li>
-<li>读取<code>inode 23</code>的数据块, 搜索名为<code>bin</code>的目录项, 假设<code>/usr/bin</code>的inode号为 <code>61</code></li>
-<li>读取<code>inode 61</code>的数据块, 搜索名为<code>vi</code>的文件名, 假设获得<code>/usr/bin/vi</code>的inode号 <code>98</code></li>
-<li>读取<code>inode 98</code>的数据块, 根据i节点信息, 如 <code>i_size</code> <code>i_zone[9]</code>, 最终读取文件内容</li>
-</ol>
-<h1 id="高速缓存-buffer-c"><a href="#高速缓存-buffer-c" class="headerlink" title="高速缓存 buffer.c"></a>高速缓存 <code>buffer.c</code></h1><p><code>buffer_head</code> 的数据结构<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer_head</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> * b_data;                      <span class="comment">// 指向该缓冲块中数据区(1024字节)的指针</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> b_blocknr;            <span class="comment">// 块号</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> b_dev;               <span class="comment">// 数据源的设备号(0=free)</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> b_uptodate;           <span class="comment">// 更新标记: 表示数据是否已更新</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> b_dirt;               <span class="comment">// 修改标记: 0-未修改(clean), 1-已修改(dirty)</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> b_count;              <span class="comment">// 使用该块的用户数</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> b_lock;               <span class="comment">// 缓冲区是否被锁定. 0-ok, 1-locked</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> * <span class="title">b_wait</span>;</span>        <span class="comment">// 指向等待该缓冲区解锁的任务</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">buffer_head</span> * <span class="title">b_prev</span>;</span>        <span class="comment">// hash 队列的前一块. (这四个指针用于缓冲区管理)</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">buffer_head</span> * <span class="title">b_next</span>;</span>        <span class="comment">// hash 队列的下一块</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">buffer_head</span> * <span class="title">b_prev_free</span>;</span>   <span class="comment">// 空闲表上前一块</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">buffer_head</span> * <span class="title">b_next_free</span>;</span>   <span class="comment">// 空闲表上下一块</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>buffer的初始化<br><img src="https://draapho.github.io/images/1704/5-fs-buffer-init.jpg" alt="inode find"></p>
-<p>buffer的双向循环链表<br><img src="https://draapho.github.io/images/1704/5-fs-buffer-list.jpg" alt="inode find"></p>
-<ul>
-<li>该双向链表是最近最少使用LRU链表(Least Recently Used), <code>free_list</code> 指向最为空闲的缓冲块指针</li>
-</ul>
-<p>buffer的hash表<br><img src="https://draapho.github.io/images/1704/5-fs-buffer-hash.jpg" alt="inode find"></p>
-<ul>
-<li>Linux 0.11 使用的hash函数是 <code>设备号^逻辑块号 Mod 307</code>, 因此共有307项hash表</li>
-<li>hash的功能类似于字典, 先预先归类, 然后可以按类查找, 加快了查找速度.</li>
-</ul>
-<p>缓冲区管理函数关系图<br><img src="https://draapho.github.io/images/1704/5-fs-buffer-function.jpg" alt="inode find"></p>
-<p>详解 <code>getblk()</code> 函数. 用于寻找最为空闲的buffer缓冲块.<br><img src="https://draapho.github.io/images/1704/5-fs-getblk.jpg" alt="inode find"></p>
-<ul>
-<li>首先调用 <code>get_hash_table()</code>, 查看搜索的指定缓冲块是否已经存在于buffer中. 存在就立刻返回该buffer指针.</li>
-<li>不存在时, 从空闲链表头开始扫描, 寻找最合适的空闲块(没有被使用, 没有被上锁, 没有被修改). 实现LRU</li>
-<li>因为可能别的进程已经加入了所需的缓冲块, 因此再调用一遍 <code>get_hash_table()</code></li>
-<li>此时, 可以将块应用计数置1, 把该缓冲块移到空闲队列末尾.</li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-<li><a href="https://mp.weixin.qq.com/s?__biz=MzI5ODExMDQzNw==&amp;mid=2650737282&amp;idx=1&amp;sn=07a3fc491dbd06ea61afe4c7108cf7b9&amp;chksm=f4a17608c3d6ff1e7bb2b1168efa53f39db5c77b474296ba6086c1cf6612a452a6d234766b52&amp;scene=0&amp;key=7b81aac53bd2393d2edc7d94c6241745fd19b9a63b96f3683b767fbe2d367bd483fac89816919a23882f7bb13be77dc2&amp;ascene=7&amp;uin=MTUzODYxOTg2MQ%3D%3D&amp;devicetype=android-19&amp;version=26031933&amp;nettype=live.vodafone.com&amp;pass_ticket=MhcadpuflaJvGcaLNh0HQ3y1Ae%2FL2WCKStoj0RjDWXVN6c001WFeoX4HFyF1KE51" target="_blank" rel="noopener">我是一块硬盘-码农翻身-刘欣</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1509,7 +1484,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-count">123</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
