@@ -261,6 +261,171 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/04/1709-linux-makefile/" itemprop="url">
+                  快速读懂 makefile
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-04-04T00:00:00+10:00" content="2017-04-04">
+              2017-04-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="noopener">怎么看懂和编写makefile</a></em></strong><br><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="noopener">跟我一起写Makefile</a></em></strong></p>
+<hr>
+<h1 id="Makefile最基本的组成"><a href="#Makefile最基本的组成" class="headerlink" title="Makefile最基本的组成"></a>Makefile最基本的组成</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">target: dependencies</span></span><br><span class="line">[TAB] command</span><br><span class="line"></span><br><span class="line"><span class="section">目标: 依赖1 依赖2</span></span><br><span class="line">[TAB] 命令</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>target</code> 可以是object文件，也可以是可执行文件，也可以是target关键字。<br> 可以一次写多个文件作为同一批次的target。</li>
+<li><code>dependencies</code> 有的是源文件，有的是链接文件，如果没有的话可以不写；<br> 想要编target必须先准备好dependencies。</li>
+<li><code>clean</code> 是一个特殊的target，一般要做的是rm清理工作；</li>
+<li><code>make</code>命令在执行的时候会检查目标文件是否存在, 并比较target文件和dependencies文件的修改日期，<br>如果存在更新的dependencies文件，那么对应的command就会执行，否则的话就不执行，还使用已存在target文件。</li>
+<li><code>command</code> 必须要以<code>TAB</code>来对齐， 一般会是gcc/g++的编译命令；</li>
+<li>细化到模块一般会有若干个分支target，形成层级的target依赖关系。</li>
+</ul>
+<p>举个例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译和链接一起做了, 看不到中间的.o目标文件</span></span><br><span class="line"><span class="section">hello: hello.c a.c</span></span><br><span class="line">    gcc -o hello hello.c a.c</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 对于大型系统, 更推荐的是编译和链接分开, 如下:</span></span><br><span class="line"><span class="section">hello: hello.o a.o                  # 可执行文件hello 依赖于 hello.o 和 a.o</span></span><br><span class="line">    gcc -o hello hello.o a.o        <span class="comment"># 执行链接</span></span><br><span class="line"></span><br><span class="line"><span class="section">hello.o: hello.c                    # 目标文件依赖于hello.c</span></span><br><span class="line">    gcc -o hello.o -c hello.c       <span class="comment"># 编译出目标文件</span></span><br><span class="line"></span><br><span class="line">a.o : a.c                           <span class="comment"># 另一个目标文件</span></span><br><span class="line">    gcc -o a.o -c a.c               <span class="comment"># -o: object 目标文件, -c: compile 编译</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="隐形规则和变量"><a href="#隐形规则和变量" class="headerlink" title="隐形规则和变量"></a>隐形规则和变量</h1><p>为了使得makefile的内容尽量少一些废话，GNU为makefile加入了一些约定的规则。</p>
+<ul>
+<li>如果<code>target</code>文件的名称是<code>aa.o</code>，那么make会主动的把同名的源代码文件（如<code>aa.c</code>,<code>aa.cpp</code>）加入到依赖中去。</li>
+<li><code>target</code> 和 <code>dependencies</code> 处: 用 <code>%</code> 通配任意的非空字符串</li>
+<li><code>command</code> 处: <code>$@</code>目标文件, <code>$&lt;</code>依赖1, <code>$^</code>所有的依赖文件, <code>$?</code>比目标文件新的依赖. 这三个叫自动变量.</li>
+<li>变量在定义或被赋值时不加$()，在使用其值时要加 <code>$()</code></li>
+<li>常用<code>$(CC)</code>来代替具体的编译器，比如 <code>CC=g++</code></li>
+<li>常用<code>$(CFLAGS)</code>来代替C语言编译选项，比如 <code>CFLAGS=-c -Wall</code><br>还会指定头文件include路径，比如 <code>CFLAGS+=-I/usr/include</code></li>
+<li>常用<code>$(LDFLAGS)</code>来指定库文件lib路径，比如 <code>LDFLAGS+=-L/usr/lib</code></li>
+<li>常用<code>$(LDLIBS)</code>来指定要链接的库名称，比如 <code>LDLIBS+=-llibname</code></li>
+</ul>
+<p>修改上面的例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先使用通配符 % 及自动变量</span></span><br><span class="line"><span class="section">hello: hello.o a.o</span></span><br><span class="line">    gcc -o <span class="variable">$@</span> <span class="variable">$^</span>                    <span class="comment"># $@ 表示hello, $^ 表示两个.o文件</span></span><br><span class="line"></span><br><span class="line">%.o : %.c                           <span class="comment"># 对应了hello.o 和 a.o 两条语句!</span></span><br><span class="line">    gcc -o <span class="variable">$@</span> -c <span class="variable">$&lt;</span>                 <span class="comment"># $@ 表示 .o 文件, $&lt; 表示第一个依赖, 即 .c 文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后使用更多的变量 $()</span></span><br><span class="line"><span class="section">hello: hello.o a.o</span></span><br><span class="line">    <span class="variable">$(CC)</span> -o <span class="variable">$@</span> <span class="variable">$^</span>                  <span class="comment"># CC=gcc, 因此 $(CC)表示gcc</span></span><br><span class="line"></span><br><span class="line">%.o : %.c                           <span class="comment"># 使用更多的编译参数变量</span></span><br><span class="line">    <span class="variable">$(CC)</span> -o <span class="variable">$@</span> -c <span class="variable">$(CFLAGS)</span> <span class="variable">$(CPPFLAGS)</span> <span class="variable">$&lt;</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="伪目标"><a href="#伪目标" class="headerlink" title="伪目标"></a>伪目标</h1><p><code>.PHONY</code> 经常被用来作为伪目标。 它的使用目的是这样的：<br>因为当类似clean这样的target关键字作为target并且没有依赖文件时，<br>假如目录下有一个文件也叫clean时，make clean命令则会以为我想编clean这个目标文件，<br>恰好clean文件又不会比依赖文件更旧，所以下面的command就不会被执行。</p>
+<p>现在我们用.PHONY作为target，clean作为依赖。<br>这就是告诉make，clean它是一个target，而不是一个普通的文件。</p>
+<p>加入 clean 的例子:<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">hello: hello.o a.o                          # 执行文件hello, 依赖于.o文件</span></span><br><span class="line">    <span class="variable">$(CC)</span> -o <span class="variable">$@</span> <span class="variable">$^</span>                          <span class="comment"># 进行链接</span></span><br><span class="line"></span><br><span class="line">%.o : %.c                                   <span class="comment"># 目标文件.o 依赖于同名的.c文件</span></span><br><span class="line">    <span class="variable">$(CC)</span> -o <span class="variable">$@</span> -c <span class="variable">$(CFLAGS)</span> <span class="variable">$(CPPFLAGS)</span> <span class="variable">$&lt;</span> <span class="comment"># 编译出目标文件</span></span><br><span class="line"></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line"><span class="section">clean:                                      # 目标指令, 可调用 make clean 来执行了!</span></span><br><span class="line">    rm -rf *.o                              <span class="comment"># 删除所有的.o文件</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="文件引用和条件判断"><a href="#文件引用和条件判断" class="headerlink" title="文件引用和条件判断"></a>文件引用和条件判断</h1><ul>
+<li>如果makefile中引入其他makefile， 使用 <code>include</code> 即可</li>
+<li>条件语句的基本结构一般由 <code>ifeq</code> <code>else</code> <code>endif</code> 三个关键字组成</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include</span> another.mk                          <span class="comment"># 调用 another.mk</span></span><br><span class="line"><span class="keyword">include</span> foo *.mk <span class="variable">$(bar)</span>                     <span class="comment"># 更复杂的调用</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">libs_for_gcc = -lgnu                        <span class="comment"># 变量赋值</span></span><br><span class="line">normal_libs =</span><br><span class="line"></span><br><span class="line"><span class="keyword">ifeq</span> (<span class="variable">$(CC)</span>,gcc)                            <span class="comment"># 条件判断 $(CC) 是否为gcc</span></span><br><span class="line">    libs=<span class="variable">$(libs_for_gcc)</span>                    <span class="comment"># 变量赋值</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    libs=<span class="variable">$(normal_libs)</span></span><br><span class="line"><span class="keyword">endif</span></span><br><span class="line"></span><br><span class="line"><span class="section">foo: <span class="variable">$(objects)</span>                             # 目标: 依赖</span></span><br><span class="line"><span class="keyword">ifeq</span> (<span class="variable">$(CC)</span>,gcc)</span><br><span class="line">    <span class="variable">$(CC)</span> -o foo <span class="variable">$(objects)</span> <span class="variable">$(libs_for_gcc)</span> <span class="comment"># 执行的命令</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="variable">$(CC)</span> -o foo <span class="variable">$(objects)</span> <span class="variable">$(normal_libs)</span></span><br><span class="line"><span class="keyword">endif</span></span><br></pre></td></tr></table></figure>
+<h1 id="使用函数"><a href="#使用函数" class="headerlink" title="使用函数"></a>使用函数</h1><p>函数调用，很像变量的使用，也是以“$”来标识的，有两种语法, 如下：<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$(&lt;function&gt; &lt;arguments&gt;)</span><br><span class="line">$&#123;&lt;function&gt; &lt;arguments&gt;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>还是来看一个示例：<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">comma := ,</span><br><span class="line">empty :=</span><br><span class="line">space := <span class="variable">$(empty)</span> <span class="variable">$(empty)</span></span><br><span class="line">foo:= a b c</span><br><span class="line">bar:= <span class="variable">$(<span class="built_in">subst</span> <span class="variable">$(space)</span>,<span class="variable">$(comma)</span>,<span class="variable">$(foo)</span>)</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>$(bar)</code>调用了函数一个函数.<ul>
+<li>函数    : <code>$(subst &lt;from&gt;,&lt;to&gt;,&lt;text&gt;)</code>, 相当于c语言的 <code>subst(from, to, text)</code></li>
+<li>参数from: <code>$(comma)</code> 的值是一个逗号</li>
+<li>参数to  : <code>$(space)</code> 使用了 <code>$(empty)</code> 定义了一个空格</li>
+<li>参数text: <code>$(foo)</code>   的值是 “a b c”</li>
+</ul>
+</li>
+<li>这个函数是把$(foo)中的空格替换成逗号，所以$(bar)的值是“a,b,c”。<ul>
+<li>这是一个替换函数</li>
+<li>第一个参数是被替换字串</li>
+<li>第二个参数是替换字串</li>
+<li>第三个参数是替换操作作用的字串</li>
+</ul>
+</li>
+</ul>
+<p>Makefile 支持的函数有限, 详情可参考 <a href="http://wiki.ubuntu.org.cn/%E8%B7%9F%E6%88%91%E4%B8%80%E8%B5%B7%E5%86%99Makefile:%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0" target="_blank" rel="noopener">跟我一起写Makefile:使用函数</a></p>
+<hr>
+<p><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="noopener">怎么看懂和编写makefile</a></em></strong><br><strong><em>转载自 <a href="http://lucky521.github.io/blog/design/2015/10/01/makefile.html" target="_blank" rel="noopener">跟我一起写Makefile</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/23/1708-docker/" itemprop="url">
                   Docker 初学笔记
                 </a>
@@ -1289,156 +1454,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/15/1704-linux-source6/" itemprop="url">
-                  Linux 0.11 源码阅读笔记-内存管理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-02-15T00:00:00+11:00" content="2017-02-15">
-              2017-02-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/01/23/1704-linux-source/">Linux 0.11 源码阅读笔记-总览</a></li>
-<li><a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-<li><a href="https://draapho.github.io/2017/01/28/1704-linux-source2/">Linux 0.11 源码阅读笔记-启动程序</a></li>
-<li><a href="https://draapho.github.io/2017/01/31/1704-linux-source3/">Linux 0.11 源码阅读笔记-内核代码</a></li>
-<li><a href="https://draapho.github.io/2017/02/01/1704-linux-source4/">Linux 0.11 源码阅读笔记-设备驱动程序</a></li>
-<li><a href="https://draapho.github.io/2017/02/13/1704-linux-source5/">Linux 0.11 源码阅读笔记-文件系统</a></li>
-<li><a href="https://draapho.github.io/2017/02/15/1704-linux-source6/">Linux 0.11 源码阅读笔记-内存管理</a></li>
-</ul>
-<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p>本人手工制作的 <strong>Linux 0.11 内存管理图解</strong><br><img src="https://draapho.github.io/images/1704/6-mm-map.jpg" alt="mm"></p>
-<ul>
-<li>虚拟内存的实现, 使用的是页面出错异常处理. 然后调用 <code>do_no_page()</code> 来读取硬盘数据(必要时先回写), 腾出内存空间.</li>
-<li>写时复制 (copy on write) 机制, 新建进程时, linux不会立刻复制进程数据.<br>只有某个进程需要进行数据写操作时, 才真正开始执行复制操作.<br>好处是, 节约内存, 加快创建进程的速度.</li>
-<li>Linux 0.11版本的内存管理的主要文件 <code>/mm/memory.c</code></li>
-<li>内存的一些基础概念请参考 <a href="https://draapho.github.io/2017/01/26/1704-linux-source1/">Linux 0.11 源码阅读笔记-内存的基础概念</a></li>
-</ul>
-<h1 id="进程的内存空间"><a href="#进程的内存空间" class="headerlink" title="进程的内存空间"></a>进程的内存空间</h1><p>进程代码和数据在其逻辑地址空间中的分布<br><img src="https://draapho.github.io/images/1704/6-mm-process.jpg" alt="mm"></p>
-<ul>
-<li>Linux 0.11 每个进程只能有64M byte的逻辑内存.</li>
-<li>环境参数块最多128K</li>
-<li>堆栈指针是在逻辑地址的高位, 向下增长</li>
-<li>bss是进程未初始化的数据段, 第一页会被初始化为0</li>
-<li>使用需求加载机制 (Load on demand), 因此在加载运行文件时, 只是分配64M的线性地址空间, 没有分配任何真正的物理内存.</li>
-<li>此时, 内核在执行代码或加载数据时, 会触发缺页异常中断, 此时才调用 <code>do_no_page</code> 加载内容到物理内存.</li>
-</ul>
-<h1 id="内存的分配-malloc"><a href="#内存的分配-malloc" class="headerlink" title="内存的分配 malloc"></a>内存的分配 <code>malloc</code></h1><p>使用存储桶原理进行内存的分配管理<br><img src="https://draapho.github.io/images/1704/6-mm-malloc.jpg" alt="mm"></p>
-<ul>
-<li>实现很巧妙. 指针应用的出神入化</li>
-<li>仅内核代码可以调用.</li>
-<li>基本思想: 对申请的不同的内存块大小, 使用存储桶分别进行处理.</li>
-<li>提高内存利用率, 可有效避免内存碎片化.</li>
-<li>源码文件 <code>/lib/malloc.c</code></li>
-</ul>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://oldlinux.org/download/clk011c-3.0-toc.pdf" target="_blank" rel="noopener">Linux 内核完全注释 内核版本0.11 - 赵炯</a></li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1484,7 +1499,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">124</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
