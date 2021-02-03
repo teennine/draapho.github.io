@@ -261,6 +261,658 @@
             
               
                 
+                <a class="post-title-link" href="/2018/05/08/1817-interview-linux/" itemprop="url">
+                  面试之嵌入式Linux
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-05-08T00:00:00+10:00" content="2018-05-08">
+              2018-05-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/interview/" itemprop="url" rel="index">
+                    <span itemprop="name">interview</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/05/04/1714-expression/">逻辑|这样表达，事半功倍</a></li>
+<li><a href="https://draapho.github.io/2018/01/10/1805-interview-general/">面试之常规问题</a></li>
+<li><a href="https://draapho.github.io/2018/05/07/1816-interview-c/">面试之嵌入式C语言</a></li>
+<li><a href="https://draapho.github.io/2017/05/17/1715-c/">C语言知识巩固</a></li>
+<li><a href="https://draapho.github.io/2018/05/08/1817-interview-linux/">面试之嵌入式Linux</a></li>
+</ul>
+<p>我个人面试经验极少, 但这种能力都是需要培养的. 此系列总结一下面试中常见的技能要点. 侧重于技术面的准备.</p>
+<h1 id="common"><a href="#common" class="headerlink" title="common"></a>common</h1><h2 id="Q-What-Is-The-Difference-Between-Microprocessor-And-Microcontroller"><a href="#Q-What-Is-The-Difference-Between-Microprocessor-And-Microcontroller" class="headerlink" title="Q: What Is The Difference Between Microprocessor And Microcontroller?"></a>Q: What Is The Difference Between Microprocessor And Microcontroller?</h2><p>Microcontroller is a self-contained system with peripherals, memory and a processor that can be used as embedded system.</p>
+<p>Microprocessor is managers of the resources (I/O, memory) which lie outside of its architecture.</p>
+<h2 id="Q-Difference-btwn-Process-and-Thread"><a href="#Q-Difference-btwn-Process-and-Thread" class="headerlink" title="Q: Difference btwn Process and Thread"></a>Q: Difference btwn Process and Thread</h2><p>the threads are a part of a process<br>Process has a self-contained execution environment, each process has its own memory space. just can use IPC to communication<br>Threads share resources, which helps in efficient communication between threads.</p>
+<h2 id="Q-What-is-thread-safety-What-is-re-entrancy"><a href="#Q-What-is-thread-safety-What-is-re-entrancy" class="headerlink" title="Q: What is thread safety? What is re-entrancy?"></a>Q: What is thread safety? What is re-entrancy?</h2><p>线程安全的概念比较直观，一般来说，一个函数被称为线程安全的，当且仅当被多个并发线程反复调用时，它会一直产生正确的结果.<br>可重入函数一定是线程安全的. 但线程安全的函数不一定是可重入的.</p>
+<p>对于可重入函数, 有如下要求:</p>
+<ul>
+<li>不使用全局变量或静态变量；</li>
+<li>不使用用malloc或者new开辟出的空间；</li>
+<li>不调用不可重入函数；</li>
+</ul>
+<h2 id="Q-Explain-Interrupt-Latency-And-How-Can-We-Decrease-It"><a href="#Q-Explain-Interrupt-Latency-And-How-Can-We-Decrease-It" class="headerlink" title="Q: Explain Interrupt Latency And How Can We Decrease It?"></a>Q: Explain Interrupt Latency And How Can We Decrease It?</h2><ul>
+<li>Interrupt latency basically refers to the time span an interrupt is generated and it being serviced by an appropriate routine defined, usually the interrupt handler.</li>
+<li>External signals, some condition in the program or by the occurrence of some event, these could be the reasons for generation of an interrupt.</li>
+<li>Interrupts can also be masked so as to ignore them even if an event occurs for which a routine has to be executed.</li>
+<li>Following steps could be followed to reduce the latency<ul>
+<li>ISRs being simple and short.</li>
+<li>Interrupts being serviced immediately</li>
+<li>Avoiding those instructions that increase the latency period.</li>
+<li>Also by prioritizing interrupts over threads.</li>
+<li>Avoiding use of inappropriate APIs.</li>
+</ul>
+</li>
+</ul>
+<h2 id="Q-What-is-Top-half-amp-bottom-half-of-a-kernel"><a href="#Q-What-is-Top-half-amp-bottom-half-of-a-kernel" class="headerlink" title="Q: What is Top half &amp; bottom half of a kernel?"></a>Q: What is Top half &amp; bottom half of a kernel?</h2><p>Sometimes to handle an interrupt, a substantial amount of work has to be done. But it conflicts with the speed need for an interrupt handler.<br>To handle this situation, Linux splits the handler into two parts: Top half and Bottom half. </p>
+<ul>
+<li>The top half is the routine that actually responds to the interrupt. </li>
+<li>The bottom half on the other hand is a routine that is scheduled by the upper half to be executed later at a safer time.</li>
+</ul>
+<p>All interrupts are enabled during execution of the bottom half. The top half saves the device data into the specific buffer, schedules bottom half and exits. The bottom half does the rest. This way the top half can service a new interrupt while the bottom half is working on the previous.</p>
+<h2 id="Q-List-Out-Various-Uses-Of-Timers-In-Embedded-System"><a href="#Q-List-Out-Various-Uses-Of-Timers-In-Embedded-System" class="headerlink" title="Q: List Out Various Uses Of Timers In Embedded System?"></a>Q: List Out Various Uses Of Timers In Embedded System?</h2><ul>
+<li>Real Time Clock (RTC) for the system</li>
+<li>Initiating an event after a preset time delay</li>
+<li>Initiating an event after a comparison of preset times</li>
+<li>Capturing the count value in timer on an event</li>
+<li>Between two events finding the time interval</li>
+<li>Time slicing for various tasks</li>
+<li>Time division multiplexing</li>
+<li>Scheduling of various tasks in RTOS    </li>
+</ul>
+<h2 id="Q-Significance-of-watchdog-timer-in-Embedded-Systems"><a href="#Q-Significance-of-watchdog-timer-in-Embedded-Systems" class="headerlink" title="Q: Significance of watchdog timer in Embedded Systems."></a>Q: Significance of watchdog timer in Embedded Systems.</h2><p>The watchdog timer is a timing device with a predefined time interval. During that interval, some event may occur or else the device generates a time out signal. It is used to reset to the original state whenever some inappropriate events take place which can result in system malfunction. It is usually operated by counter devices.</p>
+<h2 id="Q-Difference-between-RISC-and-CISC-processor"><a href="#Q-Difference-between-RISC-and-CISC-processor" class="headerlink" title="Q: Difference between RISC and CISC processor."></a>Q: Difference between RISC and CISC processor.</h2><p>RISC (Reduced Instruction Set Computer) could carry out a few sets of simple instructions simultaneously. Fewer transistors are used to manufacture RISC, which makes RISC cheaper. RISC has uniform instruction set and those instructions are also fewer in number. Due to the less number of instructions as well as instructions being simple, the RISC computers are faster. RISC emphasise on software rather than hardware. RISC can execute instructions in one machine cycle.</p>
+<p>CISC (Complex Instruction Set Computer) is capable of executing multiple operations through a single instruction. CISC have rich and complex instruction set and more number of addressing modes. CISC emphasise on hardware rather that software, making it costlier than RISC. It has a small code size, high cycles per second and it is slower compared to RISC.</p>
+<h2 id="Q-What-is-RTOS-What-is-the-difference-between-hard-real-time-and-soft-real-time-OS"><a href="#Q-What-is-RTOS-What-is-the-difference-between-hard-real-time-and-soft-real-time-OS" class="headerlink" title="Q: What is RTOS? What is the difference between hard real-time and soft real-time OS?"></a>Q: What is RTOS? What is the difference between hard real-time and soft real-time OS?</h2><p>The scheduler in a Real Time Operating System (RTOS) is designed to provide a predictable execution pattern. In an embedded system, a certain event must be entertained in strictly defined time.<br>To meet real time requirements, the behaviour of the scheduler must be predictable. This type of OS which have a scheduler with predictable execution pattern is called Real Time OS(RTOS). </p>
+<p>A Hard real-time system strictly adheres to the deadline associated with the task. If the system fails to meet the deadline, even once, the system is considered to have failed.<br>In case of a soft real-time system, missing a deadline is acceptable. In this type of system, a critical real-time task gets priority over other tasks and retains that priority until it completes.</p>
+<h2 id="Q-What-type-of-scheduling-is-there-in-RTOS"><a href="#Q-What-type-of-scheduling-is-there-in-RTOS" class="headerlink" title="Q: What type of scheduling is there in RTOS?"></a>Q: What type of scheduling is there in RTOS?</h2><p>RTOS uses pre-emptive scheduling. In pre-emptive scheduling, the higher priority task can interrupt a running process and the interrupted process will be resumed later.</p>
+<h2 id="Q-What-is-priority-inversion-What-is-priority-inheritance"><a href="#Q-What-is-priority-inversion-What-is-priority-inheritance" class="headerlink" title="Q: What is priority inversion? What is priority inheritance?"></a>Q: What is priority inversion? What is priority inheritance?</h2><p>If two tasks share a resource, the one with higher priority will run first. However, if the lower-priority task is using the shared resource when the higher-priority task becomes ready, then the higher-priority task must wait for the lower-priority task to finish. In this scenario, even though the task has higher priority it needs to wait for the completion of the lower-priority task with the shared resource. This is called priority inversion.</p>
+<p>Priority inheritance is a solution to the priority inversion problem. The process waiting for any resource which has a resource lock will have the maximum priority. This is priority inheritance. When one or more high priority jobs are blocked by a job, the original priority assignment is ignored and execution of critical section will be assigned to the job with the highest priority in this elevated scenario. The job returns to the original priority level soon after executing the critical section.</p>
+<h2 id="Q-What-is-job-of-preprocessor-compiler-assembler-and-linker"><a href="#Q-What-is-job-of-preprocessor-compiler-assembler-and-linker" class="headerlink" title="Q: What is job of preprocessor, compiler, assembler and linker?"></a>Q: What is job of preprocessor, compiler, assembler and linker?</h2><p>The preprocessor commands are processed and expanded by the preprocessor before actual compilation. </p>
+<p>After preprocessing, the compiler takes the output of the preprocessor and the source code, and generates assembly code. </p>
+<p>Once compiler completes its work, the assembler takes the assembly code and produces an assembly listing with offsets and generate object files.</p>
+<p>The linker combines object files or libraries and produces a single executable file. It also resolves references to external symbols, assigns final addresses to functions and variables, and revises code and data to reflect new addresses.</p>
+<h2 id="Q-How-you-will-debug-the-memory-issues"><a href="#Q-How-you-will-debug-the-memory-issues" class="headerlink" title="Q: How you will debug the memory issues?"></a>Q: How you will debug the memory issues?</h2><ul>
+<li>First of all, double check the code source. Make sure already paired using <code>kmalloc</code> <code>kfree</code> and <code>vmalloc</code> <code>vfree</code></li>
+<li><code>free -m</code> to monitor memory using status.</li>
+<li><code>kmemleak</code> to log the possible problem</li>
+<li>oom or panic information from kernel</li>
+<li>Intercept all functions that allocate and deallocate memory.</li>
+</ul>
+<h2 id="Q-Debugging-techniques"><a href="#Q-Debugging-techniques" class="headerlink" title="Q: Debugging techniques"></a>Q: Debugging techniques</h2><p><code>GDB</code>, printk, led, <code>/var/log/</code></p>
+<h1 id="hardware"><a href="#hardware" class="headerlink" title="hardware"></a>hardware</h1><h2 id="Q-What-Does-Dma-Address-Will-Deal-With"><a href="#Q-What-Does-Dma-Address-Will-Deal-With" class="headerlink" title="Q: What Does Dma Address Will Deal With?"></a>Q: What Does Dma Address Will Deal With?</h2><p>DMA address deals with physical addresses. It is a device which directly drives the data and address bus during data transfer. So, it is purely physical address.</p>
+<h2 id="Q-What-is-virtual-memory"><a href="#Q-What-is-virtual-memory" class="headerlink" title="Q: What is virtual memory?"></a>Q: What is virtual memory?</h2><p>Virtual memory is a technique that allows processes to allocate memory in case of physical memory shortage using automatic storage allocation upon a request.<br>The advantage of the virtual memory is that the program can have a larger memory than the physical memory. It allows large virtual memory to be provided when only a smaller physical memory is available. </p>
+<p>Virtual memory can be implemented using paging.<br>A paging system is quite similar to a paging system with swapping. When we want to execute a process, we swap it into memory. Here we use a lazy swapper called pager rather than swapping the entire process into memory. When a process is to be swapped in, the pager guesses which pages will be used based on some algorithm, before the process is swapped out again. Instead of swapping whole process, the pager brings only the necessary pages into memory. By that way, it avoids reading in unnecessary memory pages, decreasing the swap time and the amount of physical memory.</p>
+<h2 id="Q-What-is-kernel-paging-What-is-page-frame"><a href="#Q-What-is-kernel-paging-What-is-page-frame" class="headerlink" title="Q: What is kernel paging? What is page frame?"></a>Q: What is kernel paging? What is page frame?</h2><p>Paging is a memory management scheme by which computers can store and retrieve data from the secondary memory storage when needed in to primary memory. In this scheme, the operating system retrieves data from secondary storage in same-size blocks called pages. The paging scheme allows the physical address space of a process to be non continuous. Paging allows OS to use secondary storage for data that does not fit entirely into physical memory.</p>
+<p>A page frame is a block of RAM that is used for virtual memory. It has its page frame number. The size of a page frame may vary from system to system, and it is in the power of 2 in bytes. Also, it is the smallest length block of memory in which an operating system maps memory pages.</p>
+<h2 id="Q-Virtual-Address-Linear-Address-Physical-Address"><a href="#Q-Virtual-Address-Linear-Address-Physical-Address" class="headerlink" title="Q: Virtual Address, Linear Address, Physical Address"></a>Q: Virtual Address, Linear Address, Physical Address</h2><p>32-bit CPU 3GB for user layer, 1GB for kernel layer<br><code>kmalloc</code> apply the physical address directly, so it is continuous but size limination<br><code>vmalloc</code> apply the virtual memory, in physical it is not continuous. need MMU to translate to physical memory.<br>Virtual Address – Segment(GDT LDT) – Linear Address – Paging (4 layer Page Directory, Page Table) – Physical Address</p>
+<h2 id="Q-How-to-decide-whether-given-processor-is-using-little-endian-format-or-big-endian-format"><a href="#Q-How-to-decide-whether-given-processor-is-using-little-endian-format-or-big-endian-format" class="headerlink" title="Q:How to decide whether given processor is using little endian format or big endian format ?"></a>Q:How to decide whether given processor is using little endian format or big endian format ?</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">check_for_endianness</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> x = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">char</span> *c = (<span class="keyword">char</span>*) &amp;x;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">int</span>)*c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Q-nand-vs-nor-flash"><a href="#Q-nand-vs-nor-flash" class="headerlink" title="Q: nand vs nor flash"></a>Q: nand vs nor flash</h2><ul>
+<li>使用复杂 vs 使用简单(same as sram)</li>
+<li>读取慢 vs 读取快</li>
+<li>写入快 vs 写入慢</li>
+<li>顺序读取快, 随机存取慢 vs 随机存取快</li>
+<li>容量大 vs 容量小</li>
+<li>擦写次数多 vs 擦写次数少</li>
+<li>yaffs2 vs jffs2</li>
+<li>存放引导程序, 参数区 vs 用户文件, 多媒体文件</li>
+</ul>
+<h2 id="Q-Definition-and-difference-between-Hardware-interrupt-Software-Interrupt-Exception-Trap-and-Signals"><a href="#Q-Definition-and-difference-between-Hardware-interrupt-Software-Interrupt-Exception-Trap-and-Signals" class="headerlink" title="Q: Definition and difference between Hardware interrupt, Software Interrupt, Exception, Trap and Signals?"></a>Q: Definition and difference between Hardware interrupt, Software Interrupt, Exception, Trap and Signals?</h2><ul>
+<li>Hardware Interrupts: may arrive anytime, typically IO interrupts.</li>
+<li>Exception: may only arrive after the execution of an instruction, for example when the cpu try to devide a number by 0 or a page fault</li>
+<li>Trap is a kind of exceptions, whose main purpose is for debugging</li>
+<li>Software Interrupt occurs at the request of the programmer. They are used to implement system calls, and handled by the CPU as trap.</li>
+<li>Signals are part of the IPC, not belong to interrupts or exceptions.</li>
+</ul>
+<h2 id="Q-Explain-MMU-in-Linux"><a href="#Q-Explain-MMU-in-Linux" class="headerlink" title="Q: Explain MMU in Linux"></a>Q: Explain MMU in Linux</h2><p>Paged memory management unit. Translation of virtual memory addresses to physical addresses</p>
+<h2 id="Q-What-are-high-memory-and-low-memory-on-Linux"><a href="#Q-What-are-high-memory-and-low-memory-on-Linux" class="headerlink" title="Q: What are high memory and low memory on Linux"></a>Q: What are high memory and low memory on Linux</h2><ul>
+<li>The High Memory is the segment of memory that user-space programs can address. It cannot touch Low Memory.</li>
+<li>Low Memory is the segment of memory that the Linux kernel can address directly. </li>
+<li>If the kernel must access High Memory, it has to map it into its own address space first.</li>
+<li><code>copy_from_user(&amp;val, data, 1);</code></li>
+</ul>
+<h2 id="Q-How-to-register-an-interrupt-handler"><a href="#Q-How-to-register-an-interrupt-handler" class="headerlink" title="Q: How to register an interrupt handler?"></a>Q: How to register an interrupt handler?</h2><ul>
+<li><code>request_irq(IRQ_ID, handler_irq, ...);</code></li>
+<li><code>irqreturn_t handler_irq(int irq, void *dev_id)</code> can get the IRQ_ID from <code>int irq</code></li>
+</ul>
+<h1 id="kernel"><a href="#kernel" class="headerlink" title="kernel"></a>kernel</h1><h2 id="Q-Linux驱动的一些基本概念"><a href="#Q-Linux驱动的一些基本概念" class="headerlink" title="Q: Linux驱动的一些基本概念"></a>Q: Linux驱动的一些基本概念</h2><ul>
+<li>主设备号. 可以人工指定, 也可以由系统动态分配. 理解为设备类型的id即可.</li>
+<li>子设备号. 譬如一个led灯的驱动设备, 可以实现多个led的控制. 子设备号可以提供针对特定的led进行控制</li>
+<li>mdev. 根据动态驱动模块的信息自动创建设备节点.</li>
+<li>地址映射. 这是与单片机的区别. 单片机操作寄存器可以直接使用物理地址. 但linux下使用的是虚拟地址!<ul>
+<li>地址转换使用 <code>ioremap</code> <code>iounmap</code> 函数.</li>
+<li>一般的芯片商也会提供操作寄存器的函数, 譬如 s3c2410_gpio_setpin</li>
+</ul>
+</li>
+<li>用户空间和内核空间. 两个空间的资源不能直接相互访问. <ul>
+<li>驱动程序内经常要用 <code>copy_to_user</code> 以及 <code>copy_from_user</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="Q-Linux-调度机制"><a href="#Q-Linux-调度机制" class="headerlink" title="Q: Linux 调度机制"></a>Q: Linux 调度机制</h2><ul>
+<li>轮转调度算法(Round Robin), 先来先服务(FIFC)策略, have a time slice</li>
+<li>优先级调度算法(Priority): preemptive(抢占式), static priority, dynamic priority</li>
+<li>Linux Sheduler: <ul>
+<li>pick next, staircase scheduler.</li>
+<li>using dynamic priority, and time slice</li>
+<li>rt_proirity(实时任务): SCHED_FIFO (just priority), SCHED_RR (time_slice)</li>
+</ul>
+</li>
+</ul>
+<h2 id="Q-linux-android-启动流程"><a href="#Q-linux-android-启动流程" class="headerlink" title="Q: linux android 启动流程"></a>Q: linux android 启动流程</h2><ul>
+<li>hardware bootloader, can load specific flash address to ram and run automatically</li>
+<li>uboot stage1 (start.s): 底层硬件初始化(register), copy stage2 code to ram, init stack, data segment</li>
+<li>uboot stage2 (main.c): 硬件初始化(flash, ui, net), load kernel image, copy parameter to specific address for linux</li>
+<li>kernel: decompress image, read parameter from uboot, init hardware(register, MMU, paging table)</li>
+<li>load filesystem, init environment(<code>etc/inittab</code>, <code>etc/init.d/rcS</code>, <code>bin/sh</code>)</li>
+<li>load dymatical drivers, run user application</li>
+<li>Then for android: <ul>
+<li>zygote (由 Linux init 启动)</li>
+<li>Dalvik VM</li>
+<li>SyetemServers</li>
+<li>Managers</li>
+<li>Launcher</li>
+</ul>
+</li>
+</ul>
+<h2 id="Q-linux-file-system"><a href="#Q-linux-file-system" class="headerlink" title="Q: linux file system"></a>Q: linux file system</h2><ul>
+<li>Linux下一切皆文件, 文件即inode.</li>
+<li>索引过程为: 目录inode-&gt;目录名/文件名-&gt;对应inode-&gt;具体内容</li>
+<li>BusyBox 是linux下的一个应用程序, 集成了最常用的Linux命令和工具.</li>
+<li>最小文件系统 <code>dev/console</code> <code>dev/null</code> init进程<code>bin/busybox</code> <code>etc/inittab</code> C库 <code>lib/</code> 系统程序或脚本 <code>/etc/init.d/rcS</code> <code>bin/sh</code></li>
+<li>mdev: 动态加载驱动时, 自动生成节点文件 <code>/dev</code></li>
+<li>file format yaffs2 for nand, jffs2 for nor</li>
+</ul>
+<h2 id="Q-What-do-you-understand-about-Linux-Kernel-and-can-you-edit-it"><a href="#Q-What-do-you-understand-about-Linux-Kernel-and-can-you-edit-it" class="headerlink" title="Q: What do you understand about Linux Kernel and can you edit it?"></a>Q: What do you understand about Linux Kernel and can you edit it?</h2><p>Linux Kernel is the component that manages the hardware resources for the user and that provides essential services and interact with the user commands.<br>Linux Kernel is an open source software and free, and it is released under General Public License so we can edit it and it is legal.</p>
+<h2 id="Q-What-are-the-different-types-of-Kernels-Explain"><a href="#Q-What-are-the-different-types-of-Kernels-Explain" class="headerlink" title="Q: What are the different types of Kernels? Explain"></a>Q: What are the different types of Kernels? Explain</h2><p>We can build kernels by many different types, but 3 of the types of kernels are most commonly used: monolithic, microkernel and hybrid.</p>
+<ul>
+<li><p>Microkernel: This type of kernel only manages CPU, memory, and IPC. This kind of kernel provides portability, small memory footprint and also security.</p>
+</li>
+<li><p>Monolithic Kernel: Linux is a monolithic kernel. So, this type of kernel provides file management, system server calls, also manages CPU, IPC as well as device drivers. It provides easier access to the process to communicate and as there is not any queue for processor time, so processes react faster.</p>
+</li>
+<li><p>Hybrid Kernel: In this type of kernels, programmers can select what they want to run in user mode and what in supervisor mode. So, this kernel provides more flexibility than any other kernel but it can have some latency problems.</p>
+</li>
+</ul>
+<h2 id="Q-Linux-operating-system-components"><a href="#Q-Linux-operating-system-components" class="headerlink" title="Q: Linux operating system components"></a>Q: Linux operating system components</h2><ul>
+<li>Kernel: Linux is a monolithic kernel</li>
+<li>System Library: GNU C Library. Library plays a vital role because application programs access Kernels feature using system library.</li>
+<li>System Utility: System Utility performs specific and individual level tasks.</li>
+</ul>
+<h2 id="Q-Where-is-password-file-located-in-Linux-and-how-can-you-improve-the-security-of-password-file"><a href="#Q-Where-is-password-file-located-in-Linux-and-how-can-you-improve-the-security-of-password-file" class="headerlink" title="Q: Where is password file located in Linux and how can you improve the security of password file?"></a>Q: Where is password file located in Linux and how can you improve the security of password file?</h2><p>This is an important question that is generally asked by the interviewers.<br>User information along with the passwords in Linux is stored in <code>/etc/passwd</code> that is a compatible format. But this file is used to get the user information by several tools. Here, security is at risk. So, we have to make it secured.</p>
+<p>To improve the security of the password file, instead of using a compatible format we can use <strong>shadow password format</strong>. </p>
+<p>So, in shadow password format, the password will be stored as single “x” character which is not <code>/etc/passwd</code>. This information is stored in another file instead with a file name <code>/etc/shadow</code>. So, to enhance the security, the file is made word readable and also, this file is readable only by the root user. Thus security risks are overcome to a great extent by using the shadow password format.</p>
+<h2 id="Q-Explain-system-calls-used-for-process-management"><a href="#Q-Explain-system-calls-used-for-process-management" class="headerlink" title="Q: Explain system calls used for process management?"></a>Q: Explain system calls used for process management?</h2><p>There are some system calls used in Linux for process management.<br>These are as follows:</p>
+<ul>
+<li><code>Fork()</code>: It is used to create a new process</li>
+<li><code>Exec()</code>: It is used to execute a new process</li>
+<li><code>Wait()</code>: It is used to make the process to wait</li>
+<li><code>Exit()</code>: It is used to exit or terminate the process</li>
+<li><code>Getpid()</code>: It is used to find the unique process ID</li>
+<li><code>Getppid()</code>: It is used to check the parent process ID</li>
+<li><code>Nice()</code>: It is used to bias the currently running process property</li>
+</ul>
+<h2 id="Q-Guess-the-output"><a href="#Q-Guess-the-output" class="headerlink" title="Q:Guess the output"></a>Q:Guess the output</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">main() &#123;</span><br><span class="line">	fork();</span><br><span class="line">	fork();</span><br><span class="line">	fork();</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>It will print “hello world’ 8 times.<br>The main() will print one time and creates 3 children, let us say Child_1, Child_2, Child_3. All of them printed once.<br>The Child_3 will not create any child.<br>Child2 will create one child and that child will print once.<br>Child_1 will create two children, say Child_4 and Child_5 and each of them will print once.<br>Child_4 will again create another child and that child will print one time.<br>A total of eight times the printf statement will be executed.</p>
+<h2 id="Q-What-is-the-difference-between-static-linking-and-dynamic-linking"><a href="#Q-What-is-the-difference-between-static-linking-and-dynamic-linking" class="headerlink" title="Q: What is the difference between static linking and dynamic linking ?"></a>Q: What is the difference between static linking and dynamic linking ?</h2><p>In static linking, all the library modules used in the program are placed in the final executable file making it larger in size. This is done by the linker. If the modules used in the program are modified after linking, then re-compilation is needed. The advantage of static linking is that the modules are present in an executable file. We don’t want to worry about compatibility issues.</p>
+<p>In case of dynamic linking, only the names of the module used are present in the executable file and the actual linking is done at run time when the program and the library modules both are present in the memory. That is why, the executables are smaller in size. Modification of the library modules used does not force re-compilation. But dynamic linking may face compatibility issues with the library modules used.</p>
+<h2 id="Q-How-a-user-mode-is-transferred-to-kernel-mode-Difference-between-kernerl-user-space"><a href="#Q-How-a-user-mode-is-transferred-to-kernel-mode-Difference-between-kernerl-user-space" class="headerlink" title="Q: How a user mode is transferred to kernel mode? Difference between kernerl/user space"></a>Q: How a user mode is transferred to kernel mode? Difference between kernerl/user space</h2><p>using System call<br>kernel mode: can do anything, cpu run in full function<br>user mode: safty purpose, cpu function is liminated.<br>kernel 访问用户层数据: <code>copy_to_user</code> <code>copy_from_user</code></p>
+<h2 id="Q-Main-difference-between-Tasklets-and-workqs"><a href="#Q-Main-difference-between-Tasklets-and-workqs" class="headerlink" title="Q: Main difference between Tasklets and workqs?"></a>Q: Main difference between Tasklets and workqs?</h2><ul>
+<li>Tasklets:<ul>
+<li>are old (around 2.3 I believe)</li>
+<li>have a straightforward, simple API</li>
+<li>are designed for low latency</li>
+<li>cannot sleep</li>
+</ul>
+</li>
+<li>Work queues:<ul>
+<li>are more recent (introduced in 2.5)</li>
+<li>have a flexible API (more options/flags supported)</li>
+<li>are designed for higher latency</li>
+<li>can sleep</li>
+</ul>
+</li>
+</ul>
+<h2 id="Q-Do-you-know-panic-and-oops-errors-in-kernel-crash"><a href="#Q-Do-you-know-panic-and-oops-errors-in-kernel-crash" class="headerlink" title="Q: Do you know panic and oops errors in kernel crash?"></a>Q: Do you know panic and oops errors in kernel crash?</h2><p>Oops is a way to debug kernel code, and there are utilities for helping with that.<br>A kernel panic means the system cannot recover and must be restarted.<br>However, with an Oops, the system can usually continue. You can configure klogd and syslogd to log oops messages to files, rather than to std out.</p>
+<h2 id="Q-What-is-the-name-and-path-of-the-main-system-log"><a href="#Q-What-is-the-name-and-path-of-the-main-system-log" class="headerlink" title="Q: What is the name and path of the main system log?"></a>Q: What is the name and path of the main system log?</h2><p>By default, the main system log is <code>/var/log/messages</code>.<br>This file contains all the messages and the script written by the user. By default, all scripts are saved in this file. This is the standard system log file, which contains messages from all system software, non-kernel boot issues, and messages that go to <code>dmesg</code>.<br><code>dmesg</code> is a system file that is written upon system boot.<br><code>dmesg | less</code> to review boot messages.</p>
+<h2 id="Q-Explain-what-happens-when-an-insmod-is-done-an-module"><a href="#Q-Explain-what-happens-when-an-insmod-is-done-an-module" class="headerlink" title="Q: Explain what happens when an insmod is done an module"></a>Q: Explain what happens when an insmod is done an module</h2><p>insmod is a user space utility to load a module into Linux kernel. It calls init_module system call to do the work.<br>init_module loads the kernel module in ELF format into kernel address space. Each section of the ELF are read and mapped using vmalloc().<br>Use of vmalloc is because kernel modules can be big and kernel might not have contiguous physical memory to accommodate for module text and data. </p>
+<p>Each .ko has a struct module section. This has relocatable address of init and exit routines (ones specified in module_init and module_exit). This goes as a separate section in ELF. Once all the relevant sections are loaded in memory, kernel calls init routine of the module.</p>
+<h2 id="Q-How-will-you-insert-a-module-statically-in-to-linux-kernel"><a href="#Q-How-will-you-insert-a-module-statically-in-to-linux-kernel" class="headerlink" title="Q: How will you insert a module statically in to linux kernel."></a>Q: How will you insert a module statically in to linux kernel.</h2><p>Using makefile <code>obj-y</code>. By the way <code>obj-m</code> will generate <code>.ko</code> file.<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">obj-y += mymodule.o</span><br><span class="line">mymodule-objs := src.o other.o</span><br></pre></td></tr></table></figure></p>
+<h2 id="Q-what-is-a-device-driver-and-write-a-simple-driver"><a href="#Q-what-is-a-device-driver-and-write-a-simple-driver" class="headerlink" title="Q: what is a device driver and write a simple driver"></a>Q: what is a device driver and write a simple driver</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/xxx.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/xxx.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEVICE_NAME <span class="meta-string">"drv_leds"</span>                      <span class="comment">// 设备类型名称, cat /proc/devices 可以看到</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> major;                                   <span class="comment">// 存储自动分配的主设备号</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">leds_class</span>;</span>                    <span class="comment">// 类, 供mdev用, ls /sys/class/ 可以看到</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">class_device</span>	*<span class="title">leds_class_devs</span>[4];</span>    <span class="comment">// 类下设备, ls /sys/class/class_name 可以看到</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 驱动的硬件实现部分, 和单片机类似 =====</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_open</span><span class="params">(struct inode *inode, struct file *file)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor = MINOR(inode-&gt;i_rdev);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 初始化对应的LED</span></span><br><span class="line">	gpio_init(minor);</span><br><span class="line">    printk(<span class="string">"drv_leds_open\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">drv_leds_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *data, <span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *ppos)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor = MINOR(file-&gt;f_dentry-&gt;d_inode-&gt;i_rdev);</span><br><span class="line">    <span class="keyword">char</span> val;</span><br><span class="line">    copy_from_user(&amp;val, data, <span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 操作对应的LED</span></span><br><span class="line">    gpio_set(minor);</span><br><span class="line">    printk(<span class="string">"drv_leds_write, led%d=%d\n"</span>, minor, val);</span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此结构体指定了C库的文件操作函数需要调用的底层驱动的函数名.</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">drv_leds_fops</span> = &#123;</span></span><br><span class="line">    .owner  =   THIS_MODULE,        <span class="comment">// 这是一个宏，指向编译模块时自动创建的__this_module变量. 和平台相关</span></span><br><span class="line">    .open   =   drv_leds_open,     </span><br><span class="line">    .write  =   drv_leds_write,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 加载和卸载内核时, 指定要调用的函数 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">drv_leds_init</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取寄存器起始地址的虚拟地址值. 其它寄存器基于此值再用偏移量.</span></span><br><span class="line">    <span class="comment">// gpio_base = ioremap(0x56000000, 0xD0);</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 注册驱动, 0表示动态分配主设备号</span></span><br><span class="line">    major = register_chrdev(<span class="number">0</span>, DEVICE_NAME, &amp;drv_leds_fops);    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 生成系统设备信息, 供mdev自动创建设备节点使用</span></span><br><span class="line">	leds_class = class_create(THIS_MODULE, <span class="string">"leds"</span>);             <span class="comment">// 创建 leds 类</span></span><br><span class="line">	<span class="keyword">if</span> (IS_ERR(leds_class))</span><br><span class="line">		<span class="keyword">return</span> PTR_ERR(leds_class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 0-3 表示4个独立的led, 名称为 led0, led1, led2, led3</span></span><br><span class="line">    <span class="keyword">for</span> (minor = <span class="number">0</span>; minor &lt; <span class="number">4</span>; minor++) &#123;</span><br><span class="line">		leds_class_devs[minor] = class_device_create(leds_class, <span class="literal">NULL</span>, MKDEV(major, minor), <span class="literal">NULL</span>, <span class="string">"led%d"</span>, minor);</span><br><span class="line">		<span class="keyword">if</span> (unlikely(IS_ERR(leds_class_devs[minor])))</span><br><span class="line">			<span class="keyword">return</span> PTR_ERR(leds_class_devs[minor]);</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    printk(DEVICE_NAME <span class="string">" initialized\n"</span>);                       <span class="comment">// 调试用</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">drv_leds_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> minor;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (minor = <span class="number">0</span>; minor &lt; <span class="number">4</span>; minor++) &#123;                       </span><br><span class="line">		class_device_unregister(leds_class_devs[minor]);        <span class="comment">// 删除设备节点</span></span><br><span class="line">	&#125;</span><br><span class="line">	class_destroy(leds_class);                                  <span class="comment">// 删除设备类</span></span><br><span class="line">    unregister_chrdev(major, DEVICE_NAME);                      <span class="comment">// 卸载驱动</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// iounmap(gpio_base);</span></span><br><span class="line">    printk(DEVICE_NAME <span class="string">" deinitialized\n"</span>);     </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(drv_leds_init);</span><br><span class="line">module_exit(drv_leds_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== 描述驱动程序的一些信息，不是必须的 =====</span></span><br><span class="line">MODULE_AUTHOR(<span class="string">"draapho"</span>);</span><br><span class="line">MODULE_VERSION(<span class="string">"0.1.1"</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">"First Driver for LED"</span>);</span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br></pre></td></tr></table></figure>
+<h1 id="IPC"><a href="#IPC" class="headerlink" title="IPC"></a>IPC</h1><h2 id="Q-How-many-types-of-IPC-mechanism-you-know"><a href="#Q-How-many-types-of-IPC-mechanism-you-know" class="headerlink" title="Q: How many types of IPC mechanism you know?"></a>Q: How many types of IPC mechanism you know?</h2><ul>
+<li>Named pipes or FIFO</li>
+<li>Semaphores</li>
+<li>Shared memory</li>
+<li>Message queue</li>
+<li>Socket</li>
+</ul>
+<h2 id="Q-Explain-What-Is-Semaphore"><a href="#Q-Explain-What-Is-Semaphore" class="headerlink" title="Q: Explain What Is Semaphore?"></a>Q: Explain What Is Semaphore?</h2><p>A semaphore is an abstract datatype or variable that is used for controlling access, by multiple processes to a common resource in a concurrent system such as multiprogramming operating system.  </p>
+<p>Semaphores are commonly used for two purposes:</p>
+<ul>
+<li>To share a common memory space</li>
+<li>To share access to files</li>
+</ul>
+<p>Semaphores are of two types:</p>
+<ul>
+<li>Binary semaphore: It can have only two values (0 and 1). The semaphore value is set to 1 by the process in charge, when the resource is available.</li>
+<li>Counting semaphore: It can have value greater than one. It is used to control access to a pool of resources.</li>
+</ul>
+<h2 id="Q-What-is-difference-between-binary-semaphore-and-mutex"><a href="#Q-What-is-difference-between-binary-semaphore-and-mutex" class="headerlink" title="Q: What is difference between binary semaphore and mutex?"></a>Q: What is difference between binary semaphore and mutex?</h2><ul>
+<li>Mutual exclusion and synchronization can be used by binary semaphore while mutex is used only for mutual exclusion.</li>
+<li>A mutex can be released by the same thread which acquired it. Semaphore values can be changed by other thread also.</li>
+<li>From an ISR, a mutex can not be used.</li>
+<li>The advantage of semaphores is that, they can be used to synchronize two unrelated processes trying to access the same resource.</li>
+<li>Semaphores can act as mutex, but the opposite is not possible.</li>
+</ul>
+<h2 id="Q-What-is-spin-lock"><a href="#Q-What-is-spin-lock" class="headerlink" title="Q: What is spin lock?"></a>Q: What is spin lock?</h2><p>If a resource is locked, a thread that wants to access that resource may repetitively check whether the resource is available. During that time, the thread may loop and check the resource without doing any useful work. Suck a lock is termed as spin lock.</p>
+<h2 id="Q-Explain-Whether-We-Can-Use-Semaphore-Or-Mutex-Or-Spinlock-In-Interrupt-Context-In-Linux-Kernel"><a href="#Q-Explain-Whether-We-Can-Use-Semaphore-Or-Mutex-Or-Spinlock-In-Interrupt-Context-In-Linux-Kernel" class="headerlink" title="Q: Explain Whether We Can Use Semaphore Or Mutex Or Spinlock In Interrupt Context In Linux Kernel?"></a>Q: Explain Whether We Can Use Semaphore Or Mutex Or Spinlock In Interrupt Context In Linux Kernel?</h2><p>Mutex cannot be used for interrupt context in Linux Kernel.<br>Semaphore only can use <code>sema_post</code> in interrupt handler.<br>Spinlocks can be used for locking in interrupt context.</p>
+<h2 id="Q-What-is-shared-memory"><a href="#Q-What-is-shared-memory" class="headerlink" title="Q: What is shared memory?"></a>Q: What is shared memory?</h2><p>Shared memory is the fastest interprocess communication mechanism. The operating system maps a memory segment in the address space of several processes, so that several processes can read and write in that memory segment without calling operating system functions. However, we need some kind of synchronization between processes that read and write shared memory.</p>
+<h2 id="Q-How-to-come-out-of-deadlock"><a href="#Q-How-to-come-out-of-deadlock" class="headerlink" title="Q: How to come out of deadlock?"></a>Q: How to come out of deadlock?</h2><p>The most common error causing deadlock is self deadlock or recursive deadlock: </p>
+<ul>
+<li>a thread tries to acquire a lock it is already holding. </li>
+<li>Recursive deadlock is very easy to program by mistake.</li>
+</ul>
+<p>Here are some simple guidelines for locking.</p>
+<ul>
+<li>Try not to hold locks across long operations like I/O where performance can be adversely affected.</li>
+<li>Don’t hold locks when calling a function that is outside the module and that might reenter the module.</li>
+<li>In general, start with a coarse-grained approach, identify bottlenecks, and add finer-grained locking where necessary to alleviate the bottlenecks. Most locks are held for short amounts of time and contention is rare, so fix only those locks that have measured contention.</li>
+<li>When using multiple locks, avoid deadlocks by making sure that all threads acquire the locks in the same order.</li>
+</ul>
+<h2 id="Q-生产者-消费者写法"><a href="#Q-生产者-消费者写法" class="headerlink" title="Q: 生产者, 消费者写法"></a>Q: 生产者, 消费者写法</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">goods</span>  </span></span><br><span class="line"><span class="class">&#123;</span>  </span><br><span class="line">    <span class="keyword">int</span> id;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">next</span>;</span>  </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="keyword">pthread_mutex_t</span> m;  </span><br><span class="line"><span class="keyword">pthread_cond_t</span> has_product;  </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">head</span>;</span>  </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">producer</span><span class="params">(<span class="keyword">void</span> *argv)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">p</span> = <span class="title">NULL</span>;</span>  </span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)  </span><br><span class="line">    &#123;  </span><br><span class="line">        pthread_mutex_lock(&amp;m);  </span><br><span class="line">        p = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct goods));  </span><br><span class="line">        p-&gt;id = rand() % <span class="number">100</span>;  </span><br><span class="line">        p-&gt;next = head;  </span><br><span class="line">        head = p;  </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"produce %d\n"</span>, p-&gt;id);  </span><br><span class="line">        pthread_mutex_unlock(&amp;m);  </span><br><span class="line">        pthread_cond_signal(&amp;has_product);  </span><br><span class="line">        <span class="comment">//printf("produce %d\n", p-&gt;id);  </span></span><br><span class="line">        sleep(rand() % <span class="number">2</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">void</span> *)<span class="number">0</span>;  </span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">comsumer</span><span class="params">(<span class="keyword">void</span> *argv)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">goods</span> *<span class="title">p</span> = <span class="title">NULL</span>;</span>  </span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)  </span><br><span class="line">    &#123;  </span><br><span class="line">        pthread_mutex_lock(&amp;m);  </span><br><span class="line">        <span class="comment">//思考：pthread_cond_wait()的作用？  </span></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">NULL</span> == head)  </span><br><span class="line">            pthread_cond_wait(&amp;has_product, &amp;m);  </span><br><span class="line">        p = head;  </span><br><span class="line">        head = head-&gt;next;  </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"comsume %d\n"</span>, p-&gt;id);  </span><br><span class="line">        pthread_mutex_unlock(&amp;m);  </span><br><span class="line">        <span class="comment">//printf("comsume %d\n", p-&gt;id);  </span></span><br><span class="line">        <span class="built_in">free</span>(p);  </span><br><span class="line">        sleep(rand() % <span class="number">2</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">void</span> *)<span class="number">0</span>;  </span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"><span class="comment">// 开启两个线程作为生产者，三个线程作为消费者</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="keyword">int</span> i;  </span><br><span class="line">    <span class="comment">//初始化条件变量和互斥量  </span></span><br><span class="line">    pthread_mutex_init(&amp;m, <span class="literal">NULL</span>);  </span><br><span class="line">    pthread_cond_init(&amp;has_product, <span class="literal">NULL</span>);  </span><br><span class="line">    head = <span class="literal">NULL</span>;  </span><br><span class="line">    <span class="keyword">pthread_t</span> pro[<span class="number">2</span>], com[<span class="number">3</span>];  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++)  </span><br><span class="line">        pthread_create(&amp;pro[i], <span class="literal">NULL</span>, producer, <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)  </span><br><span class="line">        pthread_create(&amp;com[i], <span class="literal">NULL</span>, comsumer, <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++)  </span><br><span class="line">        pthread_join(pro[i], <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)  </span><br><span class="line">        pthread_join(com[i], <span class="literal">NULL</span>);  </span><br><span class="line">    <span class="comment">//销毁条件变量和互斥量  </span></span><br><span class="line">    pthread_mutex_destroy(&amp;m);  </span><br><span class="line">    pthread_cond_destroy(&amp;has_product);  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="bash-command"><a href="#bash-command" class="headerlink" title="bash command"></a>bash command</h1><h2 id="Q-How-can-I-redirect-both-stderr-and-stdin-at-once"><a href="#Q-How-can-I-redirect-both-stderr-and-stdin-at-once" class="headerlink" title="Q: How can I redirect both stderr and stdin at once?"></a>Q: How can I redirect both stderr and stdin at once?</h2><p>command <code>&gt; file.log 2&gt;&amp;1</code> : Redirect stderr to “where stdout is currently going”. In this case, that is a file opened in append mode. In other words, the <code>&amp;1</code> reuses the file descriptor which stdout currently uses.</p>
+<h2 id="Q-what-is-proc-entry-and-how-it-is-useful"><a href="#Q-what-is-proc-entry-and-how-it-is-useful" class="headerlink" title="Q: what is /proc entry and how it is useful"></a>Q: what is <code>/proc</code> entry and how it is useful</h2><p>Virtual directory for system information, 虚拟档案系统. 数据都在内存当中,不占用硬盘空间.<br>主要包括系统核心,接口设备状态,网络状态.<br>比较重要的档案例: <code>proc/cpuinfo</code>  <code>/proc/interrupts</code>  <code>/proc/ioports</code></p>
+<h2 id="How-can-we-edit-a-file-without-opening-in-Linux"><a href="#How-can-we-edit-a-file-without-opening-in-Linux" class="headerlink" title="How can we edit a file without opening in Linux?"></a>How can we edit a file without opening in Linux?</h2><p><code>sed</code> command is used to edit a file without opening.<br><code>sed</code> command is used to modify or change the contents of a file.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># For example, we have a text file with below content</span></span><br><span class="line">&gt; cat file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># replace “sed” with “vi”</span></span><br><span class="line">&gt;sed ‘s/sed/vi/’ file.txt</span><br></pre></td></tr></table></figure>
+<h2 id="Q-How-can-you-find-out-how-much-memory-Linux-is-using"><a href="#Q-How-can-you-find-out-how-much-memory-Linux-is-using" class="headerlink" title="Q: How can you find out how much memory Linux is using?"></a>Q: How can you find out how much memory Linux is using?</h2><p><code>cat /proc/meminfo</code></p>
+<h2 id="Q-Explain-grep-command-and-its-use"><a href="#Q-Explain-grep-command-and-its-use" class="headerlink" title="Q: Explain grep command and its use."></a>Q: Explain grep command and its use.</h2><p><code>grep</code> command in Linux is used to search a specific pattern. Grep command will help you to explore the string in a file or multiple files.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">grep ‘word’ filename</span><br><span class="line">grep ‘word’ file1 file2 file3</span><br><span class="line"><span class="built_in">command</span> | grep ‘string’</span><br><span class="line"></span><br><span class="line"><span class="comment"># For example,</span></span><br><span class="line"></span><br><span class="line">grep “smith” passwd</span><br><span class="line">grep “smith” passwd shadow</span><br><span class="line">netstat -an | grep 8083</span><br><span class="line">cat /etc/passwd | grep smith</span><br></pre></td></tr></table></figure>
+<h2 id="Q-Explain-file-content-commands-along-with-the-description"><a href="#Q-Explain-file-content-commands-along-with-the-description" class="headerlink" title="Q: Explain file content commands along with the description."></a>Q: Explain file content commands along with the description.</h2><ul>
+<li><code>head</code>: to check the starting of a file.</li>
+<li><code>tail</code>: to check the ending of the file. It is the reverse of head command.</li>
+<li><code>cat</code>: used to view, create, concatenate the files.</li>
+<li><code>more</code>: used to display the text in the terminal window in pager form.</li>
+<li><code>less</code>: used to view the text in the backward direction and also provides single line movement.</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://www.wisdomjobs.com/e-university/linux-embedded-systems-interview-questions.html" target="_blank" rel="noopener">Linux Embedded systems Interview Questions &amp; Answers</a></li>
+<li><a href="http://linuxdevicedrivercinterviewqs.blogspot.com.au/" target="_blank" rel="noopener">Linux Device Driver,Embedded C Interview Questions</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/05/07/1816-interview-c/" itemprop="url">
+                  面试之嵌入式C语言
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-05-07T00:00:00+10:00" content="2018-05-07">
+              2018-05-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/interview/" itemprop="url" rel="index">
+                    <span itemprop="name">interview</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/05/04/1714-expression/">逻辑|这样表达，事半功倍</a></li>
+<li><a href="https://draapho.github.io/2018/01/10/1805-interview-general/">面试之常规问题</a></li>
+<li><a href="https://draapho.github.io/2018/05/07/1816-interview-c/">面试之嵌入式C语言</a></li>
+<li><a href="https://draapho.github.io/2017/05/17/1715-c/">C语言知识巩固</a></li>
+<li><a href="https://draapho.github.io/2018/05/08/1817-interview-linux/">面试之嵌入式Linux</a></li>
+</ul>
+<p>我个人面试经验极少, 但这种能力都是需要培养的.<br>此系列总结一下面试中常见的技能要点. 侧重于技术面的准备.</p>
+<h1 id="Q1-define"><a href="#Q1-define" class="headerlink" title="Q1: #define"></a>Q1: #define</h1><p>Using the #define statement, how would you declare a manifest constant that returns the number of seconds in a year? Disregard leap years in your answer.</p>
+<p>A1:<br><code>#define SECONDS_PER_YEAR (60UL * 60UL * 24UL * 365UL)</code></p>
+<p>I’m looking for several things here:</p>
+<ul>
+<li>Basic knowledge of the #define syntax (i.e. no semi-colon at the end, the need to parenthesize etc.).</li>
+<li>A good choice of name, with capitalization and underscores.</li>
+<li>An understanding that the pre-processor will evaluate constant expressions for you. Thus, it is clearer, and penalty free to spell out how you are calculating the number of seconds in a year, rather than actually doing the calculation yourself.</li>
+<li>A realization that the expression will oveflow an integer argument on a 16 bit machine hence the need for the L, telling the compiler to treat the expression as a Long.</li>
+<li>As a bonus, if you modified the expression with a UL (indicating unsigned long), then you are off to a great start because you are showing that you are mindful of the perils of signed and unsigned types and remember, first impressions count!</li>
+</ul>
+<h1 id="Q2-define"><a href="#Q2-define" class="headerlink" title="Q2: #define"></a>Q2: #define</h1><p>Write the “standard” MIN macro. That is, a macro that takes two arguments and returns the smaller of the two arguments.</p>
+<p>A2:<br><code>#define MIN(A,B) ( (A) &lt;= (B) ? (A) : (B) )</code></p>
+<p>The purpose of this question is to test the following:</p>
+<ul>
+<li>Basic knowledge of the #define directive as used in macros. This is important, because until the inline operator becomes part of standard C, macros are the only portable way of generating inline code. Inline code is often necessary in embedded systems in order to achieve the required performance level.</li>
+<li>Knowledge of the ternary conditional operator. This exists in C because it allows the compiler to potentially produce more optimal code than an ifthen-else sequence. Given that performance is normally an issue in embedded systems, knowledge and use of this construct is important.</li>
+<li>Understanding of the need to very carefully parenthesize arguments to macros.</li>
+<li>I also use this question to start a discussion on the side effects of macros, e.g. what happens when you write code such as : <code>least = MIN(*p++, b);</code></li>
+</ul>
+<h1 id="Q3-error"><a href="#Q3-error" class="headerlink" title="Q3: #error"></a>Q3: #error</h1><p>What is the purpose of the preprocessor directive #error?</p>
+<p>A3:<br>Either you know the answer to this, or you don’t. If you don’t, then see reference.<br>This question is very useful for dierentiating between normal folks and the nerds. It’s only the nerds that actually read the appendices of C textbooks that find out about such things. Of course, if you aren’t looking for a nerd, the candidate better hope she doesn’t know the answer.</p>
+<h1 id="Q4-Infinite-loops"><a href="#Q4-Infinite-loops" class="headerlink" title="Q4: Infinite loops"></a>Q4: Infinite loops</h1><p>Infinite loops often arise in embedded systems. How does one code an infinite loop in C?</p>
+<p>A4:<br>There are several solutions to this question. My preferred solution is:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> ( <span class="number">1</span> ) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Another common construct is:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> ( ; ; ) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Personally, I dislike this construct because the syntax doesn’t exactly spell out what is going on. Thus, if a candidate gives this as a solution, I’ll use it as an opportunity to explore their rationale for doing so. If their answer is basically “I was taught to do it this way and I have never thought about it since” then it tells me something (bad) about them. Conversely, if they state that it’s the K&amp;R preferred method and the only way to get an infinite loop passed Lint, then they score bonus points.</p>
+<p>A third solution is to use a goto:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Loop :</span><br><span class="line">. . .</span><br><span class="line"><span class="keyword">goto</span> Loop ;</span><br></pre></td></tr></table></figure></p>
+<p>Candidates that propose this are either assembly language programmers (which is probably good), or else they are closet BASIC / FORTRAN programmers looking to get into a new field.</p>
+<h1 id="Q5-Data-declarations"><a href="#Q5-Data-declarations" class="headerlink" title="Q5: Data declarations"></a>Q5: Data declarations</h1><p>Using the variable a, write down definitions for the following:<br>a) An integer<br>b) A pointer to an integer<br>c) A pointer to a pointer to an integer<br>d) An array of ten integers<br>e) An array of ten pointers to integers<br>f) A pointer to an array of ten integers<br>g) A pointer to a function that takes an integer as an argument and returns an integer<br>h) An array of ten pointers to functions that take an integer argument and return an integer</p>
+<p>A5:<br>The answers are:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a;          <span class="comment">// An integer</span></span><br><span class="line"><span class="keyword">int</span> *a;         <span class="comment">// A pointer to an integer</span></span><br><span class="line"><span class="keyword">int</span> **a;        <span class="comment">// A pointer to a pointer to an integer</span></span><br><span class="line"><span class="keyword">int</span> a[<span class="number">10</span>];      <span class="comment">// An array of ten integers</span></span><br><span class="line"><span class="keyword">int</span> *a[<span class="number">10</span>];     <span class="comment">// An array of ten pointers to integers</span></span><br><span class="line"><span class="keyword">int</span> (*a)[<span class="number">10</span>];   <span class="comment">// A pointer to an array of ten integers</span></span><br><span class="line"><span class="keyword">int</span> (*a)(<span class="keyword">int</span>);  <span class="comment">// A pointer to a function that takes an integer as an argument and returns an integer</span></span><br><span class="line"><span class="keyword">int</span> (*a[<span class="number">10</span>])(<span class="keyword">int</span>); <span class="comment">// An array of ten pointers to functions that take an integer argument and return an integer</span></span><br></pre></td></tr></table></figure></p>
+<p>People often claim that a couple of these are the sorts of thing that one looks up in textbooks and I agree. While writing this article, I consulted textbooks to ensure the syntax was correct. However, I expect to be asked this question (or something close to it) when in an interview situation. Consequently, I make sure I know the answers at least for the few hours of the interview. Candidates that don’t know the answers (or at least most of them) are simply unprepared for the interview. If they can’t be prepared for the interview, what will they be prepared for?</p>
+<h1 id="Q6-Static"><a href="#Q6-Static" class="headerlink" title="Q6: Static"></a>Q6: Static</h1><p>What are the uses of the keyword static?</p>
+<p>A6:<br>This simple question is rarely answered completely. Static has three distinct uses in C:</p>
+<ul>
+<li>A variable declared static within the body of a function maintains its value between function invocations.</li>
+<li>A variable declared static within a module1, (but outside the body of a function) is accessible by all functions within that module. It is not accessible by functions within any other module. That is, it is a localized global.</li>
+<li>Functions declared static within a module may only be called by otherfunctions within that module. That is, the scope of the function is localized to the module within which it is declared.</li>
+</ul>
+<p>Most candidates get the first part correct. A reasonable number get the second part correct, while a pitiful number understand the third answer. This is a serious weakness in a candidate, since they obviously do not understand the importance and benefits of localizing the scope of both data and code.</p>
+<h1 id="Q7-Const"><a href="#Q7-Const" class="headerlink" title="Q7: Const"></a>Q7: Const</h1><p>What does the keyword const mean?</p>
+<p>A7:<br>As soon as the interviewee says “const means constant”, I know I’m dealing with an amateur. Dan Saks has exhaustively covered const in the last year, such that every reader of ESP should be extremely familiar with what const can and cannot do for you. If you haven’t been reading that column, suffice it to say that const means “read-only”. Although this answer doesn’t really do the subject justice, I’d accept it as a correct answer. (If you want the detailed answer, then read Saks’ columns carefully!).</p>
+<p>If the candidate gets the answer correct, then I’ll ask him these supplemental questions:</p>
+<h1 id="Q7-1-Const"><a href="#Q7-1-Const" class="headerlink" title="Q7.1: Const"></a>Q7.1: Const</h1><p>What do the following incomplete declarations mean?<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const int a ;</span><br><span class="line">int const a ;</span><br><span class="line">const int *a ;</span><br><span class="line">int * const a ;</span><br><span class="line">int const *a const ;</span><br></pre></td></tr></table></figure></p>
+<p>A7.1:<br>The first two mean the same thing, namely a is a const (read-only) integer.<br>The third means a is a pointer to a const integer (i.e., the integer isn’t modifiable, but the pointer is).<br>The fourth declares a to be a const pointer to an integer (i.e., the integer pointed to by a is modifiable, but the pointer is not).<br>The final declaration declares a to be a const pointer to a const integer (i.e., neither the integer pointed to by a, nor the pointer itself may be modified).</p>
+<p>If the candidate correctly answers these questions, I’ll be impressed. Incidentally, one might wonder why I put so much emphasis on const, since it is very easy to write a correctly functioning program without ever using it. There are several reasons:</p>
+<ul>
+<li>The use of const conveys some very useful information to someone reading your code. In effect, declaring a parameter const tells the user about its intended usage. If you spend a lot of time cleaning up the mess left by other people, then you’ll quickly learn to appreciate this extra piece of information. (Of course, programmers that use const, rarely leave a mess for others to clean up…)</li>
+<li>const has the potential for generating tighter code by giving the optimizer some additional information.</li>
+<li>Code that uses const liberally is inherently protected by the compiler against inadvertent coding constructs that result in parameters being changed that should not be. In short, they tend to have fewer bugs.</li>
+</ul>
+<h1 id="Q8-Volatile"><a href="#Q8-Volatile" class="headerlink" title="Q8: Volatile"></a>Q8: Volatile</h1><p>What does the keyword volatile mean? Give three different examples of its use.</p>
+<p>A8:<br>A volatile variable is one that can change unexpectedly. Consequently, the compiler can make no assumptions about the value of the variable. In particular, the optimizer must be careful to reload the variable every time it is used instead of holding a copy in a register. Examples of volatile variables are:</p>
+<ul>
+<li>Hardware registers in peripherals (e.g., status registers)</li>
+<li>Non-stack variables referenced within an interrupt service routine.</li>
+<li>Variables shared by multiple tasks in a multi-threaded application.</li>
+</ul>
+<p>If a candidate does not know the answer to this question, they aren’t hired. I consider this the most fundamental question that distinguishes between a ‘C programmer’ and an ‘embedded systems programmer’. Embedded folks deal with hardware, interrupts, RTOSes, and the like. All of these require volatile variables. Failure to understand the concept of volatile will lead to disaster. On the (dubious) assumption that the interviewee gets this question correct, I like to probe a little deeper, to see if they really understand the full significance of volatile. In particular, I’ll ask them the following:</p>
+<h1 id="Q8-1-Volatile"><a href="#Q8-1-Volatile" class="headerlink" title="Q8.1: Volatile"></a>Q8.1: Volatile</h1><ul>
+<li>Can a parameter be both const and volatile? Explain your answer.</li>
+<li>Can a pointer be volatile? Explain your answer.</li>
+<li>What is wrong with the following function?:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">square</span> <span class="params">(<span class="keyword">volatile</span> <span class="keyword">int</span> *ptr)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> *ptr * *ptr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>A8.1:<br>The answers are as follows:</p>
+<ul>
+<li>Yes. An example is a read only status register. It is volatile because it can change unexpectedly. It is const because the program should not attempt to modify it.</li>
+<li>Yes. Although this is not very common. An example is when an interrupt service routine modifses a pointer to a buffer.</li>
+<li>This one is wicked. The intent of the code is to return the square of the value pointed to by <code>*ptr</code>. However, since <code>*ptr</code>points to a volatile parameter, the compiler will generate code that looks something like this:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">square</span> <span class="params">( <span class="keyword">volatile</span> <span class="keyword">int</span> *ptr )</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a, b;</span><br><span class="line">    a = *ptr ;</span><br><span class="line">    b = *ptr ;</span><br><span class="line">    <span class="keyword">return</span> a * b ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Since it is possible for the value of <code>*ptr</code> to change unexpectedly, it is possible for a and b to be different. Consequently, this code could return a number that is not a square! The correct way to code this is:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">square</span> <span class="params">( <span class="keyword">volatile</span> <span class="keyword">int</span> *ptr )</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line">    a = *ptr;</span><br><span class="line">    <span class="keyword">return</span> a * a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Q9-Bit-Manipulation"><a href="#Q9-Bit-Manipulation" class="headerlink" title="Q9: Bit Manipulation"></a>Q9: Bit Manipulation</h1><p>Embedded systems always require the user to manipulate bits in registers or variables. Given an integer variable a, write two code fragments. The first should set bit 3 of a. The second should clear bit 3 of a. In both cases, the remaining<br>bits should be unmodified.</p>
+<p>A9:<br>These are the three basic responses to this question:</p>
+<ul>
+<li>No idea. The interviewee cannot have done any embedded systems work.</li>
+<li>Use bit fields. Bit fields are right up there with trigraphs as the most braindead portion of C. Bit fields are inherently non-portable across compilers, and as such guarantee that your code is not reusable. I recently had the misfortune to look at a driver written by Infineon for one of their more complex communications chip. It used bit fields, and was completely useless because my compiler implemented the bit fields the other way around. The moral never let a non-embedded person anywhere near a real piece of hardware!</li>
+<li>Use #defines and bit masks. This is a highly portable method, and is the one that should be used. My optimal solution to this problem would be:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIT3 (0x1&lt;&lt;3)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> a;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_bit3</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    a |= BIT3 ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clear_bit3</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    a &amp;= ~BIT3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Some people prefer to define a mask, together with manifest constants for the set and clear values. This is also acceptable. The important elements that I’m looking for are the use of manifest constants, together with the <code>|=</code> and <code>&amp;=</code> constructs.</p>
+<h1 id="Q10-Accessing-fixed-memory-locations"><a href="#Q10-Accessing-fixed-memory-locations" class="headerlink" title="Q10: Accessing fixed memory locations"></a>Q10: Accessing fixed memory locations</h1><p>Embedded systems are often characterized by requiring the programmer to access a specific memory location. On a certain project it is required to set an integer variable at the absolute address 0x67a9 to the value 0xaa55. The compiler is a pure ANSI compiler. Write code to accomplish this task.</p>
+<p>A10:<br>This problem tests whether you know that it is legal to typecast an integer to a pointer in order to access an absolute location. The exact syntax varies depending upon one’s style. However, I would typically be looking<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// for something like this:</span></span><br><span class="line"><span class="keyword">int</span> *ptr;</span><br><span class="line">ptr = (<span class="keyword">int</span> *)<span class="number">0x67a9</span> ;</span><br><span class="line">*ptr = <span class="number">0xaa55</span> ;</span><br><span class="line"></span><br><span class="line"><span class="comment">// A more obfuscated approach is:</span></span><br><span class="line">*(<span class="keyword">int</span> * <span class="keyword">const</span>)(<span class="number">0x67a9</span>) = <span class="number">0xaa55</span>;</span><br></pre></td></tr></table></figure></p>
+<p>Even if your taste runs more to the second solution, I suggest the first solution when you are in an interview situation.</p>
+<h1 id="Q11-Interrupts"><a href="#Q11-Interrupts" class="headerlink" title="Q11: Interrupts"></a>Q11: Interrupts</h1><p>Interrupts are an important part of embedded systems. Consequently, many compiler vendors offer an extension to standard C to support interrupts. Typically, this new key word is <code>__interrupt</code>. The following code uses <code>__interrupt</code> to define an interrupt service routine. Comment on the code.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__<span class="function">interrupt <span class="keyword">double</span> <span class="title">compute_area</span><span class="params">(<span class="keyword">double</span> radius)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">double</span> ar ea = PI * radius * radius;</span><br><span class="line">    print (<span class="string">"\nArea = %f"</span>, area ) ;</span><br><span class="line">    <span class="keyword">return</span> area ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>A11:<br>This function has so much wrong with it, it’s almost tough to know where to start.</p>
+<ul>
+<li>Interrupt service routines cannot return a value. If you don’t understand this, then you aren’t hired.</li>
+<li>ISR’s cannot be passed parameters. See first item for your employment prospects if you missed this.</li>
+<li>On many processors/compilers, floating point operations are not necessarily re-entrant. In some cases one needs to stack additional registers, in other cases, one simply cannot do floating point in an ISR. Furthermore, given that a general rule of thumb is that ISRs should be short and sweet, one wonders about the wisdom of doing floating point math here.</li>
+<li>In a similar vein to third point, printf() often has problems with reentrancy and performance.<br>If you missed last two points then I wouldn’t be too hard on you. Needless to say, if you got these two points, then your employment prospects are looking better and better.</li>
+</ul>
+<h1 id="Q12-Code-Examples"><a href="#Q12-Code-Examples" class="headerlink" title="Q12: Code Examples"></a>Q12: Code Examples</h1><p>What does the following code output and why?<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void foo (void) &#123;</span><br><span class="line">    unsigned int a = 6;</span><br><span class="line">    int b = -20;</span><br><span class="line">    (a+b &gt; 6) ? puts (&quot;&gt;6&quot;) : puts(&quot;&lt;=6&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>A12:<br>This question tests whether you understand the integer promotion rules in C an area that I find is very poorly understood by many developers. Anyway, the answer is that this outputs <code>&gt;6</code>. The reason for this is that expressions involving signed and unsigned types have all operands promoted to unsigned types. Thus <code>-20</code> becomes a very large positive integer and the expression evaluates to greater than 6. This is a very important point in embedded systems where unsigned data types should be used frequently. If you get this one wrong, then you are perilously close to not being hired.</p>
+<h1 id="Q13-Code-Examples"><a href="#Q13-Code-Examples" class="headerlink" title="Q13: Code Examples"></a>Q13: Code Examples</h1><p>Comment on the following code fragment?<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unsigned int zero = 0;</span><br><span class="line">unsigned int compzero = 0xFFFF; /* 1&apos;s complement of zero */</span><br></pre></td></tr></table></figure></p>
+<p>A13:<br>On machines where an int is not 16 bits, this will be incorrect. It should be coded:<br><code>unsigned int compzero = ~0;</code></p>
+<p>This question really gets to whether the candidate understands the importance of word length on a computer. In my experience, good embedded programmers are critically aware of the underlying hardware and its limitations, whereas computer programmers tend to dismiss the hardware as a necessary annoyance.</p>
+<p>By this stage, candidates are either completely demoralized or they are on a roll and having a good time. If it is obvious that the candidate isn’t very good, then the test is terminated at this point. However, if the candidate is doing well, then I throw in these supplemental questions. These questions are hard, and I expect that only the very best candidates will do well on them. In posing these questions, I’m looking more at the way the candidate tackles the problems, rather than the answers. Anyway, have fun…</p>
+<h1 id="Q14-Dynamic-memory-allocation"><a href="#Q14-Dynamic-memory-allocation" class="headerlink" title="Q14: Dynamic memory allocation"></a>Q14: Dynamic memory allocation</h1><p>Although not as common as in non-embedded computers, embedded systems still do dynamically allocate memory from the heap. What are the problems with dynamic memory allocation in embedded systems?</p>
+<p>A14:<br>Here, I expect the user to mention memory fragmentation, problems with garbage collection, variable execution time, etc. This topic has been covered extensively in ESP, mainly by Plauger. His explanations are far more insightful than anything I could offer here, so go and read those back issues! Having lulled the candidate into a sense of false security, I then offer up this tidbit: What does the following code fragment output and why?</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *ptr;</span><br><span class="line"><span class="keyword">if</span> (( ptr=(<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">0</span>)) == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Got a null pointer"</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Got a valid pointer"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>This is a fun question. I stumbled across this only recently, when a colleague of mine inadvertently passed a value of 0 to malloc, and got back a valid pointer! After doing some digging, I discovered that the result of malloc(0) is implementation defined, so that the correct answer is “it depends”. I use this to start a discussion on what the interviewee thinks is the correct thing for malloc to do. Getting the right answer here is nowhere near as important as the way you approach the problem and the rationale for your decision.</p>
+<h1 id="Q15-Typedef"><a href="#Q15-Typedef" class="headerlink" title="Q15: Typedef"></a>Q15: Typedef</h1><p>Typedef is frequently used in C to declare synonyms for pre-existing data types.<br>It is also possible to use the preprocessor to do something similar. For instance,<br>consider the following code fragment:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> dPS struct s *</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">s</span> * <span class="title">tPS</span>;</span></span><br></pre></td></tr></table></figure>
+<p>The intent in both cases is to define dPS and tPS to be pointers to structure s. Which method (if any) is preferred and why?</p>
+<p>A15:<br>This is a very subtle question, and anyone that gets it right (for the right reason) is to be congratulated or condemned (“get a life” springs to mind). The answer is the typedef is preferred. Consider the declarations:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dPS p1, p2;</span><br><span class="line">tPS p3, p4;</span><br></pre></td></tr></table></figure>
+<p>The first expands to <code>struct s *p1 , p2</code> which defines p1 to be a pointer to the structure and p2 to be an actual structure, which is probably not what you wanted. The second example correctly defines p3 and p4 to be pointers.</p>
+<h1 id="Q16-Obfuscated-syntax"><a href="#Q16-Obfuscated-syntax" class="headerlink" title="Q16: Obfuscated syntax"></a>Q16: Obfuscated syntax</h1><p>C allows some appalling constructs. Is this construct legal, and if so what does this code do?</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">5</span>, b=<span class="number">7</span>, c;</span><br><span class="line">c = a+++b ;</span><br></pre></td></tr></table></figure>
+<p>A16:<br>This question is intended to be a lighthearted end to the quiz, as, believe it or not, this is perfectly legal syntax. The question is how does the compiler treat it? Those poor compiler writers actually debated this issue, and came up with the “maximum munch” rule, which stipulates that the compiler should bite off as big a (legal) chunk as it can. Hence, this code is treated as:<br>    <code>c = a++ + b;</code></p>
+<p>Thus, after this code is executed, a = 6, b = 7 and c = 12; If you knew the answer, or guessed correctly then well done. If you didn’t know the answer then I would not consider this to be a problem. I find the biggest benefit of this question is that it is very good for stimulating questions on coding styles, the value of code reviews and the benefits of using lint.</p>
+<p>Well folks, there you have it. That was my version of the C test. I hope you had as much fun doing it as I had writing it. If you think the test is a good test, then by all means use it in your recruitment. Who knows, I may get lucky in a year or two and end up being on the receiving end of my own work.</p>
+<h1 id="Q-What-is-NULL-pointer-and-what-is-its-use"><a href="#Q-What-is-NULL-pointer-and-what-is-its-use" class="headerlink" title="Q: What is NULL pointer and what is its use?"></a>Q: What is NULL pointer and what is its use?</h1><p>The NULL is a macro de¡ned in C. Null pointer actually means a pointer that does not point to any valid location. We de¡ne a pointer to be null when we want to make sure that the pointer does not point to any valid location and not to use that pointer to change anything. If we don’t use null pointer, then we can’t verify whether this pointer points to any valid location or not.</p>
+<h1 id="Q-What-is-void-pointer-and-what-is-its-use"><a href="#Q-What-is-void-pointer-and-what-is-its-use" class="headerlink" title="Q: What is void pointer and what is its use?"></a>Q: What is void pointer and what is its use?</h1><p>The void pointer means that it points to a variable that can be of any type. Other pointers points to a speci¡c type of variable while void pointer is a somewhat generic pointer and can be pointed to any data type, be it standard data type(int, char etc) or user de¡ne data type (structure, union etc.). We can pass any kind of pointer and reference it as a void pointer. But to dereference it, we have to type the void pointer to correct data type.</p>
+<h1 id="Q-What-is-ISR"><a href="#Q-What-is-ISR" class="headerlink" title="Q: What is ISR?"></a>Q: What is ISR?</h1><p>An ISR(Interrupt Service Routine) is an interrupt handler, a callback subroutine which is called when a interrupt is encountered Interrupt latency is the time required for an ISR responds to an interrupt.</p>
+<h1 id="Q-What-is-interrupt-latency-How-to-reduce-interrupt-latency"><a href="#Q-What-is-interrupt-latency-How-to-reduce-interrupt-latency" class="headerlink" title="Q: What is interrupt latency? How to reduce interrupt latency?"></a>Q: What is interrupt latency? How to reduce interrupt latency?</h1><p>Interrupt latency is the time required for an ISR responds to an interrupt.<br>Interrupt latency can be minimized by writing short ISR routine and by not delaying interrupts for more time.</p>
+<p>20) What is Top half &amp; bottom half of a kernel?</p>
+<p>Sometimes to handle an interrupt, a substantial amount of work has to be done. But it conflicts with the speed need for an interrupt handler. To handle this situation, Linux splits the handler into two parts – Top half and Bottom half. The top half is the routine that actually responds to the interrupt. The bottom half on the other hand is a routine that is scheduled by the upper half to be executed later at a safer time.</p>
+<p>All interrupts are enabled during execution of the bottom half. The top half saves the device data into the specific buffer, schedules bottom half and exits. The bottom half does the rest. This way the top half can service a new interrupt while the bottom half is working on the previous.</p>
+<h1 id="Q-Can-static-variables-be-declared-in-a-header-file"><a href="#Q-Can-static-variables-be-declared-in-a-header-file" class="headerlink" title="Q: Can static variables be declared in a header file?"></a>Q: Can static variables be declared in a header file?</h1><p>A static variable cannot be declared without defining it. A static variable can be defined in the header file. But doing so, the result will be having a private copy of that variable in each source file which includes the header file. So it will be wise not to declare a static variable in header file, unless you are dealing with a different scenario.</p>
+<h1 id="Q-Is-Count-Down-to-Zero-Loop-better-than-Count-Up-Loops"><a href="#Q-Is-Count-Down-to-Zero-Loop-better-than-Count-Up-Loops" class="headerlink" title="Q: Is Count Down_to_Zero Loop better than Count_Up_Loops?"></a>Q: Is Count Down_to_Zero Loop better than Count_Up_Loops?</h1><p>Count down to zero loops are better. Reason behind this is that at loop termination, comparison to zero can be optimized by the compiler. Most processors have instruction for comparing to zero. So they don’t need to load the loop variable and the maximum value, subtract them and then compare to zero. That is why count down to zero loop is better.</p>
+<h1 id="Q-What-are-inline-functions-Advantages-and-disadvantages-of-using-macro-and-inline-functions"><a href="#Q-What-are-inline-functions-Advantages-and-disadvantages-of-using-macro-and-inline-functions" class="headerlink" title="Q: What are inline functions? Advantages and disadvantages of using macro and inline functions?"></a>Q: What are inline functions? Advantages and disadvantages of using macro and inline functions?</h1><p>The ARM compilers support inline functions with the keyword __inline. These functions have a small definition and the function body is substituted in each call to the inline function. The argument passing and stack maintenance is skipped and it results in faster code execution, but it increases code size, particularly if the inline function is large or one inline function is used often.</p>
+<p>The advantage of the macro and inline function is that the overhead for argument passing and stuff is reduced as the function are in-lined. The advantage of macro function is that we can write type insensitive functions. It is also the disadvantage of macro function as macro functions can’t do validation check. The macro and inline function also increases the size of the executable.</p>
+<h1 id="Q-What-happens-when-recursive-functions-are-declared-inline"><a href="#Q-What-happens-when-recursive-functions-are-declared-inline" class="headerlink" title="Q: What happens when recursive functions are declared inline?"></a>Q: What happens when recursive functions are declared inline?</h1><p>Inlining an recursive function reduces the overhead of saving context on stack. But, inline is merely a suggestion to the compiler and it does not guarantee that a function will be inlined. Obviously, the compiler won’t be able to inline a recursive function infinitely. It may not inline it at all or it may inline it, just a few levels deep.</p>
+<h1 id="Q-Can-structures-be-passed-to-the-functions-by-value"><a href="#Q-Can-structures-be-passed-to-the-functions-by-value" class="headerlink" title="Q: Can structures be passed to the functions by value?"></a>Q: Can structures be passed to the functions by value?</h1><p>Passing structure by its value to a function is possible, but not a good programming practice. First of all, if we pass the structure by value and the function changes some of those values, then the value change is not reflected in caller function. Also, if the structure is big, then passing the structure by value means copying the whole structure to the function argument stack which can slow the program by a significant amount.</p>
+<h1 id="Q-Why-cannot-arrays-be-passed-by-values-to-functions"><a href="#Q-Why-cannot-arrays-be-passed-by-values-to-functions" class="headerlink" title="Q: Why cannot arrays be passed by values to functions?"></a>Q: Why cannot arrays be passed by values to functions?</h1><p>In C, the array name itself represents the address of the first element. So, even if we pass the array name as argument, it will be passed as reference and not its address.</p>
+<h1 id="Q-What-is-the-concatenation-operator"><a href="#Q-What-is-the-concatenation-operator" class="headerlink" title="Q: What is the concatenation operator?"></a>Q: What is the concatenation operator?</h1><p>The Concatenation operator (##) in macro is used to concatenate two arguments. Literally, we can say that the arguments are concatenated, but actually their value are not concatenated. Think it this way, if we pass A and B to a macro which uses ## to concatenate those two, then the result will be AB. Consider the example to clear the confusion-<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOME_MACRO(a, b) a##b</span></span><br><span class="line">main()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">int</span> var = <span class="number">15</span>;</span><br><span class="line">  <span class="built_in">printf</span>(“%d”, SOME_MACRO(v, ar));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Output of the above program will be 15.</p>
+<h1 id="Q-define-cat-x-y-x-y-concatenates-x-to-y-But-cat-cat-1-2-3-does-not-expand-but-gives-preprocessor-warning-Why"><a href="#Q-define-cat-x-y-x-y-concatenates-x-to-y-But-cat-cat-1-2-3-does-not-expand-but-gives-preprocessor-warning-Why" class="headerlink" title="Q: #define cat(x,y) x##y concatenates x to y. But cat(cat(1,2),3) does not expand but gives preprocessor warning. Why?"></a>Q: <code>#define cat(x,y) x##y</code> concatenates x to y. But <code>cat(cat(1,2),3)</code> does not expand but gives preprocessor warning. Why?</h1><p>The cat(x, y) expands to x##y. It just pastes x and y. But in case of cat(cat(1,2),3), it expands to cat(1,2)##3 instead of 1##2##3. That is why it is giving preprocessor warning.</p>
+<h1 id="Q-How-to-decide-whether-given-processor-is-using-little-endian-format-or-big-endian-format"><a href="#Q-How-to-decide-whether-given-processor-is-using-little-endian-format-or-big-endian-format" class="headerlink" title="Q: How to decide whether given processor is using little endian format or big endian format ?"></a>Q: How to decide whether given processor is using little endian format or big endian format ?</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">check_for_endianness</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> x = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">char</span> *c = (<span class="keyword">char</span>*) &amp;x;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">int</span>)*c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Q-What-is-forward-reference-w-r-t-pointers-in-c"><a href="#Q-What-is-forward-reference-w-r-t-pointers-in-c" class="headerlink" title="Q: What is forward reference w.r.t. pointers in c?"></a>Q: What is forward reference w.r.t. pointers in c?</h1><p>Forward Referencing with respect to pointers is used when a pointer is declared and compiler reserves the memory for the pointer, but the variable or data type is not defined to which the pointer points to. For example<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span> *<span class="title">p</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"> <span class="comment">// members</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h1 id="Q-How-can-you-define-a-structure-with-bit-field-members"><a href="#Q-How-can-you-define-a-structure-with-bit-field-members" class="headerlink" title="Q: How can you define a structure with bit field members?"></a>Q: How can you define a structure with bit field members?</h1><p>Not command use bit field in embedded system! because bit fields are inherently non-portable across compilers, and as such guarantee that your code is not reusable.<br>Bit field members can be declared as shown below<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">struct A</span><br><span class="line">&#123;</span><br><span class="line"> char c1 : 3;</span><br><span class="line"> char c2 : 4;</span><br><span class="line"> char c3 : 1;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>Here c1, c2 and c3 are members of a structure with width 3, 4, and 1 bit respectively. The ‘:’ indicates that they are bit fields and the following numbers indicates the width in bits.</p>
+<h1 id="Q-How-do-you-write-a-function-which-takes-2-arguments-a-byte-and-a-field-in-the-byte-and-returns-the-value-of-the-field-in-that-byte"><a href="#Q-How-do-you-write-a-function-which-takes-2-arguments-a-byte-and-a-field-in-the-byte-and-returns-the-value-of-the-field-in-that-byte" class="headerlink" title="Q: How do you write a function which takes 2 arguments - a byte and a field in the byte and returns the value of the field in that byte?"></a>Q: How do you write a function which takes 2 arguments - a byte and a field in the byte and returns the value of the field in that byte?</h1><p>The function will look like this -<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">GetFieldValue</span><span class="params">(<span class="keyword">int</span> byte, <span class="keyword">int</span> field )</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> (byte &gt;&gt; field) &amp; <span class="number">0x01</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>The byte is right shifted exactly n times where n is same as the field value. That way, our intended value ends up in the 0th bit position. “Bitwise And” with 1 can get the intended value. The function then returns the intended value.</p>
+<h1 id="Q-What-is-job-of-preprocessor-compiler-assembler-and-linker"><a href="#Q-What-is-job-of-preprocessor-compiler-assembler-and-linker" class="headerlink" title="Q: What is job of preprocessor, compiler, assembler and linker ?"></a>Q: What is job of preprocessor, compiler, assembler and linker ?</h1><p>The preprocessor commands are processed and expanded by the preprocessor before actual compilation. After preprocessing, the compiler takes the output of the preprocessor and the source code, and generates assembly code. Once compiler completes its work, the assembler takes the assembly code and produces an assembly listing with offsets and generate object files.</p>
+<p>The linker combines object files or libraries and produces a single executable file. It also resolves references to external symbols, assigns final addresses to functions and variables, and revises code and data to reflect new addresses.</p>
+<h1 id="Q-Significance-of-watchdog-timer-in-Embedded-Systems"><a href="#Q-Significance-of-watchdog-timer-in-Embedded-Systems" class="headerlink" title="Q: Significance of watchdog timer in Embedded Systems."></a>Q: Significance of watchdog timer in Embedded Systems.</h1><p>The watchdog timer is a timing device with a predefined time interval. During that interval, some event may occur or else the device generates a time out signal. It is used to reset to the original state whenever some inappropriate events take place which can result in system malfunction. It is usually operated by counter devices.</p>
+<h1 id="Q-Why-n-executes-faster-than-n-1"><a href="#Q-Why-n-executes-faster-than-n-1" class="headerlink" title="Q: Why ++n executes faster than n+1?"></a>Q: Why ++n executes faster than n+1?</h1><p>The expression ++n requires a single machine instruction such as INR to carry out the increment operation. In case of n+1, apart from INR, other instructions are required to load the value of n. That is why ++n is faster.</p>
+<h1 id="Q-What-is-wild-pointer"><a href="#Q-What-is-wild-pointer" class="headerlink" title="Q: What is wild pointer?"></a>Q: What is wild pointer?</h1><p>A pointer that is not initialized to any valid address or NULL is considered as wild pointer. Consider the following code fragment -</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *p;</span><br><span class="line">*p = <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p>Here p is not initialized to any valid address and still we are trying to access the address. The p will get any garbage location and the next statement will corrupt that memory location.</p>
+<h1 id="Q-What-is-dangling-pointer"><a href="#Q-What-is-dangling-pointer" class="headerlink" title="Q: What is dangling pointer?"></a>Q: What is dangling pointer?</h1><p>迷途指针, 指向的buffer已经被释放了, 但是指向它的指针依旧<br>If the memory of a pointer is de-allocated or freed and the pointer is not assigned to NULL, then it may still contain that address and accessing the pointer means that we are trying to access that location and it will give an error. This type of pointer is called dangling pointer.</p>
+<h1 id="Q-Write-down-the-equivalent-pointer-expression-for-referring-the-same-element-a-i-j-k-l"><a href="#Q-Write-down-the-equivalent-pointer-expression-for-referring-the-same-element-a-i-j-k-l" class="headerlink" title="Q: Write down the equivalent pointer expression for referring the same element a[i][j][k][l] ?"></a>Q: Write down the equivalent pointer expression for referring the same element <code>a[i][j][k][l]</code> ?</h1><p>We know that <code>a[i]</code> can be written as <code>*(a+i)</code>. Same way, the array elements can be written like pointer expression as follows -<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a[i][j] == *(*(a+i)+j)</span><br><span class="line">a[i][j][k] == *(*(*(a+i)+j)+k)</span><br><span class="line">a[i][j][k][l] == *(*(*(*(a+i)+j)+k)+l)</span><br></pre></td></tr></table></figure></p>
+<h1 id="Q-When-should-we-use-register-modifier"><a href="#Q-When-should-we-use-register-modifier" class="headerlink" title="Q: When should we use register modifier?"></a>Q: When should we use register modifier?</h1><p>The register modifier is used when a variable is expected to be heavily used and keeping it in the CPU’s registers will make the access faster.</p>
+<h1 id="Q-Explain-what-are-the-different-storage-classes-in-C"><a href="#Q-Explain-what-are-the-different-storage-classes-in-C" class="headerlink" title="Q: Explain what are the different storage classes in C"></a>Q: Explain what are the different storage classes in C</h1><ul>
+<li><code>auto</code> for local variables in RAM</li>
+<li><code>register</code> for local variables in register</li>
+<li><code>static</code> for local variable, keeping the value during the life-time of the program</li>
+<li><code>static</code> for global variable only shared on its own file scope</li>
+<li><code>extern</code> to give a reference of a global variable that is visible to ALL the program files</li>
+</ul>
+<hr>
+<p><strong><em>转载自 <a href="http://www.emb-linux.narod.ru/interview/0x10_questions.pdf" target="_blank" rel="noopener">The 0x10 Best Questions for Would-be Embedded Programmers</a></em></strong><br><strong><em>转载自 <a href="http://a4academics.com/interview-questions/57-c-plus-plus/722-embedded-c-interview-questions?showall=&amp;limitstart=" target="_blank" rel="noopener">Embedded C Interview Questions and Answers</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/04/12/1815-suspend/" itemprop="url">
                   博客暂停更新
                 </a>
@@ -1101,423 +1753,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/25/1811-drv-nand2/" itemprop="url">
-                  驱动之NAND Flash源码
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-25T00:00:00+11:00" content="2018-01-25">
-              2018-01-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2018/01/22/1809-drv-blk/">驱动之块设备-框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/24/1810-drv-nand1/">驱动之NAND Flash框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/25/1811-drv-nand2/">驱动之NAND Flash源码</a></li>
-<li><a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">驱动之NOR Flash</a></li>
-<li><a href="https://draapho.github.io/2018/02/06/1813-drv-net/">驱动之网卡驱动</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>由 <strong>nand flash 系统框架</strong> 分析可知, Linux内核系统以及完成了Nand Flash设备的绝大部分的核心工作.<br>因此Nand Flash驱动真正要做的工作主要就是:</p>
-<ul>
-<li>分配并初始化 <code>nand_chip</code> 结构体</li>
-<li>初始化硬件</li>
-<li>调用 <code>nand_scan</code></li>
-<li>调用 <code>add_mtd_partitions</code></li>
-</ul>
-<p>可以参考内核文件的相关源码, 学着写.</p>
-<ul>
-<li><code>drivers\mtd\nand\at91_nand.c</code></li>
-<li><code>drivers\mtd\nand\s3c2410.c</code></li>
-</ul>
-<p>流程如下图:<br><img src="https://draapho.github.io/images/1810/nand3.jpg" alt="nand3"></p>
-<h2 id="s3c-nand-c"><a href="#s3c-nand-c" class="headerlink" title="s3c_nand.c"></a>s3c_nand.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/mtd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/nand.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/partitions.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/clk.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-nand.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/nand.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">s3c_nand_regs</span> &#123;</span>                              <span class="comment">// 2440芯片NAND Flash相关寄存器</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfconf  ;                         <span class="comment">// 物理地址 0x4E000000</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfcont  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfcmd   ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfaddr  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfdata  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd0 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd1 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfstat  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfestat0;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfestat1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfmecc0 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfmecc1 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfsecc  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfsblk  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeblk  ;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">nand_chip</span> *<span class="title">s3c_nand</span>;</span>                  <span class="comment">// NAND Flash操作的核心结构体</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_info</span> *<span class="title">s3c_mtd</span>;</span>                    <span class="comment">// 给两个系统函数使用的结构体</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">s3c_nand_regs</span> *<span class="title">s3c_nand_regs</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_partition</span> <span class="title">s3c_nand_parts</span>[] = &#123;</span>    <span class="comment">// 分区信息</span></span><br><span class="line">    [<span class="number">0</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"bootloader"</span>,</span><br><span class="line">        .size   = <span class="number">0x00040000</span>,</span><br><span class="line">        .offset = <span class="number">0</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">1</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"params"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = <span class="number">0x00020000</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">2</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"kernel"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = <span class="number">0x00200000</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">3</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"root"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = MTDPART_SIZ_FULL,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不能用Linux默认的片选函数(nand_set_defaults), 自己根据数据手册写一下.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c2440_select_chip</span><span class="params">(struct mtd_info *mtd, <span class="keyword">int</span> chipnr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (chipnr == <span class="number">-1</span>) &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcont |= (<span class="number">1</span>&lt;&lt;<span class="number">1</span>);            <span class="comment">// NFCONT bit1=1, 取消片选</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcont &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">1</span>);           <span class="comment">// NFCONT bit1=0, 使能片选</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c2440_cmd_ctrl</span><span class="params">(struct mtd_info *mtd, <span class="keyword">int</span> dat, <span class="keyword">unsigned</span> <span class="keyword">int</span> ctrl)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (ctrl &amp; NAND_CLE) &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcmd = dat;                 <span class="comment">// NFCMMD=dat, 发送命令</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfaddr = dat;                <span class="comment">// NFADDR=dat, 发送地址</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c2440_dev_ready</span><span class="params">(struct mtd_info *mtd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (s3c_nand_regs-&gt;nfstat &amp; (<span class="number">1</span>&lt;&lt;<span class="number">0</span>));        <span class="comment">// NFSTAT bit0=0, Busy else Ready</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_nand_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">clk</span> *<span class="title">clk</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 1. 分配nand_chip 和 mtd_info 结构体 */</span></span><br><span class="line">    s3c_nand = kzalloc(<span class="keyword">sizeof</span>(struct nand_chip), GFP_KERNEL);</span><br><span class="line">    s3c_mtd = kzalloc(<span class="keyword">sizeof</span>(struct mtd_info), GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获得寄存器的虚拟地址. 0x4E000000是这些寄存器的起始物理地址</span></span><br><span class="line">    s3c_nand_regs = ioremap(<span class="number">0x4E000000</span>, <span class="keyword">sizeof</span>(struct s3c_nand_regs));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 设置nand_chip */</span></span><br><span class="line">    <span class="comment">/* nand_chip 需要提供 NAND Flash 操作的基本函数. 通用的函数已经由 nand_set_defaults 设置好了.</span></span><br><span class="line"><span class="comment">     * 需要自己设置的函数主要有: 片选,发指令,发地址,发数据,读数据,判断状态的功能</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    s3c_nand-&gt;select_chip = s3c2440_select_chip;    <span class="comment">// 片选函数</span></span><br><span class="line">    s3c_nand-&gt;cmd_ctrl    = s3c2440_cmd_ctrl;       <span class="comment">// 发送指令/地址</span></span><br><span class="line">    s3c_nand-&gt;IO_ADDR_R   = &amp;s3c_nand_regs-&gt;nfdata; <span class="comment">// 读数据的虚拟地址</span></span><br><span class="line">    s3c_nand-&gt;IO_ADDR_W   = &amp;s3c_nand_regs-&gt;nfdata; <span class="comment">// 发数据的虚拟地址</span></span><br><span class="line">    s3c_nand-&gt;dev_ready   = s3c2440_dev_ready;      <span class="comment">// 芯片Busy/Ready的状态反馈</span></span><br><span class="line">    s3c_nand-&gt;ecc.mode    = NAND_ECC_SOFT;          <span class="comment">// ECC校验方式. 软件或硬件.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 硬件相关的设置: 根据NAND FLASH的手册设置时间参数 */</span></span><br><span class="line">    <span class="comment">// 使能NAND控制器的时钟</span></span><br><span class="line">    clk = clk_get(<span class="literal">NULL</span>, <span class="string">"nand"</span>);                    <span class="comment">// 由名称"nand"获得时钟</span></span><br><span class="line">    clk_enable(clk);                                <span class="comment">// 实际上就是 CLKCON bit[4]=1</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 NFCONF 寄存器. 由启动的打印信息可获得 HCLK=100MHz, 设置时序要求.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TACLS    0  <span class="comment">// 发出CLE/ALE之后多长时间才发出nWE信号, 从NAND手册可知CLE/ALE与nWE可以同时发出,所以TACLS=0</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TWRPH0   1  <span class="comment">// nWE的脉冲宽度, HCLK x ( TWRPH0 + 1 ), 从NAND手册可知它要&gt;=12ns, 所以TWRPH0&gt;=1</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TWRPH1   0  <span class="comment">// nWE变为高电平后多长时间CLE/ALE才能变为低电平, 从NAND手册可知它要&gt;=5ns, 所以TWRPH1&gt;=0</span></span></span><br><span class="line">    s3c_nand_regs-&gt;nfconf = (TACLS&lt;&lt;<span class="number">12</span>) | (TWRPH0&lt;&lt;<span class="number">8</span>) | (TWRPH1&lt;&lt;<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 NFCONT 寄存器. BIT1=1, 取消片选. BIT0=1, 使能NAND控制器</span></span><br><span class="line">    s3c_nand_regs-&gt;nfcont = (<span class="number">1</span>&lt;&lt;<span class="number">1</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4. 使用: nand_scan */</span></span><br><span class="line">    s3c_mtd-&gt;owner = THIS_MODULE;</span><br><span class="line">    s3c_mtd-&gt;priv  = s3c_nand;</span><br><span class="line">    nand_scan(s3c_mtd, <span class="number">1</span>);                          <span class="comment">// 识别NAND FLASH, 构造mtd_info. 硬件只有1块NAND Flash.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 5. add_mtd_partitions</span></span><br><span class="line"><span class="comment">     * 增加 add_mtd_partitions 函数后,</span></span><br><span class="line"><span class="comment">     * 内核必须去掉自带的NAND Flash驱动, 从NFS启动系统.</span></span><br><span class="line"><span class="comment">     * 确认要做这个实验的时候, 再取消下面的注释, 编译测试</span></span><br><span class="line"><span class="comment">     * 如果不需要分区, 只需调用 add_mtd_device(s3c_mtd);</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// add_mtd_partitions(s3c_mtd, s3c_nand_parts, 4);  // 告知分区要求, 调用 add_mtd_partitions</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c_nand_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    del_mtd_partitions(s3c_mtd);</span><br><span class="line">    iounmap(s3c_nand_regs);</span><br><span class="line">    kfree(s3c_mtd);</span><br><span class="line">    kfree(s3c_nand);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(s3c_nand_init);</span><br><span class="line">module_exit(s3c_nand_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := s3c_nand.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
-<h2 id="测试1"><a href="#测试1" class="headerlink" title="测试1"></a>测试1</h2><p>源码没有调用 <code>add_mtd_partitions</code> 时, 简单测试一下NAND Flash是否正常工作了.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成s3c_nand.ko, 忽略 s3c_nand_parts 没有使用的警告信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录, nfs</span></span><br><span class="line">$ insmod s3c_nand.ko                            <span class="comment"># 加载驱动</span></span><br><span class="line">NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)</span><br><span class="line">Scanning device <span class="keyword">for</span> bad blocks</span><br><span class="line">......</span><br><span class="line"><span class="comment"># 打印信息正确识别了 Nand Flash, 说明底层操作都成功了.</span></span><br></pre></td></tr></table></figure>
-<h2 id="测试2"><a href="#测试2" class="headerlink" title="测试2"></a>测试2</h2><p>源码调用 <code>add_mtd_partitions</code> 时, 测试过程比较复杂.</p>
-<ol>
-<li>卸载内核自带的NAND Flash驱动</li>
-<li>导致无法从本地Flash启动, 必须设置为从nfs启动</li>
-<li>从nfs启动后, 加载 s3c_nand.ko 驱动.</li>
-<li>使用工具 <code>mtd-utils</code> 格式化 NAND Flash</li>
-<li>格式化后, 就能挂载测试了.</li>
-<li>恢复原来的开发环境.</li>
-</ol>
-<p><strong>这个实验我没有实际去做, 设置和恢复都太麻烦. 而且正常的开发过程是不会这样去操作的.</strong><br>下面给出实验步骤:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 卸载内核自带的NAND Flash驱动</span></span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6_custom  复制一个新的内核源码目录</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                               <span class="comment"># 去掉自带的HID USB驱动程序</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment">#   -&gt; Memory Technology Device (MTD) support</span></span><br><span class="line"><span class="comment">#     -&gt; NAND Device Support</span></span><br><span class="line"><span class="comment">#       &lt; &gt; NAND Flash support for S3C2410/S3C2440 SoC  # 取消内置的NAND Flash驱动</span></span><br><span class="line"></span><br><span class="line">$ make uImage</span><br><span class="line"><span class="comment"># 烧录新的uImage</span></span><br><span class="line"><span class="comment"># 重启开发板进入uboot烧录界面, 按k准备烧录内核. 略过不表</span></span><br><span class="line">$ sudo dnw ./arch/arm/boot/uImage</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2. 导致无法从本地Flash启动, 必须设置为从nfs启动.</span><br><span class="line"><span class="comment"># 可参考 "嵌入式linux环境搭建-jz2440开发板" 一文</span></span><br><span class="line"><span class="comment"># 开发板, uboot命令行下</span></span><br><span class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址, 并且Ubuntu端正确设置了nfs</span></span><br><span class="line"></span><br><span class="line">printenv                                        <span class="comment"># 看下现有的uboot环境, 记好bootargs, 恢复的时候要用的.</span></span><br><span class="line"><span class="comment"># bootargs=noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</span></span><br><span class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</span><br><span class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></span><br><span class="line">save        <span class="comment"># 保存修改</span></span><br><span class="line">reset       <span class="comment"># 重启.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数简要说明:</span></span><br><span class="line"><span class="comment"># 'root=/dev/nfs' 加载nfs文件系统</span></span><br><span class="line"><span class="comment"># 'nfsroot=10.0.0.98:/fs' nfs文件系统的来源, 此处是由Ubuntu当nfs服务器, 共享出/fs文件夹</span></span><br><span class="line"><span class="comment"># 'ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off' 分别表示:</span></span><br><span class="line"><span class="comment">#  ip= 开发板ip : nfs服务器ip: 网关ip : 子网掩码 :: 开发板网口 : off</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">3. 从nfs启动后, 加载 s3c_nand.ko 驱动.</span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成s3c_nand.ko</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录, nfs</span></span><br><span class="line">$ insmod s3c_nand.ko                            <span class="comment"># 加载驱动</span></span><br><span class="line">NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">4. 使用工具 mtd-utils 格式化 NAND Flash</span><br><span class="line"><span class="comment"># Ubuntu 主机端, 需要先编译mtd-utils</span></span><br><span class="line">$ tar xjf mtd-utils-05.07.23.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> mtd-utils-05.07.23/util</span><br><span class="line">$ vim Makefile</span><br><span class="line">    <span class="comment"># ===== 文件内容, 修改如下内容: =====</span></span><br><span class="line">    <span class="comment">#CROSS=arm-linux-   # 需要交叉编译, 取消注释</span></span><br><span class="line">    CROSS=arm-linux-</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line">$ make</span><br><span class="line"><span class="comment"># 拷贝可执行文件到挂载的nfs文件系统的bin目录下</span></span><br><span class="line">$ cp flash_erase flash_eraseall /home/draapho/share/jz2440/nfs/fs_mini_mdev/bin</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">5. 格式化后, 就能挂载测试了.</span><br><span class="line"><span class="comment"># 开发板端 bash</span></span><br><span class="line">$ ls -l /dev/mtd*                               <span class="comment"># 查看一下分区情况, 有0-3共四个分区</span></span><br><span class="line"><span class="comment"># 应该是用 "flash_eraseall /dev/mtd1" 格式化 "params" 分区, 恢复起来最方便.</span></span><br><span class="line">$ flash_eraseall /dev/mtd3                      <span class="comment"># 格式化 root分区 (用的字符设备), 文件格式为yaffs</span></span><br><span class="line">$ mount -t yaffs /dev/mtdblock3 /tmp            <span class="comment"># 以yaffs格式挂载 root分区</span></span><br><span class="line">$ ls /tmp                                       <span class="comment"># 应该只有一个 lost+found 文件.</span></span><br><span class="line"><span class="comment"># 然后可以对这个分区进行文件创建, 读写的操作了.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">6. 恢复原来的开发环境</span><br><span class="line"><span class="comment"># 开发板 uboot:</span></span><br><span class="line"><span class="comment"># 破坏了root区的话, 就恢复root区, 重新烧写文件系统到flash就行了. 猜测使用 params 区做测试是没有影响的.</span></span><br><span class="line"><span class="comment"># 烧录原来的 uImage 到 kernel.</span></span><br><span class="line"><span class="comment"># 改回 uboot 的 bootargs 参数</span></span><br><span class="line"><span class="comment"># 重启, 从NAND Flash正常启动.</span></span><br></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://www.cnblogs.com/TaigaCon/archive/2012/11/17/2775057.html" target="_blank" rel="noopener">Linux操作系统下 NAND FLASH驱动程序框架</a></p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/24/1810-drv-nand1/" itemprop="url">
-                  驱动之NAND Flash框架
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-24T00:00:00+11:00" content="2018-01-24">
-              2018-01-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2018/01/22/1809-drv-blk/">驱动之块设备-框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/24/1810-drv-nand1/">驱动之NAND Flash框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/25/1811-drv-nand2/">驱动之NAND Flash源码</a></li>
-<li>[驱动之NOR Flash](<a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">https://draapho.github.io/2018/01/26/1812-drv-nor/</a></li>
-<li><a href="https://draapho.github.io/2018/02/06/1813-drv-net/">驱动之网卡驱动</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="NAND-Flash-基础知识"><a href="#NAND-Flash-基础知识" class="headerlink" title="NAND Flash 基础知识"></a>NAND Flash 基础知识</h1><h2 id="NAND-和-NOR-Flash的比较"><a href="#NAND-和-NOR-Flash的比较" class="headerlink" title="NAND 和 NOR Flash的比较"></a>NAND 和 NOR Flash的比较</h2><table>
-<thead>
-<tr>
-<th>NOR FLASH</th>
-<th>NAND FLASH</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>接口时序同SRAM,易使用</td>
-<td>地址/数据线复用，数据位较窄</td>
-</tr>
-<tr>
-<td>读取速度较快</td>
-<td>读取速度较慢</td>
-</tr>
-<tr>
-<td>擦除速度慢，以64-128KB的块为单位</td>
-<td>擦除速度快，以8－32KB的块为单位</td>
-</tr>
-<tr>
-<td>写入速度慢</td>
-<td>写入速度快</td>
-</tr>
-<tr>
-<td>随机存取速度较快，支持XIP(eXecute In Place，芯片内执行)，适用于代码存储。在嵌入式系统中，常用于存放引导程序、根文件系统等。</td>
-<td>顺序读取速度较快，随机存取速度慢，适用于数据存储(如大容量的多媒体应用)。在嵌入式系统中，常用于存放用户文件系统等。</td>
-</tr>
-<tr>
-<td>单片容量较小，1-32MB</td>
-<td>单片容量较大，8-128MB，提高了单元密度</td>
-</tr>
-<tr>
-<td>最大擦写次数10万次</td>
-<td>最大擦写次数100万次</td>
-</tr>
-</tbody>
-</table>
-<h2 id="硬件接口和时序"><a href="#硬件接口和时序" class="headerlink" title="硬件接口和时序"></a>硬件接口和时序</h2><p>看相关数据手册, 以jz2440v3开发板为例:</p>
-<ul>
-<li><code>K9F2G08U0C.pdf</code> NAND Flash 数据手册</li>
-<li><code>S3C2440A_UserManual_Rev13.pdf</code> CPU 数据手册</li>
-</ul>
-<p>NAND Flash的硬件引脚基本固定, 下面列出各个引脚的含义</p>
-<table>
-<thead>
-<tr>
-<th>缩写</th>
-<th>英文原意</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>I/O</td>
-<td>data Inputs/Outputs</td>
-<td>数据收发, 8bit或16bit</td>
-</tr>
-<tr>
-<td>CLE</td>
-<td>Command Latch Enable</td>
-<td>传的是指令, 高电平有效</td>
-</tr>
-<tr>
-<td>ALE</td>
-<td>Address Latch Enable</td>
-<td>传的是地址, 高电平有效</td>
-</tr>
-<tr>
-<td>_CE 或 nCE</td>
-<td>Chip Enable</td>
-<td>片选信号, 低电平有效</td>
-</tr>
-<tr>
-<td>_RE 或 nRE</td>
-<td>Read Enable</td>
-<td>读数据, 低电平有效</td>
-</tr>
-<tr>
-<td>_WE 或 nWE</td>
-<td>Write Enable</td>
-<td>写数据, 低电平有效</td>
-</tr>
-<tr>
-<td>R/_B 或 R/nB</td>
-<td>Ready/Busy</td>
-<td>空闲/忙信号, 忙为低电平</td>
-</tr>
-</tbody>
-</table>
-<p>查看三星S3C2440数据手册 <code>NAND Flash Controller</code> 章节可知, 已将nand flash的时序操作打包成了寄存器操作.<br>u-boot里面, 可以使用 <code>md</code> <code>mw</code> 直接对memroy进行操作. 因此可在u-boot下面直接用指令来操作nand flash的时序</p>
-<ul>
-<li><code>md</code>, Memory Display. 显示指定内存地址的内容. <code>.b</code>表Byte, 字节. <code>.w</code>表Word, 2字节. <code>.l</code>表Long, 4字节.</li>
-<li><code>mw</code>, Memory Write. 写入内容到指定内存地址. <code>.b</code>表Byte, 字节. <code>.w</code>表Word, 2字节. <code>.l</code>表Long, 4字节.</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>物理操作</th>
-<th>S3C2440 寄存器操作</th>
-<th>u-boot 直接操作对应的寄存器地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>片选</td>
-<td>_CE低</td>
-<td>NFCONT bit1=0</td>
-<td>md.l 读一下, mw.l 0x4E000004 回写bit1=0</td>
-</tr>
-<tr>
-<td>发命令</td>
-<td>CLE高, ALE低, I/O命令值, _WE高变低</td>
-<td>NFCMMD=命令值</td>
-<td>mw.b 0x4E000008 命令值</td>
-</tr>
-<tr>
-<td>发地址</td>
-<td>ALE高, CLE低, I/O地址值, _WE高变低</td>
-<td>NFADDR=地址值</td>
-<td>mw.b 0x4E00000C 地址值</td>
-</tr>
-<tr>
-<td>发数据</td>
-<td>CLE低, ALE低, I/O数据值, _WE高变低</td>
-<td>NFDATA=数据值</td>
-<td>mw.b 0x4E000010 数据值</td>
-</tr>
-<tr>
-<td>读数据</td>
-<td>CLE低, ALE低, _RE高变低, 取I/O值</td>
-<td>数据值=NFDATA</td>
-<td>md.b 0x4E000010 1</td>
-</tr>
-</tbody>
-</table>
-<h2 id="读写实验"><a href="#读写实验" class="headerlink" title="读写实验"></a>读写实验</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot 命令行, 最好是从 NAND Flash 启动的uboot.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 读取 ID, 查看 K9F2G08U0C 数据手册 5.5 Read ID 时序图.</span></span><br><span class="line">md.l 0x4E000004 1           <span class="comment"># 读取 NFCONT 寄存器值. 1表示长度, 就读一个数据. 默认值是16</span></span><br><span class="line">mw.l 0x4E000004 1           <span class="comment"># 置 bit1=0 后, 回写</span></span><br><span class="line">mw.b 0x4E000008 0x90        <span class="comment"># 发命令 NFCMMD=0x90</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 发地址 NFADDR=0x00</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 读数据 NFDATA, 应该得到 ec</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, da</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, 10</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, 15 (这里返回了95, 先不管)</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, 44</span></span><br><span class="line"><span class="comment"># 这里不能使用指令 md.b 0x4E000010 5 读取5个字节. 因为其含义是读 0x4E000010-0x4E000014 的寄存器值, 必然是错的.</span></span><br><span class="line">mw.b 0x4E000008 0xff        <span class="comment"># 发RESET命令 NFCMMD=0xFF</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 读取0地址的数据, 查看 K9F2G08U0C 数据手册 5.1 Page Read 时序图</span></span><br><span class="line">nand dump 0                 <span class="comment"># 先用nand指令直接读取nand flash的页, 后面在用寄存器操作的方式读一遍来对比</span></span><br><span class="line">17 00 00 ea 14 f0 9f e5  14 f0 9f e5 14 f0 9f e5</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">md.l 0x4E000004 1           <span class="comment"># 读取 NFCONT 寄存器值. 1表示长度, 就读一个数据. 默认值是16</span></span><br><span class="line">mw.l 0x4E000004 1           <span class="comment"># 置 bit1=0 后, 回写</span></span><br><span class="line">mw.b 0x4E000008 0x00        <span class="comment"># 写命令 NFCMMD=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line"><span class="comment"># 这款nand总线是8位, 时序图要求5个周期. 由2字节的列地址和3字节的行地址组成.</span></span><br><span class="line">mw.b 0x4E000008 0x30        <span class="comment"># 读命令 NFCMMD=0x30</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 读数据 NFDATA</span></span><br><span class="line">......                      <span class="comment"># 重复多次这个指令, 譬如16次</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 读数据 NFDATA, 得到的数据应该和 nand dump 0 的一样</span></span><br><span class="line"><span class="comment"># 16此返回值应该和 nand dump 的结果一样: 17 00 00 ea 14 f0 9f e5  14 f0 9f e5 14 f0 9f e5</span></span><br><span class="line"><span class="comment"># 这里不能使用指令 md.b 0x4E000010 16 读取16个字节. 因为其含义是读 0x4E000010-0x4E000020 的寄存器值, 必然是错的.</span></span><br><span class="line">mw.b 0x4E000008 0xff        <span class="comment"># 发RESET命令 NFCMMD=0xFF</span></span><br></pre></td></tr></table></figure>
-<h1 id="NAND-Flash-系统框架"><a href="#NAND-Flash-系统框架" class="headerlink" title="NAND Flash 系统框架"></a>NAND Flash 系统框架</h1><p><img src="https://draapho.github.io/images/1810/nand1.jpg" alt="nand1"></p>
-<p><img src="https://draapho.github.io/images/1810/nand2.png" alt="nand2"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 由Linux系统启动时的打印信息, 可以抓取到 NAND FLASH 相关的初始化信息和分区信息.</span></span><br><span class="line"><span class="comment">// 可得 "S3C24XX NAND Driver, ..." 搜索后, 定位到文件 "/drivers/mtd/nand/s3c2410.c"</span></span><br><span class="line"><span class="comment">// mtd: Memory Technology Device. 记忆体技术设备, 也就是 nand/nor flash.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; /drivers/mtd/nand/s3c2410.c</span></span><br><span class="line">s3c2410_nand_init                                               <span class="comment">// 看驱动文件, 从 module_init 开始</span></span><br><span class="line">    platform_driver_register(&amp;s3c2440_nand_driver);             <span class="comment">// 很明显用了 platform 框架</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /arch/arm/plat-s3c24xx/common-smdk.c              // 这里是 platform 框架的 device 配置</span></span><br><span class="line">    smdk_machine_init</span><br><span class="line">        s3c_device_nand.dev.platform_data = &amp;smdk_nand_info;</span><br><span class="line">        platform_add_devices(smdk_devs);                        <span class="comment">// 找到了 platform 的 devices 端.</span></span><br><span class="line">        <span class="comment">// 这里看下 smdk_nand_info, smdk_devs的s3c_device_nand 就都明白了. 配置nand的名称和参数.</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, common-smdk.c</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 看完了platform框架, 匹配后就是调用probe函数. 几次跳转后, 最终调用:</span></span><br><span class="line">s3c24xx_nand_probe</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">s3c2410_platform_nand</span> *<span class="title">plat</span> = <span class="title">to_nand_plat</span>(<span class="title">pdev</span>);</span>    <span class="comment">// 取出了 smdk_nand_info 的配置信息</span></span><br><span class="line">    s3c2410_nand_inithw                                         <span class="comment">// 初始化硬件, 如时序</span></span><br><span class="line">    s3c2410_nand_init_chip                                      <span class="comment">// 初始化通讯, 如缓冲区, 寄存器值</span></span><br><span class="line">    nand_scan                                                   <span class="comment">// 开始通讯, 检查 nand flash</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /drivers/mtd/nand/nand_base.c                     // NAND FLASH 操作的通用文件</span></span><br><span class="line">    nand_scan</span><br><span class="line">        nand_scan_ident                                         <span class="comment">// 第一阶段的初始化, 检查flash硬件</span></span><br><span class="line">            nand_set_defaults                                   <span class="comment">// nand 通信使用默认参数</span></span><br><span class="line">            nand_get_flash_type                                 <span class="comment">// 获取第一块 nand 的ID值</span></span><br><span class="line">                nand_flash_ids                                  <span class="comment">// 常用的 nand flash 表. 可见内核都支持了</span></span><br><span class="line">            printk(KERN_INFO <span class="string">"%d NAND chips detected\n"</span>, i);    <span class="comment">// 接了多块nand的话, 必须是同型号的</span></span><br><span class="line">            mtd-&gt;size = i * chip-&gt;chipsize;                     <span class="comment">// 总容量 = nand数量*单片容量</span></span><br><span class="line">        nand_scan_tail                                          <span class="comment">// 第二阶段的初始化工作, 软件设置</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, nand_base.c</span></span><br><span class="line"></span><br><span class="line">    s3c2410_nand_add_partition                                  <span class="comment">// 分区工作</span></span><br><span class="line">        add_mtd_device</span><br><span class="line">        <span class="comment">// -----&gt; /drivers/mtd/mtdcore.c                        // mtd 设备核心</span></span><br><span class="line">        <span class="comment">// add_mtd_partitions 最终也调用了 add_mtd_device</span></span><br><span class="line">        add_mtd_device</span><br><span class="line">            <span class="keyword">not</span> = list_entry(<span class="keyword">this</span>, struct mtd_notifier, <span class="built_in">list</span>);  <span class="comment">// struct mtd_notifier 结构体是关键</span></span><br><span class="line">            <span class="keyword">not</span>-&gt;add(mtd);                                      <span class="comment">// 调用了add</span></span><br><span class="line">            <span class="comment">// 搜索 mtd_notifier 查看来源, 可知:</span></span><br><span class="line">            <span class="comment">// 实际调用了 mtd_notify_add         // -----&gt; drivers/mtd/mtdchar.c</span></span><br><span class="line">            <span class="comment">// 实际调用了 blktrans_notify_add    // -----&gt; drivers/mtd/mtd_blkdevs.c</span></span><br><span class="line">        <span class="comment">// -----&gt; 结束, mtdcore.c</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, s3c2410.c</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/mtdchar.c                                 // 将mtd设备挂载成字符设备</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_notifier</span> <span class="title">notifier</span>;</span>                            <span class="comment">// .add = mtd_notify_add</span></span><br><span class="line">mtd_notify_add</span><br><span class="line">    class_device_create(<span class="string">"mtd%d"</span>)                                <span class="comment">// mtd字符设备, 可读写</span></span><br><span class="line">    class_device_create(<span class="string">"mtd%dro"</span>)                              <span class="comment">// mtd只读字符设备</span></span><br><span class="line">init_mtdchar                                                    <span class="comment">// mtdchar.c 的 module_init</span></span><br><span class="line">    register_chrdev(MTD_CHAR_MAJOR, <span class="string">"mtd"</span>, &amp;mtd_fops)           <span class="comment">// 注册为字符设备</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, mtdchar.c 完成了字符设备的核心步骤.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/mtd_blkdevs.c                             // 将mtd设备挂载成块设备</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_notifier</span> <span class="title">blktrans_notifier</span>;</span>                   <span class="comment">// .add = blktrans_notify_add</span></span><br><span class="line">blktrans_notify_add</span><br><span class="line">    tr = list_entry(<span class="keyword">this</span>, struct mtd_blktrans_ops, <span class="built_in">list</span>);       <span class="comment">// 一样的, 搜索 mtd_blktrans_ops</span></span><br><span class="line">    tr-&gt;add_mtd(tr, mtd);</span><br><span class="line">    <span class="comment">// 可以找到两个文件有初始化, 很明显是块设备读写还是只读的区别. 选取 /drivers/mtd/mtdblock.c</span></span><br><span class="line">    <span class="comment">// 实际调用了 mtdblock_add_mtd</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /drivers/mtd/mtdblock.c</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_blktrans_ops</span> <span class="title">mtdblock_tr</span>;</span>                 <span class="comment">// .add_mtd = mtdblock_add_mtd</span></span><br><span class="line">    mtdblock_add_mtd</span><br><span class="line">        add_mtd_blktrans_dev</span><br><span class="line">            alloc_disk                                          <span class="comment">// 分配 gendisk</span></span><br><span class="line">            add_disk                                            <span class="comment">// 注册为块设备</span></span><br><span class="line">    init_mtdblock                                               <span class="comment">// mtdblock.c 的 module_init</span></span><br><span class="line">        register_mtd_blktrans</span><br><span class="line">            register_blkdev                                     <span class="comment">// 获得主设备号</span></span><br><span class="line">            blk_init_queue                                      <span class="comment">// 设置缓冲队列</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, mtdblock.c 完成了块设备的核心步骤.</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, mtd_blkdevs</span></span><br></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://www.cnblogs.com/TaigaCon/archive/2012/11/17/2775057.html" target="_blank" rel="noopener">Linux操作系统下 NAND FLASH驱动程序框架</a><br><a href="http://www.linuxidc.com/Linux/2017-03/142206.htm" target="_blank" rel="noopener">Linux MTD子系统 _从模型分析到Flash驱动模板</a><br><a href="http://blog.sina.com.cn/s/blog_6683e49d0100o18j.html" target="_blank" rel="noopener">LINUX NAND FLASH驱动程序框架分析</a></p>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1563,7 +1798,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">126</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1628,7 +1863,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

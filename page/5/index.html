@@ -261,6 +261,423 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/25/1811-drv-nand2/" itemprop="url">
+                  驱动之NAND Flash源码
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-25T00:00:00+11:00" content="2018-01-25">
+              2018-01-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/22/1809-drv-blk/">驱动之块设备-框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/24/1810-drv-nand1/">驱动之NAND Flash框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/25/1811-drv-nand2/">驱动之NAND Flash源码</a></li>
+<li><a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">驱动之NOR Flash</a></li>
+<li><a href="https://draapho.github.io/2018/02/06/1813-drv-net/">驱动之网卡驱动</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>由 <strong>nand flash 系统框架</strong> 分析可知, Linux内核系统以及完成了Nand Flash设备的绝大部分的核心工作.<br>因此Nand Flash驱动真正要做的工作主要就是:</p>
+<ul>
+<li>分配并初始化 <code>nand_chip</code> 结构体</li>
+<li>初始化硬件</li>
+<li>调用 <code>nand_scan</code></li>
+<li>调用 <code>add_mtd_partitions</code></li>
+</ul>
+<p>可以参考内核文件的相关源码, 学着写.</p>
+<ul>
+<li><code>drivers\mtd\nand\at91_nand.c</code></li>
+<li><code>drivers\mtd\nand\s3c2410.c</code></li>
+</ul>
+<p>流程如下图:<br><img src="https://draapho.github.io/images/1810/nand3.jpg" alt="nand3"></p>
+<h2 id="s3c-nand-c"><a href="#s3c-nand-c" class="headerlink" title="s3c_nand.c"></a>s3c_nand.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/mtd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/nand.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mtd/partitions.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/clk.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-nand.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/nand.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">s3c_nand_regs</span> &#123;</span>                              <span class="comment">// 2440芯片NAND Flash相关寄存器</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfconf  ;                         <span class="comment">// 物理地址 0x4E000000</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfcont  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfcmd   ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfaddr  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfdata  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd0 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd1 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeccd  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfstat  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfestat0;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfestat1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfmecc0 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfmecc1 ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfsecc  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfsblk  ;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> nfeblk  ;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">nand_chip</span> *<span class="title">s3c_nand</span>;</span>                  <span class="comment">// NAND Flash操作的核心结构体</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_info</span> *<span class="title">s3c_mtd</span>;</span>                    <span class="comment">// 给两个系统函数使用的结构体</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">s3c_nand_regs</span> *<span class="title">s3c_nand_regs</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_partition</span> <span class="title">s3c_nand_parts</span>[] = &#123;</span>    <span class="comment">// 分区信息</span></span><br><span class="line">    [<span class="number">0</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"bootloader"</span>,</span><br><span class="line">        .size   = <span class="number">0x00040000</span>,</span><br><span class="line">        .offset = <span class="number">0</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">1</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"params"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = <span class="number">0x00020000</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">2</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"kernel"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = <span class="number">0x00200000</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    [<span class="number">3</span>] = &#123;</span><br><span class="line">        .name   = <span class="string">"root"</span>,</span><br><span class="line">        .offset = MTDPART_OFS_APPEND,</span><br><span class="line">        .size   = MTDPART_SIZ_FULL,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不能用Linux默认的片选函数(nand_set_defaults), 自己根据数据手册写一下.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c2440_select_chip</span><span class="params">(struct mtd_info *mtd, <span class="keyword">int</span> chipnr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (chipnr == <span class="number">-1</span>) &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcont |= (<span class="number">1</span>&lt;&lt;<span class="number">1</span>);            <span class="comment">// NFCONT bit1=1, 取消片选</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcont &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">1</span>);           <span class="comment">// NFCONT bit1=0, 使能片选</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c2440_cmd_ctrl</span><span class="params">(struct mtd_info *mtd, <span class="keyword">int</span> dat, <span class="keyword">unsigned</span> <span class="keyword">int</span> ctrl)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (ctrl &amp; NAND_CLE) &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfcmd = dat;                 <span class="comment">// NFCMMD=dat, 发送命令</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        s3c_nand_regs-&gt;nfaddr = dat;                <span class="comment">// NFADDR=dat, 发送地址</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c2440_dev_ready</span><span class="params">(struct mtd_info *mtd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (s3c_nand_regs-&gt;nfstat &amp; (<span class="number">1</span>&lt;&lt;<span class="number">0</span>));        <span class="comment">// NFSTAT bit0=0, Busy else Ready</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_nand_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">clk</span> *<span class="title">clk</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 1. 分配nand_chip 和 mtd_info 结构体 */</span></span><br><span class="line">    s3c_nand = kzalloc(<span class="keyword">sizeof</span>(struct nand_chip), GFP_KERNEL);</span><br><span class="line">    s3c_mtd = kzalloc(<span class="keyword">sizeof</span>(struct mtd_info), GFP_KERNEL);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获得寄存器的虚拟地址. 0x4E000000是这些寄存器的起始物理地址</span></span><br><span class="line">    s3c_nand_regs = ioremap(<span class="number">0x4E000000</span>, <span class="keyword">sizeof</span>(struct s3c_nand_regs));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 设置nand_chip */</span></span><br><span class="line">    <span class="comment">/* nand_chip 需要提供 NAND Flash 操作的基本函数. 通用的函数已经由 nand_set_defaults 设置好了.</span></span><br><span class="line"><span class="comment">     * 需要自己设置的函数主要有: 片选,发指令,发地址,发数据,读数据,判断状态的功能</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    s3c_nand-&gt;select_chip = s3c2440_select_chip;    <span class="comment">// 片选函数</span></span><br><span class="line">    s3c_nand-&gt;cmd_ctrl    = s3c2440_cmd_ctrl;       <span class="comment">// 发送指令/地址</span></span><br><span class="line">    s3c_nand-&gt;IO_ADDR_R   = &amp;s3c_nand_regs-&gt;nfdata; <span class="comment">// 读数据的虚拟地址</span></span><br><span class="line">    s3c_nand-&gt;IO_ADDR_W   = &amp;s3c_nand_regs-&gt;nfdata; <span class="comment">// 发数据的虚拟地址</span></span><br><span class="line">    s3c_nand-&gt;dev_ready   = s3c2440_dev_ready;      <span class="comment">// 芯片Busy/Ready的状态反馈</span></span><br><span class="line">    s3c_nand-&gt;ecc.mode    = NAND_ECC_SOFT;          <span class="comment">// ECC校验方式. 软件或硬件.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 硬件相关的设置: 根据NAND FLASH的手册设置时间参数 */</span></span><br><span class="line">    <span class="comment">// 使能NAND控制器的时钟</span></span><br><span class="line">    clk = clk_get(<span class="literal">NULL</span>, <span class="string">"nand"</span>);                    <span class="comment">// 由名称"nand"获得时钟</span></span><br><span class="line">    clk_enable(clk);                                <span class="comment">// 实际上就是 CLKCON bit[4]=1</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 NFCONF 寄存器. 由启动的打印信息可获得 HCLK=100MHz, 设置时序要求.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TACLS    0  <span class="comment">// 发出CLE/ALE之后多长时间才发出nWE信号, 从NAND手册可知CLE/ALE与nWE可以同时发出,所以TACLS=0</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TWRPH0   1  <span class="comment">// nWE的脉冲宽度, HCLK x ( TWRPH0 + 1 ), 从NAND手册可知它要&gt;=12ns, 所以TWRPH0&gt;=1</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TWRPH1   0  <span class="comment">// nWE变为高电平后多长时间CLE/ALE才能变为低电平, 从NAND手册可知它要&gt;=5ns, 所以TWRPH1&gt;=0</span></span></span><br><span class="line">    s3c_nand_regs-&gt;nfconf = (TACLS&lt;&lt;<span class="number">12</span>) | (TWRPH0&lt;&lt;<span class="number">8</span>) | (TWRPH1&lt;&lt;<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 NFCONT 寄存器. BIT1=1, 取消片选. BIT0=1, 使能NAND控制器</span></span><br><span class="line">    s3c_nand_regs-&gt;nfcont = (<span class="number">1</span>&lt;&lt;<span class="number">1</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4. 使用: nand_scan */</span></span><br><span class="line">    s3c_mtd-&gt;owner = THIS_MODULE;</span><br><span class="line">    s3c_mtd-&gt;priv  = s3c_nand;</span><br><span class="line">    nand_scan(s3c_mtd, <span class="number">1</span>);                          <span class="comment">// 识别NAND FLASH, 构造mtd_info. 硬件只有1块NAND Flash.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 5. add_mtd_partitions</span></span><br><span class="line"><span class="comment">     * 增加 add_mtd_partitions 函数后,</span></span><br><span class="line"><span class="comment">     * 内核必须去掉自带的NAND Flash驱动, 从NFS启动系统.</span></span><br><span class="line"><span class="comment">     * 确认要做这个实验的时候, 再取消下面的注释, 编译测试</span></span><br><span class="line"><span class="comment">     * 如果不需要分区, 只需调用 add_mtd_device(s3c_mtd);</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">// add_mtd_partitions(s3c_mtd, s3c_nand_parts, 4);  // 告知分区要求, 调用 add_mtd_partitions</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">s3c_nand_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    del_mtd_partitions(s3c_mtd);</span><br><span class="line">    iounmap(s3c_nand_regs);</span><br><span class="line">    kfree(s3c_mtd);</span><br><span class="line">    kfree(s3c_nand);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(s3c_nand_init);</span><br><span class="line">module_exit(s3c_nand_exit);</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := s3c_nand.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<h2 id="测试1"><a href="#测试1" class="headerlink" title="测试1"></a>测试1</h2><p>源码没有调用 <code>add_mtd_partitions</code> 时, 简单测试一下NAND Flash是否正常工作了.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成s3c_nand.ko, 忽略 s3c_nand_parts 没有使用的警告信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录, nfs</span></span><br><span class="line">$ insmod s3c_nand.ko                            <span class="comment"># 加载驱动</span></span><br><span class="line">NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)</span><br><span class="line">Scanning device <span class="keyword">for</span> bad blocks</span><br><span class="line">......</span><br><span class="line"><span class="comment"># 打印信息正确识别了 Nand Flash, 说明底层操作都成功了.</span></span><br></pre></td></tr></table></figure>
+<h2 id="测试2"><a href="#测试2" class="headerlink" title="测试2"></a>测试2</h2><p>源码调用 <code>add_mtd_partitions</code> 时, 测试过程比较复杂.</p>
+<ol>
+<li>卸载内核自带的NAND Flash驱动</li>
+<li>导致无法从本地Flash启动, 必须设置为从nfs启动</li>
+<li>从nfs启动后, 加载 s3c_nand.ko 驱动.</li>
+<li>使用工具 <code>mtd-utils</code> 格式化 NAND Flash</li>
+<li>格式化后, 就能挂载测试了.</li>
+<li>恢复原来的开发环境.</li>
+</ol>
+<p><strong>这个实验我没有实际去做, 设置和恢复都太麻烦. 而且正常的开发过程是不会这样去操作的.</strong><br>下面给出实验步骤:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 卸载内核自带的NAND Flash驱动</span></span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6_custom  复制一个新的内核源码目录</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                               <span class="comment"># 去掉自带的HID USB驱动程序</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment">#   -&gt; Memory Technology Device (MTD) support</span></span><br><span class="line"><span class="comment">#     -&gt; NAND Device Support</span></span><br><span class="line"><span class="comment">#       &lt; &gt; NAND Flash support for S3C2410/S3C2440 SoC  # 取消内置的NAND Flash驱动</span></span><br><span class="line"></span><br><span class="line">$ make uImage</span><br><span class="line"><span class="comment"># 烧录新的uImage</span></span><br><span class="line"><span class="comment"># 重启开发板进入uboot烧录界面, 按k准备烧录内核. 略过不表</span></span><br><span class="line">$ sudo dnw ./arch/arm/boot/uImage</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2. 导致无法从本地Flash启动, 必须设置为从nfs启动.</span><br><span class="line"><span class="comment"># 可参考 "嵌入式linux环境搭建-jz2440开发板" 一文</span></span><br><span class="line"><span class="comment"># 开发板, uboot命令行下</span></span><br><span class="line"><span class="comment"># 要使用nfs功能, 必须正确设置uboot的ip地址, 并且Ubuntu端正确设置了nfs</span></span><br><span class="line"></span><br><span class="line">printenv                                        <span class="comment"># 看下现有的uboot环境, 记好bootargs, 恢复的时候要用的.</span></span><br><span class="line"><span class="comment"># bootargs=noinitrd root=/dev/mtdblock3 init=/linuxrc console=ttySAC0</span></span><br><span class="line"><span class="built_in">set</span> bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off init=/linuxrc console=ttySAC0</span><br><span class="line"><span class="comment"># (简化ip: 'set bootargs noinitrd root=/dev/nfs nfsroot=10.0.0.98:/fs ip=10.0.0.111 init=/linuxrc console=ttySAC0' 也可以工作)</span></span><br><span class="line">save        <span class="comment"># 保存修改</span></span><br><span class="line">reset       <span class="comment"># 重启.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数简要说明:</span></span><br><span class="line"><span class="comment"># 'root=/dev/nfs' 加载nfs文件系统</span></span><br><span class="line"><span class="comment"># 'nfsroot=10.0.0.98:/fs' nfs文件系统的来源, 此处是由Ubuntu当nfs服务器, 共享出/fs文件夹</span></span><br><span class="line"><span class="comment"># 'ip=10.0.0.111:10.0.0.98:10.0.0.138:255.255.255.0::eth0:off' 分别表示:</span></span><br><span class="line"><span class="comment">#  ip= 开发板ip : nfs服务器ip: 网关ip : 子网掩码 :: 开发板网口 : off</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">3. 从nfs启动后, 加载 s3c_nand.ko 驱动.</span><br><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录</span></span><br><span class="line">$ make modules                                  <span class="comment"># 生成s3c_nand.ko</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 开始测试</span></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/nand/            # NAND flash驱动目录, nfs</span></span><br><span class="line">$ insmod s3c_nand.ko                            <span class="comment"># 加载驱动</span></span><br><span class="line">NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">4. 使用工具 mtd-utils 格式化 NAND Flash</span><br><span class="line"><span class="comment"># Ubuntu 主机端, 需要先编译mtd-utils</span></span><br><span class="line">$ tar xjf mtd-utils-05.07.23.tar.bz2</span><br><span class="line">$ <span class="built_in">cd</span> mtd-utils-05.07.23/util</span><br><span class="line">$ vim Makefile</span><br><span class="line">    <span class="comment"># ===== 文件内容, 修改如下内容: =====</span></span><br><span class="line">    <span class="comment">#CROSS=arm-linux-   # 需要交叉编译, 取消注释</span></span><br><span class="line">    CROSS=arm-linux-</span><br><span class="line">    <span class="comment"># ===== 结束修改, 保存退出vim =====</span></span><br><span class="line">$ make</span><br><span class="line"><span class="comment"># 拷贝可执行文件到挂载的nfs文件系统的bin目录下</span></span><br><span class="line">$ cp flash_erase flash_eraseall /home/draapho/share/jz2440/nfs/fs_mini_mdev/bin</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">5. 格式化后, 就能挂载测试了.</span><br><span class="line"><span class="comment"># 开发板端 bash</span></span><br><span class="line">$ ls -l /dev/mtd*                               <span class="comment"># 查看一下分区情况, 有0-3共四个分区</span></span><br><span class="line"><span class="comment"># 应该是用 "flash_eraseall /dev/mtd1" 格式化 "params" 分区, 恢复起来最方便.</span></span><br><span class="line">$ flash_eraseall /dev/mtd3                      <span class="comment"># 格式化 root分区 (用的字符设备), 文件格式为yaffs</span></span><br><span class="line">$ mount -t yaffs /dev/mtdblock3 /tmp            <span class="comment"># 以yaffs格式挂载 root分区</span></span><br><span class="line">$ ls /tmp                                       <span class="comment"># 应该只有一个 lost+found 文件.</span></span><br><span class="line"><span class="comment"># 然后可以对这个分区进行文件创建, 读写的操作了.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">6. 恢复原来的开发环境</span><br><span class="line"><span class="comment"># 开发板 uboot:</span></span><br><span class="line"><span class="comment"># 破坏了root区的话, 就恢复root区, 重新烧写文件系统到flash就行了. 猜测使用 params 区做测试是没有影响的.</span></span><br><span class="line"><span class="comment"># 烧录原来的 uImage 到 kernel.</span></span><br><span class="line"><span class="comment"># 改回 uboot 的 bootargs 参数</span></span><br><span class="line"><span class="comment"># 重启, 从NAND Flash正常启动.</span></span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://www.cnblogs.com/TaigaCon/archive/2012/11/17/2775057.html" target="_blank" rel="noopener">Linux操作系统下 NAND FLASH驱动程序框架</a></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/01/24/1810-drv-nand1/" itemprop="url">
+                  驱动之NAND Flash框架
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-01-24T00:00:00+11:00" content="2018-01-24">
+              2018-01-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
+                    <span itemprop="name">embedded linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
+<li><a href="https://draapho.github.io/2018/01/22/1809-drv-blk/">驱动之块设备-框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/24/1810-drv-nand1/">驱动之NAND Flash框架</a></li>
+<li><a href="https://draapho.github.io/2018/01/25/1811-drv-nand2/">驱动之NAND Flash源码</a></li>
+<li>[驱动之NOR Flash](<a href="https://draapho.github.io/2018/01/26/1812-drv-nor/">https://draapho.github.io/2018/01/26/1812-drv-nor/</a></li>
+<li><a href="https://draapho.github.io/2018/02/06/1813-drv-net/">驱动之网卡驱动</a></li>
+</ul>
+<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
+<h1 id="NAND-Flash-基础知识"><a href="#NAND-Flash-基础知识" class="headerlink" title="NAND Flash 基础知识"></a>NAND Flash 基础知识</h1><h2 id="NAND-和-NOR-Flash的比较"><a href="#NAND-和-NOR-Flash的比较" class="headerlink" title="NAND 和 NOR Flash的比较"></a>NAND 和 NOR Flash的比较</h2><table>
+<thead>
+<tr>
+<th>NOR FLASH</th>
+<th>NAND FLASH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口时序同SRAM,易使用</td>
+<td>地址/数据线复用，数据位较窄</td>
+</tr>
+<tr>
+<td>读取速度较快</td>
+<td>读取速度较慢</td>
+</tr>
+<tr>
+<td>擦除速度慢，以64-128KB的块为单位</td>
+<td>擦除速度快，以8－32KB的块为单位</td>
+</tr>
+<tr>
+<td>写入速度慢</td>
+<td>写入速度快</td>
+</tr>
+<tr>
+<td>随机存取速度较快，支持XIP(eXecute In Place，芯片内执行)，适用于代码存储。在嵌入式系统中，常用于存放引导程序、根文件系统等。</td>
+<td>顺序读取速度较快，随机存取速度慢，适用于数据存储(如大容量的多媒体应用)。在嵌入式系统中，常用于存放用户文件系统等。</td>
+</tr>
+<tr>
+<td>单片容量较小，1-32MB</td>
+<td>单片容量较大，8-128MB，提高了单元密度</td>
+</tr>
+<tr>
+<td>最大擦写次数10万次</td>
+<td>最大擦写次数100万次</td>
+</tr>
+</tbody>
+</table>
+<h2 id="硬件接口和时序"><a href="#硬件接口和时序" class="headerlink" title="硬件接口和时序"></a>硬件接口和时序</h2><p>看相关数据手册, 以jz2440v3开发板为例:</p>
+<ul>
+<li><code>K9F2G08U0C.pdf</code> NAND Flash 数据手册</li>
+<li><code>S3C2440A_UserManual_Rev13.pdf</code> CPU 数据手册</li>
+</ul>
+<p>NAND Flash的硬件引脚基本固定, 下面列出各个引脚的含义</p>
+<table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>英文原意</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I/O</td>
+<td>data Inputs/Outputs</td>
+<td>数据收发, 8bit或16bit</td>
+</tr>
+<tr>
+<td>CLE</td>
+<td>Command Latch Enable</td>
+<td>传的是指令, 高电平有效</td>
+</tr>
+<tr>
+<td>ALE</td>
+<td>Address Latch Enable</td>
+<td>传的是地址, 高电平有效</td>
+</tr>
+<tr>
+<td>_CE 或 nCE</td>
+<td>Chip Enable</td>
+<td>片选信号, 低电平有效</td>
+</tr>
+<tr>
+<td>_RE 或 nRE</td>
+<td>Read Enable</td>
+<td>读数据, 低电平有效</td>
+</tr>
+<tr>
+<td>_WE 或 nWE</td>
+<td>Write Enable</td>
+<td>写数据, 低电平有效</td>
+</tr>
+<tr>
+<td>R/_B 或 R/nB</td>
+<td>Ready/Busy</td>
+<td>空闲/忙信号, 忙为低电平</td>
+</tr>
+</tbody>
+</table>
+<p>查看三星S3C2440数据手册 <code>NAND Flash Controller</code> 章节可知, 已将nand flash的时序操作打包成了寄存器操作.<br>u-boot里面, 可以使用 <code>md</code> <code>mw</code> 直接对memroy进行操作. 因此可在u-boot下面直接用指令来操作nand flash的时序</p>
+<ul>
+<li><code>md</code>, Memory Display. 显示指定内存地址的内容. <code>.b</code>表Byte, 字节. <code>.w</code>表Word, 2字节. <code>.l</code>表Long, 4字节.</li>
+<li><code>mw</code>, Memory Write. 写入内容到指定内存地址. <code>.b</code>表Byte, 字节. <code>.w</code>表Word, 2字节. <code>.l</code>表Long, 4字节.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>物理操作</th>
+<th>S3C2440 寄存器操作</th>
+<th>u-boot 直接操作对应的寄存器地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>片选</td>
+<td>_CE低</td>
+<td>NFCONT bit1=0</td>
+<td>md.l 读一下, mw.l 0x4E000004 回写bit1=0</td>
+</tr>
+<tr>
+<td>发命令</td>
+<td>CLE高, ALE低, I/O命令值, _WE高变低</td>
+<td>NFCMMD=命令值</td>
+<td>mw.b 0x4E000008 命令值</td>
+</tr>
+<tr>
+<td>发地址</td>
+<td>ALE高, CLE低, I/O地址值, _WE高变低</td>
+<td>NFADDR=地址值</td>
+<td>mw.b 0x4E00000C 地址值</td>
+</tr>
+<tr>
+<td>发数据</td>
+<td>CLE低, ALE低, I/O数据值, _WE高变低</td>
+<td>NFDATA=数据值</td>
+<td>mw.b 0x4E000010 数据值</td>
+</tr>
+<tr>
+<td>读数据</td>
+<td>CLE低, ALE低, _RE高变低, 取I/O值</td>
+<td>数据值=NFDATA</td>
+<td>md.b 0x4E000010 1</td>
+</tr>
+</tbody>
+</table>
+<h2 id="读写实验"><a href="#读写实验" class="headerlink" title="读写实验"></a>读写实验</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板 uboot 命令行, 最好是从 NAND Flash 启动的uboot.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 读取 ID, 查看 K9F2G08U0C 数据手册 5.5 Read ID 时序图.</span></span><br><span class="line">md.l 0x4E000004 1           <span class="comment"># 读取 NFCONT 寄存器值. 1表示长度, 就读一个数据. 默认值是16</span></span><br><span class="line">mw.l 0x4E000004 1           <span class="comment"># 置 bit1=0 后, 回写</span></span><br><span class="line">mw.b 0x4E000008 0x90        <span class="comment"># 发命令 NFCMMD=0x90</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 发地址 NFADDR=0x00</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 读数据 NFDATA, 应该得到 ec</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, da</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, 10</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, 15 (这里返回了95, 先不管)</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 继续读 NFDATA, 应该得到device code, 44</span></span><br><span class="line"><span class="comment"># 这里不能使用指令 md.b 0x4E000010 5 读取5个字节. 因为其含义是读 0x4E000010-0x4E000014 的寄存器值, 必然是错的.</span></span><br><span class="line">mw.b 0x4E000008 0xff        <span class="comment"># 发RESET命令 NFCMMD=0xFF</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 读取0地址的数据, 查看 K9F2G08U0C 数据手册 5.1 Page Read 时序图</span></span><br><span class="line">nand dump 0                 <span class="comment"># 先用nand指令直接读取nand flash的页, 后面在用寄存器操作的方式读一遍来对比</span></span><br><span class="line">17 00 00 ea 14 f0 9f e5  14 f0 9f e5 14 f0 9f e5</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">md.l 0x4E000004 1           <span class="comment"># 读取 NFCONT 寄存器值. 1表示长度, 就读一个数据. 默认值是16</span></span><br><span class="line">mw.l 0x4E000004 1           <span class="comment"># 置 bit1=0 后, 回写</span></span><br><span class="line">mw.b 0x4E000008 0x00        <span class="comment"># 写命令 NFCMMD=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line">mw.b 0x4E00000C 0x00        <span class="comment"># 写地址 NFADDR=0x00</span></span><br><span class="line"><span class="comment"># 这款nand总线是8位, 时序图要求5个周期. 由2字节的列地址和3字节的行地址组成.</span></span><br><span class="line">mw.b 0x4E000008 0x30        <span class="comment"># 读命令 NFCMMD=0x30</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 读数据 NFDATA</span></span><br><span class="line">......                      <span class="comment"># 重复多次这个指令, 譬如16次</span></span><br><span class="line">md.b 0x4E000010 1           <span class="comment"># 读数据 NFDATA, 得到的数据应该和 nand dump 0 的一样</span></span><br><span class="line"><span class="comment"># 16此返回值应该和 nand dump 的结果一样: 17 00 00 ea 14 f0 9f e5  14 f0 9f e5 14 f0 9f e5</span></span><br><span class="line"><span class="comment"># 这里不能使用指令 md.b 0x4E000010 16 读取16个字节. 因为其含义是读 0x4E000010-0x4E000020 的寄存器值, 必然是错的.</span></span><br><span class="line">mw.b 0x4E000008 0xff        <span class="comment"># 发RESET命令 NFCMMD=0xFF</span></span><br></pre></td></tr></table></figure>
+<h1 id="NAND-Flash-系统框架"><a href="#NAND-Flash-系统框架" class="headerlink" title="NAND Flash 系统框架"></a>NAND Flash 系统框架</h1><p><img src="https://draapho.github.io/images/1810/nand1.jpg" alt="nand1"></p>
+<p><img src="https://draapho.github.io/images/1810/nand2.png" alt="nand2"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 由Linux系统启动时的打印信息, 可以抓取到 NAND FLASH 相关的初始化信息和分区信息.</span></span><br><span class="line"><span class="comment">// 可得 "S3C24XX NAND Driver, ..." 搜索后, 定位到文件 "/drivers/mtd/nand/s3c2410.c"</span></span><br><span class="line"><span class="comment">// mtd: Memory Technology Device. 记忆体技术设备, 也就是 nand/nor flash.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; /drivers/mtd/nand/s3c2410.c</span></span><br><span class="line">s3c2410_nand_init                                               <span class="comment">// 看驱动文件, 从 module_init 开始</span></span><br><span class="line">    platform_driver_register(&amp;s3c2440_nand_driver);             <span class="comment">// 很明显用了 platform 框架</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /arch/arm/plat-s3c24xx/common-smdk.c              // 这里是 platform 框架的 device 配置</span></span><br><span class="line">    smdk_machine_init</span><br><span class="line">        s3c_device_nand.dev.platform_data = &amp;smdk_nand_info;</span><br><span class="line">        platform_add_devices(smdk_devs);                        <span class="comment">// 找到了 platform 的 devices 端.</span></span><br><span class="line">        <span class="comment">// 这里看下 smdk_nand_info, smdk_devs的s3c_device_nand 就都明白了. 配置nand的名称和参数.</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, common-smdk.c</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 看完了platform框架, 匹配后就是调用probe函数. 几次跳转后, 最终调用:</span></span><br><span class="line">s3c24xx_nand_probe</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">s3c2410_platform_nand</span> *<span class="title">plat</span> = <span class="title">to_nand_plat</span>(<span class="title">pdev</span>);</span>    <span class="comment">// 取出了 smdk_nand_info 的配置信息</span></span><br><span class="line">    s3c2410_nand_inithw                                         <span class="comment">// 初始化硬件, 如时序</span></span><br><span class="line">    s3c2410_nand_init_chip                                      <span class="comment">// 初始化通讯, 如缓冲区, 寄存器值</span></span><br><span class="line">    nand_scan                                                   <span class="comment">// 开始通讯, 检查 nand flash</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /drivers/mtd/nand/nand_base.c                     // NAND FLASH 操作的通用文件</span></span><br><span class="line">    nand_scan</span><br><span class="line">        nand_scan_ident                                         <span class="comment">// 第一阶段的初始化, 检查flash硬件</span></span><br><span class="line">            nand_set_defaults                                   <span class="comment">// nand 通信使用默认参数</span></span><br><span class="line">            nand_get_flash_type                                 <span class="comment">// 获取第一块 nand 的ID值</span></span><br><span class="line">                nand_flash_ids                                  <span class="comment">// 常用的 nand flash 表. 可见内核都支持了</span></span><br><span class="line">            printk(KERN_INFO <span class="string">"%d NAND chips detected\n"</span>, i);    <span class="comment">// 接了多块nand的话, 必须是同型号的</span></span><br><span class="line">            mtd-&gt;size = i * chip-&gt;chipsize;                     <span class="comment">// 总容量 = nand数量*单片容量</span></span><br><span class="line">        nand_scan_tail                                          <span class="comment">// 第二阶段的初始化工作, 软件设置</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, nand_base.c</span></span><br><span class="line"></span><br><span class="line">    s3c2410_nand_add_partition                                  <span class="comment">// 分区工作</span></span><br><span class="line">        add_mtd_device</span><br><span class="line">        <span class="comment">// -----&gt; /drivers/mtd/mtdcore.c                        // mtd 设备核心</span></span><br><span class="line">        <span class="comment">// add_mtd_partitions 最终也调用了 add_mtd_device</span></span><br><span class="line">        add_mtd_device</span><br><span class="line">            <span class="keyword">not</span> = list_entry(<span class="keyword">this</span>, struct mtd_notifier, <span class="built_in">list</span>);  <span class="comment">// struct mtd_notifier 结构体是关键</span></span><br><span class="line">            <span class="keyword">not</span>-&gt;add(mtd);                                      <span class="comment">// 调用了add</span></span><br><span class="line">            <span class="comment">// 搜索 mtd_notifier 查看来源, 可知:</span></span><br><span class="line">            <span class="comment">// 实际调用了 mtd_notify_add         // -----&gt; drivers/mtd/mtdchar.c</span></span><br><span class="line">            <span class="comment">// 实际调用了 blktrans_notify_add    // -----&gt; drivers/mtd/mtd_blkdevs.c</span></span><br><span class="line">        <span class="comment">// -----&gt; 结束, mtdcore.c</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, s3c2410.c</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/mtdchar.c                                 // 将mtd设备挂载成字符设备</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_notifier</span> <span class="title">notifier</span>;</span>                            <span class="comment">// .add = mtd_notify_add</span></span><br><span class="line">mtd_notify_add</span><br><span class="line">    class_device_create(<span class="string">"mtd%d"</span>)                                <span class="comment">// mtd字符设备, 可读写</span></span><br><span class="line">    class_device_create(<span class="string">"mtd%dro"</span>)                              <span class="comment">// mtd只读字符设备</span></span><br><span class="line">init_mtdchar                                                    <span class="comment">// mtdchar.c 的 module_init</span></span><br><span class="line">    register_chrdev(MTD_CHAR_MAJOR, <span class="string">"mtd"</span>, &amp;mtd_fops)           <span class="comment">// 注册为字符设备</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, mtdchar.c 完成了字符设备的核心步骤.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// -----&gt; drivers/mtd/mtd_blkdevs.c                             // 将mtd设备挂载成块设备</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_notifier</span> <span class="title">blktrans_notifier</span>;</span>                   <span class="comment">// .add = blktrans_notify_add</span></span><br><span class="line">blktrans_notify_add</span><br><span class="line">    tr = list_entry(<span class="keyword">this</span>, struct mtd_blktrans_ops, <span class="built_in">list</span>);       <span class="comment">// 一样的, 搜索 mtd_blktrans_ops</span></span><br><span class="line">    tr-&gt;add_mtd(tr, mtd);</span><br><span class="line">    <span class="comment">// 可以找到两个文件有初始化, 很明显是块设备读写还是只读的区别. 选取 /drivers/mtd/mtdblock.c</span></span><br><span class="line">    <span class="comment">// 实际调用了 mtdblock_add_mtd</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// -----&gt; /drivers/mtd/mtdblock.c</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mtd_blktrans_ops</span> <span class="title">mtdblock_tr</span>;</span>                 <span class="comment">// .add_mtd = mtdblock_add_mtd</span></span><br><span class="line">    mtdblock_add_mtd</span><br><span class="line">        add_mtd_blktrans_dev</span><br><span class="line">            alloc_disk                                          <span class="comment">// 分配 gendisk</span></span><br><span class="line">            add_disk                                            <span class="comment">// 注册为块设备</span></span><br><span class="line">    init_mtdblock                                               <span class="comment">// mtdblock.c 的 module_init</span></span><br><span class="line">        register_mtd_blktrans</span><br><span class="line">            register_blkdev                                     <span class="comment">// 获得主设备号</span></span><br><span class="line">            blk_init_queue                                      <span class="comment">// 设置缓冲队列</span></span><br><span class="line">    <span class="comment">// -----&gt; 结束, mtdblock.c 完成了块设备的核心步骤.</span></span><br><span class="line"><span class="comment">// -----&gt; 结束, mtd_blkdevs</span></span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://www.cnblogs.com/TaigaCon/archive/2012/11/17/2775057.html" target="_blank" rel="noopener">Linux操作系统下 NAND FLASH驱动程序框架</a><br><a href="http://www.linuxidc.com/Linux/2017-03/142206.htm" target="_blank" rel="noopener">Linux MTD子系统 _从模型分析到Flash驱动模板</a><br><a href="http://blog.sina.com.cn/s/blog_6683e49d0100o18j.html" target="_blank" rel="noopener">LINUX NAND FLASH驱动程序框架分析</a></p>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/01/22/1809-drv-blk/" itemprop="url">
                   驱动之块设备-框架
                 </a>
@@ -1283,371 +1700,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/09/1804-drv-lcd/" itemprop="url">
-                  驱动之LCD驱动框架和实现
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-09T00:00:00+11:00" content="2018-01-09">
-              2018-01-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
-<li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
-<li><a href="https://draapho.github.io/2018/02/08/1814-drv-rtc/">驱动之RTC分析</a></li>
-<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
-<li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
-<li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/19/1808-drv-usb2/">驱动之USB设备驱动程序</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="LCD驱动框架分析"><a href="#LCD驱动框架分析" class="headerlink" title="LCD驱动框架分析"></a>LCD驱动框架分析</h1><h2 id="字符驱动基本步骤"><a href="#字符驱动基本步骤" class="headerlink" title="字符驱动基本步骤"></a>字符驱动基本步骤</h2><p>根据之前写的驱动, 已经对linux驱动基本步骤比较熟悉了.</p>
-<ul>
-<li>所有的驱动都会调用 <code>module_init</code> 和 <code>module_exit</code>, 从 <code>module_init</code> 开始看比较好.</li>
-<li>定义并设置 <code>file_operations</code> 结构体, 然后实现里面的函数, 如open等.</li>
-<li>获取<code>主设备号</code>, 可以手动分配, 也可以由系统自动分配</li>
-<li>用 <code>register_chrdev</code> 注册字符设备. 核心过程如下:<ul>
-<li><code>__register_chrdev_region</code> 注册/申请主设备号, 并申请子设备号范围.</li>
-<li><code>cdev_init</code> 用 <code>file_operations</code> 结构体初始化一个字符设备</li>
-<li><code>cdev_add</code> 用设备号向系统添加字符设备.</li>
-</ul>
-</li>
-<li>如果要用mdev自动加载驱动, 还需要在init里实现如下函数<ul>
-<li><code>class_create</code>, 创建一个设备类. 可以在 <code>/sys/class/</code> 看到设备类名称</li>
-<li><code>device_create</code>, 创建和注册设备. 可以在 <code>/dev/</code> 看到设备名称</li>
-<li><code>class_device_create</code> 是低版本Linux的函数. 本质就是 <code>device_create</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="LCD驱动框架分析-1"><a href="#LCD驱动框架分析-1" class="headerlink" title="LCD驱动框架分析"></a>LCD驱动框架分析</h2><p>Linux的LCD驱动用了分层分离的思想, 用到了platform框架.</p>
-<ul>
-<li><code>/drivers/video/fbmem.c</code> frame buffer memory, 显存操作相关<ul>
-<li><code>subsys_initcall(fbmem_init);</code> fbmem的初始化.<ul>
-<li><code>register_chrdev(FB_MAJOR,&quot;fb&quot;,&amp;fb_fops)</code> 注册字符设备,</li>
-<li><code>fb_class = class_create(THIS_MODULE, &quot;graphics&quot;);</code> 注册 graphics 设备类</li>
-<li>可以去<code>/sys/class/graphics</code> 看看, 下面有 fb0 和 fbcon 两个文件.</li>
-<li><strong>这里没有注册设备, 因为视频控制器和具体硬件相关</strong></li>
-</ul>
-</li>
-<li><code>registered_fb</code> 是具体设备给fbmem.c提供信息的关键!<ul>
-<li><code>fb_read</code> <code>fb_write</code> 里都可以看到 <code>struct fb_info *info = registered_fb[fbidx];</code></li>
-<li>然后, 函数根据 info 信息, 决定是进一步调用具体设备的 read write等函数, 还是使用默认代码.</li>
-</ul>
-</li>
-<li><code>register_framebuffer(struct fb_info *fb_info)</code> 供LCD设备调用, 提交<code>registered_fb</code>信息并注册设备.<ul>
-<li><code>device_create(fb_class, fb_info-&gt;device, MKDEV(FB_MAJOR, i), &quot;fb%d&quot;, i)</code></li>
-<li>真正注册一个LCD设备, 名字是fb0, fb1这样递加上去. 可以在 <code>/dev/</code> 里找到.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>/drviers/video/s3c2410fb.c</code> 具体硬件的LCD驱动.<ul>
-<li>这里用到了platform框架. <code>s3c2410fb.c</code> 是硬件相关的通用操作, 属于 <code>platform_driver</code></li>
-<li><code>module_init</code> 里, 直接就是 <code>platform_driver_register</code>.</li>
-<li>我们知道platform框架里, <code>probe</code>函数是很关键的, 在drive和device匹配时, 就会调用它.</li>
-<li><code>probe</code>函数里, 初始化后, 可看到 <code>register_framebuffer(fbinfo);</code> 将LCD设备信息提交给fbmem.c, 并注册设备.</li>
-</ul>
-</li>
-<li><code>/arch/arm/mach-s3c2440/mach-smdk2440.c</code> 配置硬件参数的地方.<ul>
-<li>这里是platform框架的 <code>platform_device</code>.</li>
-<li><code>smdk2440_machine_init</code> 初始化里<ul>
-<li><code>s3c24xx_fb_set_platdata(&amp;smdk2440_lcd_cfg);</code> 将LCD配置信息拷贝到 <code>s3c_device_lcd</code></li>
-<li><code>platform_add_devices(smdk2440_devices, ARRAY_SIZE(smdk2440_devices));</code> 注册 platform_device 设备.</li>
-<li><code>smdk2440_devices</code> 里就包含了 <code>s3c_device_lcd</code></li>
-</ul>
-</li>
-<li>如果硬件平台不变, 只是换屏的话, 只需要修改 <code>mach-smdk2440.c</code> 即可. 这就是分层分离概念的意义所在.</li>
-</ul>
-</li>
-</ul>
-<p>补充说明 <code>fbmem.c</code> 的上层:</p>
-<ul>
-<li><code>/drivers/video/console/fbcon.c</code> 在lcd上显示终端, 此文件和tty1关联.<ul>
-<li><code>class_device_create(fb_class, NULL, MKDEV(0, 0), NULL, &quot;fbcon&quot;);</code> 注册 <code>fbcon</code> 设备</li>
-<li><code>fbcon_start</code>  和 fb设备对接, 开始显示.</li>
-</ul>
-</li>
-<li>app层调用 <code>open(&quot;/dev/fb0&quot;, ...)</code>, 主设备号为29, 次设备号为0<ul>
-<li>会对应到kernel层 <code>fbmem.c</code> 的 <code>fb_open</code>函数:</li>
-<li><code>int fbidx = iminor(inode);</code></li>
-<li><code>struct fb_info *info = = registered_fb[0];</code></li>
-</ul>
-</li>
-<li>app层调用 <code>read()</code><ul>
-<li>会对应到kernel层 <code>fbmem.c</code> 的 <code>fb_read</code>函数:</li>
-<li><code>registered_fb</code> 由 <code>register_framebuffer</code> 设置.</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">fb_read(struct file *file, <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *ppos) &#123;</span><br><span class="line">    <span class="keyword">int</span> fbidx = iminor(inode);                              <span class="comment">// 子设备号</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fb_info</span> *<span class="title">info</span> = <span class="title">registered_fb</span>[<span class="title">fbidx</span>];</span>            <span class="comment">// LCD硬件信息.</span></span><br><span class="line">    <span class="keyword">if</span> (info-&gt;fbops-&gt;fb_read)                               <span class="comment">// 如果硬件由自己的read函数</span></span><br><span class="line">        <span class="keyword">return</span> info-&gt;fbops-&gt;fb_read(info, buf, count, ppos);<span class="comment">// 调用后, 直接返回</span></span><br><span class="line"></span><br><span class="line">    src = (u32 __iomem *) (info-&gt;screen_base + p);          <span class="comment">// 获取显存地址</span></span><br><span class="line">    dst = buffer;</span><br><span class="line">    *dst++ = fb_readl(src++);</span><br><span class="line">    copy_to_user(buf, buffer, c)                            <span class="comment">// 将值返回给应用层. 获取显存内容</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="LCD驱动源码"><a href="#LCD驱动源码" class="headerlink" title="LCD驱动源码"></a>LCD驱动源码</h1><p>现在尝试忽略 <code>/drviers/video/s3c2410fb.c</code> 使用的platform框架.<br>直接自己写一个 LCD 驱动, 和 <code>/drivers/video/fbmem.c</code> 进行对接.<br><strong>此处只是为了练习, 实际项目不建议这样使用</strong></p>
-<p>驱动的核心步骤如下:</p>
-<ol>
-<li>分配一个fb_info: <code>s3c_lcd = framebuffer_alloc(0, NULL);</code></li>
-<li>设置fb_info<br> 2.1 设置固定的参数, <code>struct fb_fix_screeninfo</code><br> 2.2 设置可变的参数, <code>struct fb_var_screeninfo</code><br> 2.3 设置操作函数, <code>fbops</code><br> 2.4 其他的设置</li>
-<li>硬件相关的操作<br> 3.1 配置GPIO用于LCD<br> 3.2 根据LCD手册设置LCD控制器, 比如VCLK的频率等<br> 3.3 分配显存(framebuffer), 并把地址告诉LCD控制器</li>
-<li>注册 <code>register_framebuffer(s3c_lcd);</code></li>
-</ol>
-<h2 id="测试-原系统"><a href="#测试-原系统" class="headerlink" title="测试, 原系统"></a>测试, 原系统</h2><p>在使用自己写的LCD驱动源码之前, 先用系统提供的LCD框架驱动测试一下显示屏</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line">$ vi /etc/inittab</span><br><span class="line">    <span class="comment"># ===== 设置为如下内容 =====</span></span><br><span class="line">    ::sysinit:/etc/init.d/rcS</span><br><span class="line">    s3c2410_serial0::askfirst:-/bin/sh</span><br><span class="line">    <span class="comment"># 增加了下面一行, 用于屏幕打开终端</span></span><br><span class="line">    tty1::askfirst:-/bin/sh</span><br><span class="line">    ::ctrlaltdel:/sbin/reboot</span><br><span class="line">    ::shutdown:/bin/umount -a -r</span><br><span class="line">    <span class="comment"># ===== wq保存, 退出 =====</span></span><br><span class="line">$ reboot</span><br><span class="line"><span class="comment"># 重启终端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启后, 屏幕就会显示终端信息了. 提示输入Enter键来触发终端.</span></span><br><span class="line"><span class="comment"># 加载 "驱动之input子系统" 里的驱动</span></span><br><span class="line">$ insmod input_keys.ko</span><br><span class="line"><span class="comment"># 按下S4按键, 相当于输入了 Enter</span></span><br><span class="line"><span class="comment"># 依次按下 S2, S3, S4, 就是输入了ls指令, 屏幕上会列出文件列表.</span></span><br></pre></td></tr></table></figure>
-<h2 id="lcd-c"><a href="#lcd-c" class="headerlink" title="lcd.c"></a>lcd.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mm.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/delay.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fb.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/dma-mapping.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/workqueue.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/clk.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/div64.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/mach/map.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-lcd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/arch/fb.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_lcdfb_setcolreg</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> regno, <span class="keyword">unsigned</span> <span class="keyword">int</span> red,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> green, <span class="keyword">unsigned</span> <span class="keyword">int</span> blue,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> transp, struct fb_info *info)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">lcd_regs</span> &#123;</span>                                   <span class="comment">// LCD相关寄存器, 方便操作</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon2;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon3;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon4;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdcon5;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsaddr1;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsaddr2;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsaddr3;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   redlut;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   greenlut;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   bluelut;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   reserved[<span class="number">9</span>];</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   dithmode;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   tpal;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdintpnd;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdsrcpnd;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lcdintmsk;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>   lpcsel;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">fb_ops</span> <span class="title">s3c_lcdfb_ops</span> = &#123;</span></span><br><span class="line">    .owner          = THIS_MODULE,</span><br><span class="line">    .fb_setcolreg   = s3c_lcdfb_setcolreg,          <span class="comment">// 设置调色板, 用于色域转换(RGB-&gt;RGB565)</span></span><br><span class="line">    <span class="comment">/* 下面三个函数, 需要用 make modules 获得ko文件. 路径 "/drivers/video/cfb*.ko" */</span></span><br><span class="line">    .fb_fillrect    = cfb_fillrect,                 <span class="comment">// 理解为画矩形</span></span><br><span class="line">    .fb_copyarea    = cfb_copyarea,                 <span class="comment">// 理解为拷贝区域</span></span><br><span class="line">    .fb_imageblit   = cfb_imageblit,                <span class="comment">// 理解为画图</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">fb_info</span> *<span class="title">s3c_lcd</span>;</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpbcon;              <span class="comment">// GPIO口的操作</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpbdat;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpccon;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpdcon;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpgcon;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">volatile</span> <span class="class"><span class="keyword">struct</span> <span class="title">lcd_regs</span>* <span class="title">lcd_regs</span>;</span></span><br><span class="line"><span class="keyword">static</span> u32 pseudo_palette[<span class="number">16</span>];                      <span class="comment">// 假调色板</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* from pxafb.c */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="title">chan_to_field</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> chan, struct fb_bitfield *bf)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    chan &amp;= <span class="number">0xffff</span>;</span><br><span class="line">    chan &gt;&gt;= <span class="number">16</span> - bf-&gt;length;</span><br><span class="line">    <span class="keyword">return</span> chan &lt;&lt; bf-&gt;offset;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置调色板, 用于色域转换(RGB-&gt;RGB565)</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">s3c_lcdfb_setcolreg</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> regno, <span class="keyword">unsigned</span> <span class="keyword">int</span> red,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> green, <span class="keyword">unsigned</span> <span class="keyword">int</span> blue,</span></span></span><br><span class="line"><span class="function"><span class="params">                 <span class="keyword">unsigned</span> <span class="keyword">int</span> transp, struct fb_info *info)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> val;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (regno &gt; <span class="number">16</span>)                                 <span class="comment">// 一个调色板里, 最多有16个小碟子</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 用red,green,blue三原色构造出val */</span>             <span class="comment">// 这里是压缩作用, 将红绿蓝压缩成16位真彩色.</span></span><br><span class="line">    val  = chan_to_field(red,   &amp;info-&gt;var.red);</span><br><span class="line">    val |= chan_to_field(green, &amp;info-&gt;var.green);</span><br><span class="line">    val |= chan_to_field(blue,  &amp;info-&gt;var.blue);</span><br><span class="line"></span><br><span class="line">    pseudo_palette[regno] = val;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">lcd_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* 1. 分配一个fb_info */</span></span><br><span class="line">    s3c_lcd = framebuffer_alloc(<span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2. 设置 */</span></span><br><span class="line">    <span class="comment">/* 2.1 设置固定的参数, struct fb_fix_screeninfo */</span></span><br><span class="line">    <span class="built_in">strcpy</span>(s3c_lcd-&gt;fix.id, <span class="string">"mylcd"</span>);</span><br><span class="line">    s3c_lcd-&gt;fix.smem_len = <span class="number">480</span>*<span class="number">272</span>*<span class="number">16</span>/<span class="number">8</span>;           <span class="comment">// 显存大小(字节), 长*宽*位宽/8 (这里用的RGB565, 2字节)</span></span><br><span class="line">    s3c_lcd-&gt;fix.type     = FB_TYPE_PACKED_PIXELS;  <span class="comment">// 压缩格式. 另外有 逐行/隔行/VGA等等</span></span><br><span class="line">    s3c_lcd-&gt;fix.visual   = FB_VISUAL_TRUECOLOR;    <span class="comment">// 真彩, 即65536色.</span></span><br><span class="line">    s3c_lcd-&gt;fix.line_length = <span class="number">480</span>*<span class="number">2</span>;               <span class="comment">// 一行占用的字节</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2.2 设置可变的参数, struct fb_var_screeninfo */</span></span><br><span class="line">    s3c_lcd-&gt;var.xres           = <span class="number">480</span>;              <span class="comment">// 实际的屏幕分辨率(像素点)</span></span><br><span class="line">    s3c_lcd-&gt;var.yres           = <span class="number">272</span>;</span><br><span class="line">    s3c_lcd-&gt;var.xres_virtual   = <span class="number">480</span>;              <span class="comment">// 虚拟分辨率</span></span><br><span class="line">    s3c_lcd-&gt;var.yres_virtual   = <span class="number">272</span>;</span><br><span class="line">    s3c_lcd-&gt;var.bits_per_pixel = <span class="number">16</span>;               <span class="comment">// 每个像素点的位宽</span></span><br><span class="line">    s3c_lcd-&gt;var.red.offset     = <span class="number">11</span>;               <span class="comment">// RGB565的位和位偏移</span></span><br><span class="line">    s3c_lcd-&gt;var.red.length     = <span class="number">5</span>;</span><br><span class="line">    s3c_lcd-&gt;var.green.offset   = <span class="number">5</span>;</span><br><span class="line">    s3c_lcd-&gt;var.green.length   = <span class="number">6</span>;</span><br><span class="line">    s3c_lcd-&gt;var.blue.offset    = <span class="number">0</span>;</span><br><span class="line">    s3c_lcd-&gt;var.blue.length    = <span class="number">5</span>;</span><br><span class="line">    s3c_lcd-&gt;var.activate       = FB_ACTIVATE_NOW;  <span class="comment">// 实时显示</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2.3 设置操作函数, fbops */</span></span><br><span class="line">    s3c_lcd-&gt;fbops              = &amp;s3c_lcdfb_ops;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 2.4 其他的设置 */</span></span><br><span class="line">    <span class="comment">/* 调色板, 可以理解为色域转换用, 譬如输入是8位, 输出是16位的颜色, 就需要用到调色板 */</span></span><br><span class="line">    s3c_lcd-&gt;pseudo_palette = pseudo_palette;       <span class="comment">// 真彩屏需要使用假调色板, 用于色域转换</span></span><br><span class="line">    <span class="comment">//s3c_lcd-&gt;screen_base  = ;                     // 3.3处会设置, 显存的虚拟地址</span></span><br><span class="line">    s3c_lcd-&gt;screen_size   = <span class="number">480</span>*<span class="number">272</span>*<span class="number">16</span>/<span class="number">8</span>;          <span class="comment">// Amount of ioremapped VRAM or 0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3. 硬件相关的操作 */</span></span><br><span class="line">    <span class="comment">/* 3.1 配置GPIO用于LCD */</span>                        <span class="comment">// 看原理图和数据手册. 此处不详述了.</span></span><br><span class="line">    gpbcon = ioremap(<span class="number">0x56000010</span>, <span class="number">8</span>);</span><br><span class="line">    gpbdat = gpbcon+<span class="number">1</span>;</span><br><span class="line">    gpccon = ioremap(<span class="number">0x56000020</span>, <span class="number">4</span>);</span><br><span class="line">    gpdcon = ioremap(<span class="number">0x56000030</span>, <span class="number">4</span>);</span><br><span class="line">    gpgcon = ioremap(<span class="number">0x56000060</span>, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    *gpccon  = <span class="number">0xaaaaaaaa</span>;                          <span class="comment">/* GPIO管脚用于VD[7:0],LCDVF[2:0],VM,VFRAME,VLINE,VCLK,LEND */</span></span><br><span class="line">    *gpdcon  = <span class="number">0xaaaaaaaa</span>;                          <span class="comment">/* GPIO管脚用于VD[23:8] */</span></span><br><span class="line">    *gpbcon &amp;= ~(<span class="number">3</span>);                                <span class="comment">/* GPB0设置为输出引脚 */</span></span><br><span class="line">    *gpbcon |= <span class="number">1</span>;</span><br><span class="line">    *gpbdat &amp;= ~<span class="number">1</span>;                                  <span class="comment">/* 输出低电平 */</span></span><br><span class="line">    *gpgcon |= (<span class="number">3</span>&lt;&lt;<span class="number">8</span>);                              <span class="comment">/* GPG4用作LCD_PWREN */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3.2 根据LCD手册设置LCD控制器, 比如VCLK的频率等 */</span></span><br><span class="line">    lcd_regs = ioremap(<span class="number">0x4D000000</span>, <span class="keyword">sizeof</span>(struct lcd_regs));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* bit[17:8]: VCLK = HCLK / [(CLKVAL+1) x 2], LCD手册P14</span></span><br><span class="line"><span class="comment">     *            10MHz(100ns) = 100MHz / [(CLKVAL+1) x 2]</span></span><br><span class="line"><span class="comment">     *            CLKVAL = 4</span></span><br><span class="line"><span class="comment">     * bit[6:5]: 0b11, TFT LCD</span></span><br><span class="line"><span class="comment">     * bit[4:1]: 0b1100, 16 bpp for TFT</span></span><br><span class="line"><span class="comment">     * bit[0]  : 0 = Disable the video output and the LCD control signal.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon1  = (<span class="number">4</span>&lt;&lt;<span class="number">8</span>) | (<span class="number">3</span>&lt;&lt;<span class="number">5</span>) | (<span class="number">0x0c</span>&lt;&lt;<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 1</span></span><br><span class="line">    <span class="comment">/* 垂直方向的时间参数</span></span><br><span class="line"><span class="comment">     * bit[31:24]: VBPD, VSYNC之后再过多长时间才能发出第1行数据</span></span><br><span class="line"><span class="comment">     *             LCD手册 T0-T2-T1=4</span></span><br><span class="line"><span class="comment">     *             VBPD=3</span></span><br><span class="line"><span class="comment">     * bit[23:14]: 多少行, 320, 所以LINEVAL=320-1=319</span></span><br><span class="line"><span class="comment">     * bit[13:6] : VFPD, 发出最后一行数据之后，再过多长时间才发出VSYNC</span></span><br><span class="line"><span class="comment">     *             LCD手册T2-T5=322-320=2, 所以VFPD=2-1=1</span></span><br><span class="line"><span class="comment">     * bit[5:0]  : VSPW, VSYNC信号的脉冲宽度, LCD手册T1=1, 所以VSPW=1-1=0</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon2  = (<span class="number">1</span>&lt;&lt;<span class="number">24</span>) | (<span class="number">271</span>&lt;&lt;<span class="number">14</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">6</span>) | (<span class="number">9</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 水平方向的时间参数</span></span><br><span class="line"><span class="comment">     * bit[25:19]: HBPD, VSYNC之后再过多长时间才能发出第1行数据</span></span><br><span class="line"><span class="comment">     *             LCD手册 T6-T7-T8=17</span></span><br><span class="line"><span class="comment">     *             HBPD=16</span></span><br><span class="line"><span class="comment">     * bit[18:8]: 多少列, 240, 所以HOZVAL=240-1=239</span></span><br><span class="line"><span class="comment">     * bit[7:0] : HFPD, 发出最后一行里最后一个象素数据之后，再过多长时间才发出HSYNC</span></span><br><span class="line"><span class="comment">     *             LCD手册T8-T11=251-240=11, 所以HFPD=11-1=10</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon3 = (<span class="number">1</span>&lt;&lt;<span class="number">19</span>) | (<span class="number">479</span>&lt;&lt;<span class="number">8</span>) | (<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 水平方向的同步信号</span></span><br><span class="line"><span class="comment">     * bit[7:0] : HSPW, HSYNC信号的脉冲宽度, LCD手册T7=5, 所以HSPW=5-1=4</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon4 = <span class="number">40</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    lcd_regs-&gt;lcdcon2 = S3C2410_LCDCON2_VBPD(<span class="number">5</span>) | \</span><br><span class="line">        S3C2410_LCDCON2_LINEVAL(<span class="number">319</span>) | \</span><br><span class="line">        S3C2410_LCDCON2_VFPD(<span class="number">3</span>) | \</span><br><span class="line">        S3C2410_LCDCON2_VSPW(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    lcd_regs-&gt;lcdcon3 = S3C2410_LCDCON3_HBPD(<span class="number">10</span>) | \</span><br><span class="line">        S3C2410_LCDCON3_HOZVAL(<span class="number">239</span>) | \</span><br><span class="line">        S3C2410_LCDCON3_HFPD(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    lcd_regs-&gt;lcdcon4 = S3C2410_LCDCON4_MVAL(<span class="number">13</span>) | \</span><br><span class="line">        S3C2410_LCDCON4_HSPW(<span class="number">0</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 信号的极性</span></span><br><span class="line"><span class="comment">     * bit[11]: 1=565 format</span></span><br><span class="line"><span class="comment">     * bit[10]: 0 = The video data is fetched at VCLK falling edge</span></span><br><span class="line"><span class="comment">     * bit[9] : 1 = HSYNC信号要反转,即低电平有效</span></span><br><span class="line"><span class="comment">     * bit[8] : 1 = VSYNC信号要反转,即低电平有效</span></span><br><span class="line"><span class="comment">     * bit[6] : 0 = VDEN不用反转</span></span><br><span class="line"><span class="comment">     * bit[3] : 0 = PWREN输出0</span></span><br><span class="line"><span class="comment">     * bit[1] : 0 = BSWP</span></span><br><span class="line"><span class="comment">     * bit[0] : 1 = HWSWP 2440手册P413</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon5 = (<span class="number">1</span>&lt;&lt;<span class="number">11</span>) | (<span class="number">0</span>&lt;&lt;<span class="number">10</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">9</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">8</span>) | (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 3.3 分配显存(framebuffer), 并把地址告诉LCD控制器 */</span></span><br><span class="line">    <span class="comment">/* dma_alloc_writecombine 会分配一段连续的内存地址给内核, 返回的是虚拟地址, 因此此处直接赋值给 s3c_lcd-&gt;screen_base</span></span><br><span class="line"><span class="comment">     * s3c_lcd-&gt;fix.smem_start, 表示显存的物理起始地址, 同样由函数 dma_alloc_writecombine 设置.</span></span><br><span class="line"><span class="comment">     * 关于分配函数的比较, 可以参考 http://blog.sina.com.cn/s/blog_4770ef020101oy2e.html 看最后一张图</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    s3c_lcd-&gt;screen_base = dma_alloc_writecombine(<span class="literal">NULL</span>, s3c_lcd-&gt;fix.smem_len, &amp;s3c_lcd-&gt;fix.smem_start, GFP_KERNEL);</span><br><span class="line">    lcd_regs-&gt;lcdsaddr1  = (s3c_lcd-&gt;fix.smem_start &gt;&gt; <span class="number">1</span>) &amp; ~(<span class="number">3</span>&lt;&lt;<span class="number">30</span>);</span><br><span class="line">    lcd_regs-&gt;lcdsaddr2  = ((s3c_lcd-&gt;fix.smem_start + s3c_lcd-&gt;fix.smem_len) &gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x1fffff</span>;</span><br><span class="line">    lcd_regs-&gt;lcdsaddr3  = (<span class="number">480</span>*<span class="number">16</span>/<span class="number">16</span>);                 <span class="comment">/* 一行的长度(单位: 2字节) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 启动LCD */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon1 |= (<span class="number">1</span>&lt;&lt;<span class="number">0</span>);                        <span class="comment">/* 使能LCD控制器 */</span></span><br><span class="line">    lcd_regs-&gt;lcdcon5 |= (<span class="number">1</span>&lt;&lt;<span class="number">3</span>);                        <span class="comment">/* 使能LCD本身 */</span></span><br><span class="line">    *gpbdat |= <span class="number">1</span>;                                       <span class="comment">/* 输出高电平, 使能背光 */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 4. 注册 */</span></span><br><span class="line">    register_framebuffer(s3c_lcd);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">lcd_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    unregister_framebuffer(s3c_lcd);</span><br><span class="line">    lcd_regs-&gt;lcdcon1 &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">0</span>);                       <span class="comment">/* 关闭LCD本身 */</span></span><br><span class="line">    *gpbdat &amp;= ~<span class="number">1</span>;                                      <span class="comment">/* 关闭背光 */</span></span><br><span class="line">    dma_free_writecombine(<span class="literal">NULL</span>, s3c_lcd-&gt;fix.smem_len, s3c_lcd-&gt;screen_base, s3c_lcd-&gt;fix.smem_start);</span><br><span class="line">    iounmap(lcd_regs);</span><br><span class="line">    iounmap(gpbcon);</span><br><span class="line">    iounmap(gpccon);</span><br><span class="line">    iounmap(gpdcon);</span><br><span class="line">    iounmap(gpgcon);</span><br><span class="line">    framebuffer_release(s3c_lcd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(lcd_init);</span><br><span class="line">module_exit(lcd_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">obj-m       := lcd.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>这个测试比较复杂, 需要去掉自带的LCD驱动, 重新编译和烧录内核.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu 主机端</span></span><br><span class="line"><span class="comment"># pwd = ./linux-2.6.22.6_no_lcd  复制一个新的内核源码目录</span></span><br><span class="line"></span><br><span class="line">$ make clean</span><br><span class="line">$ make menuconfig                       <span class="comment"># 去掉原来的S3C2410驱动程序</span></span><br><span class="line"><span class="comment"># -&gt; Device Drivers</span></span><br><span class="line"><span class="comment"># -&gt; Graphics support</span></span><br><span class="line"><span class="comment"># &lt;M&gt; S3C2410 LCD framebuffer support</span></span><br><span class="line"><span class="comment"># 改为 M, 因为我们需要编译出里面的 "/drivers/video/cfb*.ko" 三个文件</span></span><br><span class="line"></span><br><span class="line">$ make uImage</span><br><span class="line">$ make modules</span><br><span class="line">$ cp ./drivers/video/cfb*.ko ~/share/jz2440/drivers/lcd/    <span class="comment"># 拷贝到lcd驱动目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 烧录新的uImage</span></span><br><span class="line"><span class="comment"># 重启开发板进入uboot烧录界面, 按k准备烧录内核. 略过不表</span></span><br><span class="line">$ sudo dnw ./arch/arm/boot/uImage</span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = ~/share/jz2440/drivers/lcd/     # lcd驱动目录</span></span><br><span class="line">$ make modules                          <span class="comment"># 生成lcd.ko</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line"><span class="comment"># pwd = ./share/jz2440/drivers/lcd/    # lcd驱动源码目录, nfs文件</span></span><br><span class="line">$ insmod cfbcopyarea.ko</span><br><span class="line">$ insmod cfbfillrect.ko</span><br><span class="line">$ insmod cfbimgblt.ko</span><br><span class="line">$ insmod lcd.ko</span><br><span class="line"><span class="comment"># 如果 /etc/inittab 已经增加过 tty1::askfirst:-/bin/sh 这么一行, 屏幕就会显示终端信息了.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># pwd = ./share/jz2440/drivers/input_keys/KERN_SRC  # input_keys源码路径, nfs文件</span></span><br><span class="line">$ insmod input_keys.ko</span><br><span class="line"><span class="comment"># 按下 S4 输入Enter, 使能屏幕终端(即tty1),</span></span><br><span class="line"><span class="comment"># 依次按下 S2, S3, S4, 就是输入了ls指令, 屏幕上会列出文件列表.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端, 其它测试方法</span></span><br><span class="line"><span class="built_in">echo</span> hello &gt; /dev/tty1  // 可以在LCD上看见hello, tty1会用到 fbcon.c文件</span><br><span class="line">cat lcd.ko &gt; /dev/fb0   // 花屏</span><br></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="http://daydreamer.idv.tw/rewrite.php/read-42.html" target="_blank" rel="noopener">Framebuffer兩三事-Test On QT2410</a></li>
-<li><a href="http://blog.sina.com.cn/s/blog_4770ef020101oy2e.html" target="_blank" rel="noopener">常见的Linux内核中内存分配函数</a> 看最后一张图</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/01/08/1803-drv-platform/" itemprop="url">
-                  驱动之platform概念
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-01-08T00:00:00+11:00" content="2018-01-08">
-              2018-01-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/embedded-linux/" itemprop="url" rel="index">
-                    <span itemprop="name">embedded linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2017/11/23/1734-linux-content/">嵌入式linux学习目录</a></li>
-<li><a href="https://draapho.github.io/2018/01/05/1802-drv-input/">驱动之input子系统</a></li>
-<li><a href="https://draapho.github.io/2018/01/08/1803-drv-platform/">驱动之platform概念</a></li>
-<li><a href="https://draapho.github.io/2018/02/08/1814-drv-rtc/">驱动之RTC分析</a></li>
-<li><a href="https://draapho.github.io/2018/01/09/1804-drv-lcd/">驱动之LCD驱动框架和实现</a></li>
-<li><a href="https://draapho.github.io/2018/01/11/1806-drv-ts/">驱动之触摸屏驱动框架和实现</a></li>
-<li><a href="https://draapho.github.io/2018/01/18/1807-drv-usb1/">驱动之USB基础概念和框架</a></li>
-<li><a href="https://draapho.github.io/2018/01/19/1808-drv-usb2/">驱动之USB设备驱动程序</a></li>
-</ul>
-<p>本文使用 linux-2.6.22.6 内核, 使用jz2440开发板.</p>
-<h1 id="platform概念"><a href="#platform概念" class="headerlink" title="platform概念"></a>platform概念</h1><p><img src="https://draapho.github.io/images/1803/bus.png" alt="bus.png"></p>
-<p>platform 的主要作用是给开发人员搭好了框架.<br>便于将底层驱动的通用部分放在 <code>driver</code> 端实现, 而硬件高度相关部分放在 <code>device</code> 端实现.<br>由于只是架构, 因此这里 <code>driver</code> 和 <code>device</code> 两个部分都是自己写代码实现的, platform自动完成匹配.</p>
-<p>这种架构特别适用于总线设备! 将总线设备的共性提炼成 driver 文件.<br>而正对支持总线的不同硬件, 分别单独写 device 即可.<br>因此一般情况下, platform的driver对应多个device.<br>linux基于platform的概念, 已经帮我们实现了常用总线的driver如: I2C, SPI, USB等</p>
-<p>要更细致的了解linux platform 分离分层的概念, 建议参考如下博文:</p>
-<ul>
-<li><a href="http://www.wowotech.net/gpio_subsystem/io-port-control.html" target="_blank" rel="noopener">linux内核中的GPIO系统之（1）：软件框架</a></li>
-<li><a href="http://www.wowotech.net/linux_kenrel/platform_device.html" target="_blank" rel="noopener">Linux设备模型(8)_platform设备</a></li>
-</ul>
-<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>LinK+软件也支持配置platform设备, 但是生成的源码放在了同一个文件, 不便于理解.<br>为了便于理解, 采用点led来说明platform概念. 为保持代码简介, 忽略错误判断, 不支持多个device.<br>实际开发中, 自己用到platform的机会不多, 因为linux已经将常用的总线写好了.</p>
-<h2 id="led-driver-c-硬件通用代码"><a href="#led-driver-c-硬件通用代码" class="headerlink" title="led_driver.c (硬件通用代码)"></a>led_driver.c (硬件通用代码)</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"led_platform.h"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> led_major=<span class="number">0</span>;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">class</span> *<span class="title">led_class</span>=<span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpio_con;</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *gpio_dat;</span><br><span class="line"><span class="keyword">int</span> pin;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== led driver 通用文件操作 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_open</span><span class="params">(struct inode *inode, struct file *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_driver_open\n"</span>);</span><br><span class="line">    *gpio_con &amp;= ~(<span class="number">0x3</span>&lt;&lt;(pin*<span class="number">2</span>));       <span class="comment">// 配置为输出</span></span><br><span class="line">    *gpio_con |= (<span class="number">0x1</span>&lt;&lt;(pin*<span class="number">2</span>));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">led_driver_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> * ppos)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    PINFO(<span class="string">"led_driver_write\n"</span>);</span><br><span class="line">    copy_from_user(&amp;val, buf, count);</span><br><span class="line">    <span class="keyword">if</span> (val == <span class="number">1</span>)</span><br><span class="line">        *gpio_dat &amp;= ~(<span class="number">1</span>&lt;&lt;pin);         <span class="comment">// 点灯</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        *gpio_dat |= (<span class="number">1</span>&lt;&lt;pin);          <span class="comment">// 灭灯</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_release</span> <span class="params">(struct inode *inode, struct file *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_driver_release\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">led_fops</span>= &#123;</span></span><br><span class="line">    .owner              = THIS_MODULE,</span><br><span class="line">    .open               = led_driver_open,</span><br><span class="line">    .write              = led_driver_write,</span><br><span class="line">    .release            = led_driver_release,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ===== platform 框架使用的函数 =====</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_probe</span><span class="params">(struct platform_device *pdev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">resource</span> *<span class="title">resource</span>;</span></span><br><span class="line">    PINFO(<span class="string">"led_driver_probe\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据platform_device的资源进行ioremap</span></span><br><span class="line">    resource = platform_get_resource(pdev, IORESOURCE_MEM, <span class="number">0</span>);</span><br><span class="line">    gpio_con = ioremap(resource-&gt;start, resource-&gt;end - resource-&gt;start + <span class="number">1</span>);</span><br><span class="line">    gpio_dat = gpio_con + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    resource = platform_get_resource(pdev, IORESOURCE_IRQ, <span class="number">0</span>);</span><br><span class="line">    pin = resource-&gt;start;              <span class="comment">// 这里只是借用IRQ获取PIN值</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_driver_remove</span><span class="params">(struct platform_device *pdev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    iounmap(gpio_con);</span><br><span class="line">    PINFO(<span class="string">"led_platform_remove\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">platform_driver</span> <span class="title">led_driver</span> = &#123;</span></span><br><span class="line">        .driver = &#123;</span><br><span class="line">            .name   = DRIVER_NAME,</span><br><span class="line">            .owner  = THIS_MODULE,</span><br><span class="line">        &#125;,</span><br><span class="line">        .probe      = led_driver_probe,</span><br><span class="line">        .remove     = led_driver_remove,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">led_driver_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_driver_init\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册字符设备驱动程序.</span></span><br><span class="line">    <span class="comment">// 由于driver和device可以是一对多的关系. 因此注册工作不能放在probe里, 否则会被注册多次.</span></span><br><span class="line">    led_major = register_chrdev(<span class="number">0</span>, DRIVER_NAME, &amp;led_fops);</span><br><span class="line">    led_class = class_create(THIS_MODULE, DRIVER_NAME);</span><br><span class="line">    class_device_create(led_class, <span class="literal">NULL</span>, MKDEV(led_major, <span class="number">0</span>), <span class="literal">NULL</span>, <span class="string">"led"</span>); <span class="comment">// /dev/led</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册platform的driver</span></span><br><span class="line">    platform_driver_register(&amp;led_driver);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">led_driver_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 注销platform的driver</span></span><br><span class="line">    platform_driver_unregister(&amp;led_driver);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 卸载字符设备驱动程序</span></span><br><span class="line">    class_device_destroy(led_class, MKDEV(led_major, <span class="number">0</span>));</span><br><span class="line">    class_destroy(led_class);</span><br><span class="line">    unregister_chrdev(led_major, DRIVER_NAME);</span><br><span class="line">    PINFO(<span class="string">"led_platform_exit\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(led_driver_init);</span><br><span class="line">module_exit(led_driver_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="led-device-c-硬件专用代码"><a href="#led-device-c-硬件专用代码" class="headerlink" title="led_device.c (硬件专用代码)"></a>led_device.c (硬件专用代码)</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"led_platform.h"</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">"DRAAPHO"</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">resource</span> <span class="title">led_devs_res1</span>[] = &#123;</span>         <span class="comment">// 硬件专用资源信息</span></span><br><span class="line">    &#123;</span><br><span class="line">        .start  = <span class="number">0x56000050</span>,</span><br><span class="line">        .end    = <span class="number">0x56000050</span> + <span class="number">8</span> - <span class="number">1</span>,</span><br><span class="line">        .flags  = IORESOURCE_MEM,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        .start  = <span class="number">5</span>,                        <span class="comment">// 借用IRQ表示PIN引脚</span></span><br><span class="line">        .flags  = IORESOURCE_IRQ,</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">led_dev_release</span><span class="params">(struct device * dev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_dev_release\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">platform_device</span> <span class="title">led_devs1</span> = &#123;</span></span><br><span class="line">    .name           = DRIVER_NAME,</span><br><span class="line">    .resource       = led_devs_res1,</span><br><span class="line">    .num_resources  = ARRAY_SIZE(led_devs_res1),</span><br><span class="line">    .id             = <span class="number">0</span>,</span><br><span class="line">    .dev = &#123;</span><br><span class="line">        .release = led_dev_release,         <span class="comment">// 必须实现, 否则报错</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">led_dev_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINFO(<span class="string">"led_dev_init\n"</span>);</span><br><span class="line">    <span class="comment">// 注册device</span></span><br><span class="line">    platform_device_register(&amp;led_devs1);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">led_dev_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 注销device</span></span><br><span class="line">    platform_device_unregister(&amp;led_devs1);</span><br><span class="line">    PINFO(<span class="string">"led_dev_exit\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(led_dev_init);</span><br><span class="line">module_exit(led_dev_exit);</span><br></pre></td></tr></table></figure>
-<h2 id="led-platform-h"><a href="#led-platform-h" class="headerlink" title="led_platform.h"></a>led_platform.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME <span class="meta-string">"led_platform"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PDEBUG(fmt,args...) printk(KERN_DEBUG<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERR(fmt,args...) printk(KERN_ER<span class="meta-string">R"%s:"</span>fmt,DRIVER_NAME,##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PINFO(fmt,args...) printk(KERN_INFO<span class="meta-string">"%s:"</span>fmt,DRIVER_NAME, ##args)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/platform_device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/cdev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/interrupt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/kdev_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/io.h&gt;</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="led-test-c"><a href="#led-test-c" class="headerlink" title="led_test.c"></a>led_test.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* led_test on</span></span><br><span class="line"><span class="comment"> * led_test off</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">int</span> val = <span class="number">1</span>;</span><br><span class="line">    fd = open(<span class="string">"/dev/led"</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"can't open!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Usage :\n"</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%s &lt;on|off&gt;\n"</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(argv[<span class="number">1</span>], <span class="string">"on"</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        val  = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        val = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    write(fd, &amp;val, <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TEST_FILE   := led_test</span><br><span class="line">obj-m       += led_driver.o</span><br><span class="line">obj-m       += led_device.o</span><br><span class="line">KERN_SRC    := /home/draapho/share/jz2440/kernel/linux-2.6.22.6/</span><br><span class="line">PWD         := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">install:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> modules_install</span><br><span class="line">    depmod -a</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(KERN_SRC)</span> M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">    rm -f <span class="variable">$(TEST_FILE)</span></span><br><span class="line"></span><br><span class="line"><span class="section">test:</span></span><br><span class="line">    arm-linux-gcc <span class="variable">$(TEST_FILE)</span>.c -o <span class="variable">$(TEST_FILE)</span></span><br></pre></td></tr></table></figure>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu主机端, 编译所有源码</span></span><br><span class="line">$ make clean</span><br><span class="line">$ make modules</span><br><span class="line">$ make <span class="built_in">test</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发板端</span></span><br><span class="line">$ insmod led_driver.ko              <span class="comment"># driver和device的调用顺序不重要</span></span><br><span class="line">led_platform:led_driver_init</span><br><span class="line">$ insmod led_device.ko</span><br><span class="line">led_platform:led_dev_init</span><br><span class="line">led_platform:led_driver_probe       <span class="comment"># platform 在匹配driver和device后, 调用probe</span></span><br><span class="line">$ ./led_test on</span><br><span class="line">led_platform:led_driver_open        <span class="comment"># open</span></span><br><span class="line">led_platform:led_driver_write       <span class="comment"># write</span></span><br><span class="line">led_platform:led_driver_release     <span class="comment"># close</span></span><br><span class="line">$ ./led_test off</span><br><span class="line">led_platform:led_driver_open</span><br><span class="line">led_platform:led_driver_write</span><br><span class="line">led_platform:led_driver_release</span><br><span class="line">$ rmmod led_device.ko</span><br><span class="line">led_platform:led_platform_remove    <span class="comment"># 解绑后, 自动调用remove</span></span><br><span class="line">led_platform:led_dev_release</span><br><span class="line">led_platform:led_dev_exit</span><br><span class="line">$ rmmod led_driver.ko</span><br><span class="line">led_platform:led_platform_exit</span><br></pre></td></tr></table></figure>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="http://blog.csdn.net/tianzhihen_wq/article/details/42176467" target="_blank" rel="noopener">linux驱动之分离分层的概念</a></li>
-<li><a href="http://www.wowotech.net/gpio_subsystem/io-port-control.html" target="_blank" rel="noopener">linux内核中的GPIO系统之（1）：软件框架</a></li>
-<li><a href="http://www.wowotech.net/linux_kenrel/platform_device.html" target="_blank" rel="noopener">Linux设备模型(8)_platform设备</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1693,7 +1745,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">126</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1758,7 +1810,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
