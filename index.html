@@ -261,147 +261,6 @@
             
               
                 
-                <a class="post-title-link" href="/2021/02/03/-2102-share-skill/" itemprop="url">
-                  交易市场思路
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2021-02-03T00:00:00+11:00" content="2021-02-03">
-              2021-02-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/market/" itemprop="url" rel="index">
-                    <span itemprop="name">market</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2019/03/26/1902-trading-rule/">交易市场思考</a></li>
-<li><a href="https://draapho.github.io/2019/04/26/1903-wave-principle/">波浪理论简述</a></li>
-<li><a href="https://draapho.github.io/2019/06/25/1907-investor/">你将不会成为一个伟大的投资人</a></li>
-<li><a href="https://draapho.github.io/2020/02/09/2001-exploration/">交易市场阶段性探索心得</a></li>
-<li><a href="https://draapho.github.io/2020/08/06/2005-wave-mnemonic/">波浪理论口诀</a></li>
-<li><a href="https://draapho.github.io/2020/08/07/2006-wave-thinking/">波浪理论感悟</a></li>
-<li><a href="https://draapho.github.io/2021/02/03/2102-share-skill/">交易市场思路</a></li>
-</ul>
-<h1 id="均线一"><a href="#均线一" class="headerlink" title="均线一"></a>均线一</h1><p>双均线交叉, 64/256均线交叉.<br>金叉: 短均线上叉上升趋势中的长均线<br>死叉: 短均线下叉下降趋势中的长均线<br>买点: 短均线下叉上升趋势中的长均线<br>卖点: 短均线上叉下降趋势中的长均线</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#MAINCHART</span><br><span class="line">INPUT:</span><br><span class="line">  M(<span class="number">20</span>, <span class="number">5</span>, <span class="number">999</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示所属板块</span></span><br><span class="line">PE:=DynaInfo(Q_PE),NoDraw;</span><br><span class="line">VL:=DynaInfo(Q_MARKETVAL)/<span class="number">100000000</span>,NoDraw;</span><br><span class="line">DRAWTEXTEX(1, 1, 2, 0, STKNAME+' '+STKLABEL+'   市盈:'+NumToStr(PE,2)+' 市值:'+NumToStr(VL,2)+'亿'+'   '+IndustryName),</span><br><span class="line">    IIF(PE&gt;<span class="number">0</span> <span class="keyword">and</span> PE&lt;<span class="number">100</span> <span class="keyword">and</span> VL&gt;<span class="number">100</span>,ColorCyan,ColorYellow);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">M5:MA(C,<span class="number">5</span>), ColorWhite, LineDot;</span><br><span class="line">PartLine(M5/REF(M5,<span class="number">1</span>)&gt;<span class="number">1.01</span>,M5),ColorWhite, LineThick2;</span><br><span class="line">PartLine(M5/REF(M5,<span class="number">1</span>)&lt;<span class="number">0.99</span>,M5),ColorWhite, LineThick2;</span><br><span class="line"></span><br><span class="line">MM:MA(C,M), ColorYellow;</span><br><span class="line"></span><br><span class="line"><span class="comment">//M32:MA(C,32), ColorBlue, LineDash;</span></span><br><span class="line">M64:MA(C,<span class="number">64</span>), ColorGreen;</span><br><span class="line">M128:MA(C,<span class="number">128</span>), ColorBrown, LineDash;</span><br><span class="line">M256:MA(C,<span class="number">256</span>), ColorRed;</span><br><span class="line">VERTLINE(CROSS(M64,M256) Or CROSS(M256, M64)), ColorGray, LineDot;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 单K线测顶底</span></span><br><span class="line">单阳测顶:=C*C/REF(C,<span class="number">1</span>)/<span class="number">0.9</span>, NoDraw;</span><br><span class="line">单阴测低:=C*C/REF(C,<span class="number">1</span>)/<span class="number">1.1</span>, NoDraw;</span><br><span class="line">单K顶底:IF(C&gt;O, 单阳测顶, 单阴测低), NoDraw, ColorWhite;</span><br></pre></td></tr></table></figure>
-<h1 id="均线二"><a href="#均线二" class="headerlink" title="均线二"></a>均线二</h1><p>黄金比例均线, 彩虹均线.<br>核心思路: 均线即持仓成本, 只有所有均线都顺次排列好了, 才是大概率的见底或见顶.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">#MAINCHART</span><br><span class="line">INPUT:</span><br><span class="line">  N(<span class="number">5</span>, <span class="number">1</span>, <span class="number">7</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示所属板块</span></span><br><span class="line">PE:=DynaInfo(Q_PE),NoDraw;</span><br><span class="line">VL:=DynaInfo(Q_MARKETVAL)/<span class="number">100000000</span>,NoDraw;</span><br><span class="line">DRAWTEXTEX(1, 1, 2, 0, STKNAME+' '+STKLABEL+'   市盈:'+NumToStr(PE,2)+' 市值:'+NumToStr(VL,2)+'亿'+'   '+IndustryName),</span><br><span class="line">    IIF(PE&gt;<span class="number">0</span> <span class="keyword">and</span> PE&lt;<span class="number">100</span> <span class="keyword">and</span> VL&gt;<span class="number">100</span>,ColorCyan,ColorYellow);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">M5:MA(C,<span class="number">5</span>), ColorWhite, LineDot;</span><br><span class="line">PartLine(M5/REF(M5,<span class="number">1</span>)&gt;<span class="number">1.01</span>,M5),ColorWhite, LineThick2;</span><br><span class="line">PartLine(M5/REF(M5,<span class="number">1</span>)&lt;<span class="number">0.99</span>,M5),ColorWhite, LineThick2;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 赤橙黄绿青蓝紫</span></span><br><span class="line">M13:MA(C,<span class="number">13</span>), ColorRed;</span><br><span class="line">M21:MA(C,<span class="number">21</span>)*<span class="keyword">if</span>(n&lt;<span class="number">2</span>,INVALID,<span class="number">1</span>), Color00A5FF;</span><br><span class="line">M34:MA(C,<span class="number">34</span>)*<span class="keyword">if</span>(n&lt;<span class="number">3</span>,INVALID,<span class="number">1</span>), ColorYellow;</span><br><span class="line">M55:MA(C,<span class="number">55</span>)*<span class="keyword">if</span>(n&lt;<span class="number">4</span>,INVALID,<span class="number">1</span>), ColorGreen;</span><br><span class="line">M89:MA(C,<span class="number">89</span>)*<span class="keyword">if</span>(n&lt;<span class="number">5</span>,INVALID,<span class="number">1</span>), ColorCyan;</span><br><span class="line">M144:MA(C,<span class="number">144</span>)*<span class="keyword">if</span>(n&lt;<span class="number">6</span>,INVALID,<span class="number">1</span>), ColorBlue;</span><br><span class="line">M233:MA(C,<span class="number">233</span>)*<span class="keyword">if</span>(n&lt;<span class="number">7</span>,INVALID,<span class="number">1</span>), Color800080;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 单K线测顶底</span></span><br><span class="line">单阳测顶:=C*C/REF(C,<span class="number">1</span>)/<span class="number">0.9</span>, NoDraw;</span><br><span class="line">单阴测低:=C*C/REF(C,<span class="number">1</span>)/<span class="number">1.1</span>, NoDraw;</span><br><span class="line">单K顶底:IF(C&gt;O, 单阳测顶, 单阴测低), NoDraw, ColorWhite;</span><br></pre></td></tr></table></figure>
-<h1 id="均线交叉"><a href="#均线交叉" class="headerlink" title="均线交叉"></a>均线交叉</h1><p>倍数移中均线, 短均线右移与长均线交叉点具有强烈的变盘提示作用.<br>适用与N字形调整, 标准的五浪顶底预测. 但无效交叉点也不少.<br>核心思路: 移中均线交叉点的对称性. 通过右移移中均线达到预测效果.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line">#MAINCHART</span><br><span class="line">#RUN_BY_BAR</span><br><span class="line"></span><br><span class="line">#Template <span class="string">"</span></span><br><span class="line"><span class="string">均线M Param#1, 0不显示短均线,</span></span><br><span class="line"><span class="string">均线N Param#2, -1显示长均线,</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line"></span><br><span class="line">INPUT:</span><br><span class="line">    M(<span class="number">64</span>,<span class="number">0</span>,<span class="number">999</span>),</span><br><span class="line">    N(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">999</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示所属板块</span></span><br><span class="line">PE:=DynaInfo(Q_PE),NoDraw;</span><br><span class="line">VL:=DynaInfo(Q_MARKETVAL)/<span class="number">100000000</span>,NoDraw;</span><br><span class="line">DRAWTEXTEX(1, 1, 2, 0, STKNAME+' '+STKLABEL+'   市盈:'+NumToStr(PE,2)+' 市值:'+NumToStr(VL,2)+'亿'+'   '+IndustryName),</span><br><span class="line">    IIF(PE&gt;<span class="number">0</span> <span class="keyword">and</span> PE&lt;<span class="number">100</span> <span class="keyword">and</span> VL&gt;<span class="number">100</span>,ColorCyan,ColorYellow);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 中长均线交叉</span></span><br><span class="line">IF (N==<span class="number">-1</span> <span class="keyword">or</span> N&gt;M) Then Begin</span><br><span class="line">P:=IIF(N==<span class="number">-1</span>, M*<span class="number">4</span>, N);                  <span class="comment">// 默认长均线为4倍短均线</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 中期均线右移</span></span><br><span class="line">T2:=P/<span class="number">4</span>;</span><br><span class="line">M20:=ma(C,P/<span class="number">2</span>)*(<span class="number">2</span>-MOD(P,<span class="number">2</span>));</span><br><span class="line">M21:=ma(C,<span class="number">1</span>+P/<span class="number">2</span>)*(MOD(P,<span class="number">2</span>));</span><br><span class="line">M2:=(M20+M21)/<span class="number">2</span>;</span><br><span class="line">M24:=M2*(<span class="number">4</span>-MOD(P,<span class="number">4</span>));</span><br><span class="line">M25:=Ref(M2,<span class="number">1</span>)*(MOD(P,<span class="number">4</span>));</span><br><span class="line">M26:=(M24+M25)/<span class="number">4</span>;</span><br><span class="line">M2_:=Ref(M26,T2),ColorBrown;</span><br><span class="line">Plot[-T2](M26, 'M2_', ColorBrown);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 长期均线</span></span><br><span class="line">M4:ma(C,P),ColorRed,LineThick2;</span><br><span class="line">D4:=EMA(M4-ref(M4,<span class="number">1</span>),<span class="number">5</span>);            <span class="comment">// 速率</span></span><br><span class="line">DL:=SwingLow(<span class="number">1</span>,D4,<span class="number">9</span>,M*<span class="number">4</span>);           <span class="comment">// 前速率波谷</span></span><br><span class="line">DH:=SwingHIGH(<span class="number">1</span>,D4,<span class="number">9</span>,M*<span class="number">4</span>);          <span class="comment">// 前速率波峰</span></span><br><span class="line">DLD4:=BarsLast(Cross(DL,D4),<span class="number">1</span>);     <span class="comment">// 速率跌破前低</span></span><br><span class="line">D4DH:=BarsLast(Cross(D4,DH),<span class="number">1</span>);     <span class="comment">// 速率突破前高</span></span><br><span class="line"></span><br><span class="line"><span class="comment">////IsSummer:=D4&gt;=0 and DLD4&gt;=D4DH;</span></span><br><span class="line"><span class="comment">//IsAutumn:=D4&gt;=0 and D4DH&gt;DLD4 and ref(D4,DLD4)&gt;0; // 速率跌破前低后再没有突破前高.</span></span><br><span class="line"><span class="comment">//IsWinter:=D4&lt;=0 and D4DH&gt;=DLD4;                       // 速率跌破前低后再没有突破前高.</span></span><br><span class="line"><span class="comment">//IsSpring:=D4&lt;=0 and DLD4&gt;D4DH and ref(D4,D4DH)&lt;0; // 速率突破前高后再没有跌破前低.</span></span><br><span class="line"><span class="comment">//PARTLINE(IsWinter, M4),ColorMagenta,LineThick2;</span></span><br><span class="line"><span class="comment">//PARTLINE(IsAutumn or IsSpring, M4),Color20A4FF,LineThick2;    // 橙色</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 交叉点</span></span><br><span class="line">D2:=M2_-M4;</span><br><span class="line">W2:=D2+D2-ref(D2,<span class="number">1</span>);                                <span class="comment">// 用于预测过零轴</span></span><br><span class="line">BARCROSS:=BarsLast(D2*W2&lt;=<span class="number">0</span> <span class="keyword">and</span> <span class="built_in">abs</span>(D2)&lt;=<span class="built_in">abs</span>(W2));  <span class="comment">// 过零轴</span></span><br><span class="line">VERTLINE(BARCROSS==<span class="number">0</span> <span class="keyword">or</span> (D2*ref(D2,<span class="number">1</span>)&lt;=<span class="number">0</span> <span class="keyword">and</span> BARCROSS &gt; <span class="number">1</span>)), ColorBrown, LineDashDot;</span><br><span class="line">IF M=<span class="number">0</span> Then Begin</span><br><span class="line">    D2_4:-D2, NoAxis, ColorGray;</span><br><span class="line">End</span><br><span class="line"></span><br><span class="line"><span class="comment">// 计算中长均线包围面积</span></span><br><span class="line">DSUM2:=SUM(D2, <span class="number">0</span>); <span class="comment">// 累加差值</span></span><br><span class="line">DCROSS2:=BarsLast(D2*ref(D2,<span class="number">1</span>)&lt;=<span class="number">0</span>, <span class="number">1</span>);</span><br><span class="line">DAREA2:=DSUM2-REF(DSUM2,<span class="number">1</span>+DCROSS2),NoAxis;</span><br><span class="line">DrawNumber(DCROSS2=<span class="number">0</span> <span class="keyword">or</span> ISLASTBAR, M4*<span class="number">0.997</span>, REF(DAREA2,<span class="number">1</span>), <span class="number">1</span>), ColorBrown;</span><br><span class="line">End</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 短中均线交叉</span></span><br><span class="line">IF M&gt;<span class="number">0</span> Then Begin</span><br><span class="line"><span class="comment">// 短期均线右移</span></span><br><span class="line">Q:=IIF(N&gt;M/<span class="number">5</span> <span class="keyword">and</span> N&lt;M, N, M/<span class="number">2</span>);</span><br><span class="line">T0:=(M-Q)/<span class="number">2</span>;</span><br><span class="line">M00:=ma(C,Q)*(<span class="number">2</span>-MOD(M,<span class="number">2</span>));</span><br><span class="line">M01:=ma(C,<span class="number">1</span>+Q)*(MOD(M,<span class="number">2</span>));</span><br><span class="line">M0:=(M00+M01)/<span class="number">2</span>;            <span class="comment">// 忽略误差可直接 M0:=ma(C,M/2)</span></span><br><span class="line"><span class="comment">//  M02:=Ref(M0,T0)*(4-MOD(M,4));</span></span><br><span class="line"><span class="comment">//  M03:=Ref(M0,1+T0)*(MOD(M,4));</span></span><br><span class="line"><span class="comment">//  M0_:(M02+M03)/4,ColorLightGreen;    // 忽略误差可直接 M0_:Ref(M0,T0), 无法显示右移的部分</span></span><br><span class="line">M04:=M0*(<span class="number">4</span>-MOD(M,<span class="number">4</span>));</span><br><span class="line">M05:=Ref(M0,<span class="number">1</span>)*(MOD(M,<span class="number">4</span>));</span><br><span class="line">M06:=(M04+M05)/<span class="number">4</span>;</span><br><span class="line">M0_:=Ref(M06,T0),ColorLightGreen;</span><br><span class="line">Plot[-T0](M06, 'M0_', ColorLightGreen);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中期均线</span></span><br><span class="line">M1:ma(C,M),ColorGreen, LineThick2;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 交叉点</span></span><br><span class="line">D0:M0_-M1,NoDraw, ColorCyan;</span><br><span class="line"><span class="comment">//  W00:C-M1, NoAxis, COlorGray, LineDot;</span></span><br><span class="line"><span class="comment">//  VERTLINE(D0*ref(D0,1)&lt;=0), ColorBrown, LineDot; // 交叉最简单的写法</span></span><br><span class="line">W0:=D0+D0-ref(D0,<span class="number">1</span>);                                <span class="comment">// 用于预测过零轴</span></span><br><span class="line">BARCROSS:=BarsLast(D0*W0&lt;=<span class="number">0</span> <span class="keyword">and</span> <span class="built_in">abs</span>(D0)&lt;=<span class="built_in">abs</span>(W0));  <span class="comment">// 过零轴</span></span><br><span class="line">VERTLINE(BARCROSS==<span class="number">0</span> <span class="keyword">or</span> (D0*ref(D0,<span class="number">1</span>)&lt;=<span class="number">0</span> <span class="keyword">and</span> BARCROSS &gt; <span class="number">1</span>)), ColorBrown, LineDot;</span><br><span class="line">IF (N&gt;=<span class="number">0</span> <span class="keyword">and</span> N&lt;M) Then Begin</span><br><span class="line">    D0_1:-D0,NoAxis, ColorBrown;</span><br><span class="line">End</span><br><span class="line"></span><br><span class="line"><span class="comment">// 计算短中均线包围面积</span></span><br><span class="line">DSUM:=SUM(D0, <span class="number">0</span>); <span class="comment">// 累加差值</span></span><br><span class="line">DCROSS:=BarsLast(D0*ref(D0,<span class="number">1</span>)&lt;=<span class="number">0</span>, <span class="number">1</span>);</span><br><span class="line">DAREA:=DSUM-REF(DSUM,<span class="number">1</span>+DCROSS),NoAxis;</span><br><span class="line">DrawNumber(DCROSS=<span class="number">0</span>, M1*<span class="number">0.997</span>, REF(DAREA,<span class="number">1</span>), <span class="number">1</span>), ColorGreen;</span><br><span class="line">DrawNumber(ISLASTBAR, M1*<span class="number">0.997</span>, DAREA, <span class="number">1</span>), ColorGreen;</span><br><span class="line"></span><br><span class="line">DPOS:=BarsLast(D0&gt;<span class="number">0</span> <span class="keyword">and</span> D0*ref(D0,<span class="number">1</span>)&lt;=<span class="number">0</span>, <span class="number">1</span>);    <span class="comment">// 前一个正面积</span></span><br><span class="line">DNEG:=BarsLast(D0&lt;<span class="number">0</span> <span class="keyword">and</span> D0*ref(D0,<span class="number">1</span>)&lt;=<span class="number">0</span>, <span class="number">1</span>);    <span class="comment">// 前一个负面积</span></span><br><span class="line">DPOS1:=BarsLast(D0&gt;<span class="number">0</span> <span class="keyword">and</span> D0*ref(D0,<span class="number">1</span>)&lt;=<span class="number">0</span>, <span class="number">2</span>);   <span class="comment">// 前二个正面积</span></span><br><span class="line">DNEG1:=BarsLast(D0&lt;<span class="number">0</span> <span class="keyword">and</span> D0*ref(D0,<span class="number">1</span>)&lt;=<span class="number">0</span>, <span class="number">2</span>);   <span class="comment">// 前二个负面积</span></span><br><span class="line"></span><br><span class="line">DrawNumber(DPOS=<span class="number">0</span> <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&gt;ABS(REF(DAREA,<span class="number">1</span>+DNEG)) <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&gt;ABS(REF(DAREA,<span class="number">1</span>+DPOS1)), M1*<span class="number">0.997</span>, REF(DAREA,<span class="number">1</span>), <span class="number">1</span>), ColorYellow;  <span class="comment">// 向上的力</span></span><br><span class="line">DrawNumber(DNEG=<span class="number">0</span> <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&lt;ABS(REF(DAREA,<span class="number">1</span>+DPOS)) <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&lt;ABS(REF(DAREA,<span class="number">1</span>+DNEG1)), M1*<span class="number">0.997</span>, REF(DAREA,<span class="number">1</span>), <span class="number">1</span>), ColorYellow;  <span class="comment">// 向上的力</span></span><br><span class="line">DrawNumber(DPOS=<span class="number">0</span> <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&lt;ABS(REF(DAREA,<span class="number">1</span>+DNEG)) <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&lt;ABS(REF(DAREA,<span class="number">1</span>+DPOS1)), M1*<span class="number">0.997</span>, REF(DAREA,<span class="number">1</span>), <span class="number">1</span>), ColorCyan;    <span class="comment">// 向下的力</span></span><br><span class="line">DrawNumber(DNEG=<span class="number">0</span> <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&gt;ABS(REF(DAREA,<span class="number">1</span>+DPOS)) <span class="keyword">and</span> ABS(REF(DAREA,<span class="number">1</span>))&gt;ABS(REF(DAREA,<span class="number">1</span>+DNEG1)), M1*<span class="number">0.997</span>, REF(DAREA,<span class="number">1</span>), <span class="number">1</span>), ColorCyan;    <span class="comment">// 向下的力</span></span><br><span class="line"></span><br><span class="line">DrawNumber(ISLASTBAR <span class="keyword">and</span> DAREA&lt;<span class="number">0</span> <span class="keyword">and</span> ABS(DAREA)&gt;ABS(REF(DAREA,<span class="number">1</span>+DNEG)) <span class="keyword">and</span> ABS(DAREA)&gt;ABS(REF(DAREA,<span class="number">1</span>+DPOS1)), M1*<span class="number">0.997</span>, DAREA, <span class="number">1</span>), ColorYellow;        <span class="comment">// 向上的力</span></span><br><span class="line">DrawNumber(ISLASTBAR <span class="keyword">and</span> DAREA&gt;<span class="number">0</span> <span class="keyword">and</span> ABS(DAREA)&lt;ABS(REF(DAREA,<span class="number">1</span>+DPOS)) <span class="keyword">and</span> ABS(DAREA)&lt;ABS(REF(DAREA,<span class="number">1</span>+DNEG1)), M1*<span class="number">0.997</span>, DAREA, <span class="number">1</span>), ColorYellow;        <span class="comment">// 向上的力</span></span><br><span class="line">DrawNumber(ISLASTBAR <span class="keyword">and</span> DAREA&lt;<span class="number">0</span> <span class="keyword">and</span> ABS(DAREA)&lt;ABS(REF(DAREA,<span class="number">1</span>+DNEG)) <span class="keyword">and</span> ABS(DAREA)&lt;ABS(REF(DAREA,<span class="number">1</span>+DPOS1)), M1*<span class="number">0.997</span>, DAREA, <span class="number">1</span>), ColorCyan;          <span class="comment">// 向下的力</span></span><br><span class="line">DrawNumber(ISLASTBAR <span class="keyword">and</span> DAREA&gt;<span class="number">0</span> <span class="keyword">and</span> ABS(DAREA)&gt;ABS(REF(DAREA,<span class="number">1</span>+DPOS)) <span class="keyword">and</span> ABS(DAREA)&gt;ABS(REF(DAREA,<span class="number">1</span>+DNEG1)), M1*<span class="number">0.997</span>, DAREA, <span class="number">1</span>), ColorCyan;          <span class="comment">// 向下的力</span></span><br><span class="line"></span><br><span class="line">End</span><br><span class="line"></span><br><span class="line"><span class="comment">// 其它</span></span><br><span class="line"><span class="comment">// 5日均线.</span></span><br><span class="line">M5:ma(C,<span class="number">5</span>), ColorWhite, LineDot;</span><br><span class="line">PartLine(M5/REF(M5,<span class="number">1</span>)&gt;<span class="number">1.01</span>,M5),ColorWhite, LineThick2;</span><br><span class="line">PartLine(M5/REF(M5,<span class="number">1</span>)&lt;<span class="number">0.99</span>,M5),ColorWhite, LineThick2;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 单K线测顶底</span></span><br><span class="line">单阳测顶:=C*C/REF(C,<span class="number">1</span>)/<span class="number">0.9</span>, NoDraw;</span><br><span class="line">单阴测低:=C*C/REF(C,<span class="number">1</span>)/<span class="number">1.1</span>, NoDraw;</span><br><span class="line">单K顶底:IF(C&gt;O, 单阳测顶, 单阴测低), NoDraw, ColorWhite;</span><br></pre></td></tr></table></figure>
-<h1 id="慢速KD"><a href="#慢速KD" class="headerlink" title="慢速KD"></a>慢速KD</h1><p>通过均线速率的变化和慢速KD, 确定买点, 卖点供参考<br>多用于大周期, 如周线, 月线的买点提示<br>由于买点和止损点很容易设置, 比较实用.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">PE:=DYNAINFO(Q_PE),NODRAW;</span><br><span class="line">VL:=DYNAINFO(Q_MARKETVAL)/<span class="number">100000000</span>,NODRAW;</span><br><span class="line"><span class="comment">// 显示个股基本信息</span></span><br><span class="line">PE:=DYNAINFO(Q_PE),NODRAW;</span><br><span class="line">VL:=DYNAINFO(Q_MARKETVAL)/<span class="number">100000000</span>,NODRAW;</span><br><span class="line">DRAWTEXTEX(1, 1, 2, 0, STKNAME+' '+STKLABEL+'   市盈:'+NUMTOSTR(PE,2)+' 市值:'+NUMTOSTR(VL,2)+'亿'+'   '+INDUSTRYNAME),</span><br><span class="line">    IF(PE&gt;<span class="number">0</span> AND PE&lt;<span class="number">100</span> AND VL&gt;<span class="number">100</span>,ColorCyan,ColorYellow);</span><br><span class="line"><span class="comment">//DRAWTEXTEX(1, 1, 2, 10, BLKNAME),COLORCYAN;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 成交量强弱对比</span></span><br><span class="line">RVOL:=EMA(V,<span class="number">5</span>)/SMA(V,<span class="number">20</span>,<span class="number">1</span>);</span><br><span class="line">VBase:=<span class="string">"SH000001$Volume"</span>;</span><br><span class="line">RBase:=EMA(VBase,<span class="number">5</span>)/SMA(VBase,<span class="number">20</span>,<span class="number">1</span>), NODRAW;</span><br><span class="line">亿元:AMOUNT/<span class="number">100000000</span>, ColorWhite, NODRAW;</span><br><span class="line">换手率:(V/CAPITAL), ColorMagenta, NODRAW;</span><br><span class="line">量强弱:RVOL/RBase, NODRAW, ColorCyan;</span><br><span class="line">O1:=IIF(C&lt;REF(C,<span class="number">1</span>), V, <span class="number">0</span>);</span><br><span class="line">C1:=IIF(C&lt;REF(C,<span class="number">1</span>), <span class="number">0</span>, V);</span><br><span class="line">KLINE(O1,<span class="number">0</span>,量强弱*V,C1,<span class="number">1</span>), ColorGray;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 慢速KD</span></span><br><span class="line"><span class="comment">//N:=9;</span></span><br><span class="line"><span class="comment">//RSV:= (C-LLV(L,N))/(HHV(H,N)-LLV(L,N))*100;</span></span><br><span class="line"><span class="comment">//FASTK:=SMA(RSV,3,1);</span></span><br><span class="line"><span class="comment">//K:SMA(FASTK,3,1),ColorYellow;</span></span><br><span class="line">N:=<span class="number">34</span>;</span><br><span class="line">RSV:=(C-LLV(L,N))/(HHV(H,N)-LLV(L,N))*<span class="number">100</span>;</span><br><span class="line">K:SMA(RSV,<span class="number">5</span>,<span class="number">1</span>);</span><br><span class="line">D:=SMA(K,<span class="number">5</span>,<span class="number">1</span>),ColorWhite;</span><br><span class="line"></span><br><span class="line">KUP:=IF(K/REF(K,<span class="number">1</span>)&gt;<span class="number">1.00</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">KDN:=IF(K/REF(K,<span class="number">1</span>)&lt;<span class="number">0.97</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">PARTLINE(KUP, K),ColorMagenta;</span><br><span class="line">PARTLINE(KDN, K),ColorCyan;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 基于均线, 判断背离, 仅供参考!</span></span><br><span class="line">M:=<span class="number">3</span>;</span><br><span class="line">MC:=SMA(C,M,<span class="number">1</span>),NOAXIS;</span><br><span class="line"></span><br><span class="line">DC:=IF(MC&lt;=REF(MC,<span class="number">1</span>) AND MC&lt;=REF(MC,M/<span class="number">2</span>) AND MC&lt;=REF(MC,M), <span class="number">1</span>, <span class="number">0</span>);  <span class="comment">// 均线下降</span></span><br><span class="line">UC:=IF(MC&gt;=REF(MC,<span class="number">1</span>) AND MC&gt;=REF(MC,M/<span class="number">2</span>) AND MC&gt;=REF(MC,M), <span class="number">1</span>, <span class="number">0</span>);  <span class="comment">// 均线上升</span></span><br><span class="line">DD:=IF(D&lt;=REF(D,<span class="number">1</span>) AND D&lt;=REF(D,M/<span class="number">2</span>) AND D&lt;=REF(D,M), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">UD:=IF(D&gt;=REF(D,<span class="number">1</span>) AND D&gt;=REF(D,M/<span class="number">2</span>) AND D&gt;=REF(D,M), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line"><span class="comment">//DRAWNUMBER(DC AND UD, K, 7, 0), ColorMagenta;  // 跌势中, 背离, 准备买入</span></span><br><span class="line"><span class="comment">//DRAWNUMBER(UC AND DD, K, 8, 0), ColorCyan;     // 升势中, 背离, 准备卖出</span></span><br><span class="line">D1:=ANY(DC AND UD,<span class="number">9</span>);</span><br><span class="line">D2:=ANY(UC AND DD,<span class="number">9</span>);</span><br><span class="line"><span class="comment">// 9周期内有过买入信号, K值40以下的转折点提示买入</span></span><br><span class="line">DRAWNUMBER(DC AND UD, K, <span class="number">0</span>, <span class="number">0</span>), ColorGray;</span><br><span class="line">DRAWNUMBER(D1 AND REF(K,<span class="number">1</span>)/REF(K,<span class="number">2</span>)&lt;=<span class="number">1</span> AND K/REF(K,<span class="number">1</span>)&gt;=<span class="number">1</span> AND K&lt;<span class="number">50</span>, K, <span class="number">0</span>, <span class="number">0</span>), ColorRed;</span><br><span class="line"><span class="comment">// 9周期内有过卖出信号, K值60以上的减速点提示卖出</span></span><br><span class="line">DRAWNUMBER(D2 AND REF(K,<span class="number">1</span>)/REF(K,<span class="number">2</span>)&gt;=<span class="number">1.01</span> AND K/REF(K,<span class="number">1</span>)&lt;<span class="number">1.01</span> AND K&gt;<span class="number">60</span>, K, <span class="number">1</span>, <span class="number">0</span>), ColorGreen;</span><br><span class="line"></span><br><span class="line"><span class="number">80</span>, ColorWhite, LINEDOT;</span><br><span class="line"><span class="number">20</span>, ColorWhite, LINEDOT;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据均线提示买卖点.</span></span><br><span class="line"><span class="comment">// 对数化. 必须先均线, 再对数. 否则某些个股会出错(历史除权导致股价为负, 无法对数化)</span></span><br><span class="line">N:=<span class="number">16</span>;</span><br><span class="line">LNN:=LN(MA(C,N));</span><br><span class="line">LN2N:=LN(MA(C,N*<span class="number">2</span>));</span><br><span class="line">LN4N:=LN(MA(C,N*<span class="number">4</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用速度变化判断顶底</span></span><br><span class="line">DN:=(LNN-REF(LNN,<span class="number">1</span>)), ColorWhite;</span><br><span class="line">D2N:=(LN2N-REF(LN2N,<span class="number">1</span>)), ColorYellow;</span><br><span class="line">D4N:=(LN4N-REF(LN4N,<span class="number">1</span>)), ColorGreen;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 交叉</span></span><br><span class="line">CROSS11:=BARSLAST(CROSS(DN,D2N),<span class="number">1</span>),NODRAW;</span><br><span class="line">CROSS12:=BARSLAST(CROSS(D2N,DN),<span class="number">1</span>),NODRAW;</span><br><span class="line">CROSS21:=BARSLAST(CROSS(DN,D2N),<span class="number">2</span>),NODRAW;</span><br><span class="line">CROSS22:=BARSLAST(CROSS(D2N,DN),<span class="number">2</span>),NODRAW;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 均线序列及变化速度</span></span><br><span class="line">LNUP:=IF(D2N/LN2N&gt;<span class="number">-0.001</span> AND LN2N&gt;LN4N, <span class="number">1</span>, <span class="number">0</span>);  <span class="comment">// 长均线上升中, 适当放宽卖的条件.</span></span><br><span class="line">LNDN:=IF(D2N/LN2N&lt;<span class="number">0.001</span> AND D4N/LN4N&lt;<span class="number">0.001</span> AND LNN&lt;LN2N AND LN2N&lt;LN4N, <span class="number">1</span>, <span class="number">0</span>);   <span class="comment">// 长均线下降中</span></span><br><span class="line">D1UP:=IF(DN/LNN&gt;<span class="number">-0.001</span> AND DN&lt;=D2N, <span class="number">1</span>, <span class="number">0</span>);  <span class="comment">// 短均线上升减速中</span></span><br><span class="line">D1DN:=IF(DN/LNN&lt; <span class="number">0.001</span> AND DN&gt;=D2N, <span class="number">1</span>, <span class="number">0</span>);  <span class="comment">// 短均线下降减速中</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 底部变盘: 加速度相等 且 均线下降趋势排列 且 长均线下降趋势减缓</span></span><br><span class="line">BUY1:=IF(CROSS11=<span class="number">0</span> AND LNDN AND D2N&gt;REF(D2N,CROSS21),<span class="number">1</span>,<span class="number">0</span>), NODRAW;</span><br><span class="line">BUY2:=IF(CROSS12=<span class="number">0</span> AND LNDN AND D2N&gt;REF(D2N,CROSS22),<span class="number">1</span>,<span class="number">0</span>), NODRAW;</span><br><span class="line"><span class="comment">// 顶部变盘: 加速度相等 且 均线上升趋势排列 且 长均线上升趋势减缓</span></span><br><span class="line">SELL1:=IF(CROSS11=<span class="number">0</span> AND LNUP AND D2N&lt;REF(D2N,CROSS21),<span class="number">1</span>,<span class="number">0</span>), NODRAW;</span><br><span class="line">SELL2:=IF(CROSS12=<span class="number">0</span> AND LNUP AND D2N&lt;REF(D2N,CROSS22),<span class="number">1</span>,<span class="number">0</span>), NODRAW;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 底部写0, 顶部写1</span></span><br><span class="line">DRAWNUMBER(BUY1 OR BUY2, <span class="number">0</span>, <span class="number">0</span>,<span class="number">0</span>), ColorBrown;</span><br><span class="line"><span class="comment">//DRAWNUMBER(SELL1, 100, 1,0), ColorGray;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//ADL</span></span><br><span class="line">IF StrFind(BlkName, '指数.', 1) Then Begin</span><br><span class="line">    ADL:SUM(ADVANCE-DECLINE,<span class="number">0</span>), NOAXIS, ColorBrown;</span><br><span class="line">End</span><br></pre></td></tr></table></figure>
-<h1 id="能量波"><a href="#能量波" class="headerlink" title="能量波"></a>能量波</h1><p>用了高通滤波, 来体现本级别K线的波动情况<br>重要的点: 前低, 前高, 零轴!<br>同时整合了MACD.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">#NOTE <span class="string">"</span></span><br><span class="line"><span class="string">能量波, 使用了高通滤波概念.</span></span><br><span class="line"><span class="string">N=9,  大致相当于MACD的红绿柱(MACD).</span></span><br><span class="line"><span class="string">D=24, 大致相当于MACD的白线(DIFF).</span></span><br><span class="line"><span class="string">D=36, 大一级别的N=9.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">使用的级别思路:D表示大级别波动情况, N表示小级别波动情况.</span></span><br><span class="line"><span class="string">一般而言, 大级别一波需要小级别走一次三波或五波.</span></span><br><span class="line"><span class="string">D在0轴之上, 没有背离, 那么N回踩零轴或前低是买点.</span></span><br><span class="line"><span class="string">D在0轴之上, 股价背离, 那么N拉到前高或背离是卖点.</span></span><br><span class="line"><span class="string">D在0轴之下的情况, 同理.</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line">N:=<span class="number">9</span>;</span><br><span class="line"><span class="comment">//D:=18;</span></span><br><span class="line">A:=<span class="number">0.1111</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 高通滤波. y[i] = α * y[i-1] + α * (x[i] - x[i-1])</span></span><br><span class="line"><span class="comment">//HPO:=(A/10)*(O-Ref(C,N));</span></span><br><span class="line"><span class="comment">//HPO:=A*(O/Ref(C,N)-1);        // 改用除法, 波动价格归一化</span></span><br><span class="line"><span class="comment">//HPO:=A*ref(HPO,1)+HPO;</span></span><br><span class="line"><span class="comment">//HPC:=(A/10)*(C-Ref(C,N));</span></span><br><span class="line"><span class="comment">//HPC:=A*(C/Ref(C,N)-1);</span></span><br><span class="line"><span class="comment">//HPC:=A*ref(HPC,1)+HPC;</span></span><br><span class="line"></span><br><span class="line">CC:=REFX(MA(C,<span class="number">3</span>),<span class="number">1</span>);</span><br><span class="line">HPO:=A*(O/Ref(CC,N)<span class="number">-1</span>);</span><br><span class="line">HPO:=A*ref(HPO,<span class="number">1</span>)+HPO;</span><br><span class="line">HPC:=A*(C/Ref(CC,N)<span class="number">-1</span>);</span><br><span class="line">HPC:=A*ref(HPC,<span class="number">1</span>)+HPC;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 能量波K线</span></span><br><span class="line">PO:=<span class="number">100</span>*HPO, NoDraw;</span><br><span class="line">PC: <span class="number">100</span>*HPC, NoDraw, ColorWhite;</span><br><span class="line"></span><br><span class="line"><span class="comment">//PN:=EMA(PC,5), NoDraw;</span></span><br><span class="line"><span class="comment">//PartLine(PN&gt;=REF(PN,1), PN), ColorRed;</span></span><br><span class="line"><span class="comment">//PartLine(PN&lt;REF(PN,1), PN), ColorCyan;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 长周期能量波</span></span><br><span class="line"><span class="comment">//HPD:=A*(C/Ref(C,D)-1);</span></span><br><span class="line"><span class="comment">//HPD:=A*ref(HPD,1)+HPD;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//PD: MA(100*HPD,5), NoDraw, ColorLightRed;</span></span><br><span class="line"><span class="comment">//PartLine(PD&gt;=REF(PD,1), PD), ColorLightRed, LineThick2;</span></span><br><span class="line"><span class="comment">//PartLine(PD&lt;REF(PD,1), PD), ColorLightGreen, LineThick2;</span></span><br><span class="line"></span><br><span class="line">KLine(PO,PC,PC,PC,<span class="number">0</span>), ColorYellow;</span><br><span class="line"><span class="comment">//0, ColorGray, LineDot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// MACD</span></span><br><span class="line">DIFF:=EMA(CLOSE,<span class="number">12</span>)/EMA(CLOSE,<span class="number">26</span>)<span class="number">-1</span>;</span><br><span class="line">DEA:=EMA(DIFF,<span class="number">9</span>);</span><br><span class="line">MACD:<span class="number">100</span>*(DIFF-DEA), Stick, ColorBrown;</span><br><span class="line">StickLine(ABS(MACD)&gt;ABS(REF(MACD,<span class="number">1</span>)) <span class="keyword">and</span> ABS(MACD)&gt;ABS(REFX(MACD,<span class="number">1</span>)), <span class="number">0</span>, MACD, <span class="number">1</span>, <span class="number">1</span>), ColorGray;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 低通滤波(即SMA). y[i] = α * x[i] + (1-α) * y[i-1]</span></span><br><span class="line"><span class="comment">//LPO:=(A/10)*O;</span></span><br><span class="line"><span class="comment">//LPO:(1-A/10)*ref(LPO,N)+LPO, NoDraw;</span></span><br><span class="line"><span class="comment">//LPC:=(A/10)*C;</span></span><br><span class="line"><span class="comment">//LPC:(1-A/10)*ref(LPC,N)+LPC, NoDraw;</span></span><br><span class="line"><span class="comment">//KLine(LPO,LPC,LPC,LPC,0);</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//INPUT:</span></span><br><span class="line"><span class="comment">//  M(0,0,999);</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//// 短中均线交叉</span></span><br><span class="line"><span class="comment">//IF M&gt;0 Then Begin</span></span><br><span class="line"><span class="comment">//// 短期均线右移</span></span><br><span class="line"><span class="comment">//Q:=M/2;</span></span><br><span class="line"><span class="comment">//T0:=(M-Q)/2;</span></span><br><span class="line"><span class="comment">//M00:=ma(PC,Q)*(2-MOD(M,2));</span></span><br><span class="line"><span class="comment">//M01:=ma(PC,1+Q)*(MOD(M,2));</span></span><br><span class="line"><span class="comment">//M0:=(M00+M01)/2;          // 忽略误差可直接 M0:=ma(PC,M/2)</span></span><br><span class="line"><span class="comment">//M02:=Ref(M0,T0)*(4-MOD(M,4));</span></span><br><span class="line"><span class="comment">//M03:=Ref(M0,1+T0)*(MOD(M,4));</span></span><br><span class="line"><span class="comment">//M0_:(M02+M03)/4,ColorBrown;   // 忽略误差可直接 M0_:Ref(M0,T0), 无法显示右移的部分</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//// 中期均线</span></span><br><span class="line"><span class="comment">//M1:ma(PC,M),ColorWhite;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//// 交叉点</span></span><br><span class="line"><span class="comment">//D0:=M0_-M1;</span></span><br><span class="line"><span class="comment">////    VERTLINE(D0*ref(D0,1)&lt;=0), ColorGray, LineDot;  // 交叉最简单的写法</span></span><br><span class="line"><span class="comment">//W0:=D0+D0-ref(D0,1);                              // 用于预测过零轴</span></span><br><span class="line"><span class="comment">//BARCROSS:=BarsLast(D0*W0&lt;=0 and abs(D0)&lt;=abs(W0));    // 过零轴</span></span><br><span class="line"><span class="comment">//VERTLINE(BARCROSS==0 or (D0*ref(D0,1)&lt;=0 and BARCROSS &gt; 1)), ColorBrown, LineDot;</span></span><br><span class="line"><span class="comment">//End</span></span><br></pre></td></tr></table></figure>
-<h1 id="强弱系统"><a href="#强弱系统" class="headerlink" title="强弱系统"></a>强弱系统</h1><p>核心思路: 横向对比, 找出最强/最弱的指数/板块/个股.<br>要点: 最强的最弱, 见顶. 最弱的走强, 见底.<br>额外的思路: 港股相比于A股会由提前量. 同一股票将H股对比A股, 如果之前一直弱势, 突然走强, 很可能就是逻辑反转走牛.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果属于自定义的 '指数.' 板块, 显示市场强弱. 否则显示个股强弱.</span></span><br><span class="line">#NOTE <span class="string">"</span></span><br><span class="line"><span class="string">市场强弱, 用于对比大小票的强弱转换. 中证500和沪深300建议用IC/IF替代.</span></span><br><span class="line"><span class="string">    白色, 真实走势, 中证500(SH000905), IC仓指(IC98), 中证指数(IC8888).</span></span><br><span class="line"><span class="string">    绿色, 风格因子, 中证500(SH000905)/沪深300(SH000300), 代表小盘题材</span></span><br><span class="line"><span class="string">    红色, 趋势因子, 沪深300(SH000300)/上证50(SH000016), 代表绩优权重</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">个股强弱, 用于判断个股的强弱</span></span><br><span class="line"><span class="string">    洋红, 个股趋势, 个股/沪深300,  代表个股的整体趋势</span></span><br><span class="line"><span class="string">    青色, 个股风格, 个股/创业板指, 代表个股的强弱情况</span></span><br><span class="line"><span class="string">    黄色, 个股板块, 个股/板块,     代表个股的强弱情况</span></span><br><span class="line"><span class="string">    上证50是最强的代表, 沪深300是市场最具代表性的指数.</span></span><br><span class="line"><span class="string">    中证500是弱的代表, 创业板指是最弱但最具创新的代表.</span></span><br><span class="line"><span class="string">    为便于观察, 选取沪深300和创业板指, 以及所在版块来评估个股趋势和强弱.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">使用理念: 横向比较强弱(上上, 上下, 下上, 下下), 纵向比较强弱变化.</span></span><br><span class="line"><span class="string">    顶底判断:</span></span><br><span class="line"><span class="string">            见顶,强者转弱;</span></span><br><span class="line"><span class="string">            见底,弱者转强.</span></span><br><span class="line"><span class="string">    强者恒强:</span></span><br><span class="line"><span class="string">            个股涨, 大盘跌, 个股强弱创新高. 等到大盘走强时, 个股将形成强者恒强!</span></span><br><span class="line"><span class="string">    回归平衡:</span></span><br><span class="line"><span class="string">            个股相对大盘先强后弱, 回归平衡后再转强!</span></span><br><span class="line"><span class="string">            风格因子回归平衡判断, 底部看前低区域, 顶部看前高区域.</span></span><br><span class="line"><span class="string">            趋势因子回归平衡判断, 底部看前高区域, 顶部看前低区域.</span></span><br><span class="line"><span class="string">    波浪判断:</span></span><br><span class="line"><span class="string">            1浪金融权重. 金融权重打头阵, 风格因子二次探底, .</span></span><br><span class="line"><span class="string">            2浪回归平衡. 趋势因子见顶, 风格因子见底, 为同步上涨打下基础.</span></span><br><span class="line"><span class="string">            3浪同步大涨. 绩优白马是强者恒强的涨, 小盘题材是由弱转强的涨.</span></span><br><span class="line"><span class="string">            4浪普涨结束. 需要仔细甄别强弱, 选强去弱, 调仓换股, 降低仓位.</span></span><br><span class="line"><span class="string">            5浪分化. 通常是题材轮动, 最后用权重拉指数冲顶.(见顶:强者转弱)</span></span><br><span class="line"><span class="string">            A浪普跌. 对大级别A浪末期, 可仔细甄别强弱, 弱中选强, 为B浪反弹做准备.</span></span><br><span class="line"><span class="string">            B浪赝品. 有限的参与资金决定了个股分化的命运. 通常是快速的题材轮动.</span></span><br><span class="line"><span class="string">            C浪大跌. 最后砸权重, 制造恐慌中见底. (见底:弱者转强, 强者补跌)</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示参数精灵设置</span></span><br><span class="line">#Template <span class="string">"归一化底价日期 Param#1"</span></span><br><span class="line"></span><br><span class="line">INPUT:</span><br><span class="line">  D1(<span class="number">1190104</span>,<span class="number">0</span>,<span class="number">1341231</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上证50</span></span><br><span class="line">C50:=<span class="string">"SH000016$Close"</span>;</span><br><span class="line">O50:=<span class="string">"SH000016$Open"</span>;</span><br><span class="line">L50:=<span class="string">"SH000016$Low"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 沪深300</span></span><br><span class="line">C300:=<span class="string">"SH000300$Close"</span>;</span><br><span class="line">O300:=<span class="string">"SH000300$Open"</span>;</span><br><span class="line">L300:=<span class="string">"SH000300$Low"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中证500</span></span><br><span class="line">C500:=<span class="string">"SH000905$Close"</span>;</span><br><span class="line">O500:=<span class="string">"SH000905$Open"</span>;</span><br><span class="line">H500:=<span class="string">"SH000905$High"</span>;</span><br><span class="line">L500:=<span class="string">"SH000905$Low"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创业板指;</span></span><br><span class="line">CCY:=<span class="string">"SZ399006$Close"</span>;</span><br><span class="line">OCY:=<span class="string">"SZ399006$Open"</span>;</span><br><span class="line">LCY:=<span class="string">"SZ399006$Low"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上证指数</span></span><br><span class="line">CSH:=<span class="string">"SH000001$Close"</span>;</span><br><span class="line">OSH:=<span class="string">"SH000001$Open"</span>;</span><br><span class="line">HSH:=<span class="string">"SH000001$High"</span>;</span><br><span class="line">LSH:=<span class="string">"SH000001$Low"</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">IF StrFind(BlkName, '指数.', 1) Then Begin</span><br><span class="line"><span class="comment">// 属于系统指数的, 直接显示强弱系统.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 真实走势</span></span><br><span class="line">真实走势:C500, NoDraw, ColorGray;</span><br><span class="line">KLine(O500,H500,L500,C500,<span class="number">1</span>),ColorGray;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 风格因子</span></span><br><span class="line">OFG:=O500/O300;</span><br><span class="line">CFG:=C500/C300;</span><br><span class="line">风格因子:CFG, NoDraw, ColorLightGreen;</span><br><span class="line">KLine(OFG,CFG,CFG,CFG,<span class="number">0</span>),ColorLightGreen;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 趋势因子</span></span><br><span class="line">OQS:=O300/O50;</span><br><span class="line">CQS:=C300/C50;</span><br><span class="line">趋势因子:CQS, NoDraw, ColorLightRed;</span><br><span class="line">KLine(OQS,CQS,CQS,CQS,<span class="number">0</span>),ColorLightRed;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 基于均线, 判断背离, 仅供参考!</span></span><br><span class="line">N:=<span class="number">9</span>;</span><br><span class="line">MZS:=SMA(C500,N,<span class="number">1</span>),NoAxis;</span><br><span class="line">MFG:=EMA(CFG,N);</span><br><span class="line">MQS:=EMA(CQS,N);</span><br><span class="line"></span><br><span class="line">DZS:=IF(MZS&lt;REF(MZS,<span class="number">1</span>) <span class="keyword">and</span> MZS&lt;REF(MZS,<span class="number">1</span>+N/<span class="number">2</span>), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">UZS:=IF(MZS&gt;REF(MZS,<span class="number">1</span>) <span class="keyword">and</span> MZS&gt;REF(MZS,<span class="number">1</span>+N/<span class="number">2</span>), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">DFG:=IF(MFG&lt;REF(MFG,<span class="number">1</span>) <span class="keyword">and</span> MFG&lt;REF(MFG,N/<span class="number">2</span>) <span class="keyword">and</span> MFG&lt;REF(MFG,N), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">UFG:=IF(MFG&gt;REF(MFG,<span class="number">1</span>) <span class="keyword">and</span> MFG&gt;REF(MFG,N/<span class="number">2</span>) <span class="keyword">and</span> MFG&gt;REF(MFG,N), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">DQS:=IF(MQS&lt;REF(MQS,<span class="number">1</span>) <span class="keyword">and</span> MQS&lt;REF(MQS,N/<span class="number">2</span>) <span class="keyword">and</span> MQS&lt;REF(MQS,N), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">UQS:=IF(MQS&gt;REF(MQS,<span class="number">1</span>) <span class="keyword">and</span> MQS&gt;REF(MQS,N/<span class="number">2</span>) <span class="keyword">and</span> MQS&gt;REF(MQS,N), <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">FGMIN:=Min(OFG, CFG);</span><br><span class="line">QSMIN:=Min(OQS, CQS);</span><br><span class="line">DrawNumber(DZS <span class="keyword">and</span> UFG <span class="keyword">and</span> UQS, FGMIN, <span class="number">0</span>, <span class="number">0</span>), ColorRed;</span><br><span class="line">DrawNumber(UZS <span class="keyword">and</span> DFG <span class="keyword">and</span> DQS, QSMIN, <span class="number">1</span>, <span class="number">0</span>), ColorGreen;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">End Else Begin</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上证指数</span></span><br><span class="line">上证指数:CSH, NoDraw, ColorGray;</span><br><span class="line">KLine(OSH,HSH,LSH,CSH,<span class="number">1</span>),ColorGray;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 个股</span></span><br><span class="line">LGG:=RefData(StkLabel, D_Low, DataPeriod);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定日期归一化, 建议选取历史低点.</span></span><br><span class="line"><span class="comment">// BarStatus必须放在前面, 可自适应新股. 使用&lt;=可自动适应多周期.</span></span><br><span class="line">B1:=BarsLast(BarStatus==<span class="number">1</span> <span class="keyword">or</span> (Date&lt;=D1 <span class="keyword">and</span> Time&lt;=<span class="number">093000</span>),<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 个股/沪深300</span></span><br><span class="line">R300:=L300[B1]/LGG[B1];</span><br><span class="line">CV300:=R300*C/C300;</span><br><span class="line">OV300:=R300*O/O300;</span><br><span class="line">V沪深:CV300, NoDraw, ColorMagenta;</span><br><span class="line"><span class="comment">//KLine(OV300,CV300,CV300,CV300,0),ColorMagenta;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 个股/创业板指</span></span><br><span class="line">RCY:=LCY[B1]/LGG[B1];</span><br><span class="line">CVCY:=RCY*C/CCY;</span><br><span class="line">OVCY:=RCY*O/OCY;</span><br><span class="line">v创业:CVCY, NoDraw, ColorCyan;</span><br><span class="line">KLine(OVCY,CVCY,CVCY,CVCY,<span class="number">0</span>),ColorCyan;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 个股板块, 个股/行业板块</span></span><br><span class="line">If (IndustryName != '') Then Begin</span><br><span class="line">    <span class="comment">// 显示个股基本信息</span></span><br><span class="line">    PE:=DynaInfo(Q_PE),NoDraw;</span><br><span class="line">    VL:=DynaInfo(Q_MARKETVAL)/<span class="number">100000000</span>,NoDraw;</span><br><span class="line">    DRAWTEXTEX(1, 1, 2, 0, STKNAME+' '+STKLABEL+'   市盈:'+NumToStr(PE,2)+' 市值:'+NumToStr(VL,2)+'亿'+'   '+IndustryName),</span><br><span class="line">        IIF(PE&gt;<span class="number">0</span> <span class="keyword">and</span> PE&lt;<span class="number">100</span> <span class="keyword">and</span> VL&gt;<span class="number">100</span>,ColorCyan,ColorYellow);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 板块指数</span></span><br><span class="line">    CodeBK:=StkLabelN(IndustryName);</span><br><span class="line">    CBK:=RefData(CodeBK, D_Close, DataPeriod);</span><br><span class="line">    OBK:=RefData(CodeBK, D_Open, DataPeriod);</span><br><span class="line">    LBK:=RefData(CodeBK, D_Low, DataPeriod);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//板块/上证指数</span></span><br><span class="line">    RBKSH:=LSH[B1]/LBK[B1];</span><br><span class="line">    CBKSH:=RBKSH*CBK/CSH;</span><br><span class="line">    OBKSH:=RBKSH*OBK/OSH;</span><br><span class="line">    KLine(OBKSH,CBKSH,CBKSH,CBKSH,<span class="number">0</span>),ColorBrown;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//个股/板块</span></span><br><span class="line">    RBK:=LBK[B1]/LGG[B1];</span><br><span class="line">    CVBK:=RBK*C/CBK;</span><br><span class="line">    OVBK:=RBK*O/OBK;</span><br><span class="line">    v板块:CVBK, NoDraw, ColorYellow;</span><br><span class="line">    KLine(OVBK,CVBK,CVBK,CVBK,<span class="number">0</span>),ColorYellow;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//板块强弱</span></span><br><span class="line">    板块强弱:CBKSH, NoDraw, ColorBrown;</span><br><span class="line">End Else Begin</span><br><span class="line">    CVBK:=CV300;</span><br><span class="line">    OVBK:=OV300;</span><br><span class="line">End</span><br><span class="line"></span><br><span class="line"><span class="comment">// V沪深显示在最顶层</span></span><br><span class="line">KLine(OV300,CV300,CV300,CV300,<span class="number">0</span>),ColorMagenta;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 平台突破</span></span><br><span class="line">M:=<span class="number">4</span>;</span><br><span class="line">RR:=<span class="number">1.005</span>; <span class="comment">// 设置有效突破阀值</span></span><br><span class="line">HH1:=HHV(REF(CV300,<span class="number">1</span>),M);</span><br><span class="line">HH2:=HHV(REF(CVCY,<span class="number">1</span>),M);</span><br><span class="line">HH3:=HHV(REF(CVBK,<span class="number">1</span>),M);</span><br><span class="line">TP1:=CV300/HH1&gt;RR;</span><br><span class="line">TP2:=CVCY/HH2&gt;RR;</span><br><span class="line">TP3:=CVBK/HH3&gt;RR;</span><br><span class="line">TP:=TP1 <span class="keyword">and</span> TP2 <span class="keyword">and</span> TP3,NoDraw;</span><br><span class="line">平台突破:=TP <span class="keyword">and</span> BARSLASTCOUNT(REF(TP,<span class="number">1</span>)==<span class="number">0</span>)&gt;M,NoDraw;</span><br><span class="line">VMIN:=MinList(OV300, OVCY, OVBK, CV300, CVCY, CVBK);</span><br><span class="line">DrawNumber(TP, VMIN, <span class="number">0</span>, <span class="number">0</span>), ColorBrown;</span><br><span class="line">DrawNumber(平台突破, VMIN, <span class="number">0</span>, <span class="number">0</span>), ColorRed;</span><br><span class="line"></span><br><span class="line">End</span><br></pre></td></tr></table></figure>
-<h1 id="板块轮动"><a href="#板块轮动" class="headerlink" title="板块轮动"></a>板块轮动</h1><p>强弱系统, 用于板块选择判断.</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line">#NOTE <span class="string">"</span></span><br><span class="line"><span class="string">板块强弱, 选用最具代表性的板块, 和上证指数做比较:</span></span><br><span class="line"><span class="string">    淡红, 券商.     券商. 金融代表. 牛熊指示器.</span></span><br><span class="line"><span class="string">    白色, 中证消费. 家电食品. 高收益, 绩优白马.</span></span><br><span class="line"><span class="string">    黄色, 中证医药. 医疗医药. 高收益, 绩优白马.</span></span><br><span class="line"><span class="string">    淡绿, 中证信息. 信息科技. 高波动, 未来成长.</span></span><br><span class="line"><span class="string">    青色, 创业板指. 小票创新. 高波动, 未来成长.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">板块特点:</span></span><br><span class="line"><span class="string">    上证50券商是一组,  代表核心资产, 特点是低波动, 即跌的少涨的慢;</span></span><br><span class="line"><span class="string">    消费和医药是一组,   代表绩优白马, 特点是高收益, 即跌的少涨的多;</span></span><br><span class="line"><span class="string">    创业和信息是一组,   代表未来成长, 特点是高波动, 即跌的多涨的多;</span></span><br><span class="line"><span class="string">    其它行业只看龙头,   代表传统行业, 如地产, 化工, 有色, 基建等等.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">使用理念: 可用于辅助判断大盘顶底和板块轮动.</span></span><br><span class="line"><span class="string">    顶底判断:</span></span><br><span class="line"><span class="string">            见顶,强者转弱;</span></span><br><span class="line"><span class="string">            见底,弱者转强.</span></span><br><span class="line"><span class="string">    强者恒强:</span></span><br><span class="line"><span class="string">            板块强弱创新高, 然后回踩不破前高, 将形成强者恒强!</span></span><br><span class="line"><span class="string">            如果板块强弱创新低无法立刻收回, 则该板块将长期走弱!</span></span><br><span class="line"><span class="string">    回归平衡:</span></span><br><span class="line"><span class="string">            板块相对大盘先强后弱, 回归平衡后再转强!</span></span><br><span class="line"><span class="string">    波浪判断:</span></span><br><span class="line"><span class="string">            1浪金融权重. 金融权重打头阵, 创业信息二次探底, .</span></span><br><span class="line"><span class="string">            2浪回归平衡. 金融权重见顶, 创业信息见底, 为同步上涨打下基础.</span></span><br><span class="line"><span class="string">            3浪同步大涨. 消费医药是强者恒强的涨, 创业信息是由弱转强的涨.</span></span><br><span class="line"><span class="string">            4浪普涨结束. 需要仔细甄别强弱, 选强去弱, 调仓换股, 降低仓位.</span></span><br><span class="line"><span class="string">            5浪分化. 通常是题材轮动, 最后用权重拉指数冲顶.(见顶:强者转弱)</span></span><br><span class="line"><span class="string">            A浪普跌. 对大级别A浪末期, 可仔细甄别强弱, 弱中选强, 为B浪反弹做准备.</span></span><br><span class="line"><span class="string">            B浪赝品. 有限的参与资金决定了个股分化的命运. 通常是快速的题材轮动.</span></span><br><span class="line"><span class="string">            C浪大跌. 最后砸权重, 制造恐慌中见底. (见底:弱者转强, 强者补跌)</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示参数精灵设置</span></span><br><span class="line">#Template <span class="string">"是否显示以及偏移量:</span></span><br><span class="line"><span class="string">券商  Param#1,淡红</span></span><br><span class="line"><span class="string">消费  Param#2,白色</span></span><br><span class="line"><span class="string">医药  Param#3,黄色</span></span><br><span class="line"><span class="string">信息  Param#4,淡绿</span></span><br><span class="line"><span class="string">创业  Param#5,青色</span></span><br><span class="line"><span class="string">归一化底价日期 Param#6</span></span><br><span class="line"><span class="string">"</span></span><br><span class="line"></span><br><span class="line">input:</span><br><span class="line">    证券K(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">50</span>),</span><br><span class="line">    消费K(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">50</span>),</span><br><span class="line">    医药K(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">50</span>),</span><br><span class="line">    信息K(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">50</span>),</span><br><span class="line">    创业K(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">50</span>),</span><br><span class="line">    D1(<span class="number">1190104</span>,<span class="number">0</span>,<span class="number">1341231</span>);</span><br><span class="line"></span><br><span class="line">CSH:=<span class="string">"SH000001$Close"</span>;  <span class="comment">// 上证指数</span></span><br><span class="line">OSH:=<span class="string">"SH000001$Open"</span>;</span><br><span class="line">HSH:=<span class="string">"SH000001$High"</span>;</span><br><span class="line">LSH:=<span class="string">"SH000001$Low"</span>;</span><br><span class="line"><span class="comment">//CSH:="SH000300$Close";    // 沪深300</span></span><br><span class="line"><span class="comment">//OSH:="SH000300$Open";</span></span><br><span class="line"><span class="comment">//HSH:="SH000300$High";</span></span><br><span class="line"><span class="comment">//LSH:="SH000300$Low";</span></span><br><span class="line"></span><br><span class="line">LCY:=<span class="string">"SZ399006$Low"</span>;    <span class="comment">// 创业板</span></span><br><span class="line">LXF:=<span class="string">"SH000932$Low"</span>;    <span class="comment">// 消费</span></span><br><span class="line">LYY:=<span class="string">"SH000933$Low"</span>;    <span class="comment">// 医药</span></span><br><span class="line">LZQ:=<span class="string">"J141$Low"</span>;        <span class="comment">// 证券</span></span><br><span class="line">LXX:=<span class="string">"SH000935$Low"</span>;    <span class="comment">// 信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定日期归一化, 建议选取历史低点.</span></span><br><span class="line"><span class="comment">// BarStatus必须放在前面, 可自适应新股. 使用&lt;=可自动适应多周期.</span></span><br><span class="line">B1:=BarsLast(BarStatus==<span class="number">1</span> <span class="keyword">or</span> (Date&lt;=D1 <span class="keyword">and</span> Time&lt;=<span class="number">093000</span>),<span class="number">1</span>);</span><br><span class="line">MINSH:=LSH[B1];</span><br><span class="line">MINCY:=LCY[B1];</span><br><span class="line">MINXF:=LXF[B1];</span><br><span class="line">MINYY:=LYY[B1];</span><br><span class="line">MINZQ:=LZQ[B1];</span><br><span class="line">MINXX:=LXX[B1];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 归一化比率</span></span><br><span class="line">RSH:=MINSH/MINSH;</span><br><span class="line">RCY:=MINSH/MINCY;</span><br><span class="line">RXF:=MINSH/MINXF;</span><br><span class="line">RYY:=MINSH/MINYY;</span><br><span class="line">RZQ:=MINSH/MINZQ;</span><br><span class="line">RXX:=MINSH/MINXX;</span><br><span class="line"></span><br><span class="line">KLine(OSH,HSH,LSH,CSH,<span class="number">1</span>),ColorGray;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中证医药</span></span><br><span class="line">CYY:=RYY*<span class="string">"SH000933$Close"</span>/CSH + 医药K/<span class="number">10</span>;</span><br><span class="line">OYY:=RYY*<span class="string">"SH000933$Open"</span> /OSH + 医药K/<span class="number">10</span>;</span><br><span class="line">医药:CYY, NODRAW, ColorYellow;</span><br><span class="line">IF (医药K&gt;=0) Then KLine(OYY,CYY,CYY,CYY,0),ColorYellow;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中证消费</span></span><br><span class="line">CXF:=RXF*<span class="string">"SH000932$Close"</span>/CSH + 消费K/<span class="number">10</span>;</span><br><span class="line">OXF:=RXF*<span class="string">"SH000932$Open"</span> /OSH + 消费K/<span class="number">10</span>;</span><br><span class="line">消费:CXF, NODRAW, ColorWhite;</span><br><span class="line">IF (消费K&gt;=0) Then KLine(OXF,CXF,CXF,CXF,0),ColorWhite;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 证券</span></span><br><span class="line">CZQ:=RZQ*<span class="string">"J141$Close"</span>/CSH + 证券K/<span class="number">10</span>;</span><br><span class="line">OZQ:=RZQ*<span class="string">"J141$Open"</span> /OSH + 证券K/<span class="number">10</span>;</span><br><span class="line">证券:CZQ, NODRAW, ColorLightRed;</span><br><span class="line">IF (证券K&gt;=0) Then KLine(OZQ,CZQ,CZQ,CZQ,0),ColorLightRed;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中证信息</span></span><br><span class="line">CXX:=RXX*<span class="string">"SH000935$Close"</span>/CSH + 信息K/<span class="number">10</span>;</span><br><span class="line">OXX:=RXX*<span class="string">"SH000935$Open"</span> /OSH + 信息K/<span class="number">10</span>;</span><br><span class="line">信息:CXX, NODRAW, ColorLightGreen;</span><br><span class="line">IF (信息K&gt;=0) Then KLine(OXX,CXX,CXX,CXX,0),ColorLightGreen;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创业板</span></span><br><span class="line">CCY:=RCY*<span class="string">"SZ399006$Close"</span>/CSH + 创业K/<span class="number">10</span>;</span><br><span class="line">OCY:=RCY*<span class="string">"SZ399006$Open"</span> /OSH + 创业K/<span class="number">10</span>;</span><br><span class="line">创业:CCY, NODRAW, ColorCyan;</span><br><span class="line">IF (创业K&gt;=0) Then KLine(OCY,CCY,CCY,CCY,0),ColorCyan;</span><br></pre></td></tr></table></figure>
-<h1 id="期权加油线"><a href="#期权加油线" class="headerlink" title="期权加油线"></a>期权加油线</h1><p>机构代表主力和大资金. 因而可以通过期权的认沽或认购持仓变动来预判主力对后市的看法.<br>首先在期权市场上, 散户往往是直线思维, 看涨买认购, 看跌了买认沽; 而机构是绝对主力, 往往提前布局了仓位, 从而反向操作, 即看涨卖认沽, 看跌卖认购.<br>这样, 就有这样一个推论: 期权市场, 买方的主要是散户, 卖方的主要是机构.<br>因而, 当认沽期权持仓量变大时, 说明散户看跌, 但主力资金不怕跌, 敢于把大量认沽的筹码卖给直线思维的散户, 主力资金对后市是看涨的!<br>反之, 当认购期权持仓量变大时, 说明散户看涨, 但主力资金不看涨, 才肯把大量认购的筹码丢给直线思维的散户, 主力资金对后市是看跌的!<br>综上, 观察<code>认沽期权持仓量/认购期权持仓量</code>的变化, 结合K线图相对位置, 可以预判底部和顶部, 特别是顶部区域.<br>由于这条线往往优先于K线价格, 因而取名为期权加油线. 期权加油线也有趋势线, 前低的支撑作用, 前高的阻力作用, 可作为参考, 但最有用的还是背离.</p>
-<p><img src="https://draapho.github.io/images/2102/option.png" alt="期权加油线"></p>
-<h1 id="股债收益率模型"><a href="#股债收益率模型" class="headerlink" title="股债收益率模型"></a>股债收益率模型</h1><p>股债收益率模型（EYBY）是一个经典的股市估值模型，其基本思想是将“股票收益率”（EY）与“债券收益率”（BY）进行对比，计算出(EY-BY)，当该数值为正数，股票收益率更高，当该数值为负数，债券收益率更高.<br>其中EY取10年国债的到期收益率, BY取全A指数中位市盈率(TTM)的倒数, 有些网站也成为等权PE.</p>
-<p>此模型本质上, 是一个跨市场的强弱指标.<br>另建议用BY-EY, 和股价走势图叠加显示, 视觉上会更直观.</p>
-<h1 id="股价增长模式"><a href="#股价增长模式" class="headerlink" title="股价增长模式"></a>股价增长模式</h1><p>股市波动有两者主要的博弈模式, 增量博弈和存量博弈. 其中增量博弈有明显的生命形式的自增长特征.<br>波浪理论里面提到了黄金比例, 但没有将黄金比例应用到高点到高点的预测. 下图例示范:</p>
-<p><img src="https://draapho.github.io/images/2102/ratio.png" alt="等比增长"></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2021/01/28/2101-confusion/" itemprop="url">
                   与神对话读后感-矛盾与困惑
                 </a>
@@ -683,574 +542,6 @@
 <p>在接触了解了宗教灵修后, 也必须承认, 极少部分人修身养性去掉了贪嗔痴疑慢的, 但比例太少, 基本不对世俗世界构成影响, 这类人也不太关心政经界的博弈法则, 更无意先适应后改变这种法则; 同样不可否认的是, 绝大部分人内心是向往被包容, 被理解, 被博爱的. 我相信, 这种天然的需求来自于那个”万有”, 我之前的结论忽略了这个基本属性, 有了这个属性, 才能解释为何有那么多的理想主义者. 但在权力和资本博弈的最中心, 这种需求也是靠边站的. 因而当下的世界, 只要抓住主要矛盾, 阶级矛盾, 权力和资本的斗争, 国与国之间的发展走向和对应措施, 是可以通过博弈论分析出潜在的各种走向的.</p>
 <p>目前全球是资本主义世界,  核心矛盾是资本分配问题. 只有让资本主义发展到极致, 资本主义才会灭亡. 从这个角度看, 马克思的资本论是极大延长了资本主义的. 资本主义的龙头国家是美国, 美国不倒, 资本主义不死. 而美国目前只是盛极而衰的阶段, 离完全倒塌尚有时日. 资本vs权力, 由于资本天然的见利忘义属性, 资本必败. 中央集权的龙头国家是中国, 兴百姓苦, 亡百姓苦, 权力模式不变, 中国就不会走出历史周期律. 只是当下世界, 资本更为强大, 因而权力在利用民意对抗资本的侵蚀, 人民群众也寄希望于通过集权的方式, 选出政治强人去解决日益疯狂的资本. 那权力胜利之后呢? 如何解决权力分配问题? 中国不倒, 中央集权不亡. 在全球或和平或武力统一之前, 阶级/国家/信仰/民族矛盾将混杂着影响这个世界的走势. 这是历史的惯性, 这种巨大的惯性, 是不以个人的意志为转移的. 个人身在其中, 可以有自己的选择, 却很难改变什么. 即时势造英雄, 而非英雄造时势. 而资本的趋势和权力的趋势, 我实在是看不出百年之内有什么改变的契机. 境随心转, 个人周边的事物较容易做到; 但我理解不了一个群体性的境又如何随个人的心而转呢? 像玩游戏一样, 死后直接跳出这个世界? 选一个自己喜欢的和平世界体验?</p>
 <p>综上, 我只能在矛盾中前行, 信自己判断分析后相信的修行方法, 去亲自实践验证. 通过此文的分析, 对于人性我倒是多了一份理解和希望, 除了贪嗔痴疑慢, 还要加上一个自己遗忘了的终极目的 – 体验”合一”.</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2020/08/07/-2006-wave-thinking/" itemprop="url">
-                  波浪理论感悟
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2020-08-07T00:00:00+10:00" content="2020-08-07">
-              2020-08-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/market/" itemprop="url" rel="index">
-                    <span itemprop="name">market</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2019/03/26/1902-trading-rule/">交易市场思考</a></li>
-<li><a href="https://draapho.github.io/2019/04/26/1903-wave-principle/">波浪理论简述</a></li>
-<li><a href="https://draapho.github.io/2019/06/25/1907-investor/">你将不会成为一个伟大的投资人</a></li>
-<li><a href="https://draapho.github.io/2020/02/09/2001-exploration/">交易市场阶段性探索心得</a></li>
-<li><a href="https://draapho.github.io/2020/08/06/2005-wave-mnemonic/">波浪理论口诀</a></li>
-<li><a href="https://draapho.github.io/2020/08/07/2006-wave-thinking/">波浪理论感悟</a></li>
-</ul>
-<h1 id="千人千浪"><a href="#千人千浪" class="headerlink" title="千人千浪"></a>千人千浪</h1><ul>
-<li>首先, 千人千浪是波浪理论广为传播, 经久不衰的优点.<ul>
-<li>广为人知的高确定性理论会导致理论本身确定性大为下降.</li>
-</ul>
-</li>
-<li>艾略特和普莱切特观察侧重点是有区别的.<ul>
-<li>艾略特77岁逝世.</li>
-<li>普莱切特75年成为美林证券市场分析部的技术分析人员. 78年认识波浪理论大师级人物: 阿尔弗雷德.约翰.弗罗斯特.</li>
-<li>因此, 普莱切特对波浪理论的增减是”自说自话”的, 他学了艾略特五浪三浪的形, 但数浪的严谨程度是不及艾略特的!</li>
-<li>普莱切特倾向于大级别的形似, 这种形似的模糊性真正导致了千人千浪.</li>
-<li><strong>艾略特倾向于小级别的波浪形态对大级别进行波浪划分, 因此有不规则顶和AB底的说法</strong></li>
-<li>艾略特是看图说话, 所标示的级别大多是K线图上明显的一段. 普莱切特引入的WXYXZ反而将级别问题复杂化了.</li>
-<li>艾略特本人非常注重时间. 强调过:<ul>
-<li>时间是宇宙的基本要素之一</li>
-<li>就投资而言, 时机是最基本的要素. 买什么很重要, 但何时买更重要.</li>
-<li>可惜在现有的波浪理论中, 时间只是辅助作用.</li>
-<li><strong>波浪理论加上时间的限制, 会大大提高波浪理论的有效性(级别和转折点)</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>三重锯齿型调整浪<ul>
-<li>艾略特的锯齿型调整浪包含了双重锯齿型, 即 W(5-3-5)-X(3)-Y(5-3-5), 形态上为较为明显的四波下跌.</li>
-<li>普莱切特的三重锯齿型, 理论上应该是 W(5-3-5)-X(3)-Y(5-3-5)-X(3)-Z(5-3-5), 型态上为六波. 但多半也能数成一个5浪形态. </li>
-</ul>
-</li>
-<li><strong>小级别的波浪形态决定大级别的波浪划分</strong><ul>
-<li><strong>不存在333或533的调整浪. 即C浪如果不是5波, 不要轻易判定调整结束.</strong></li>
-<li><strong>推动浪的1,3,5子浪内部必须也是严格的推动浪结构! 三浪的幅度不能最小, 时间不能最短, 速度不能最慢!</strong></li>
-<li>在严格按照上述要求数浪后, 就会产生不规则顶和AB底.</li>
-<li>AB底是3-3模式, 由于A不是5波推动, 因而不能作为推动浪正确的起始点.</li>
-<li>AB底只能事后确认, 即随后产生了强劲的5浪推动结构且级别放大, 方可以认为之前的是AB底. 否则只能是3-3-5调整浪.</li>
-</ul>
-</li>
-</ul>
-<h1 id="疑难杂症"><a href="#疑难杂症" class="headerlink" title="疑难杂症"></a>疑难杂症</h1><ul>
-<li>三角型波浪<ul>
-<li>三角型调整浪要求是3-3-3-3-3或3-3-3-1-1 模式. 但艾略特举例时, 出现过3-3-5-3-3模式.</li>
-<li>复杂情况下, 通常是C浪, 会呈现出: 规则平台形, 扩散平台形或多重锯齿形的样子</li>
-<li><strong>因而对于三角型调整, 可以优先看上下边界形成的型, 内部子浪C允许偶尔出现5浪或复杂浪结构.</strong></li>
-<li><strong>终结倾斜三角型是艾略特提到过的, 应用时, 同样重点考虑上下边界形成的型, 其次看内部子浪结构.</strong></li>
-<li><strong>引导倾斜三角型是普莱切特的观点. 可以采用, 但内部子浪必须是严格的5-3-5-3-5结构.</strong></li>
-</ul>
-</li>
-<li>五浪的衰竭/失败<ul>
-<li>只有在驱动浪中, 第五浪内部也为推动结构或终结倾斜三角型, 才能判定为五浪衰竭/失败.</li>
-<li><strong>四浪调整中的b通常是三波结构, 或疑似五波但不满足推动结构, 此时不能判为五浪衰竭/失败.</strong></li>
-<li><strong>五浪是强势股见顶的过程. 强势股往往在指数五浪3时就见顶. 最后的五浪5往往由权重拉升, 热点散乱.</strong></li>
-<li>调整浪中的五波是不存在五浪衰竭/失败这个概念的. (大级别C浪除外, 允许五浪失败)</li>
-</ul>
-</li>
-<li>B浪新高vs五浪延长<ul>
-<li><strong>成交量可能会提供答案. 如果成交量清淡, 为B浪. 如果成交量放大, 可能是延长浪.</strong></li>
-<li><strong>内部结构确定. 五浪要延长, 五浪3必须是严格的推动浪结构, 哪怕五浪3延长, 其子浪1也必须是推动浪结构.</strong><br><img src="https://draapho.github.io/images/2006/2.png" alt="新高"></li>
-</ul>
-</li>
-<li>延长浪中的延长浪<ul>
-<li>事前很难判断, 会产生背离再背离, 就是不转势的情况.</li>
-<li>应对方法: 同级别均线趋势跟随; 大级别时间转折点预判, 价格极限预判.</li>
-</ul>
-</li>
-<li>混合型调整浪<ul>
-<li>下图为艾略特的划分: 按照价格的绝对高低点, 划分为3-7-3结构. 没有解读成5-3-5结构, 即五浪失败不能用于调整浪.</li>
-<li><strong>通道型调整浪, 忽略内部划分, 直接数浪, 单重3浪, 双重7浪, 三重11浪.</strong></li>
-<li><strong>混合型调整浪若由X浪衔接, 大结构上看, 可能出现3-X-3结构. 即X后是重新开始的调整浪</strong><br><img src="https://draapho.github.io/images/2006/1.png" alt="混合型"></li>
-</ul>
-</li>
-<li>充满歧义的调整浪<ul>
-<li>下图: 整体是ABC调整, 但内部结合和结束点在哪里事前是无法确定的.</li>
-<li>左侧竖线结束的划分: 3-3-5结构; 5-3-5结构;</li>
-<li>右侧竖线结束的划分: 5-3-5结构; 3-5(三角型)-5结构;<br><img src="https://draapho.github.io/images/2006/3.png" alt="歧义1"></li>
-<li>下图: 五浪或一浪延长, 解读成3浪结构或5浪结构都是可以的. 优先解读为五浪.<br><img src="https://draapho.github.io/images/2006/4.png" alt="歧义2"></li>
-</ul>
-</li>
-<li>C浪延长<ul>
-<li>AB底和不规则顶, 都可以看成是C浪延长, 级别直接小转大造成的特殊现象.</li>
-<li>识别AB底和不规则顶的关键: 牢记各种波浪形态的内部子浪判定条件.<br><img src="https://draapho.github.io/images/2006/5.png" alt="AB底"></li>
-</ul>
-</li>
-</ul>
-<h1 id="个人感悟"><a href="#个人感悟" class="headerlink" title="个人感悟"></a>个人感悟</h1><ul>
-<li><strong>五浪推动是新生, 五浪是结束.</strong><ul>
-<li>隐而生, 惑而活, 显而变. 小级别五浪推动是隐而生, 大级别五浪是显而变. 三浪是惑而活.</li>
-<li>一鼓作气, 再而衰, 三而竭. 三浪是衰, 五浪是竭.</li>
-<li>五浪的三次同方向, 让人们心理上获得了足够的暗示, 形成思维定势.</li>
-<li>驱动浪走到一浪5时, 一浪属于大级别一鼓作气+小级别的三而竭. 因而有调整需求.</li>
-<li>驱动浪走到五浪5时, 大小级别同时三而竭, 转势.</li>
-<li>调整浪abc三浪属于再而衰, 5波结构的浪c属于小级别的三而竭. 反击力度消耗殆尽, 于是原趋势强势延续.</li>
-<li>调整浪如果是一个5波结构开始, 说明是调整浪a, 一鼓作气的阶段. 必须出浪c的5波结构才可能结束.</li>
-<li><strong>第一个逆势小级别五浪推动结构意味着本级别至少走一次N字形.</strong></li>
-</ul>
-</li>
-<li>推动浪和调整浪<ul>
-<li><strong>推动浪的产生, 必须有着天时地利人和, 即结构完美(含价格到位), 时间转折点, 可持续的增量资金三重要素. 属于增量博弈, 可共赢</strong></li>
-<li><strong>真正的推动浪是生命形式的等比例放大, 需要向外吸取或释放大量的资金来维持原有的趋势.</strong></li>
-<li>调整浪本质上一种存量博弈. 是板块之间争夺有限资金的表现.</li>
-<li>如果结构, 价格都已经到位, 但时间上不允许(天时), 就会继续走震荡调整型态, 消耗时间, 形成江恩所说的空转.</li>
-<li><strong>X浪是在满足地利条件时, 由于缺乏天时或人和的条件, 导致趋势反转失败. </strong><ul>
-<li>天时, 表示时间条件; 地利, 表示结构完整; 人和, 表示资金支持. </li>
-<li><strong>X浪前已有天时地利, 则必然走出之字形结构, 其本质为缺乏增量资金而无法持续, 是夭折了的推动结构.</strong></li>
-<li><strong>X浪前仅满足地利时, X浪可以是任意形式的调整浪</strong></li>
-<li><strong>X浪划分的调整浪, 多呈现3-X-3时价对称结构. 即X后是重新开始的调整浪, 等待下一次的天时地利人和的机会实现转势</strong></li>
-<li>X浪和B浪的区别: <ul>
-<li>B浪是调整的必经过程, 此时缺乏天时地利, 根本没有形成牛市的基础条件. 随后的C必然是五浪推动形式. 因而形式上, B浪运行角度往往弱于A浪.</li>
-<li>X浪经常快速而陡峭, 多呈现锯齿浪, 容易被误判为推动浪. 随后的Y浪往往和W浪呈现对称关系, 而非五浪推动的C.</li>
-</ul>
-</li>
-<li>X浪和C浪的区别:<ul>
-<li>无论平台型还是锯齿型调整, 最后的C浪必须是推动浪. 如果呈现双锯齿型四波结构或其它普通的调整结构, 那只能是B浪X, 后面还有B浪Y. 随后才是真正的推动浪C.</li>
-<li>C浪的调整强度要大于X浪, C浪调整后, 价格到位. X浪的调整较弱, 结构上不是推动浪, 价格上不到位.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>综上, 推动浪只能是短暂的. 而调整浪可以调了又调, 调了再调, 默默的在调整中, 等待新生的机会.</li>
-</ul>
-</li>
-</ul>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li>&lt;艾略特名著集&gt;</li>
-<li>&lt;艾略特波浪理论-自然法则&gt;</li>
-<li>&lt;艾略特波浪理论:市场行为的关键(20周年纪念版)&gt;</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2020/08/06/-2005-wave-mnemonic/" itemprop="url">
-                  波浪理论口诀
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2020-08-06T00:00:00+10:00" content="2020-08-06">
-              2020-08-06
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/market/" itemprop="url" rel="index">
-                    <span itemprop="name">market</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li><a href="https://draapho.github.io/2019/03/26/1902-trading-rule/">交易市场思考</a></li>
-<li><a href="https://draapho.github.io/2019/04/26/1903-wave-principle/">波浪理论简述</a></li>
-<li><a href="https://draapho.github.io/2019/06/25/1907-investor/">你将不会成为一个伟大的投资人</a></li>
-<li><a href="https://draapho.github.io/2020/02/09/2001-exploration/">交易市场阶段性探索心得</a></li>
-<li><a href="https://draapho.github.io/2020/08/06/2005-wave-mnemonic/">波浪理论口诀</a></li>
-<li><a href="https://draapho.github.io/2020/08/07/2006-wave-thinking/">波浪理论感悟</a></li>
-</ul>
-<p><strong><em>转载, 作者不详</em></strong></p>
-<h1 id="口诀及图表"><a href="#口诀及图表" class="headerlink" title="口诀及图表"></a>口诀及图表</h1><h2 id="口诀一-驱动浪"><a href="#口诀一-驱动浪" class="headerlink" title="口诀一, 驱动浪"></a>口诀一, 驱动浪</h2><p>一三五浪可加长，每段细分五小浪；<br>另有等长九段波，顶底不连通道长；<br>三三相隔十五段，五三交错亦寻常；<br>波起浪伏有形状，常见上斜与扩张；</p>
-<h2 id="口诀二-调整浪特性"><a href="#口诀二-调整浪特性" class="headerlink" title="口诀二, 调整浪特性"></a>口诀二, 调整浪特性</h2><p>喇叭斜三现一浪，二浪之后走势强；<br>五浪若是此模样，分批减磅远危墙；<br>A浪止住回头看，A3A5不一样；<br>三波之字双回撤，五波右肩做b浪；<br>回撤二次分三五，三波弱来五波强；<br>B浪右肩a-b-c，轻仓快手捕长阳；</p>
-<h2 id="口诀三-之字和平坦"><a href="#口诀三-之字和平坦" class="headerlink" title="口诀三, 之字和平坦"></a>口诀三, 之字和平坦</h2><p>调整浪型有三种，之字平坦三角型；<br>之字三段ABC，5-3-5浪要记清；<br>特殊情况双之字，七波两个之字型；<br>平坦都是三三五，略与之字有不同；<br>九种变形不复杂，区别尽在BC中；</p>
-<h2 id="口诀四-三角型调整浪"><a href="#口诀四-三角型调整浪" class="headerlink" title="口诀四, 三角型调整浪"></a>口诀四, 三角型调整浪</h2><p>无论直三与斜三，浪型间隔皆3-3；<br>不管扩张与收缩，万变不离是五波；<br>三角整理四形态，怎么进去，怎么出来；</p>
-<h2 id="口诀五-复合型调整浪"><a href="#口诀五-复合型调整浪" class="headerlink" title="口诀五, 复合型调整浪"></a>口诀五, 复合型调整浪</h2><p>双三特例七段波，两波调整来组合；<br>待到整固突破后，上下波澜皆壮阔；</p>
-<h2 id="图表"><a href="#图表" class="headerlink" title="图表"></a>图表</h2><p>共横六竖7个格子图. 图一1标示第一格的小图, 依此类推.<br>以下每张小的浪型图上都有一个字：“推”表示推动浪；“调”表示调整浪；“弹”表示反弹浪；<br><img src="https://draapho.github.io/images/2005/1.png" alt="四十二浪图"></p>
-<h1 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h1><h2 id="驱动浪之推动浪"><a href="#驱动浪之推动浪" class="headerlink" title="驱动浪之推动浪"></a>驱动浪之推动浪</h2><ul>
-<li><strong>一三五浪可加长，每段细分五小浪</strong><ul>
-<li>指的是推动浪的第一子浪，第三子浪和第五子浪都可能有扩展形态，</li>
-<li>但有几个注意事项：<ul>
-<li>第一，若一子浪加长，即一子浪扩展，则三子浪和五子浪等长；</li>
-<li>第二，若三子浪加长，即三子浪扩展，则一子浪和五子浪等长；</li>
-<li>第三，若五子浪加长，即五子浪扩展，则一子浪和三子浪等长；</li>
-</ul>
-</li>
-<li>当市场要去完成一个波大的推动浪行情，市场有两种选择<ul>
-<li>一种是1浪-3浪-5浪的长度差不多，这样够不成延长，</li>
-<li>另一种就是1浪较小，市场选择了3浪或者5浪去出现一个被放大拉长的5波;</li>
-<li>若3浪延长，5浪和1浪的长度会接近相等，</li>
-<li>若1浪和3浪都没有出现延长，那市场只好选择在5浪去发飙了，而且飙起来一波接一波的没完，更重要的时间不会很短。(艾略特提到的半个月亮型态)</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>另有等长九段波，顶底不连通道长</strong><ul>
-<li>这段口诀的意思是说：<ul>
-<li>除了前面讲到的三种推动浪形态以外（图一1, 图一2, 图一3），还有一种特殊的浪型（即图一4），</li>
-</ul>
-</li>
-<li>这种浪型的特点如下：<ul>
-<li>第一：该浪分为九个子浪；</li>
-<li>第二：一子浪，三子浪，五子浪，七子浪，九子浪全部等长；</li>
-<li>第三：四子浪底不破一子浪头，同样的，六底不破三头，八底不破五头，即所谓“顶底不连”。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>三三相隔十五段，五三交错亦寻常；</strong><ul>
-<li>这句话的含义是指推动浪内部子浪的结构:<ul>
-<li>五浪形式的推动浪，都有十五个子浪（请再看一遍图一1, 图一2和图一3，5+5+5=15），</li>
-<li>而图四的九浪推动，则是二十七个子浪（图一4, 3*9=27）；</li>
-</ul>
-</li>
-<li>三三相隔: 是指推动与推动之间总是由3波结构相隔的，</li>
-<li>五三交错: 是指所有子浪都由三个细浪与五个细浪间隔组成</li>
-<li>图一5、图一6，是失败的5浪，但第5浪自身必须具备5浪结构, 或终结倾斜三角型.</li>
-</ul>
-</li>
-</ul>
-<h2 id="驱动浪之倾斜三角型"><a href="#驱动浪之倾斜三角型" class="headerlink" title="驱动浪之倾斜三角型"></a>驱动浪之倾斜三角型</h2><ul>
-<li><strong>波起浪伏有形状，常见上斜与扩张</strong><ul>
-<li>上升楔形（即上斜三角型）和喇叭形（即扩张三角型）是两种很常见的浪型；</li>
-</ul>
-</li>
-<li><strong>喇叭斜三现一浪，二浪之后走势强</strong><ul>
-<li>如果喇叭（扩张三角型）或者上升楔形出现在第一浪中，那么后面会有一个很凶悍的二浪回调，</li>
-<li>但经过二浪回调之后的三浪，走势将异常凌厉和凶猛！</li>
-<li><strong>注意</strong>: 扩张三角型非常少见, 不要提前预判, 等K线自己走出来再确定.</li>
-</ul>
-</li>
-<li><strong>五浪若是此模样，分批减磅远危墙</strong><ul>
-<li>如果喇叭（扩张三角型）或者上升楔形出现在第五浪中，那么就要高度警惕了！！因为后面紧跟着的将是直线下跌！</li>
-<li><strong>注意</strong>: 扩张三角型非常少见, 不要提前预判, 等K线自己走出来再确定.</li>
-<li><strong>注意</strong>: 楔形越是被压缩, 越是容易在后面直接放量.</li>
-</ul>
-</li>
-</ul>
-<h2 id="调整浪ABC概述"><a href="#调整浪ABC概述" class="headerlink" title="调整浪ABC概述"></a>调整浪ABC概述</h2><ul>
-<li><strong>A浪止住回头看，A3A5不一样</strong><ul>
-<li>上升五浪退出之后，会有调整浪A出现（这个大家都知道的）；</li>
-<li>这个调整浪A要分清它是由5个子浪组成还是由三个子浪组成，这一点很重要</li>
-</ul>
-</li>
-<li><strong>三波之字双回撤，五波右肩做b浪</strong><ul>
-<li>这句话的意思是指：<ul>
-<li>如果调整浪A以三波段形式出现，<strong>且之前第五浪延长</strong>, 那么其后的走势将是“双回撤”；</li>
-<li>如果调整浪A以五波段形式出现，其后的走势将是“B浪反弹”；</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>回撤二次分三五，三波弱来五波强</strong><ul>
-<li>所谓“双回撤”，是指的两个过程，<ul>
-<li>A浪属于第一次回撤，其后的反弹是第二次回撤，并称“双回撤”。</li>
-<li>只有三段组成的A浪才有’双回撤’</li>
-<li>五浪组成的A浪后面一定是B浪反弹, 不会由第二次回撤</li>
-</ul>
-</li>
-<li>三波弱来五波强是指<ul>
-<li>A浪三波下跌, 属于较弱的下跌, 后续的B会相对强势, 会有’双回撤’</li>
-<li>A浪五波下跌, 属于强势下跌, 后续的只有很弱的B反, 和强劲的C杀.</li>
-</ul>
-</li>
-<li>两者的区别在于:<ul>
-<li>‘双回撤’, <strong>可能</strong>会创新高（注意”可能“二字），有展开新升浪的可能（再次提醒注意”可能“二字）</li>
-<li>而B浪反弹后面紧跟着的一定是凶狠的C浪下跌！</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>B浪右肩a-b-c，轻仓快手捕长阳</strong><ul>
-<li>这句话见图五6；讲的是B浪中的子浪abc.</li>
-<li>如果A浪由5段组成，已经确定后面只是B浪反弹，不太可能创出新高，可以以较轻的仓位去抢一下反弹，</li>
-<li>但切记要快进快出，这个时候的a阳线一般比较长，但持续时间短（因为主力要引诱人在高位接盘）.</li>
-<li><strong>个人建议放弃这种机会</strong></li>
-</ul>
-</li>
-</ul>
-<h2 id="调整浪分类-之字和平坦"><a href="#调整浪分类-之字和平坦" class="headerlink" title="调整浪分类, 之字和平坦"></a>调整浪分类, 之字和平坦</h2><ul>
-<li><strong>调整浪型有三种，之字平坦三角型</strong><ul>
-<li>调整浪的浪型分为三种：<ul>
-<li>之字型调整浪, 也称之为锯齿型调整浪</li>
-<li>平坦型调整浪, 也称之为平台型调整浪</li>
-<li>三角型调整浪</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>之字三段ABC，5-3-5浪要记清</strong><ul>
-<li>之字型的调整浪, 由ABC三段构成, 内部子浪结构为5-3-5. 即 A（5）+B（3）+C（5）</li>
-<li>即A由5浪构成(只需要5浪, 可以不符合推动浪要求), B由3浪构成, C由5浪构成.</li>
-<li>通常C浪跌的凌厉凶狠, 称为C杀.</li>
-</ul>
-</li>
-<li><strong>特殊情况双之字，七波两个之字型</strong><ul>
-<li>指的是一个“之字型”调整之后有一个“X”浪，然后再有一个“之字型”调整浪，</li>
-<li>这种浪型的结构是 A（5）+B（3）+C（5）+  X  +A（5）+B（3）+C （5）</li>
-<li>加在一起以七浪的复杂形式完成调整</li>
-</ul>
-</li>
-<li><strong>平坦都是三三五，略与之字有不同</strong><ul>
-<li>平坦型整理的浪型结构是A（3）+B（3）+C（5）</li>
-</ul>
-</li>
-<li><strong>九种变形不复杂，区别尽在BC中</strong><ul>
-<li>这一部分是个重点，请大家参考图二4, 图二5, 图二6; 图三4, 图三5, 图三6; 图四4, 图四5, 图四6;</li>
-<li>平坦型整理的九种方式分别是：<ul>
-<li>1：穿头破底型；</li>
-<li>2：穿头平底型；</li>
-<li>3：穿头藏底型；</li>
-<li>4：平头破底型；</li>
-<li>5：平头平底型；</li>
-<li>6：平头藏底型；</li>
-<li>7：缩头破底型；</li>
-<li>8：缩头平底型；</li>
-<li>9：缩头藏底型；</li>
-</ul>
-</li>
-<li><strong>注意</strong>：穿头破底型(扩散)的平坦型整理后面的拉升力度最大；</li>
-</ul>
-</li>
-</ul>
-<h2 id="三角型调整浪"><a href="#三角型调整浪" class="headerlink" title="三角型调整浪"></a>三角型调整浪</h2><ul>
-<li><strong>无论直三与斜三，浪型间隔皆3-3</strong><ul>
-<li>三角型调整浪分为四种类型:<ul>
-<li>直角三角形整理，</li>
-<li>斜三角形整理，也称为上升三角型和下降三角型</li>
-<li>收敛三角形整理，也称为对称三角型</li>
-<li>扩张三角形整理，也成为反对称三角型</li>
-</ul>
-</li>
-<li>三角型调整浪有一个共性:<ul>
-<li>都由a,b,c,d,e五个子浪组成，每个子浪又由三个更低级别的小浪构成</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>不管扩张与收缩，万变不离是五波</strong><ul>
-<li>三角型调整浪有一个共性: 都由a,b,c,d,e五个子浪组成</li>
-</ul>
-</li>
-<li><strong>三角整理四形态，怎么进去，怎么出来</strong><ul>
-<li>此句是重点：“怎么进去，怎么出来”，它告诉了我们怎样判断三角形整理的突破方向。</li>
-<li>一般来说，三角形在整理完毕之后，突破方向都和整理前的大趋势相同，即与五个子浪中的a子浪方向相反。</li>
-</ul>
-</li>
-<li>三角型调整浪补充说明<ul>
-<li>三角型通常出现在第4浪或B浪中，先于主要趋势的最后一轮动作(即先于五浪或C浪)。</li>
-<li>因此，在上升趋势中，我们可以说三角型既可能是看涨的，也可能是看跌的。<ul>
-<li>讲它看涨，是就它意味着趋势将恢复这层意义而言的。</li>
-<li>而说它看跌，则是因为它表明在完成剩下的一个上涨浪之后，市场可能也就到顶了。</li>
-</ul>
-</li>
-<li>三角型的顶点(两条聚拢的直线的交点)常常标志着最后第5浪的完成时间。</li>
-</ul>
-</li>
-</ul>
-<h2 id="复合型调整浪"><a href="#复合型调整浪" class="headerlink" title="复合型调整浪"></a>复合型调整浪</h2><ul>
-<li><strong>双三特例七段波，两波调整来组合</strong><ul>
-<li>所谓“双三”整理，指的是两个三浪整理用一个“X”浪相连接，共同构成一个七浪结构的调整浪</li>
-<li>这两个三浪整理可以是之字体整理，也可以是平坦型整理或者三角型整理，可以任意组合</li>
-</ul>
-</li>
-<li><strong>待到整固突破后，上下波澜皆壮阔</strong><ul>
-<li>需要注意的是: 这个整理过程非常漫长，而一旦整理完毕，就会将整理之前的趋势进行放大</li>
-<li>若整理之前是上升趋势，则整理后有暴涨</li>
-<li>若下降趋势中的“双三”整理，则孕育着暴跌！</li>
-<li>还有更特殊的“三三”整理，整理后的趋势会更加地强烈，大牛股或大熊股往往从这样的形态里面出现。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p><strong><em>转载, 作者不详</em></strong></p>
-<hr>
 
           
         
@@ -2557,11 +1848,749 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/07/26/1910-satori/" itemprop="url">
+                  开悟是怎样一种体验？
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-07-26T00:00:00+10:00" content="2019-07-26">
+              2019-07-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/thoughts/" itemprop="url" rel="index">
+                    <span itemprop="name">thoughts</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
+<li><a href="https://draapho.github.io/2017/10/09/1728-ultimatethink/">我的终极思考</a></li>
+<li><a href="https://draapho.github.io/2018/04/12/1815-suspend/">博客暂停更新</a></li>
+<li><a href="https://draapho.github.io/2018/07/08/1818-buddhism/">佛教学习资料及一些感想</a></li>
+<li><a href="https://draapho.github.io/2018/11/29/1819-start-meditation/">实修开始</a></li>
+<li><a href="https://draapho.github.io/2018/12/27/1820-meditation-LCP/">闻思修</a></li>
+<li><a href="https://draapho.github.io/2019/03/19/1901-tittle-tattle/">杂谈</a></li>
+<li><a href="https://draapho.github.io/2019/07/26/1910-satori/">开悟是怎样一种体验？</a></li>
+</ul>
+<p><strong><em>转载自 <a href="https://www.zhihu.com/people/yuan-chong-76/answers" target="_blank" rel="noopener">灵天赐的回答</a></em></strong></p>
+<hr>
+<h1 id="起"><a href="#起" class="headerlink" title="起"></a>起</h1><p>禅宗开悟, 必过三关:</p>
+<p>初关,明心;<br>重关,见性;<br>末后牢关,无我.</p>
+<h1 id="初关-明心"><a href="#初关-明心" class="headerlink" title="初关, 明心"></a>初关, 明心</h1><p>何为明心? 明心, 是知’心’之所在.<br>要想知这’心’之所在, 必须去刻苦锻炼’观察’能力.</p>
+<p>什么是’观察’?<br>‘观察’是时时刻刻知道, 自己正在想什么? 自己正在做什么? 自己正在起什么情绪?<br>四念住, 日夜念一句咒语, 数数字, 数呼吸, 数佛珠等诸般法门, 都是为了收束心念, 凝聚意识强度, 增强意识敏感度.<br>使常人平日里飘忽散逸, 被外物牵引的意识, 逐渐全部集中起来, 并意识到曾经的自己, 是有多么’失控’.<br>‘看见’常人看不见的现象, ‘察觉’常人察觉不到的思绪.<br>常人的意识, 是一只无法自主的提线木偶.<br>自以为客观理智自由, 实际上却被各种后天知见, 欲望, 情绪等诸般情绪操纵, 毫无半点自由可言.<br>随着观察力的锻炼, 意识清晰度的提高.<br>个人会逐渐觉察到, 脑海中一个个念头的飞速起落, 以及情绪不时在体内的翻涌.</p>
+<p>此时, 有两个问题, 可助这个阶段的修行者, 求取进步.</p>
+<p><strong>1. 情绪, 从哪来?</strong><br><strong>2. 脑海中, 一念起, 一念落, 二念之间的那道’空白’, 究竟是什么?</strong></p>
+<p>如果, 日常对观察力的锻炼时间, 积累的足够.<br>修行者, 会找到一个’入处’, 可安放这颗顽心, 会觉一道保护罩, 将自己和外界隔绝.<br>外缘消散, 无有恐怖.</p>
+<p>实际上, 这也只是一道前菜, 一段时间后, 这种感受就会迅速消失, 让人怅然若失.<br>它是路边一景, 看过便可, 不值一提.<br>不少人由于没有正确引导, 反复沉浸于一时的心景, 误以为那就是’开悟’, 拼命的想’回去’, 并’保持’它.<br>从此, 止步不前, 捡了芝麻, 丢了西瓜.</p>
+<p>之后, 经由这个’入处’, 可导向’心’之所在.<br>‘心’是什么? ‘心’在哪?<br>这个问题, 不能用语言文字去回答.</p>
+<p>修行者, 不断思索上面的两个问题, 随着观察时间的不断积累, 每天缓缓进步.<br>这是水滴石穿的水磨功夫, 毫无任何取巧可言.<br>一段时间后, 某一天, 观察的火候达到, 终于能够清晰地捕捉到一念起, 一念落的瞬间.<br>在水滴石穿的刹那, 遁入了那丝’空白’之中.</p>
+<p>顿悟: 念头是念头, 情绪是情绪, 它们不是你.<br>念头和情绪, 只是天空中飘过的白云; 而你, 是白云背后那片无染的蓝天.<br>这一刻, 个人意识, 得到全面升华.</p>
+<p>之前, 还需时时刻刻提醒自己, 每天去努力维持的客观’观察’.<br>现在, ‘观察’自此恒定, 再也不需要去刻意维持.<br>无论白天黑夜, 无论现实梦境, 那股清晰的’观察’, 永远伴随着你.<br>仿佛高度近视, 忽然戴上眼镜, 全世界都变得生动起来.</p>
+<p>五祖弘忍, 考验弟子, 神秀和慧能留下的两首名偈, 这里一并说破:</p>
+<blockquote>
+<p>身是菩提树, 心如明镜台; 时时勤拂拭, 勿使惹尘埃.</p>
+</blockquote>
+<p>神秀的这一首, 表明见地, 未破初关, 还须每天去努力<strong>‘佛拭’</strong>.<br>依然停留在磨练<strong>‘观察’</strong>的阶段, 没有达到<strong>‘水滴石穿’</strong>的境地.</p>
+<blockquote>
+<p>菩提本无树, 明镜亦非台; 本来无一物, 何处惹尘埃.</p>
+</blockquote>
+<p>这一首说明六组慧能, 早破初关, 步入明心, 明白心是无需<strong>‘佛拭’</strong>的.<br>也是为何, 五祖在慧能头上敲三下, 让对方半夜来屋, 传其’见性’之妙, 以及衣钵的奥秘所在.</p>
+<p>这个心, 是<strong>‘本来无一物’</strong><br>初关的破关密钥, 只在三个字 – <strong>‘观察者’</strong></p>
+<h1 id="重关-见性"><a href="#重关-见性" class="headerlink" title="重关, 见性"></a>重关, 见性</h1><p>重关的修行, 就变得较为复杂, 要从多方面去同时发展和进步.<br>这一关的突破, 很复杂.</p>
+<p>简而言之, 需要诚心, 愿心, 决心, 善心, 真师, 天师.<br>六者, 缺一不可.</p>
+<ul>
+<li>诚心–不是不能说谎, 而是时刻不能欺xin,绝不可自欺, 对自己无条件真诚. 是就是, 不是就不是, 放下主观好恶, 放下傲慢与情绪, 感受一切.</li>
+<li>愿心–唤来真师找你, 所发的愿心, 必须以’无条件助人’为基本, 若自私自利, 只会招来’假师’, 此生永绝道缘.</li>
+<li>善心–为了让自己脱离自我狭隘的’得失’’好恶’等观念, 简单地说, 无善心之人, 终生无缘于道.</li>
+<li>决心–升起对痛苦的厌倦, 下出脱离’苦海’的大决心.</li>
+<li>真师–若是愿心真, 生活中自会引来真师给你指路, 若你总是遇见各种所谓的’名师’,’大师’,’大德’,’高僧’之类的’假大师’. 你应该回归’愿心’与’真诚’两点, 对自己进行深刻反思.<ul>
+<li>真师的基本特征: ‘识货者可分文不取, 不识货者千金不卖’.</li>
+<li>师父会仔细观察徒弟, 徒弟也要仔细观察师父, 双方彼此确认后, 也需付出信任和真诚, 方能加深彼此的感应.</li>
+</ul>
+</li>
+<li>天师–此师比真师更高一筹, 是无所不在的大道之音.<ul>
+<li>天师, 会在每次有所顿悟之时, 送来各类负面事件, 让修行者接受考验, 看修行者能否将此次所悟用行动表达出来. 天师是最为重要的一环, 修行者若不能从周围的人身上听见天师之声, 无法在生活中看见天师降下的考验和指引. 无论真师多厉害, 此生注定见性无望.</li>
+</ul>
+</li>
+</ul>
+<p>若想以最快速的突破重关, 此时切不可逃避社会, 切不可遁入空门.<br>烦恼即是无上菩提, 人世方为究竟道场.<br><strong>勿要在道离道, 又去求道.</strong></p>
+<p>处理现实中的各种矛盾, 各种负性事件, 直面痛苦, 是修行者快速进步的苦口良药.<br>感触不断深入, 如果修行者走在正确的路上, 随时间推移, 会切实的转变自身环境, 以及他们的每一个家人.<br>心能转境, 心能转运, 真实不虚.<br>任何方法, 任何书籍, 任何教派, 都可以拿来用, 加深感悟.</p>
+<p>会逐渐认知到以下几点:</p>
+<ul>
+<li><strong>1. 诸教同源</strong></li>
+<li><strong>2. 外界是心相的投影, 心变则境变, 而非境变则心变</strong></li>
+<li><strong>3. 一切烦恼, 皆起于后天妄想</strong></li>
+<li><strong>4. 三心不可得</strong></li>
+</ul>
+<p>期间, 多流眼泪, 让心彻底柔软下来, 回忆童年中所有的负面记忆, 找出所有负面情景, 忏悔和宽恕, 不停的倾倒’心灵垃圾’.<br>释放埋藏于记忆深处的一切仇恨与恐惧.</p>
+<p>修行过程中, 会遭遇种种异相, 遭遇种种暂时性的心景, 不一而足, 因人而异.<br>比如, 一个月左右, 无法进食任何肉类, 吃鸡蛋也会吐等等.<br>过了那个心景, 一切会恢复正常.</p>
+<p>最后, 不停地专注于内心提升.</p>
+<p>待到功夫用尽, 身清体净, 诸缘聚合之下.<br>某个瞬间, 由于某个或普通或是古怪的契机, 就会一眼瞥见世界的’真相’.<br>是无数人心中, 念念不忘, 无比神圣的’巅峰体验’, 所谓的’大彻大悟’.<br>虚空破碎, 天地颠倒等等异相, 会在感知中真实不虚的发生.<br>出现什么, 则因人而异, 不一而足.</p>
+<p>唯一的特点, 是这种强大体验降临的时刻, 将永远从内到外的改变一个人, 让其脱胎换骨.<br>那时一股务必强大, 充满震撼的磅礴能量.<br>种种喜悦, 无法用言语来形容.<br>世人所追求的性高潮, 也不及其中万分之一.<br>更别提, 所谓的幻想之流.</p>
+<p>那种感受中, 会真实明白, 什么是真正的:<br>“朝闻道, 夕可死.”<br>死了也无妨, 那种无上限的绝对幸福感, 此后再没有世间的任何感受, 能够超越它.</p>
+<p>这是’见性’, 见证你的’真如本性’, 彻底脱离五官意识的幻相, 体验到一刹那的’绝对真实’.</p>
+<p>巅峰体验后, 很长一段时间, 自动进入’心生法喜’的阶段.<br>什么都不想干, 看见什么都觉得很幸福, 觉得万物在对你微笑.<br>每天有事没事, 会情不自禁的露出微笑.</p>
+<p>是啊, 怎能不高兴呢?<br>离家多年的游子, 回到家中.<br>惊讶发现, 原来, 自己从未有一日, 真正离开过家.<br>除狂喜之外, 再无言语, 可以形容.</p>
+<p><strong>我有明珠一颗, 久被尘劳关锁; 而今尘尽光生, 照破山河万朵.</strong></p>
+<h1 id="末后牢关-无我"><a href="#末后牢关-无我" class="headerlink" title="末后牢关, 无我"></a>末后牢关, 无我</h1><p>目前, 市面上的’开悟者’们, 到处讲道讲经, 声名鹊起, 自称为的’开悟者’之流.<br>大部分, 都在初关徘徊, 各种邪知邪见很多.<br>少数勘破重关的, 算是凤毛麟角, 至少不会去有意无意的害人.<br>真正突破最后一关的, 以网络上而言, 屈指可数.</p>
+<p>国内特别有名气的”大师”中, 目前还没有哪一位的言行, 表现出他已过了末后牢关.<br>至于南怀瑾之流, 非是恶意贬低, 而是此人见地不纯, 著书又多, 小有名气, 极易误导真修, 步入知见的无底坑, 荒废一生.<br>若自认为修行者, 却对南怀瑾之流, 推崇备至.<br>及时警醒, 还来得及.<br>修行不是念书, 念的书再多, 没有切实的修行印证, 都是知见与猜测, 什么都悟不到.</p>
+<p>末后牢关的突破, 比见性而言, 更加困难.<br>因为, 这是一道’隐形的门’.</p>
+<p>突破重关的人, 会100%的确信无疑, 他是’开悟’了.<br>无论问自己多少次, 总会得出准确无疑的回答.<br>“是的, 我见证了绝对真理, 知晓前世今生, 明白人生于此的意义, 绝对是开悟了!”<br>心中欣喜若狂, 恨不得奔走相告, 将感悟和每一个人都分享.</p>
+<p>一段时间后, 生活中的习气席卷, 根性重返, 各种不足与矛盾重新冒出来.<br>淡化许多, 却依然存在.<br>没有过来人之路, 此人会逐渐被傲慢侵蚀, 试图指点江山, 评判他人悟境.<br>最后会发现, 世事并不按所预料的那样发展.</p>
+<p>过来人, 不会直接给他们指出来, 只会侧面提点, 因为明白对方听不进去.<br>这人会在这种’自满’之中, 呆很长一段时间.<br>只有那些对自己绝对真诚的人, 才会逐渐对开悟升起迷惑.<br>特别是在进入社会, 与周围进行交互时, 这种迷惑会不断强化.</p>
+<p>如果, 能对’自己开悟了’这件事的产生疑惑, 便算是踏出关键性的一步.</p>
+<p>末后牢关, 比起前两关, 平凡无奇.<br>没有任何稀奇古怪的心景, 却是三关中, 最为凶险的地方.<br>任何一步踏错, 任何一个细微的认知失调, 就再也听不进任何言语.<br>要去成佛成仙, 普度众生了.</p>
+<p>一辈子, 卡死在这一关的修行者, 不知凡几..<br>至死, 他们都不知道自己做错了什么, 错在哪里.<br>反而觉得, 所有的一切, 真是好极了.<br>所见一切, 完美符合他们曾对’开悟’有过的一切美好幻想.<br>不少会觉醒’天赋’或是’天命’, 有的还会修出一些不可思议的’神通’.<br>他们因此洋洋得意, 有的人从此门徒络绎不绝, 在史书中留下名讳, 还能自成一派.</p>
+<p>但是, 唯有那些, 对自己的修行, 做到了100%真诚.<br>在修行上绝不欺骗自己, 始终对一切异见保持真正开放态度的修行者, 才能有惊无险的度过这关.</p>
+<p>悟的契机, 十分平凡, 有人盆落而悟, 有人鸟飞而悟.<br>顿悟一个显而易见的事实.<br><strong>开悟, 并不存在.</strong></p>
+<p>为什么?<br>原因, 很简单:<br><strong>你所以为的这个’你’, 是不存在的.</strong></p>
+<p>这句话, 十分深奥.<br>其中, 有特别多微妙的讲究, 很深的领悟境地, 以及诸多修行细节和火候, 还有更多玄妙难言的东西.<br>这里, 不能讲.<br>讲了, 会影响那些即将突破此关的修行者.</p>
+<p>所以, 诸位记住这句话, 到达此关时, 有空多思索就好.<br>有人以为, 自己曾在别处看过这句话很多遍, 领悟特别深刻.<br>事实上, 错了.<br>真正突破末后牢关前, 是不会懂这句话的.<br>也不会明白, 这句话, 到底厉害在哪里.</p>
+<p><strong>‘你’不存在, 所谓的开悟, 也不存在.</strong><br>这就是为什么, 禅宗讲<br><strong>“悟前, 砍柴挑水吃茶; 悟后, 砍柴挑水吃茶”.</strong><br>也是”见山还是山, 见水还是水”的第三重境界.</p>
+<p>区别在哪? 区别, 就在这个<strong>‘我’</strong>字上.<br>不能讲得更多了.<br>讲得太清楚, 会被瞎眼汉们和假修们, 拿去招摇撞骗, 误人子弟.</p>
+<p>也是为何, 真正的入道者, 不会和人嚷嚷’我开悟了!’.<br>因为, 他们明白, 没有开悟这回事.<br>事实上, 以为自己开悟了, 感觉自己开悟了, 宣称自己开悟了, 认为有开悟这回事的人, 都还是画中人, 都有一个’我’在.<br>以后, 看见宣称自己’开悟’的人.<br>就知道, 是个没’悟’的.</p>
+<p>判断标准, 很简单.<br>不需要懂修行, 只要喊’我开悟了’, 便是见地不纯.<br>看到这里, 已度过’修行’阶段的行者们, 会露出一抹会心微笑.</p>
+<p>突破三关之后, 觉者, 随心所欲, 言行无碍, 随缘应物.<br>绝不会承认, ‘开悟’这种东西的可观存在.<br>教别人’开悟’, 就是让对方终生无缘’开悟’.<br>千古玄机, 我讲明白了.</p>
+<p>就是不知道, 你, 听明白了吗?<br><strong>何期自性, 本自清净;</strong><br><strong>何期自性, 本不生灭;</strong><br><strong>何期自性, 本自具足;</strong><br><strong>何期自性, 本不动摇;</strong><br><strong>何期自性, 能生万法;</strong></p>
+<h2 id="终"><a href="#终" class="headerlink" title="终"></a>终</h2><p>以上，禅宗的三关隐秘，清清楚楚的写出来了。<br>因为我曾经的发心，所以，大家才有机会，看见这篇‘解密’的文字。</p>
+<p>如果，不是实修实证，是看不懂这篇文章的。<br>只会觉得信息量过大，大脑过载，自以为理解，其实完全无法理解到底写了什么。</p>
+<p>这些东西，本已脱离大脑思辨的领域。<br>这也是为何，禅宗要参话头，打机锋的意义所在。<br>目的，就是让大脑逻辑自爆，停止运作。</p>
+<p>明白本文是珍宝的人，是他们的福气；对本文不屑一顾的，是他们这一世的命运。<br>修行，天地会给你证，何须心外之物？<br>这点都看不透，也别自称修行者了。</p>
+<p>开悟，并非某种耗费一生去艰难求取，也难以获得的梦幻状态。<br>是不懂的人，没有实修实证与内行引路的人。<br>将开悟‘妖魔化’、‘神通化’和‘理想化’了。<br>事实上，突破末后牢关后，只是宇宙中一个心识进化的基础起点。</p>
+<p>人类要达到那个‘点’，并非一件极其困难的事情，只是以人类的狭隘心智，将这些修行复杂化和歪曲化了。<br>这也是为何，会有所谓的‘悟后起修’，没悟之前的‘修’，都是水中捞月，你不知道自己在干什么。</p>
+<p>三关心境上，有一个地方很有趣。<br>若将修行比喻为爬山，<br>在山下面的，永远看不清他上面的人，只会觉得云里雾里，不断猜测对方所说的东西，试图分析比较对方与自己的高度所在，总觉得对方东西自己似乎明白，又似乎不明白。<br>在山上的，却能一眼看穿山下的人以及对方正在走的路，从他的视角看无比清晰，因为他曾亲自走过。</p>
+<p>真正突破这三关的觉者之间，没什么好说的。<br>彼此之间毫无比较之心，只需几句话，就能知道对方的‘厉害’。<br>只会心悦诚服，顶礼赞叹。</p>
+<p>破三关的觉者，之后还有一段路程要走，这段路，在他们自己的生活中。<br>无上正觉已经很好了，却和无上正等正觉，是截然不同的东西。<br>区别，便在于初心，最初见地中任何最微小的偏差，也会生出截然不同的果。<br>希望，后来的修行者们，在修行上都能少走点弯路，少受点不必要的教训，少掉几个爬不出来无底坑。</p>
+<h1 id="临别语"><a href="#临别语" class="headerlink" title="临别语"></a>临别语</h1><p>评论区，明眼人，都知道这篇回答的 <strong>‘含道量’</strong><br>反对声，理所当然占多数。<br>毕竟，不能让下士大笑，就不足以为道了，不是吗？：）</p>
+<p>修为这种东西，对实修者，是藏不住的。<br>一开口，底裤就漏得干干净净，怎么装都没用。<br>有自我的人，和自我消亡的人，是两种截然不同的存在。</p>
+<p>毕竟夏虫不可语冰，我对此表示深深的理解。<br>因为，我也是从夏虫过来的。<br>有的人，还需多轮转一些人世，才会对此有所感悟。<br>这一点，急不来。</p>
+<p>破了三关，才知突破三关，和个人命运有深切的联系，没有累世积累，是不行的。<br>不仅需要因缘聚合，还要100%的诚心，天生的觉悟，本能的担当，以及累世慧根。<br>几年前的我，若能有幸能看见这篇答案。<br>只会瞬间被其折服，珍重的保存起来，反复琢磨，有空就拿出来印证和思索。</p>
+<p><strong>仰天大笑出门去，我辈乃是蓬蒿人。</strong></p>
+<h1 id="11天后-的补充"><a href="#11天后-的补充" class="headerlink" title="11天后(的补充)"></a>11天后(的补充)</h1><p>这篇回答，我已将之前提到的一些修行细节与诸多隐秘，全部隐去。<br>我之前不明白，以为将东西全部拿出来，是对别人好。<br>现在才明白，不是的。<br>每个人在人世间，都有他们自己的路径要走，揠苗助长不是好事。<br>法不轻传，道不轻授，很重要。<br>所以，我也不是藏私，而是真心为各位好。</p>
+<p>不仅为各位诚心求道的修行者们好，更为那些看见本答案心生嫉妒、愤怒、怨恨、烦恼，忍不住对本答案发起攻击与诽谤的朋友们好。<br>谤正法这种事情，对他们自己，真的很不好。<br>我之前从未看过六祖坛经，前几天才看到《六祖坛经》里的一段话。</p>
+<blockquote>
+<p><strong>善知识，后代得吾法者，将此顿教法门，于同见同行，发愿受持，如事佛故，终身而不退者，定入圣位。然须传授，从上以来，默传分付，不得匿其正法。若不同见同行，在别法中，不得传付。损彼前人，究竟无益。恐愚人不解，谤此法门，百劫千生，断佛种性。</strong></p>
+</blockquote>
+<p>不至于百劫千生，自断佛种性这么夸张；可这一世，断绝佛缘，再难寸进，会是一个既定事实。<br>我之前本能的对此有所感觉。<br>所以，之前才会有那句‘那些无法对本答案心悦诚服，顶礼赞叹的人，这一世，基本上没什么机会，突破第三关了。’</p>
+<p>我说这句话，是作为给这些人的善意提醒。<br>然而，正是这句话，刺激到了他们心之中的那个‘小我’。<br>反而让人起了更强烈的情绪，生出诋毁与恶法之心。<br>我不得不感慨，都是我的错。<br>所以，我将这些隐秘消去，至少，能让他们谤法的后果减轻很多。<br>在这里，真诚向那些怨恨我的，骂我的，嫉妒我的，讨厌我的朋友们道歉。<br>深深地检讨，是我的做得不好。</p>
+<p>之前的回答风格，也是我这人天生的性格如此。<br>我在修行上，有一说一，有二说二，真不是狂。<br>禅宗修行，佛挡杀佛，神挡杀神，佛祖泥像放在面前，也会上去一脚把泥土偶相给踢个粉碎。<br>最后，连这个‘自己’，也是要一刀宰杀干净的。<br>‘修行’时，才是真的狂。</p>
+<p>昔日的修行之路，我走得太快。<br>导致我完全无法理解，那些‘纯度’不够的人。<br>我不明白为什么有人会闻听‘正法’而毫无感觉？我是会兴奋到头皮发麻，脑子空空，完全不能自已的。</p>
+<p>还记得，我当初决意修行时，还在想我这么年轻，余生几十年，若能侥幸见性，便已做梦都会笑醒。<br>‘开悟’之类的东西，想都不敢想。<br>而实际上，我只花了短短四年，就把修行之路彻底走完。<br>两年破三关，两年到如今。</p>
+<p>我的真师，与我真师的真师，都对我进度，感到十分惊讶。<br>我明白，这与我的累世积累有关，更与我修行之初，所发愿心密切相关。<br>因为，我此生来人世的意义，就是要‘唤醒他人灵魂深处的荣光’。<br>所以，我的修行，不是一个人修行，是与我的兄弟姐妹在一起修行。<br>我先行一步，他们会在冥冥之中，齐心协力的推我。<br>待我醒来后，又转身去拉大家。</p>
+<p>这是我修行的愿心，也是这篇‘解密’答案，出现在给位面前的缘由。<br>我口中的‘真修’，也是我们来此人世之前，就提前约定好的兄弟姐妹们。<br>约好了，待我醒了，一定会叫醒他们。<br>也约好了，在我出现时，他们一定会在内心深处，一眼就能认出我来。<br>这是彼此出生前的约定，我还活着，就记起来了。<br>所以，我一直在履行这个约定。</p>
+<p>禅宗的很多东西，必须经过认真考察，才能当面传授的，里面，有很多很深刻的考虑。<br>我以前没教过人，修行进度又太快，一直不懂，禅宗前辈们，干嘛总是藏着掖着？<br>直接拿出来，大家一起顿悟，多好？<br>现在，我才明白。<br>非是禅宗藏私，而是这些‘当下直指’，‘当下顿悟’的东西，要很深的火候、讲究和准备才行。<br>天时地利人和，缺一不可。<br>将答案直接告诉别人，不是助人，是在害人。</p>
+<p>减少了别人探索的乐趣，也容易让这些人着于相，只看见手指而忘记手所指的那个‘月’。<br>所以，各位别再找我拜师什么的了，你拿一百亿给我，也是不教的，和钱没关系。<br>不仅因为法不轻传，而是教了你也学不会；禅宗收徒，不收钱，只收‘诚心’一种学费。</p>
+<p>然而，世上交得起这份‘诚心’的人，并不多。<br>很多人，还需多轮转一些人世，才能攒得齐这份‘学费’，这个只能靠他们自己的心量了。<br>我现在，只是在无条件助人，没到收徒的时候。<br>因为我的路走得太快，虽然我一直不觉得自己根器怎样，现在也不得不承认，我是禅宗里所谓的‘上上根器’。</p>
+<p>事实上，根器没有优劣之别，就像有的人吃半碗饭就饱了，有的人要吃十碗才能饱一样。<br>都是为了吃饱，结果上没有区别。<br>可我走的路太短，所以，我只教得了那些根器很猛的人。</p>
+<p>两年来，各种渠道找我求教的人很多。<br>可惜，我连突破明心都没能教出一个，真的很惭愧。<br>所以，我不推荐你们找我求教。</p>
+<p>你们可以去天涯论坛，找帖子“性的另一出口：《山居性纪》——性是种子禅是花开”。<br>电脑端搜不到了，手机端还可以：<br><a href="https://bbs.tianya.cn/m/post_share_weilun.jsp?id=1736800&amp;item=free&amp;f=i" target="_blank" rel="noopener">性的另一出口：《山居性纪》—性是种子禅是花开（已出版）</a><br>我的真师就是在帖子里，随着他的真师走出来的。<br>书已出版，他们两人，现在也都离开帖子，回归生活。</p>
+<p>可曾经的足迹依然还在那里，各位可以去里面一页页的看下来。<br>里面有过很多实修出现，在里面彼此交锋后，留下的种种交流足迹。<br>那里，是他们搭建的一个网络道场，有很强的能量场，你们现在依然可以去里面，仔细的‘感应’与‘修行’。<br>各位不需要找我教，我真不是一个好老师。</p>
+<p>至于我真师的真师，他说过他根器很差，属于下下根器。<br>所以，辛辛苦苦花了二十几年，山中闭关，西藏随密宗上师隐秘修行等等，将各种修法都折腾个遍，才终于‘吃饱’了。<br>也正因如此，他写东西和教人，才能够无论根器利钝，一网全收。<br>他说过，连他这种都能修出来；这世上只要能发真心，就没人是不能修出来的。<br>这也是为何，以他的心力，能建得起那个网络道场的缘故。<br>这一点，我发自内心的敬佩与感激。</p>
+<p>现在，我也还在向他学习。<br>你们若读他的文字，就会直接感觉到那股直刺人心，却又洗涤心灵的纯净力量。<br>很多人，看他写的文字，是会被直接看哭的。</p>
+<p>这里，我也可以回答一下。<br>评论区，有人曾好奇问我，破三关之后，我与真师，还有真师的真师之间的关系。<br>之后，‘真师’也就变成了你的‘道友’，是那种血浓于水的轮回‘道友’。<br>不是所谓的‘师徒’或是‘父子’的关系，是比它们更亲切的一种超越血缘的平等关系。<br>彼此之间，很乐意无私帮助，却基本不会要求对方给自己帮忙。<br>因为，我们各自能把自己的人生过得很好，也并不需要在生活中让对方来帮什么忙。</p>
+<p>一年聚上一两次，一起吃个饭，交流和感受一下彼此的感悟与境界，互相学习。<br>我们彼此都在探索截然不同的人生课题，现实中做的事情，往往没有半点交集，住的地方也是天南地北。<br>每年，专门跋山涉水，不远千里，去见这么一两面，找他们取取经。<br>知道还有这样的人在远方，就会知道，在人世之中。<br>自己，并不孤单。</p>
+<p>可能，很多人不太能理解我的这种感受。<br>我们时常处于一种‘教师’状态，总是在教那些从网络上，来到面前‘求教’的人。<br>现实里，则是一种彻底融入‘平凡’的状态。<br>不是修行人，现实里和我们聊天，我们一个修行相关的字眼都不会提。<br>各自心中，对这个世界的深刻感悟，也没法同周围的人交流，网络上也是一样。</p>
+<p>讲了，大家也听不懂，理解不了，思维已不在同一个维度。<br>所以，心中知道有那么两个人在远方，每年想去时都可以去见到，去交心。<br>真的，会让人有一种让人发自内心的幸福与愉悦。</p>
+<p>评论区里，我从未因任何人的评论而生气过。<br>毕竟，自我都没了的人，怎会因为网络言论而生气呢？<br>我的每一句回复，都是出于无私助人的目的，只是我的语气很直接，我习惯了在网络上这样沟通而已。<br>对于那些无条件攻击我的人，我很感谢对方，谢谢他们出现，帮我打开心量。</p>
+<p>也多亏这篇回答。<br>前几天，我从真师的真师那里，得到一个意料之外的‘印章’。<br>这个‘章’往下一盖，我整个人，就彻底清净了。<br>这个章，盖和不盖，说的话一样，做的事一样，讲的东西一样，区别很微小，却是截然不同的两种东西。<br>看过之前那个回答，再看现在这个回答的人，能够感受到。<br>这个区别，究竟在哪。</p>
+<p>很感谢，来评论区里，每一位顶礼赞叹的人，以及每一位诋毁辱骂的人。<br>很多人我没有去回，可每一条评论，我都有用心看，用心的去感受。<br>大家都是真佛，看似我度众人，实则众人度我。<br>深深感激，合十。</p>
+<p>这里，也是本答案中，我未曾提到的第四关。<br>可惜，却是不能再讲了。<br>各位若有机缘，能来此处，自会明白的。</p>
+<p><strong>一是一切，一切是一。</strong></p>
+<hr>
+<p><strong><em>转载自 <a href="https://www.zhihu.com/people/yuan-chong-76/answers" target="_blank" rel="noopener">灵天赐的回答</a></em></strong></p>
+<hr>
+<h1 id="心得体会"><a href="#心得体会" class="headerlink" title="心得体会"></a>心得体会</h1><p>这是内修之路的一份藏宝图. 提纲挈领, 详略得当. 指明了不同阶段的路标, 潜坑, 探宝要点. 这么一份藏宝图, 若非过来之人, 绝不可能写的如此逻辑清晰, 层次分明, 轻重缓急, 信手拈来. 不敢说他一定走到了终点, 但已远远超出绝大部分的修行人. 元吾氏卡在了”末后牢关”.</p>
+<ol>
+<li><p>初关, 明心</p>
+<ul>
+<li>要点: <strong>观察</strong><ul>
+<li>方法诸多, 不一而足, 建议南传佛教.</li>
+<li>细分步骤: 先修定, 再修慧, 定慧同修.</li>
+<li><a href="https://draapho.github.io/2018/12/27/1820-meditation-LCP/">闻思修</a></li>
+<li><a href="https://draapho.github.io/2018/11/29/1819-start-meditation/">实修开始</a></li>
+</ul>
+</li>
+<li>潜坑: <strong>水滴石穿</strong><ul>
+<li>即没有捷径, 确定方法后, 下苦功即可.</li>
+<li>其实有一个更大的坑: 方向的错误! 内修之重点在于实修, 而非学和知.</li>
+<li>少花时间(用脑)看书, 多花时间(用心)实修.</li>
+</ul>
+</li>
+<li>路标: 知道 <strong>情绪, 从哪来?</strong>; <strong>脑海中, 一念起, 一念落, 二念之间的那道’空白’, 究竟是什么?</strong>; <strong>‘心’是什么? ‘心’在哪?</strong><ul>
+<li>这个知道, 不是思考的知道, 不是逻辑的知道, 不是知识的知道, 是亲证的知道.</li>
+<li>就像一种技能, 如开车游泳. 会了就是会了, 知道就是知道. 不会之前, 再怎么智商超群, 逻辑清晰, 辩才无碍, 也还是不会.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>重关, 见性</p>
+<ul>
+<li>要点: <strong>诚心, 愿心, 决心, 善心, 真师, 天师</strong>, <strong>让心彻底柔软下来</strong><ul>
+<li>若时机成熟, 发愿带着诚心, 登门顶礼请灵天赐带一程路.</li>
+</ul>
+</li>
+<li>潜坑: <strong>六者, 缺一不可</strong>, <strong>烦恼即是无上菩提, 人世方为究竟道场</strong>, 勿要在道离道, 又去求道.<ul>
+<li><strong>六者, 缺一不可</strong> 的结论存疑, 毕竟样本太小, 而且有反例.</li>
+<li>暂时认为, 此六者, 对”多数”实修者, 是通关的必要条件.</li>
+</ul>
+</li>
+<li>路标: <strong>惊讶发现, 原来, 自己从未有一日, 真正离开过家.</strong><ul>
+<li>以下描述, 咨询过灵天赐本人, 属于重关的路标.</li>
+<li>&lt;道德经&gt;: 有物混成，先天地生。寂兮寥兮，独立不改，周行而不殆，可以为天下母。吾不知其名，字之曰道，强为之名曰大</li>
+<li>元吾氏: 一个无限/不生不灭的自由意识（Freewill/神Spirit）有着无穷无尽的自发幻想，其景象就是无数多样的宇宙和万物及各自的规则和不规则。</li>
+<li>C Hilbert: <a href="https://zhuanlan.zhihu.com/p/67670425" target="_blank" rel="noopener">宇宙，世界，一切的意义和真相是什么？</a> 部分触及到了重关的路标.</li>
+<li>确认了我的一个疑惑: 这个就是终极真相? “开悟”? 结论是, 继续保持疑惑…</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>末后牢关, 无我</p>
+<ul>
+<li>要点: 对自己的修行, 做到了100%真诚; 对一切异见保持真正开放的态度.</li>
+<li>潜坑: 突破重关的人, 会100%的确信无疑, 他是’开悟’了. 这是一道’隐形的门’.</li>
+<li>路标: <strong>开悟, 并不存在.</strong>, <strong>你所以为的这个’你’, 是不存在的.</strong>, <strong>我</strong></li>
+</ul>
+</li>
+<li><p>临别语</p>
+<ul>
+<li>这些东西，本已脱离大脑思辨的领域. (逻辑无用!)</li>
+<li>开悟，并非某种耗费一生去艰难求取，也难以获得的梦幻状态。</li>
+<li>若将修行比喻为爬山， 山下的看不清山上, 山上的能一眼看穿山下的.</li>
+<li><strong>初心</strong>，最初见地中任何最微小的偏差，也会生出截然不同的果。</li>
+<li>法不轻传，道不轻授，很重要。 (小我的学习和伪装能力太强, 成为公开知识有害无益)</li>
+<li>禅宗修行，佛挡杀佛，神挡杀神, 最后，连这个‘自己’，也是要一刀宰杀干净的。</li>
+<li>禅宗收徒，不收钱，只收‘诚心’一种学费。</li>
+<li>第四关: <strong>一是一切，一切是一。</strong></li>
+</ul>
+</li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/07/25/1909-TCM_science/" itemprop="url">
+                  好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-07-25T00:00:00+10:00" content="2019-07-25">
+              2019-07-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/thoughts/" itemprop="url" rel="index">
+                    <span itemprop="name">thoughts</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="http://bbs.tianya.cn/post-free-5088705-1.shtml" target="_blank" rel="noopener">好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题</a></em></strong><br><strong><em>转载自 <a href="http://blog.sina.com.cn/s/blog_7edcb9a10102vjtm.html" target="_blank" rel="noopener">好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（七）连载</a></em></strong></p>
+<hr>
+<h1 id="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（一）连载"><a href="#好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（一）连载" class="headerlink" title="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（一）连载"></a>好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（一）连载</h1><p>按：正确地认识科学，是正确认识中医的第一步。</p>
+<p>人是观念的动物，一旦观念僵化，就容易陷入偏执。其实科学与中医，看似是一个小话题，却实实在在检验每个人的见识和心胸。对于中医，相信绝大多数的人并不真的了解或者入门，哪怕是中医粉。但是对于科学，我们却都感觉至少这个名词很熟悉、很亲切。毕竟我们都上过高中、大学，都受过十八世纪以来西方现代科学观念的普及与熏陶，其实，这一点上大家基本一样。但是为什么有的人就能够暂且抛开这些自己熟悉的体系、观念，认真倾听讨论的另一方在说什么、如何解释；而有的人却急吼吼骂着别人文傻举起大棒？仿佛这样一“科普”自己先天就具有了与众不同明显的先进性。<br>没有人可以生而知之，同样也没有人的胸怀可以永远狭隘，因为它不过来自于视野与认识世界的角度。只是领域与视角的改变，你就会发现一个全新的世界，甚至重新建立新的世界观、科学观。这非常像潜水，哪怕是马尔代夫休闲式的浮潜——在你的头没入海水之前，你根本不知道、无法想象，在你脚踩的珊瑚石那里、在你周围翻腾的海浪下面，竟是那么一个五彩斑斓、游鱼遍布的奇异世界。对于潜水，你戴好装备、下到水里都依然不能领略，何况是在岸上。<br>是的，同样的道理，在你的身体里面、在你活生生的身体里，也有那样一个世界，一个中医的世界、中医的视角。往内看，向鲜活的身体里面感觉，它甚至是一个随时与你的心灵互为因果、相互联系、密不可分的世界。<br>怎么才能向内看？怎么才是往内感觉？这可能反而是现代人不熟悉、不好把捉的事情。因为我们太不熟悉那个视角了，自打降生以来，我们就被感官吸引，不断地向外探寻、求取。我们所熟悉、被灌输的西方科学理念，也是完全外向型指向、特长于细分的表象研究的。我们却一直迷失着那个“能够去感知外部世界的内在的源头”——一直丧失着对内在这个“能觉”之心的关注。另一方面，我们也一直被教导要思辨、思维，建立来自头脑的逻辑理性体系。却往往忽略以致最后关闭、丧失了直接用这直观的“能觉”之心去感知世界的通道。可世界的的确确分明具有着这另外一个视角，东方的视角（西方最伟大的科学家，诸如爱因斯坦、尼古拉·特斯拉都一再地谈及）。中国与印度都有这样的视角。只不过，中国在养生与医疗上发现并建立了相对更完善的体系。<br>怎么才能向内看？怎么才是往内感觉？这很有趣，充满哲学与宗教性意味，但显然，这是另一个话题。我们得一点点才能引导到对于方法的讨论。<br>因为仅仅是听到这样的提法，对于一些人来说也许已经是对于其固化观念的“冒犯”。所以，最后你会感觉这甚至是一个关于“勇气”的话题——相关于一个人有没有做好“经过这次完整的阅读旅程，某种僵化过时的科学观会土崩瓦解”的准备。<br>是的，这，最终，注定会通过“中医话题”演变成一个心灵的冒险！一个对“偏执之病根——自我”的挑战！<br>也正因于此，它升华为一个邀请，更深藏一种祝福！</p>
+<p>如是，暂时放下旧有观念，重新全方位审视你心目中的科学观——正确地认识科学，是正确认识中医的第一步。<br>我们不妨从讨论科学开始，看看我们的“科学观念”是不是就早已被人动了手脚，植入了某种伪劣的病毒。<br>既然想要辨析清楚，就需要从最基础的地方讨论。当我们实打实地，按着逻辑一步步推理过去，从科学的“概念、定义、范畴、特征、方法、在人类生存中的位置、属性、真精神乃至未来”开始厘清，并且对中医重新审视，以真正科学精神的角度审视，建立起新的正确认识。这样，到了后面专门辨析的时候，只要稍作勾提与揭露，所有谬论与曲解自会在正确认知面前土崩瓦解。任何“外行无知式”的说辞或者“流氓胡搅式”的诡辩，都会不攻自破。<br>另外一点需要率先澄清的是，事实上，无论笔者将要讲到什么新颖的说法、新奇的理论它都是基于尊重客观事实这个大前提的。如果在我以及很多人的生命经历与所见闻的直接经验中，中医是完全无效的、是延续了几千年数以千万记的、纯粹的骗子集团，那这些说法就都成了包庇而不负责任的言论，那就不止是道德谴责了，请举报绳之以法。<br>需要同时再次郑重强调的是，无论对中医理论的身、心体验还是临床医疗实践，无论从药理还是病理，笔者都有一定相应切身的实证。真理不在书本的知识上，真相在你亲身的实践与体验中——这，是我敢于写作这些文章的最大前提。</p>
+<p>是的，我们必须先说科学，再解中医，先耐心看清科学以及科学精神的实质，甚至搞清科学与哲学、宗教乃至艺术等的关系，了解它在人类生存生活中的层面与位置，才能正式地引入中医，看它处于什么样的位置和高度，进而再最后讨论中医到底是不是科学？中医究竟有多大价值？<br>为了正确地认识科学，我们将着重阐述这些命题——<br>科学到底是什么？<br>科学在不断发展中<br>科学不是万能的<br>科学的位置<br>科学没有代言人<br>什么才是真正的科学精神<br>……</p>
+<p>部分前期目录下：<br>第一章：科学到底是什么？<br>引言——从《批评中医》的“混淆”到科学概念的混乱</p>
+<p>1，西方科学的发展过程<br>2，科学的定义<br>3，“科学”一词的由来<br>4，科学的分类<br>5，从经典的科学方法看——中华文明独特的数理逻辑与整体观的科学理念</p>
+<h1 id="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（二）连载"><a href="#好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（二）连载" class="headerlink" title="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（二）连载"></a>好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（二）连载</h1><p>在过去关于中医的网络辩论中，经常会看到一些回复中值得商榷的“科学观”。说实在的，正是一些空喊口号不认真求实的做法刺激了笔者这么个较真的人。于是，我认真去查找资料、还原历史、还原定义，就从科学的最本真朴素的地方开始辨析——</p>
+<h2 id="先行公布接下来一些内容的目录："><a href="#先行公布接下来一些内容的目录：" class="headerlink" title="先行公布接下来一些内容的目录："></a>先行公布接下来一些内容的目录：</h2><p>  第一章：科学到底是什么？<br>  引言——从《批评中医》的混淆到科学概念的混乱<br>  （1）《批评中医》曲解爱因斯坦以偷换概念，混淆对科学的正确认知。<br>  （2）《批评中医》篡改李约瑟原话以否定中国科学史、否定中医<br>  （3）爱因斯坦与李约瑟共通的科学史观<br>  正文：<br>  1，西方科学的发展过程<br>  2，科学的定义<br>  3，“科学”一词的由来<br>  4，科学的分类<br>  5，从经典的科学方法看——中华文明独特的数理逻辑与整体观的科学理念<br>  6，“中华文明密码”河图洛书中的数字震撼</p>
+<p>  屡经大量水军来骂的“战斗”，真不想触及方舟子《批评中医》这个公认的“雷区”，可是当我们真要严肃正式地讨论“中医的科学问题”，你还就无法回避，因为如果细心观察会发现，很多人关于科学与中医的错误观念都源出于此，几乎所有后来的洗脑文本都仿照这个写就。那么好吧，既然绕不开，我们就单刀直入，看看这种科普在“普”什么？只是分析其开头区区三百字，三篇下来，相信每一个诚实的科普人也会触目惊心——</p>
+<p>  引言——从《批评中医》的“混淆”到科学概念的混乱</p>
+<h2 id="（1）《批评中医》曲解爱因斯坦以偷换概念，混淆对科学的正确认知。"><a href="#（1）《批评中医》曲解爱因斯坦以偷换概念，混淆对科学的正确认知。" class="headerlink" title="（1）《批评中医》曲解爱因斯坦以偷换概念，混淆对科学的正确认知。"></a>（1）《批评中医》曲解爱因斯坦以偷换概念，混淆对科学的正确认知。</h2><p>  在公开反对中医的书籍中最著名的一本是《批评中医》，很多“中医黑”的论调都是以这个为蓝本的。而此书作者方舟子先生为了批判中医也确实可以说是字里行间煞费苦心，从每一句话、从第一句话开始就有让人意想不到的“神来之笔”——</p>
+<p>  此书开篇《中医学不是科学》的第一句话，为混淆科学的概念以彻底否定中医，方氏就先假意主打一个“现代科学”的概念——<br>  “现代科学的源头来自古希腊的自然哲学，是在欧洲文艺复兴时期诞生、发展起来，然后向全世界传播的。”</p>
+<p>  这句话完全正确，没有任何问题，但方氏接下来一句却迅速切换、直接把“现代科学”偷换概念成“科学”一词——<br>  “古代中国也有灿烂的文明，某些技术发明甚至长期领先西方，但是为什么科学没有在中国诞生呢？”</p>
+<p>  而如果严格承接两句上下文意，本来分明应该是——为什么“现代科学”没有在中国诞生？<br>  他却落脚在了——为什么“科学”没有在中国诞生？</p>
+<p>  看到这里，也许读者您会问——难道“科学”不是就特指“现代科学”吗？<br>  当然不是！看完这一章就会真相大白——这是一个一直被“有意无意”混淆的概念。<br>  就如这里，两句文意一交接间，已经神不知鬼不觉完成切换，混淆了“科学”与“现代科学”的概念。<br>  作为资深的所谓科普作家，对于科学的真正含义与渊源不可能不知道，故意偷换与混淆只有一种解释——泼脏水，为后面否定“中医是科学”埋下伏笔。</p>
+<p>  且看《批评中医》接下来的原文，我们继续分析，请读者诸君明辨——<br>  “伟大的物理学家爱因斯坦在一封信中回答说：西方科学的发展是以两个伟大的成就为基础的：希腊哲学家（在欧几里得几何学中）发明了形式逻辑体系，以及（在文艺复兴时期）发现通过系统的实验有可能找出因果关系。”</p>
+<p>  在这段话里，方氏拉大旗作虎皮，假意引述爱因斯坦的话，实际上却在随后的引申中瞒天过海故意曲解文意，还是像上面似的，把爱因斯坦原意中“西方科学的发展”直接在自己接下来的结论中篡改成了“科学的起源”，请看他书中的原话——<br>  “也就是说，爱因斯坦认为‘科学的起源’是个不平常的事件，因此不必对‘古代中国没有出现科学’而惊讶。”</p>
+<blockquote>
+<p>（附爱因斯坦原文：“The development of Western science has been based on two great achievements, the invention of the formal system (in Euclidieam geometry) by the Gree philosophers and the discovery of the possibility of finding out causal relationships by systematic experiment (at the renaissance ) in my opinion one need not be astonished that the Chinese sages did not make these steps. The astonishing thing is that these discoveries were made at all”</p>
+</blockquote>
+<p>  而这显然与爱因斯坦的原意严重不符——<br>  爱因斯坦的语意着重在“发展”，指的是——原有科学大发展，然后“现代科学的诞生”是不平常的；<br>  方舟子则将其篡改成“科学的起源”——意味着“整个科学的诞生”都是在西方的那两个背景下。<br>  而这所有的篡改与偷换概念，都是为了那最后一句服务的——“中国古代没有出现科学”。</p>
+<p>  如此，他只要假借爱因斯坦的权威之口让读者产生“整个科学都是爱因斯坦那时才出现”的幻觉，就可以将中医“黑”在科学出现之前，于是，便可“顺理成章”推出他文章中后面两句话——<br>  “中医作为中国古代的文化的一部分，其诞生的时间远在科学之前。”<br>  “既然中医理论体系远在人类有科学之前就已确立，那么中医学不是科学，本是很自然的事。”</p>
+<p>  可是爱因斯坦的原意显然不是这样。按照逻辑线，正确的说法也本应该是——<br>  “中医作为中国古代文化的一部分，其诞生的时间远在‘现代科学’之前。”<br>  “既然中医理论体系远在人类有‘现代科学’之前就已确立，那么中医学不是‘现代科学’，本是很自然的事。”</p>
+<p>  也就是说，当我们证明了科学和现代科学是两个完全不同，不能混淆的概念，那些话的推论只能是中医学不是“现代科学”，而不能置换成中医学不是“科学”。<br>  后面读者了解了正确的科学史就会知道本有“古代科学”，甚至本应细分为“西方古代科学”与“中国（东方）古代科学”，中医本是中国古代科学的璀璨明珠。因此，这是绝不能混淆的概念，这也正是诽谤、抹黑中医与捍卫、正名中医的关键所在，是论证中医科学性所必须厘清的第一事实。<br>  那这么明目张胆的偷换与篡改到底为了什么目的呢？昭然若揭——就是要将中医先一棍子打成不科学、归为不科学，好为《批评中医》后面的种种外行谬论做张本。这意味着假如中医不科学了，就可以“以科学的名义”对它任意毁谤、肆意侮辱。<br>  而令人震惊的是这种偷换概念以及其他的诡辩手法在这本书中比比皆是。以至于在对《批评中医》的审阅批驳中笔者每每感叹，其实真不能怪读者心思不够细腻，实在是其“偷”得“水平高超”。这有如“就怕贼惦记”，当一个这样的“高手”就是存心要给你找毛病、栽赃、构陷，不明真相的大众被忽悠几乎就是板上钉钉的事情……</p>
+<h1 id="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（三）连载"><a href="#好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（三）连载" class="headerlink" title="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（三）连载"></a>好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（三）连载</h1><p>引言——从《批评中医》的“混淆”到科学概念的混乱</p>
+<p>（1）“《批评中医》曲解爱因斯坦以偷换概念，混淆对科学的正确认知”——见上一次连载。下面继续后文：</p>
+<h2 id="（2）《批评中医》篡改李约瑟原话以否定中国科学史、否定中医"><a href="#（2）《批评中医》篡改李约瑟原话以否定中国科学史、否定中医" class="headerlink" title="（2）《批评中医》篡改李约瑟原话以否定中国科学史、否定中医"></a>（2）《批评中医》篡改李约瑟原话以否定中国科学史、否定中医</h2><p>  有意思的是，关于《批评中医》“偷换概念、曲解爱因斯坦，混淆科学认知”的文章曾经发在网上（转发上千，搜索以前微博可见），结果遭到了方舟子拥趸的强烈反弹。很多人根本不认真看文章，更没有勇气面对方篡改文意与偷换概念这些事实。只是一味地对笔者冷嘲热讽，这真的使人切身地体会到了这两句话的分量——</p>
+<p>  你无法叫醒一个装睡的人！你也无法叫醒一个不愿醒来的人！</p>
+<p>  好吧，我也只好再次奉上方先生在这一段接下来继续的公然篡改，以给我上面的分析做出完全的印证，使它彻底成为铁证——</p>
+<p>  还记得方舟子一上来把“现代科学”偷换概念成“科学”一词的这句话吗——“古代中国也有灿烂的文明，某些技术发明甚至长期领先西方，但是为什么科学没有在中国诞生呢？”</p>
+<p>  我当时分析说——就在这里他别有用心地故意混淆“科学”与“现代科学”的概念：</p>
+<p>  其实应该是——为什么“现代科学”没有在中国诞生？</p>
+<p>  他却落脚在了——为什么“科学”没有在中国诞生？</p>
+<p>  在这里，这句话在《批评中医》中整段的原话是这样的——“古代中国也有灿烂的文明，某些技术发明甚至长期领先西方，但是为什么科学没有在中国诞生呢？这个问题是英国科技史学家李约瑟提出的，被称为‘李约瑟问题’”</p>
+<p>  当时，我本着充分的信任，以为方氏引述“李约瑟的原话”总该是没问题的，就忽略了，还以为李约瑟先生也是个老糊涂，怎么会说出这种话来。可是在后续的写作中，当我为了搞清科学定义而老老实实去查阅李约瑟原话时，我又一次震惊了，看到这样的中文资料——</p>
+<p>  李约瑟在《东西方的科学与社会》这篇文章一开始就说：“大约在1938年，我开始酝酿写一部系统的、客观的、权威性的专著，以论述中国文化的科学史、科学思想史、技术史及医学史。当时我注意到的重要问题是：为什么‘近代科学’只在欧洲文明中发展，而未在中国（或印度）文明中成长？”</p>
+<p>  看，李约瑟不仅明确说了中国文化有“科学史、科学思想史、技术史及医学史”，原话设问更是直接问的——“为什么‘近代科学’（亦即‘现代科学’）只在欧洲文明中发展，而未在中国（或印度）文明中成长？”</p>
+<p>  这段资料中翻译的‘近代科学’一词与上一节我们根据逻辑推论的“现代科学”如出一辙。更有说服力的，整个文意也与爱因斯坦说的完全一致。真可谓英雄所见略同。</p>
+<p>  为谨慎起见，再进一步就此检阅一些资讯，更是“铁证如山”——</p>
+<p>  看到李约瑟介绍中国古代的科技成就最知名的著作是《中国科学技术史》，英文：Science and Civilisation in China , 直译的话就是：中国的科学和文明。</p>
+<p>  显然介绍的是中国古代的科学与技术——科学古已有之。</p>
+<p>  怎么方先生居然篡改出了“为什么科学没有在中国诞生”是所谓的“李约瑟问题”？</p>
+<p>  再顺着线索，细查原文，实际上，相关“李约瑟问题”的两处原文表达如下：</p>
+<blockquote>
+<p>So the question he asked was this: “Why, given china’s amazing technological achievements, did the Chinese fail to develop modern science ?”<br>  译文：于是，他提出一个问题：“为什么中国取得如此令人惊叹的技术成就，却没有诞生出现代科学？”<br>Why did modern science develop in Europe when China seemed so much better placed to achieve it. This is called the Needham question .<br>  译文：为什么当时中国似乎处于取得这一成就更加有利的位置，而现代科学却在欧洲（而不是在中国）诞生？这个问题被称为“李约瑟问题”。</p>
+</blockquote>
+<p>  请列位看官注意，清清楚楚、明明白白，“李约瑟问题”是——“为什么‘现代科学’没有在中国诞生？</p>
+<p>  而不是——方舟子光天化日下的“造假”——“为什么‘科学’没有在中国诞生？”</p>
+<p>  与我们上一节的推论也完全相同——科学与现代科学是两个完全不同的概念。混淆者要么出于无知，要么别有用心！试问这位曾经以“打假”而甚嚣尘上的“科普工作者”属于哪一种？</p>
+<h2 id="（3）爱因斯坦与李约瑟共通的科学史观"><a href="#（3）爱因斯坦与李约瑟共通的科学史观" class="headerlink" title="（3）爱因斯坦与李约瑟共通的科学史观"></a>（3）爱因斯坦与李约瑟共通的科学史观</h2><p>  那么，为了彻底反衬出方舟子的篡改，也为了下面对科学发展史的介绍更明晰，我们按爱因斯坦与李约瑟的原意梳理出一个清晰思路——</p>
+<p>  爱因斯坦认为（古已有之的）“科学”，得以在文艺复兴时期获得极大的发展，乃至最终催生出了观念和实践都大大跃进的“现代科学”。而这种发展源于两个伟大的成就——古希腊时期的“形式逻辑”与文艺复兴时期的“系统实验”这两个基础。这就明确地显示出他的科学史观是承认在西方“现代科学”之前实际上“科学”早已存在，即存在“古代科学”，比如说“古希腊欧几里得几何学”及其“形式逻辑”。</p>
+<p>  李约瑟则基于对中国古文明与西方现代科学的高度认识，更进一步，肯定并提出了“中国古代科学”——抑或说古代“东方科学”的概念。并进而藉此提出著名的“李约瑟问题”——为什么真正意义上的“现代科学”没有在中国——这个十七世纪前“科学”本来很发达的国度产生？</p>
+<p>  综上可见，爱因斯坦与李约瑟在“科学”与“现代科学”这涉及整个科学概念与科学史观的问题上认识相同。与实际的科学发展史也完全相符。</p>
+<p>  而方氏则既故意偷换、曲解、混淆了爱氏关于科学认知的概念，更对李约瑟的话直接篡改。</p>
+<p>  是的，尽管爱因斯坦与李约瑟是顶级的科学家和博古通今的学者，对科学的理解有着超乎常人的深刻，也完全符合科学史的实际。但是，任何人，不止方先生，也依然都有权对此保留看法。不过，假如一个人不认同他们的观点却故意篡改、曲解他们的原意，然后还要借用他们的名声做大旗忽悠公众，就不知道应该归纳为一种什么行径了？对于诚信、对于科学精神又是一种什么态度呢？</p>
+<p>  爱因斯坦和李约瑟虽然早已过世，可无数双活人的眼睛注视着！</p>
+<p>  对爱恩斯坦、李约瑟的歪曲与造假，更是对他们声誉的公然玷污与践踏！而这么做无非是想借他们之口，以证明“古代中国没有科学”，进而把中医污蔑为“伪科学”！<br>  证据确凿，文理俱在。作为一个一度博取大众信任的“打假英雄”如此这般，如果不是亲眼所见，白纸黑字，笔者真不敢也不愿相信。</p>
+<h1 id="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（四）连载——科学的准确定义"><a href="#好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（四）连载——科学的准确定义" class="headerlink" title="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（四）连载——科学的准确定义"></a>好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（四）连载——科学的准确定义</h1><h2 id="1，西方科学的发展过程"><a href="#1，西方科学的发展过程" class="headerlink" title="1，西方科学的发展过程"></a>1，西方科学的发展过程</h2><p>  也正是那些对于“科学”与“现代科学”概念上“有意无意”的混淆，以及对于中国古代科学观念与成就的不了解，造成人们大量观念上的含混错乱，最终导致对中医科学性的困惑。这一章将追本溯源，厘清概念、廓清认识。</p>
+<p>  我们的探讨方式是先以西方概念的科学为对象，看看它发展的过程，再回看“科学的概念”，以及它最初传入中国时的原意。接着探讨“科学的分类”，这样从理念上就可以确定中医属不属于科学。</p>
+<p>  之后，我们再从科学的特征和方法论上一点点鉴别。</p>
+<p>  而中医到底是不是科学？它在科学中的位置如何？又是否高超？也自会随之明了。</p>
+<p>  下面先从西方科学的发展史开始，看看正统西方科学概念经历的三个阶段：</p>
+<p>  第一阶段是古希腊时期。</p>
+<p>  第二阶段是文艺复兴时期。</p>
+<p>  第三阶段是工业革命时期。</p>
+<p>  公认的工业革命到现在为止又分为三次。</p>
+<p>  整个的具体过程是这样的——</p>
+<p>  古希腊的科学原是指分科研究的知识，与被称作哲学的综合性知识相对。</p>
+<p>  到了十六世纪，波澜壮阔的文艺复兴运动让人们打破了宗教枷锁对人性的束缚，高举“科学”这个概念和“人文”这个理念做大旗，使科学不仅成为了当时一种批判神学的精神武器，更成为一种认识世界的崭新观念。</p>
+<p>  由此渐渐引发了第一次工业革命。</p>
+<p>  而第二次工业革命，也称第二次科技革命，出现于十九世纪七十年代到二十世纪初，是以电力的广泛应用、新的交通工具、新的通讯手段的发明等等为标志的。</p>
+<p>  第三次工业、科技革命，也就是当下的信息革命，肇始于二十世纪四五十年代至九十年代。是以原子能、航空航天、计算机为代表，还包括分子生物学、互联网络等新突破。</p>
+<p>  介绍这些，是为了——</p>
+<p>  理清西方科学的发展脉络，严格地更正那些关于科学发展的错误认识，从而再次确认我们第一步的推论——</p>
+<p>  在十六世纪科学获得一次突飞猛进并且这个概念被着重提出来做大旗之前，世界上、东西方，都早有科学，只不过这个名词没有被高举出来而已。并不存在类似前文方舟子那种以混淆概念形成的“时间点”判定的以下谬论——</p>
+<p>  “既然中医理论体系远在人类有科学之前就已确立，那么中医学不是科学，本是很自然的事。”</p>
+<p>  当然以上推演的是西方科学的进程，至于中医学是不是科学，我们还需继续往下分析。</p>
+<h2 id="2，科学的定义"><a href="#2，科学的定义" class="headerlink" title="2，科学的定义"></a>2，科学的定义</h2><p>  判断中医学是不是科学，首先就需要了解“科学”的定义。</p>
+<p>  请看权威的大辞典们怎么诠释——</p>
+<p>  《辞海》1999年版：“科学：运用范畴、定理、定律等思维形式反映现实世界各种现象的本质的规律的知识体系。”</p>
+<p>  法国《百科全书》:“科学首先不同于常识，科学通过分类，以寻求事物之中的条理。此外，科学通过揭示支配事物的规律，以求说明事物。”</p>
+<p>  前苏联《大百科全书》:“科学是人类活动的一个范畴，它的职能是总结关于客观世界的知识，并使之系统化。‘科学’这个概念本身不仅包括获得新知识的活动，而且还包括这个活动的结果。”</p>
+<p>  《现代科学技术概论》:“可以简单地说，科学是如实反映客观事物固有规律的系统知识。”</p>
+<p>  也就是，如果概括地说——科学：是反映自然、社会、思维等现实世界各种现象本质及其客观规律的分科知识体系。（综合现代汉语词典与辞海的说法）</p>
+<p>  ——这是它确定的标识。</p>
+<p>  而当我们按着严格的科学定义去观照，看看中国古代有没有科学呢？</p>
+<p>  显而易见，按着这样的概念轮廓，纵观中国古代科学以及依托科学之下的技术发展史，我们的祖先取得了斐然可观的成就，在天文、数学、农学及制造业等许多方面有过无数发现、创造和发明，那绝不仅仅只是享誉世界的四大发明，也绝不仅仅只是耳熟能详的《周髀算经》、《九章算术》或者众所周知的地震仪、圆周率、大明历……</p>
+<p>  可见那些别有用心者为了诋毁中医，不惜混淆概念，既否定祖国的“科学史、科学思想史”（李约瑟语），还否定了古希腊的科学文明。这完全不符合科学定义与科学发展的历史事实。当然他们如此拙劣的所有目的，都是想通过“时间点”的诡辩最终否定中国的“古医学史”（李约瑟的提法）、“古医学”——也就是中医。</p>
+<p>  将来，我们会知道中国传统文化中真正令人叹为观止、为我们这个民族的繁衍生息、为未来之人类文明进程作出巨大贡献的科学，恰恰是——中医。这一点后面会全面论证。</p>
+<p>  而方舟子在《中医不是科学》一文中，之所以一直吞吞吐吐打马虎眼，不承认以上那些针对科学准确的定义标识，甚至还要故意找理由否认这些公认的说法，就是因为一旦按正规的定义审视，首先就得至少承认中医在科学定义的范畴内，它显然符合“反映人生命、疾病、身心一定的客观规律之分科知识体系”这个定义，所以李约瑟才把它划分为古医学来研究。退一步讲，即使它有不完善的地方，可同时总结了大量生命规律性的法则，任何人也不能一棍子打死说它就不是科学、它就不是研究人生命及其疗愈的分科知识体系。而即使是现代医学、现代科学，何尝不是在日日进步、时时完善中？为何厚此薄彼？是崇洋媚外双重标准还是其他什么居心？</p>
+<p>  至此，应该说，是在“时间点”之外，从“定义”这个角度，对方舟子“中医不是科学”之错误论调的第二次完爆。</p>
+<p>  不过，且慢，为了把这个说法证明得无可辩驳，让胡搅蛮缠者也理屈词穷，笔者做了大量严谨的案头工作。我们下面可以看看科学一词最初翻译过来时的演变过程，甚至我们可以温习一下自己母文化“科学”两字的具体意思，以充分证明此种说法。</p>
+<h1 id="找不到（五）和（六）"><a href="#找不到（五）和（六）" class="headerlink" title="找不到（五）和（六）"></a>找不到（五）和（六）</h1><h1 id="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（七）连载——从经典的科学方法看中华文明独特的数理逻辑与整体观的科学理念"><a href="#好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（七）连载——从经典的科学方法看中华文明独特的数理逻辑与整体观的科学理念" class="headerlink" title="好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（七）连载——从经典的科学方法看中华文明独特的数理逻辑与整体观的科学理念"></a>好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（七）连载——从经典的科学方法看中华文明独特的数理逻辑与整体观的科学理念</h1><p>  中国古代文明的辉煌与一些科技的进步程度是超乎想象的。当我写下这样的话，一定还是会有不少朋友嗤之以鼻，以为我不过是民族虚荣心膨胀的妄自尊大，没关系，您看下去就知道了。</p>
+<p>  很多人并不真正了解我们祖先的殊胜成就，更不了解我们的璀璨文明。只是在近二百年西强东弱的格局里，在西方经济强势挟带的西方文明里迷失了，迷失久了太不自信，甚至卑躬曲膝 、崇洋媚外，反而做了打压自己文化传统的旗手。</p>
+<p>  记得有一次参观湖南长沙的博物馆，看到马王堆一号墓出土的素纱禅衣，薄如蝉翼、轻若虹霓。衣长160厘米，袖通长195厘米，重量却仅仅48克。经测算原料的纤度为10.2旦尼尔，即900米的纤维重1克，现在生产的高级丝织物还有14旦尼尔，高超的缫丝技术让人惊叹不已，讲解员介绍说目前现有的复制技术也很难做到这么轻。原来看到白居易《缭绫》中的诗句：“应似天台山上明月前，四十五尺瀑布泉，中有文章又奇绝，地铺白烟花簇霜”，以为对“缭绫”月光般飘渺空灵、如水般晶莹剔透的描写不过是诗人过分的艺术夸张，真的看到了精美奇绝“轻纱薄如空”、“举之若无”的素纱禅衣，才知是自己没见识，人家并非凭空想象，完全据实而来。</p>
+<p>  对古文明的认知何尝不是如此！</p>
+<p>  要说的还有那些丝织品上花纹图案所表现出的高雅的审美意识，让你看过之后一定会慨叹现代国人的粗鄙与陋俗，相比之下就是没文化呀！汉唐风韵乃至高古时那么素朴、典雅而高贵的审美情趣，几乎已经在这个文化断代、文化荒漠的中国荡然无存！</p>
+<p>  令人震撼的当然不仅仅是这点“科技含量”，尽管它也已高超得令世人叹服。下面要介绍的才是要让人真正瞠目结舌的例证，当然，我会让这份震撼一直贯穿这本书，甚至延续到未来的作品。现在，就先开个头儿吧——</p>
+<p>A,经典的两大科学方法和中国特有的伟大“推演法”</p>
+<p>  经典的所谓科学方法有两大类，就是归纳法和演绎法（又称推演法）。一直有一种观点说中国传统文化的建立只有归纳法，而没有推演法，更有甚者认为没有数学。那应该让孤陋寡闻者查一下朱世杰的《四元玉鉴》，看看他以及其承袭的中国古代“天元术”在解决多元高次方程组问题上比欧洲早了几百年。有人又会惊讶了。不过，这跟下面要介绍的内容比还根本就不算什么：</p>
+<p>  中医经典《黄帝内经》之《素问-上古天真论》明确指出：“上古之人，其知‘道’者，法于阴阳，和于术数。”——它说上古真正知“道”、得“道”的人，肯定会懂得把握、熟练运用并相和于阴阳与术数。</p>
+<p>  其实，术数所表述的显然就是推演的一面，显然就是中国传统理念中逻辑的一面。谈到推演和逻辑就必须联系数学，术数就是关于数学的学问。《四库全书总目》在谈到术数的定义时，有下面一段文字： “物生有象，象生有数，乘除推阐，务究造化之源者，是为数学。”虽然，这并不是现代西方意义上的数理逻辑系统。但是，显然，它属于推演的部分却是不能否定的，这是中国独特的数理逻辑体系。下面就是验证这一说法的伟大例证——</p>
+<p>  被称作第三次科技革命重要标志之一的计算机，大家知道它发明与应用的运算模式是二进制的吧？那么，这作用非凡的二进制又是谁最先发明的呢？</p>
+<p>  莱布尼兹是一位卓越的数学天才， 1671年，当他还只有25岁时，便发明了世界上第一台能进行加减乘除运算的计算机。1684年，他又与牛顿几乎同时各自完成了微积分的研究。</p>
+<p>  “世界上没有两片完全相同的树叶”也是他的名言。西方数学史认为，二进制就是这位被誉为十七世纪亚里士多德的德国数理哲学大师首创的。可是这只不过是当时西方人的孤陋寡闻。</p>
+<p>  有可信的资料表明莱布尼茨的二进制受到了中国《易经》八卦图的启发。（具体举证详见上海人民出版社出版，胡阳、李长铎著作《莱布尼茨——二进制与伏羲八卦图考》）</p>
+<p>  当然，也有一种说法是莱布尼茨先发明了二进制才看到八卦图——</p>
+<p>  莱布尼兹从他的传教士朋友“布维”寄给他的拉丁文译本《易经》中，读到了八卦的组成结构，惊奇地发现其中“阴爻”（- -）和“阳爻”（—）的排列方式与他曾冥思苦想的二进制基本素数（0）（1）排列如出一辙，其进位制就是二进制，并认为这是世界上数学进制中最先进的。（见下图，阴爻是0，阳爻是1）</p>
+<p>  <img src="https://draapho.github.io/images/1909/YinYong.jpg" alt="YinYong.jpg"></p>
+<p>  2015年6月11日 另一个可能引起莱布尼茨对八卦的兴趣的人是坦泽尔（Wilhelm Ernst Tentzel），他当时是图灵根大公爵硬币珍藏室的领导，也是莱布尼茨的好友之一。在他主管的这个硬币珍藏中有一枚印有八卦符号的硬币。</p>
+<p>  也就是说，综合大量考据论证，从时间点上来看，“莱布尼茨先发明了二进制才看到八卦图”的说法不太可信，他显然在发明之前的很多年间里就曾经还有很多渠道可以见识到八卦图。</p>
+<p>  不过，综上可见，无论哪种说法，应该承认，莱布尼兹是欧洲最早发现二进制的数学家。但就世界范围来看，二进制式的推演法及其发明权在中国，并且整整较之提前了至少两千年左右——这却是铁的客观事实。</p>
+<p>  至于阴阳与八卦更深的奥义，西方人更是到现在也无法梦见。后面的文章还会结合图二与莱布尼茨在二进制上的“神秘发现”继续拆解。震撼才刚开始。</p>
+<p>（八卦是我国古代的一套象征意义的符号，古人用它来从根源与整体性上把握、诠释天地万物的生成。其符号结构的素材唯有两种，即阳爻和阴爻。这两种素材互相搭配，以三个为一组，便产生出八种符号结构。这八种符号结构就叫做八卦。它们的具体名称是乾、坤、震、艮、离、坎、兑、巽。）</p>
+<p>B,中国高明的数理科学——一个“阴阳”已涵容“归纳”与“推演”两大科学法则</p>
+<p>  在莱布尼茨眼中，八卦就是他的二进制的中国翻版。他感到这个来自古老中国文化的符号系统与他的二进制之间的关系实在太明显了，因此他不禁在惊叹中断言：二进制乃是具有世界普遍性的、最完美的逻辑语言。</p>
+<p>  是的，正如他说——逻辑语言——二进制的推演是阳爻和阴爻，其实就是“阴阳”的演化。这本身就是“推演法”，亦即“演绎法”。在《易经》中更是通过一套“阴与阳”简易又精深的推演系统来阐明甚至预测万物的运作规律。只不过是别说西方人，就是当下的国人也早已对这套系统中那些独有的隐喻符号（诸如天干地支）完全陌生了。</p>
+<p>  再看另一方面的“归纳法”——《黄帝内经》说：“阴阳者，天地之道也，万物之纲纪，变化之父母，生杀之本始，神明之府也。”</p>
+<p>  这里将天地万物，将一切事物的更生演变、生杀转化都归结到“阴阳”里，都以“阴阳”的视角作出最终的完美解释与指引。无论是《黄帝内经》还是《易经》，对这种“阴阳的转换、归化与统合”规律都有实际的阐明抑或操演，就“归纳法”的角度而言，天下还有比这更完美的吗？深奥难测、晦涩难懂是一回事，孤陋寡闻或者掩耳盗铃地予以否定又是另一回事！事实上，在高深玄妙的“中国古代科学”面前我们更应该多怀敬畏之心去钻研、去亲近。</p>
+<p>  综上所述，一个“阴阳”已涵容“归纳”与“推演”两大法则，穷通万法，统观世界。请问，还有比这更高明的数理与科学理念吗？只不过这独特的东方科学式的数理逻辑模式，是与常人被西式理念灌输后熟知的、对“数理逻辑及科学方法”早已僵化的观念不同罢了。</p>
+<p>  这正是东、西方科学理念、思维模式、研究方法等等完全不同，属于不同体系的明证之一。而越来越多的证据表明，东方式的、中国特有的科学理念不仅只是补充，而且越来越发现它在整体观、系统论上的前瞻性，为科学的未来指示着方向。我们又怎么能以西方一时的经济、文化强势而彻底地抛弃自家的珍宝呢？</p>
+<p>  对于传统文化，诋毁者只是由于对自己文化基因的陌生与隔膜，不明白蕴于其中的浅显道理与深邃奥妙而已呀。</p>
+<p>  一个“阴阳”，在传统文化的体系中太重要了，相关中医，《黄帝内经》也一样叮嘱要“察色按脉，先别阴阳”。就是说中医的诊断与治疗，首先就是先要辨清病人“阴阳”的属性。否则“阳病”用成了“阴药”或者“阴病”用成了“阳药”，就成了庸医误人。</p>
+<p>  可以说，要想真正进入传统这门学问，要想理解中国人、中国文化高深的“意识”与“理念”，就一定要把握好对“阴阳”的认识，这是总根子。</p>
+<p>  从上可见，中国的数学是配合中国文化的数学，中国的科学、医学理念是源出于中国文化根源的理念、东方科学的理念。知道了这一点不但不会妄自菲薄，更会高山仰止于我们文化的独特魅力。就像“十七世纪的亚里士多德”莱布尼茨一样，听听他那时在《中国近况》一书的绪论中，怎么评论当时的中国文明吧——</p>
+<p>  1，“全人类最伟大的文化和最发达的文明仿佛今天汇集在我们大陆的两端，即汇集在欧洲和位于地球另一端的东方的欧洲——中国。”</p>
+<p>  2，“中国这一文明古国与欧洲相比，面积相当，但人口数量则已超过” （在古代，人口就意味着强盛的标志。有一个问题很有趣味也很有启发性——又是什么使得中国古代的人口大大兴盛于世界列国，难道是从人类始祖之时这块土地就人多？显然不是。除了人文、政经等等因素，毫无疑问，传统中医也起着至关重要的作用。）</p>
+<p>  3，“在日常生活以及经验地应付自然的技能方面，我们是不分伯仲的。我们双方各自都具备通过相互交流使对方受益的技能。在思考的缜密和理性的思辨方面，显然我们要略胜一筹，但在时间哲学，即在生活与人类实际方面的伦理以及治国学说方面，我们实在是相形见绌了。”</p>
+<p>  （其实就这都反映着他一些对东方文明根源的不了解，东方的“理性”就像东方的“科学”一样，它真的不存在或者比西方的差吗？东方的意识与思维模式比西式的差吗？其实，就当时的国力来讲，已经给了他答案。）</p>
+<p>  并且请不要忽略，莱布尼茨的时代已经是到了清朝康熙年间，中国已即将从顶点走向衰落，中国的古老文明已经经过几次血洗与阉割以及千百年大量的误读与曲解。只不过它植根于民族血液中本真的生命力太过强大与包容，总能通过碰撞、融合，重新焕发新的生机。</p>
+<p>  就像当下，经历了近百年西方各个方面的洗礼，如今的中国国力却再次崛起蒸蒸日上，文化上真正的复兴也指日可待。</p>
+<p>C,中华文明的整体性观念为科学的未来指明了方向</p>
+<p>  介绍这些不仅是证明《易经》了不起的数理学，更是为了说明中华文明从本已来的独特性——它完全区别于“西方式科学”的“科学理念”，甚至是“思维模式”。如果你探究它更深的意蕴，你将知道从某种层面上它理念与意识的高度几千年了还在等待西方的成长，这不稀奇，因为从一开始它就是从人类意识的根源与巅峰出来的东西。<strong>它是熟透了的文明。</strong></p>
+<p>  是的，世界是一个整体，关于世界的认知也应该是一个整体。应该有西式的“分科之学”。但由于人认知的局限性与片面性，更应该有整体性的视角——那就是中国古代科学推崇的“整体观”，它是“整体”、“根源”性的“通学”。提纲挈领、把握根本，仰观天文，俯察地理，中知人事，是古人的追求。</p>
+<p>  以西式的观念面对世界，可产生分科研究的西方科学。而“整体”必然包容“部分”，以整体观的视角去钻研解决，当然也能产生“中国式通学”——包容各种分科之学的东方科学。中国古代先进的科技就是明证。</p>
+<p>  只不过它们都是在传统文化独特的理念下衍生、打着中国独特烙印的分科学问；只不过东方式视角的整体性、根源性更为高瞻远瞩而直彻根源罢了。</p>
+<p>  中医就更是这种文明与东方式科学理念的实践反映与高度结晶。它的“整体观”、“人与自然的一体性”、“与时消息、因人而异的辨症论治”、“阴阳平衡”等等观念无不闪烁着最根源的东方智慧。</p>
+<p>  事实上，现今的西方科学，整体性是潮流之一，也已发展了宇宙学、地球系统科学等一些综合性科学、系统性科学、复杂性科学，至于新兴的各种交叉科学更是雨后春笋般快速成长。可见，不论是分科的，还是交叉的、综合的和整体的，只要它们确系属于各自客观规律的反映，都应归属于科学的总范畴之内。反映客观规律的知识体系，不能仅限于分科的，我们又怎么能将反映综合性、整体性、根源性客观规律的知识，排斥在科学之外呢？</p>
+<p>  真正的科学又怎么会独属“西”有，甚至又怎么能分立“东”“西”呢？</p>
+<hr>
+<p><strong><em>转载自 <a href="http://bbs.tianya.cn/post-free-5088705-1.shtml" target="_blank" rel="noopener">好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题</a></em></strong><br><strong><em>转载自 <a href="http://blog.sina.com.cn/s/blog_7edcb9a10102vjtm.html" target="_blank" rel="noopener">好吧，我们就从头聊一聊科学、中医、东西方文明及其不同思维模式的话题（七）连载</a></em></strong></p>
+<hr>
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>  我无意参与中西医之争, 一来我对中西医都不熟悉, 二来领教过中医黑的蛮不讲理(劝架的身份, 只是说了一句中医并非一无是处, 直接炸了), 实在不想自讨没趣.<br>  中医是否科学, 本来就没必要争论的一件事情. 科学的概念晚于中医, 即便证明了中医不科学又怎么样? 其实是思维里面有后面的逻辑链: 不科学就是迷信, 迷信就是错的.<br>  这整条逻辑链可以攻击的地方太多了, 包括但不限于, 科学是什么? 科学等于正确吗? 不科学等同于错吗?<br>  科学是个好东西, 科学要求的逻辑思维, 敢于自我否定和突破, 不断改变看问题的视角, 才让科学体系一路狂奔发展至今. 如今的科学发展又似乎进了一个死胡同, 难道不应该突破思维束缚, 换一个全新的角度来看看世界吗?<br>  西方哲学体系是往外看, 把事物静态的看, 拆分的看, 往小里看. 印度哲学体系是向内看. 中国文明是整体性的看, 大小无二. 换个视角看看吧, 换个心态而已, 不会要命的.<br>  在 <a href="https://draapho.github.io/2018/07/08/1818-buddhism/">佛教学习资料及一些感想</a> 里, 我也粗陋的谈了谈自己对科学的看法.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/07/05/1908-unified/" itemprop="url">
+                  各种【一元化思维】的谬误——从“星座理论”到“共产主义社会”
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-07-05T00:00:00+10:00" content="2019-07-05">
+              2019-07-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/thoughts/" itemprop="url" rel="index">
+                    <span itemprop="name">thoughts</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="https://program-think.blogspot.com/2014/09/oversimplification.html?m=1" target="_blank" rel="noopener">各种【一元化思维】的谬误——从“星座理论”到“共产主义社会”</a></em></strong></p>
+<hr>
+<p>这个话题，俺很早以前就想写了。因为牵涉的面比较广，总感觉没想全面，拖到这几天才开始动笔。</p>
+<h1 id="★“一元化归因”的谬误"><a href="#★“一元化归因”的谬误" class="headerlink" title="★“一元化归因”的谬误"></a>★“一元化归因”的谬误</h1><p>　　“单一归因”是比较常见的，所以先从这个话题说起。<br>　　这个谬误的洋文是“fallacy of the single cause”，意思是：用单一的原因来解释某个事物，因此导致对其它原因的忽略。</p>
+<h2 id="◇星座理论"><a href="#◇星座理论" class="headerlink" title="◇星座理论"></a>◇星座理论</h2><p>　　所谓的“星座理论”就是根据你出生的时辰，算出你属于某个星座；然后根据你属于哪个星座，来判断你的性格特征（甚至还可以推断你的人生运势）。<br>　　如果按照该理论来推演，同一个时辰出生的人，性格都应该是一样的。那这个世界上跟你同一个时辰出生的人，多了去了，难道这些人都跟你的性格一模一样？显然不可能嘛！<br>　　说到性格的形成，其实会受到很多因素的影响。比如“遗传因素、家庭环境、童年经历、受教育情况、社交圈”等等。而“星座理论”的荒诞之处就在于——企图用某个单一的因素（出生时间）来解释“性格的形成”——这就是“一元化归因”的谬误。<br>　　类似于“星座理论”的忽悠还有很多，比如“血型理论”啊、“生肖理论”啊。大伙儿不妨举一反三。</p>
+<h2 id="◇阴谋论"><a href="#◇阴谋论" class="headerlink" title="◇阴谋论"></a>◇阴谋论</h2><p>　　另一个“单一归因”的常见例子就是“阴谋论”。<br>　　阴谋论的基本套路是这样滴——存在某个极其牛逼的组织（或政府机构），策划了各种各样的重大事件。关于“阴谋论”的批驳，可以看俺在几年前写的一篇专门的批驳文章《<a href="https://program-think.blogspot.com/2011/11/conspiracy-theory.html" target="_blank" rel="noopener">聊聊阴谋论流行的原因及其弊端</a>》。</p>
+<p>　　<strong>举例——《货币战争》</strong><br>　　《货币战争》是前几年很火的一本书。书中把历史上的种种大事（比如“拿破仑战争、美国南北战争、1929年大萧条、二战、金本位体系崩溃”等等）都说成是“罗斯柴尔德家族”在幕后操纵。</p>
+<p>　　<strong>举例——海外反华势力/境外敌对势力</strong><br>　　这个阴谋论是咱们朝廷发明滴。你可以留意一下，天朝一旦出现啥不光彩的事情，喉舌们总喜欢搬出“海外反华势力/境外敌对势力”来作为解释，以此来推卸自己的责任，撇清自己的过错。<br>　　比如朝廷喉舌就把“六四民运”说成是“境外敌对势力发起的”。但其实捏，如果你看过俺写的<a href="https://program-think.blogspot.com/2011/06/june-fourth-incident-0.html" target="_blank" rel="noopener">《回顾六四》系列</a>，你会明白当年爆发学潮的因素有很多，而“胡耀邦逝世”只是一个导火索而已。至于所谓的“敌对势力”和“幕后黑手”之说，基本上是朝廷转移视线的手法。</p>
+<p>　　<strong>举例——党中央在下一盘很大的棋</strong><br>　　你如果多留意，还可以想出其它一些阴谋论的例子。比如国内论坛的时政板块，经常会出现这样一种言论，不妨称之为“党中央在下一盘很大的棋”。这种论调把朝廷捧得很高，哪怕是朝廷在外交方面的重大败笔，都可以说成是“裆中央”未雨绸缪的伏笔。</p>
+<h1 id="★“一元化评价”的谬误"><a href="#★“一元化评价”的谬误" class="headerlink" title="★“一元化评价”的谬误"></a>★“一元化评价”的谬误</h1><p>　　“一元化评价”指的是：企图用某种过于简单的描述来评价某个过于复杂的对象。</p>
+<h2 id="◇“智商”的谬误"><a href="#◇“智商”的谬误" class="headerlink" title="◇“智商”的谬误"></a>◇“智商”的谬误</h2><p>　　“智商”（洋文叫 IQ）这个词儿，好多人都听说过，俺就不解释了。关于“智商测试”，有很多种方法。此处不想具体评价某种测试方法是否科学。俺想说的是，“智商”这个概念本身就是一种谬误。<br>　　人的智力构成，包括很多种维度（比如：观察能力、记忆能力、分析能力、推理能力、归纳能力、创造能力……）。对这些不同的能力，相互之间是无法进行【量化换算】的。换句话说，你不可能把“观察能力”通过某种算法折算成“记忆能力”，反之亦然。另外，上述这几个能力只是“大类”，下面还分“小类”。比如“观察能力”还有“视觉”和“听觉”之分。<br>　　在这种情况下，要想客观全面地表示某个人的智力水平，至少要通过一个“矩阵”，才能把相关的信息完全表达出来（如果你不晓得啥是“矩阵”，自己去查维基百科）。<br>　　但是在“智商”这个概念中，企图用【单个】的数字（也就是“标量”）来全面地表示某个人的智力水平。其造成的结果就是“无意义”。也就是说，“智商测试”得到的这个数字【不能】表达出啥有用信息。所以是“无意义”的。<br>　　比方说，两个人的智商测试结果都是120，你能说这两个人的智力水平相似吗？【不能】<br>　　比方说，某人的智商测试结果是100，你能说这个人的智力跟普通大众相似吗？【不能】（有可能此人的某些指标非常非常高，而另一些指标非常非常低，因此导致最终测试结果是100，但这样的话，此人显然跟普通人完全不同）</p>
+<h2 id="◇“左派-右派”之称的谬误"><a href="#◇“左派-右派”之称的谬误" class="headerlink" title="◇“左派/右派”之称的谬误"></a>◇“左派/右派”之称的谬误</h2><p>　　在网上讨论政治话题，经常会看到网友使用“左/右”来形容政治流派。这又是一种“一元化评价”的例子。因为不同的政治流派之间的差异，不是一个维度上的差异，而是【多个维度】上的差异。举例如下：<br>个人方面：个人主义 VS 集体主义 VS 国家主义<br>经济方面：放任 VS 管制<br>政府方面：大政府 VS 小政府 VS 无政府<br>外交方面：孤立主义 VS 国际主义<br>……（还有很多，就不一一列举了）<br>　　请注意：上述的每一个维度都【不是】只有两个端点，而是如同“数轴”一样，可以连续分布的。就好比“经济”这个维度：如今已经没有哪个国家是 100% 的自由放任（历史上的英国曾经出现过），如今也没有哪个国家是 100% 的管制（人类历史上，大概只有红色高棉做到了“废除货币，废除财产继承”，参见《<a href="https://program-think.blogspot.com/2012/10/history-of-red-khmers.html" target="_blank" rel="noopener">最“纯正”的共产主义政权——红色高棉简史</a>》）。如今的国家要么偏向“放任”一端，要么偏向“管制”一端，当然也有一些是折中的。</p>
+<p>　　从上面的举例可知，反映政治立场的维度有很多，而“左/右”的说法，充其量只能表达一个维度。所以用“左/右”来形容政治流派，显然是以偏概全。所以俺经常建议说：要称呼政治流派，最好直接用“某某主义”来称呼，比较准确，避免歧义和误解。比如曾经有读者问俺的政治立场，俺会回答说倾向于“古典自由主义”，而不会回答说俺是“左派”还是“右派”。</p>
+<h2 id="◇“脸谱化-标签化”的谬误"><a href="#◇“脸谱化-标签化”的谬误" class="headerlink" title="◇“脸谱化/标签化”的谬误"></a>◇“脸谱化/标签化”的谬误</h2><p>　　所谓的“脸谱化”就是说，你对某个事物的认知，被某个特定的符号所取代。一提到该事物，你脑海中就【只会】出现该符号。<br>　　举例：<br>　　如比这几年“抗日神剧”热播。很多50后60后的中老年人，整天看着这些“抗日神剧”，其中一些人对“日本人”的认知就会变成“脸谱化”。一提到日本人，他们脑海中就只有“抗战中的日本鬼子”这个印象。除此之外，再没有其它印象。<br>　　“脸谱化”的例子还有很多，列位看官不妨自己琢磨一下。</p>
+<h2 id="◇“评价成功人士”的谬误"><a href="#◇“评价成功人士”的谬误" class="headerlink" title="◇“评价成功人士”的谬误"></a>◇“评价成功人士”的谬误</h2><p>　　天朝的拜金主义盛行，已经是众所周知的了。在这样的大环境下，绝大多数人都以“身家的多寡”来评判某个人是否属于“成功人士”（这同样是一种“单一化评价”的谬误）。然后那些初入社会的年轻人，在这种评价体系的影响下，自然也被塑造成“拜金主义者”。如此就陷入某种恶性循环。<br>　　其实对“成功”的评价，可以有各种各样的标准。每个人都可以给自己的人生设定一个独特的“成功标准”，然后为之奋斗。如果你老是以别人的评判标准来作为自己的人生目标，那你一辈子都活在别人的眼光里。</p>
+<h1 id="★对“标准答案”的幻想"><a href="#★对“标准答案”的幻想" class="headerlink" title="★对“标准答案”的幻想"></a>★对“标准答案”的幻想</h1><p>　　作为一个“理工男”，俺要特别针对“理工科”的网友强调一下——“理工科”（尤其是“理科”）更容易产生这样的谬误。因为在理科的领域里面，很多问题都是有标准答案的。随便举几个例子：<br>比如几何学：在二位平面上用定长的封闭曲线围出最大的面积，标准答案是圆形。<br>比如力学：给定一个物体，找出其重心，这个也是有标准答案的。<br>……<br>　　但是在现实生活中、在实际工作中，你碰到的绝大部分问题都是【没有】标准答案的。下面俺举几个不同领域的例子。</p>
+<h2 id="◇举例——翻墙方面"><a href="#◇举例——翻墙方面" class="headerlink" title="◇举例——翻墙方面"></a>◇举例——翻墙方面</h2><p>　　先说一个大伙儿常见的例子——翻墙。“如何翻墙”这个问题，就没有标准答案。翻墙的方法有很多（看过俺博客的同学应该知道），每一种方法都有其优缺点。你没法说哪个方法就是最优的标准答案。<br>　　比如“修改 Hosts”方法，速度是最好的，但隐匿性是最差的，而且无法针对“IP 被屏蔽的网站”。而俺经常推荐的“多重代理”（参见《<a href="https://program-think.blogspot.com/2012/03/howto-cover-your-tracks-5.html" target="_blank" rel="noopener">用多重代理隐匿公网 IP</a>》），速度和稳定性会变差，但是隐匿性非常好。</p>
+<h2 id="◇举例——投资方面"><a href="#◇举例——投资方面" class="headerlink" title="◇举例——投资方面"></a>◇举例——投资方面</h2><p>　　经常看到有人在网上问，最好的投资渠道是啥？这个问题同样是没有标准答案的。<br>　　因为每个人的“知识结构”是不同的，每个人的“风险承受能力/风险偏好”是不同的，每个人的“资金量”是不同的……而且在不同国家，或者同一个国家的不同时期，投资环境又是不同的。因此，【不可能】给出某个普遍适用的解决方案。<br>　　就以“知识结构”来说吧。像巴菲特可以通过阅读财报，来分析某个上市公司是否具备可投资的价值。但是大部分网友去看财报，通常是一头雾水——因为不具备相关的知识结构。</p>
+<p>　　类似的例子还可以举出很多：比如“择偶的方法、长寿的方法、教育子女的方法”等等，都是【没有】标准答案的。</p>
+<h1 id="★对“银弹”的幻想"><a href="#★对“银弹”的幻想" class="headerlink" title="★对“银弹”的幻想"></a>★对“银弹”的幻想</h1><p>　　“银弹”一词出自西方，洋文称为“Silver Bullet”，相当于咱们这边所说的“万金油”（包治百病）。换一个比较严谨的说法就是：用单一工具来解决某个领域的大部分问题（甚至所有问题）。</p>
+<h2 id="◇举例——软件开发方面的银弹"><a href="#◇举例——软件开发方面的银弹" class="headerlink" title="◇举例——软件开发方面的银弹"></a>◇举例——软件开发方面的银弹</h2><p>　　软件工程界的大牛 Brooks 在其代表作《人月神话》中，专门有一章叫做“没有银弹”，批驳的就是上述现象。俺个人认为，这一章是整本书最有价值的一章（09年刚开博客的时候，俺曾经写过此书的书评：<a href="https://program-think.blogspot.com/2009/03/book-review-mythical-man-month.html" target="_blank" rel="noopener">《人月神话》——不朽的软件工程名著</a>，当时就特地强调了“没有银弹”这一章的重要性）。<br>　　最近半个世纪以来，软件开发领域出现过很多新技术。很多新玩意儿刚刚推出时，都被渲染成是“银弹”。比如在编程技术方面有：OOP、CORBA、COM、Java……流程方面有：RAD、RUP、CMM、Agile……上述这些，有的已经过气了（比如 CORBA），有的虽然还在使用（比如：敏捷开发），但并没能根本解决软件开发的根本性困难（也就是说：有用，但没有传说中那么牛）。<br>　　针对程序员读者补充说明一下：<br>　　《人月神话》中已经深刻分析了，软件开发的“根本性困难”到底啥。如果你真正理解了“软件开发的根本性困难”，自然就明白软件史上的那些银弹咋会失效。</p>
+<h2 id="◇举例——医疗保健领域的银弹"><a href="#◇举例——医疗保健领域的银弹" class="headerlink" title="◇举例——医疗保健领域的银弹"></a>◇举例——医疗保健领域的银弹</h2><p>　　前几年，咱天朝出了一个张悟本，号称“绿豆神医”。此人在电视上（包括 CCTV）大肆鼓吹绿豆汤可以治疗各种各样的常见病（至少包括：近视、糖尿病、高血压、肿瘤……）。<br>　　这不就是把绿豆当“万金油”嘛 :) 还好这位张神医已经倒台了。否则的话，不知道还要误导多少人。<br>　　（后来听说这个张神医因为脑梗住院了，看来他连自己都没搞定啊）</p>
+<h1 id="★对“终极”的幻想"><a href="#★对“终极”的幻想" class="headerlink" title="★对“终极”的幻想"></a>★对“终极”的幻想</h1><p>　　和“银弹”很接近的另一个话题就是“终极”（终极理论/终极体系/终极方法）。看完下面的介绍，你会发现：对“终极”的幻想，（从某种程度上）也可以算是“一元化思维的谬误”。</p>
+<h2 id="◇政治领域：对“共产主义”的幻想"><a href="#◇政治领域：对“共产主义”的幻想" class="headerlink" title="◇政治领域：对“共产主义”的幻想"></a>◇政治领域：对“共产主义”的幻想</h2><p>　　估计出生在天朝的网友，通常都被灌输了马克思那套理论——<a href="https://zh.wikipedia.org/wiki/%E5%8E%86%E5%8F%B2%E5%94%AF%E7%89%A9%E4%B8%BB%E4%B9%89" target="_blank" rel="noopener">历史唯物主义</a>（更贴切的术语是“历史决定论”）。作为共产运动的第一任教主，马克思预言说：共产主义社会是人类历史发展的终极目标/终极形态。<br>　　对“历史决定论”最成功最彻底的批判，来自于哲学大牛<a href="https://zh.wikipedia.org/wiki/%E5%8D%A1%E5%B0%94%C2%B7%E6%B3%A2%E6%99%AE%E5%B0%94" target="_blank" rel="noopener">波普尔</a>。他在50年代写了一本很有影响力的《历史决定论的贫困》，从各个角度反驳了马教主的那套理论（好几年前，<a href="https://github.com/programthink/books" target="_blank" rel="noopener">俺的网盘</a>上就分享了此书的电子版）。<br>　　考虑到很多人不喜欢阅读枯燥的理论著作，俺把波普尔最核心的反驳，大致整理如下（俺的理论水平有限，如有纰漏，欢迎指出）：</p>
+<ol>
+<li>人类掌握的知识水平/科技水平对历史的发展有关键性的影响（对这点，马克思自己也承认的）</li>
+<li>人类不可能预测未来年代“科技的发展和知识的增长”（通俗的说：如果某个知识你能够预测的话，那么该知识就属于“现在的知识”而不是“未来的知识”。或者换种说法：充其量只能预测“已知的未知”，但是无法预测“未知的未知”）</li>
+<li>既然不能预测“知识的增长”和“科技的发展”，自然无法预测历史的发展。</li>
+<li>如果连历史的发展都无法预测，那么更不可能去讨论“发展是否有终点”以及“如果有终点的话，终点是啥样的”　　（请注意：上述只是波普尔对“历史决定论”最致命的反驳。除了这个，波普尔还在其它几个方面指出了马克思的谬误）<br>　　上述推导过程的关键在第二步。波普尔在书中用了比较复杂的【逻辑证明】（人家给出的是“证明”哦，不是主观拍脑袋的哦）。在此书的序言中，波普尔说道：<br>我在书中提供的（对第2条）证明是复杂的——如果能找到较为简单的证明，我也不会惊异。我的证明在于指出了任何科学预测者——不管是一位科学家还是一部计算机——都不能用科学方法预测它自己未来的结果。只有在事后，这样做的尝试才能获得结果；但对于预测来说，已经为时太晚了——只有当预测已成为追溯（retrodiction），这些尝试才能得出结果。这个纯逻辑的论点适用于各种各样的科学预测者，包括相互配合的预测者“社会”。这意味着任何社会不可能科学地预测它自己未来的知识水平。　　说到这儿，顺便再抹黑一下党国。<br>　　马教主在政治和经济方面的理论，从发表到现在已经一百多年了。经过这一百多年，这两个领域已经有了长足进步。马教主的很多理论都已经过时了（比如“剩余价值理论”、“阶级斗争理论”，还有刚才提到的“历史决定论”），而且他的理论经过后人的大量批驳，都快成筛子（千疮百孔）。但是在咱们天朝，依然把马克思那些理论当宝贝一样供着，并且灌输给一代一代的年轻人。去年的《解放军报》，甚至还在社论中提到：我们信仰的主义，乃是宇宙的真理。连这种话都敢说，真是滑天下之大稽。<br>　　所以俺常说：天朝不愧是一个奇葩的国度。</li>
+</ol>
+<h2 id="◇理论物理领域：对“TOE”的幻想"><a href="#◇理论物理领域：对“TOE”的幻想" class="headerlink" title="◇理论物理领域：对“TOE”的幻想"></a>◇理论物理领域：对“TOE”的幻想</h2><p>　　（本小节涉及数理逻辑和理论物理，没有相关基础的同学请自行略过）<br>　　在理论物理领域，有一个很有名的东东，叫做“<a href="https://en.wikipedia.org/wiki/Theory_of_everything" target="_blank" rel="noopener">TOE</a>”（洋文“Theory Of Everything”的缩写）。这玩意儿号称是理论物理的“圣杯”——从牛顿开始，很多理论物理学家就有“TOE 情结”，并视之为“物理学的终极目标”。<br>　　（注：为了避免歧义，俺写这篇博文时，特地在上述这段中标注了 TOE 的维基百科链接。TOE 可以有不同的理解——狭义的理解指“4种基本作用力的统一”；广义的理解，包括理论物理学发展史上的各种 TOE）<br>　　有好多著名的理论物理学家（其中不乏诺贝尔奖得主）都坚信：“总有一天可以实现（某种形式的）TOE 理论”。某些乐观的科学家甚至认为：TOE 在【不久的将来】就可以被搞定。持有这种观点的人至少包括“爱因斯坦、霍金、温伯格”等人。霍金甚至在上世纪80年代初期还信誓旦旦地宣称，TOE 已经“近在眼前，触手可及”。<br>　　但是到了本世纪初（大约2002年左右），霍金的态度出现180度转变。他之后在各种场合作了名为《哥德尔和物理学的终结》的演讲（<a href="http://www.damtp.cam.ac.uk/events/strings02/dirac/hawking/" target="_blank" rel="noopener">洋文全文</a>，<a href="http://www.cssm.org.cn/view.php?id=3985" target="_blank" rel="noopener">中文节译</a>），分享了他的观点。其大致意思是：物理学理论必定要基于某些数学模型。而数学理论会受到“<a href="https://zh.wikipedia.org/wiki/%E5%93%A5%E5%BE%B7%E5%B0%94%E4%B8%8D%E5%AE%8C%E5%A4%87%E5%AE%9A%E7%90%86" target="_blank" rel="noopener">哥德尔不完备定律</a>”的制约。所以建立在数学模型基础上的物理理论，必定也是不完备的。（提醒一下：这里所说的“完备性”是有专门定义的术语，不要想当然地去理解）<br>　　貌似现在有越来越多的理论物理学家开始意识到——TOE 永远都是可望而不可求的东东。<br>　　俺的观点是：哪怕将来有某个理论能够统一4种基本的力（目前4种里面已经统一2种了），该理论充其量也只能称之为“XXX统一理论”，而没有资格称之为“Theory Of Everything”。因为任何人都【没法证明】：宇宙间仅有这4种相互作用。说不定未来的某一天，会有人发现第5种【基本的】相互作用。</p>
+<h1 id="★“一元化思维”的根源"><a href="#★“一元化思维”的根源" class="headerlink" title="★“一元化思维”的根源"></a>★“一元化思维”的根源</h1><p>　　俺大致分析了一下，有如下几种可能的根源（想得未必全面，欢迎大伙儿补充）。</p>
+<h2 id="◇思维的惰性"><a href="#◇思维的惰性" class="headerlink" title="◇思维的惰性"></a>◇思维的惰性</h2><p>　　很多“单一化归因”和“单一化评价”，都跟“思维的惰性”有关。<br>　　比如“星座理论”能够盛行，原因之一是因为“思维惰性”。很多人因为思维惰性，懒得对某人进行更全面的观察和了解。以星座来判定某人的性格，几乎是最省事的。<br>　　引申阅读：<br>　　俺后来写如下这篇博文，从“心理学”和“脑神经科学”的层面介绍了“思维的惰性”——其根源是某种称之为“认知负担”的东东。<br>《<a href="https://program-think.blogspot.com/2019/03/Why-Thinking-Hard-So-Hard.html" target="_blank" rel="noopener">为什么独立思考这么难？——谈谈心理学的成因，并分享俺的经验</a>》</p>
+<h2 id="◇信息来源的单一"><a href="#◇信息来源的单一" class="headerlink" title="◇信息来源的单一"></a>◇信息来源的单一</h2><p>　　某些“单一化评价”是由于信息渠道的单一导致的。<br>　　比如前面提到“日本人的例子”。如果某人只通过“抗日神剧”这一信息渠道来接触到日本人，那么他/她对日本人就会产生严重的认知偏差。</p>
+<h2 id="◇知识结构的单一"><a href="#◇知识结构的单一" class="headerlink" title="◇知识结构的单一"></a>◇知识结构的单一</h2><p>　　如果某人的知识结构比较单一，他/她在看待某个复杂事物的时候，往往只看到自己熟悉的那一面（那个维度），对于自己的知识面欠缺的其它维度，就容易忽略掉。所以这类人也比较容易出现“单一化归因”和“单一化评价”。</p>
+<h2 id="◇一致性原则"><a href="#◇一致性原则" class="headerlink" title="◇一致性原则"></a>◇一致性原则</h2><p>　　心理学领域有一个很重要的原则叫“一致性原则”。俺在这几年的博文中不止一次提到过此原则，这里就不展开了。<br>　　俺觉得：某些“银弹情结”应该跟“一致性原则”有关。</p>
+<h2 id="◇走捷径的心理"><a href="#◇走捷径的心理" class="headerlink" title="◇走捷径的心理"></a>◇走捷径的心理</h2><p>　　还有一些“银弹情结”跟“走捷径的心理”有关。比如前面提到张悟本的例子。<br>　　很多人宁愿相信“绿豆包治百病”的说法，因为这样一来，就可以省去看病/吃药的麻烦。于是就“宁可信其有”。</p>
+<h2 id="◇过于追求完美"><a href="#◇过于追求完美" class="headerlink" title="◇过于追求完美"></a>◇过于追求完美</h2><p>　　前面提到理论物理学家对 TOE 的追求。这个属于“过度追求完美”导致的问题。</p>
+<h1 id="★总结"><a href="#★总结" class="headerlink" title="★总结"></a>★总结</h1><p>　　本文写得杂七杂八的，所以最后要稍微总结一下。<br>　　当你企图用某个【过于简化】的东东（理论/工具/方法论）来处理某个【足够复杂】的对象，你通常会走入死胡同。常见的“死胡同”有如下4种：</p>
+<ol>
+<li>得到【片面】的结果（比如“脸谱化/标签化”的例子）</li>
+<li>得到【错误】的结果（比如马克思对“共产主义社会”的预言）</li>
+<li>得到【无意义】的结果（比如“智商”的例子）</li>
+<li>【永远得不到】结果（比如理论物理领域的“TOE”）</li>
+</ol>
+<p><strong>俺博客上，和本文相关的帖子（需翻墙）：</strong><br>-《<a href="https://program-think.blogspot.com/2018/12/Book-Review-Antifragile-Things-That-Gain-from-Disorder.html" target="_blank" rel="noopener">读书笔记：《反脆弱——从不确定性中获益》</a>》<br>-《<a href="https://program-think.blogspot.com/2019/03/Why-Thinking-Hard-So-Hard.html" target="_blank" rel="noopener">为什么独立思考这么难？——谈谈心理学的成因，并分享俺的经验</a>》<br>-《<a href="https://program-think.blogspot.com/2015/05/Survivorship-Bias.html" target="_blank" rel="noopener">思维的误区：幸存者偏见——顺便推荐巴菲特最著名的演讲</a>》<br>-《<a href="https://program-think.blogspot.com/2010/07/silent-proof.html" target="_blank" rel="noopener">思维的误区：忽视沉默的大多数</a>》<br>-《<a href="https://program-think.blogspot.com/2014/06/sunk-cost-fallacy-and-loss-aversion.html" target="_blank" rel="noopener">思维的误区：从“沉没成本谬误”到“损失厌恶情结”</a>》<br>-《<a href="https://program-think.blogspot.com/2010/04/how-to-attribute-success-failure.html" target="_blank" rel="noopener">你是如何看待【成败】的？——兼谈【有效归因】</a>》<br>-《<a href="https://program-think.blogspot.com/2011/11/conspiracy-theory.html" target="_blank" rel="noopener">聊聊【阴谋论】流行的原因及其弊端</a>》<br>-《<a href="https://program-think.blogspot.com/2012/10/history-of-red-khmers.html" target="_blank" rel="noopener">最“纯正”的共产主义政权——红色高棉简史</a>》<br>-《<a href="https://program-think.blogspot.com/2009/03/book-review-mythical-man-month.html" target="_blank" rel="noopener">书评：＜人月神话＞——不朽的软件工程名著</a>》</p>
+<hr>
+<p><strong><em>转载自 <a href="https://program-think.blogspot.com/2014/09/oversimplification.html?m=1" target="_blank" rel="noopener">各种【一元化思维】的谬误——从“星座理论”到“共产主义社会”</a></em></strong></p>
+<hr>
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><pre><code>编程随想的博客是需要翻墙的, 如果要反洗脑, 可以多看看此人写的博客, 比那些一味唱衰中国, 唱多西方的&quot;民主派&quot;务实的多!
+国内不少亲西方价值观的&quot;民主派&quot;以及受迫害移民到国外的&quot;反共派&quot;最大的问题就是这个**一元化思维**, 极端者真是为了黑而黑, 为了白而白.
+民众, 政党, 国家, 三个不同的概念, 在众多人心中, 也包括共产党自己刻意的宣传, 变成了三位一体的存在. 事实上, 三者都有自己利益和诉求, 有时候一致, 有时候相反.
+
+另外一个话题&quot;终极&quot;. 我个人观点是存在, 但求&quot;终极&quot;是求不到的, 反而会渐行渐远. 只有认识到一切相对/空无/幻像, 才有那么一点点的可能性亲证到&quot;终极&quot;的存在.
+- 道教: 从无到有, 无在&quot;终极&quot;内, 万物也在&quot;终极&quot;内, 一切相对, 阴阳互动.
+- 佛教: 从有到无, 从四大皆空亲证&quot;终极&quot;.
+</code></pre>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2602,7 +2631,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">126</span>
+              <span class="site-state-item-count">119</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
