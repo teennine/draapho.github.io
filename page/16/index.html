@@ -261,6 +261,394 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/03/1615-python-ipc/" itemprop="url">
+                  Python线程同步机制(Locks, RLocks, Semaphores, Conditions, Events和Queues)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-03T00:00:00+11:00" content="2016-11-03">
+              2016-11-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong><em>转载自 <a href="http://yoyzhou.github.io/blog/2013/02/28/python-threads-synchronization-locks/" target="_blank" rel="noopener">Zhou’s Blog, Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></em></strong><br><strong><em>翻译自 <a href="http://www.laurentluce.com/posts/python-threads-synchronization-locks-rlocks-semaphores-conditions-events-and-queues/" target="_blank" rel="noopener">Laurent Luce, Python threads synchronization: Locks, RLocks, Semaphores, Conditions, Events and Queues</a></em></strong></p>
+<hr>
+<p>本文详细地阐述了Python线程同步机制。你将学习到以下有关Python线程同步机制：Lock，RLock，Semaphore，Condition，Event和Queue，还有Python的内部是如何实现这些机制的。 本文给出的程序的源代码可以在github上找到。</p>
+<p>首先让我们来看一个没有使用线程同步的简单程序。</p>
+<h1 id="线程（Threading）"><a href="#线程（Threading）" class="headerlink" title="线程（Threading）"></a>线程（Threading）</h1><p>我们希望编程一个从一些URL中获得内容并且将内容写入文件的程序，完成这个程序可以不使用线程，为了加快获取的速度，我们使用2个线程，每个线程处理一半的URL。</p>
+<p>注：完成这个程序的最好方式是使用一个URL队列，但是以下面的例子开始我的讲解更加合适。<br>类FetchUrls是threading.Thread的子类，他拥有一个URL列表和一个写URL内容的文件对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FetchUrls</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">  下载URL内容的线程</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, urls, output)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param urls 需要下载的URL列表</span></span><br><span class="line"><span class="string">    @param output 写URL内容的输出文件</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.urls = urls</span><br><span class="line">    self.output = output</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现父类Thread的run方法，打开URL，并且一个一个的下载URL的内容</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> self.urls:</span><br><span class="line">      url = self.urls.pop()</span><br><span class="line">      req = urllib2.Request(url)</span><br><span class="line">      <span class="keyword">try</span>:</span><br><span class="line">        d = urllib2.urlopen(req)</span><br><span class="line">      <span class="keyword">except</span> urllib2.URLError, e:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'URL %s failed: %s'</span> % (url, e.reason)</span><br><span class="line">      self.output.write(d.read())</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'write done by %s'</span> % self.name</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'URL %s fetched by %s'</span> % (url, self.name)</span><br></pre></td></tr></table></figure>
+<p>main函数启动了两个线程，之后让他们下载URL内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">  <span class="comment"># URL列表1</span></span><br><span class="line">  urls1 = [<span class="string">'http://www.google.com'</span>, <span class="string">'http://www.facebook.com'</span>]</span><br><span class="line">  <span class="comment"># URL列表2</span></span><br><span class="line">  urls2 = [<span class="string">'http://www.yahoo.com'</span>, <span class="string">'http://www.youtube.com'</span>]</span><br><span class="line">  f = open(<span class="string">'output.txt'</span>, <span class="string">'w+'</span>)</span><br><span class="line">  t1 = FetchUrls(urls1, f)</span><br><span class="line">  t2 = FetchUrls(urls2, f)</span><br><span class="line">  t1.start()</span><br><span class="line">  t2.start()</span><br><span class="line">  t1.join()</span><br><span class="line">  t2.join()</span><br><span class="line">  f.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">  main()</span><br></pre></td></tr></table></figure>
+<p>上面的程序将出现两个线程同时写一个文件的情况，导致文件一团乱码。我们需要找到一种在给定的时间里只有一个线程写文件的方法。实现的方法就是使用像锁（Locks）这样的线程同步机制。</p>
+<h1 id="锁（Lock）"><a href="#锁（Lock）" class="headerlink" title="锁（Lock）"></a>锁（Lock）</h1><p>锁有两种状态：被锁（locked）和没有被锁（unlocked）。拥有acquire()和release()两种方法，并且遵循一下的规则：</p>
+<ul>
+<li>如果一个锁的状态是unlocked，调用acquire()方法改变它的状态为locked；</li>
+<li>如果一个锁的状态是locked，acquire()方法将会阻塞，直到另一个线程调用release()方法释放了锁；</li>
+<li>如果一个锁的状态是unlocked调用release()会抛出RuntimeError异常；</li>
+<li>如果一个锁的状态是locked，调用release()方法改变它的状态为unlocked。</li>
+</ul>
+<p>解决上面两个线程同时写一个文件的问题的方法就是：我们给类FetchUrls的构造器中传入一个锁（lock），使用这个锁来保护文件操作，实现在给定的时间只有一个线程写文件。下面的代码只显示了关于lock部分的修改。完整的源码可以在threads/lock.py中找到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FetchUrls</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, urls, output, lock)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    self.lock = lock    <span class="comment">#传入的lock对象</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">while</span> self.urls:</span><br><span class="line">      ...</span><br><span class="line">      self.lock.acquire()   <span class="comment">#获得lock对象，lock状态变为locked，并且阻塞其他线程获取lock对象（写文件的权利）</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'lock acquired by %s'</span> % self.name</span><br><span class="line">      self.output.write(d.read())</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'write done by %s'</span> % self.name</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'lock released by %s'</span> % self.name</span><br><span class="line">      self.lock.release()   <span class="comment">#释放lock对象，lock状态变为unlocked，其他的线程可以重新获取lock对象</span></span><br><span class="line">      ...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">  ...</span><br><span class="line">  lock = threading.Lock()</span><br><span class="line">  ...</span><br><span class="line">  t1 = FetchUrls(urls1, f, lock)</span><br><span class="line">  t2 = FetchUrls(urls2, f, lock)</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/lock.png" alt="lock"></p>
+<p>以下是程序的输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> python locks.py</span><br><span class="line">lock acquired by Thread-2</span><br><span class="line">write done by Thread-2</span><br><span class="line">lock released by Thread-2</span><br><span class="line">URL http://www.youtube.com fetched by Thread-2</span><br><span class="line">lock acquired by Thread-1</span><br><span class="line">write done by Thread-1</span><br><span class="line">lock released by Thread-1</span><br><span class="line">URL http://www.facebook.com fetched by Thread-1</span><br><span class="line">lock acquired by Thread-2</span><br><span class="line">write done by Thread-2</span><br><span class="line">lock released by Thread-2</span><br><span class="line">URL http://www.yahoo.com fetched by Thread-2</span><br><span class="line">lock acquired by Thread-1</span><br><span class="line">write done by Thread-1</span><br><span class="line">lock released by Thread-1</span><br><span class="line">URL http://www.google.com fetched by Thread-1</span><br></pre></td></tr></table></figure>
+<p>从上面的输出我们可以看出，写文件的操作被锁保护，没有出现两个线程同时写一个文件的现象。</p>
+<p>下面我们看一下Python内部是如何实现锁（Lock）的。我正在使用的Python版本是Linux操作系统上的Python 2.6.6。</p>
+<p>threading模块的Lock()方法就是thread.allocate_lock，代码可以在Lib/threading.py中找到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Lock = _allocate_lock</span><br><span class="line">_allocate_lock = thread.allocate_lock</span><br></pre></td></tr></table></figure>
+<p>C的实现在Python/thread_pthread.h中。程序假定你的系统支持POSIX信号量（semaphores）。sem_init()初始化锁（Lock）所在地址的信号量。初始的信号量值是1，意味着锁没有被锁（unlocked）。信号量将在处理器的不同线程之间共享。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PyThread_type_lock</span><br><span class="line">PyThread_allocate_lock(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    lock = (<span class="keyword">sem_t</span> *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">sem_t</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (lock) &#123;</span><br><span class="line">        status = sem_init(lock,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">        CHECK_STATUS(<span class="string">"sem_init"</span>);</span><br><span class="line">        ....</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当acquire()方法被调用时，下面的C代码将被执行。默认的waitflag值是1，表示调用将被被阻塞直到锁被释放。sem_wait()方法减少信号量的值或者被阻塞直到信号量大于零。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">PyThread_acquire_lock(PyThread_type_lock lock, <span class="keyword">int</span> waitflag)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (waitflag)</span><br><span class="line">            status = fix_status(sem_wait(thelock));</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            status = fix_status(sem_trywait(thelock));</span><br><span class="line">    &#125; <span class="keyword">while</span> (status == EINTR); <span class="comment">/* Retry if interrupted by a signal */</span></span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当release()方法被调用时，下面的C代码将被执行。sem_post()方法增加信号量。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">PyThread_release_lock(PyThread_type_lock lock)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    status = sem_post(thelock);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以将锁（Lock）与“with”语句一起使用，锁可以作为上下文管理器（context manager）。使用“with”语句的好处是：当程序执行到“with”语句时，acquire()方法将被调用，当程序执行完“with”语句时，release()方法会被调用（译注：这样我们就不用显示地调用acquire()和release()方法，而是由“with”语句根据上下文来管理锁的获取和释放。）下面我们用“with”语句重写FetchUrls类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FetchUrls</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">while</span> self.urls:</span><br><span class="line">      ...</span><br><span class="line">      <span class="keyword">with</span> self.lock:   <span class="comment">#使用“with”语句管理锁的获取和释放</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'lock acquired by %s'</span> % self.name</span><br><span class="line">        self.output.write(d.read())</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'write done by %s'</span> % self.name</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'lock released by %s'</span> % self.name</span><br><span class="line">      ...</span><br></pre></td></tr></table></figure>
+<h1 id="可重入锁（RLock）"><a href="#可重入锁（RLock）" class="headerlink" title="可重入锁（RLock）"></a>可重入锁（RLock）</h1><p>RLock是可重入锁（reentrant lock），acquire()能够不被阻塞的被同一个线程调用多次。要注意的是release()需要调用与acquire()相同的次数才能释放锁。</p>
+<p>使用Lock，下面的代码第二次调用acquire()时将被阻塞：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lock = threading.Lock()</span><br><span class="line">lock.acquire()</span><br><span class="line">lock.acquire()</span><br></pre></td></tr></table></figure>
+<p>如果你使用的是RLock，下面的代码第二次调用acquire()不会被阻塞:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rlock = threading.RLock()</span><br><span class="line">rlock.acquire()</span><br><span class="line">rlock.acquire()</span><br></pre></td></tr></table></figure>
+<p>RLock使用的同样是thread.allocate_lock()，不同的是他跟踪宿主线程（the owner thread）来实现可重入的特性。下面是RLock的acquire()实现。如果调用acquire()的线程是资源的所有者，记录调用acquire()次数的计数器就会加1。如果不是，就将试图去获取锁。线程第一次获得锁时，锁的拥有者将会被保存，同时计数器初始化为1。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquire</span><span class="params">(self, blocking=<span class="number">1</span>)</span>:</span></span><br><span class="line">    me = _get_ident()</span><br><span class="line">    <span class="keyword">if</span> self.__owner == me:</span><br><span class="line">        self.__count = self.__count + <span class="number">1</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    rc = self.__block.acquire(blocking)</span><br><span class="line">    <span class="keyword">if</span> rc:</span><br><span class="line">        self.__owner = me</span><br><span class="line">        self.__count = <span class="number">1</span></span><br><span class="line">        ...</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> rc</span><br></pre></td></tr></table></figure>
+<p>下面我们看一下可重入锁（RLock）的release()方法。首先它会去确认调用者是否是锁的拥有者。如果是的话，计数器减1；如果计数器为0，那么锁将会被释放，这时其他线程就可以去获取锁了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> self.__owner != _get_ident():</span><br><span class="line">        <span class="keyword">raise</span> RuntimeError(<span class="string">"cannot release un-acquired lock"</span>)</span><br><span class="line">    self.__count = count = self.__count - <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> count:</span><br><span class="line">        self.__owner = <span class="keyword">None</span></span><br><span class="line">        self.__block.release()</span><br><span class="line">        ...</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<h1 id="条件（Condition）"><a href="#条件（Condition）" class="headerlink" title="条件（Condition）"></a>条件（Condition）</h1><p>条件同步机制是指：一个线程等待特定条件，而另一个线程发出特定条件满足的信号。 解释条件同步机制的一个很好的例子就是生产者/消费者（producer/consumer）模型。生产者随机的往列表中“生产”一个随机整数，而消费者从列表中“消费”整数。完整的源码可以在threads/condition.py中找到</p>
+<p>在producer类中，producer获得锁，生产一个随机整数，通知消费者有了可用的“商品”，并且释放锁。producer无限地向列表中添加整数，同时在两个添加操作中间随机的停顿一会儿。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">  向列表中生产随机整数</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, condition)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param integers 整数列表</span></span><br><span class="line"><span class="string">    @param condition 条件同步对象</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.integers = integers</span><br><span class="line">    self.condition = condition</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现Thread的run方法。在随机时间向列表中添加一个随机整数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</span><br><span class="line">      self.condition.acquire()  <span class="comment">#获取条件锁</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</span><br><span class="line">      self.integers.append(integer)</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'%d appended to list by %s'</span> % (integer, self.name)</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'condition notified by %s'</span> % self.name</span><br><span class="line">      self.condition.notify()   <span class="comment">#唤醒消费者线程</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</span><br><span class="line">      self.condition.release()  <span class="comment">#释放条件锁</span></span><br><span class="line">      time.sleep(<span class="number">1</span>)     <span class="comment">#暂停1秒钟</span></span><br></pre></td></tr></table></figure>
+<p>下面是消费者（consumer）类。它获取锁，检查列表中是否有整数，如果没有，等待生产者的通知。当消费者获取整数之后，释放锁。<br>注意在wait()方法中会释放锁，这样生产者就能获得资源并且生产“商品”。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">  从列表中消费整数</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, condition)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param integers 整数列表</span></span><br><span class="line"><span class="string">    @param condition 条件同步对象</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.integers = integers</span><br><span class="line">    self.condition = condition</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现Thread的run()方法，从列表中消费整数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      self.condition.acquire()  <span class="comment">#获取条件锁</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</span><br><span class="line">      <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        <span class="keyword">if</span> self.integers:   <span class="comment">#判断是否有整数</span></span><br><span class="line">          integer = self.integers.pop()</span><br><span class="line">          <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'condition wait by %s'</span> % self.name</span><br><span class="line">        self.condition.wait()   <span class="comment">#等待商品，并且释放资源</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</span><br><span class="line">      self.condition.release()  <span class="comment">#最后释放条件锁</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/condition.png" alt="condition"></p>
+<p>下面我们编写main方法，创建两个线程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">  integers = []</span><br><span class="line">  condition = threading.Condition()</span><br><span class="line">  t1 = Producer(integers, condition)</span><br><span class="line">  t2 = Consumer(integers, condition)</span><br><span class="line">  t1.start()</span><br><span class="line">  t2.start()</span><br><span class="line">  t1.join()</span><br><span class="line">  t2.join()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">  main()</span><br></pre></td></tr></table></figure>
+<p>下面是程序的输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> python condition.py</span><br><span class="line">condition acquired by Thread-1</span><br><span class="line">159 appended to list by Thread-1</span><br><span class="line">condition notified by Thread-1</span><br><span class="line">condition released by Thread-1</span><br><span class="line">condition acquired by Thread-2</span><br><span class="line">159 popped from list by Thread-2</span><br><span class="line">condition released by Thread-2</span><br><span class="line">condition acquired by Thread-2</span><br><span class="line">condition wait by Thread-2</span><br><span class="line">condition acquired by Thread-1</span><br><span class="line">116 appended to list by Thread-1</span><br><span class="line">condition notified by Thread-1</span><br><span class="line">condition released by Thread-1</span><br><span class="line">116 popped from list by Thread-2</span><br><span class="line">condition released by Thread-2</span><br><span class="line">condition acquired by Thread-2</span><br><span class="line">condition wait by Thread-2</span><br></pre></td></tr></table></figure>
+<p>Thread-1添加159到列表中，通知消费者同时释放锁，Thread-2获得锁，取回159，并且释放锁。此时因为执行time.sleep(1)，生产者正在睡眠，当消费者再次试图获取整数时，列表中并没有整数，这时消费者进入等待状态，等待生产者的通知。当wait()被调用时，它会释放资源，从而生产者能够利用资源生产整数。</p>
+<p>下面我们看一下Python内部是如何实现条件同步机制的。如果用户没有传入锁（lock）对象，condition类的构造器创建一个可重入锁（RLock），这个锁将会在调用acquire()和release()时使用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_Condition</span><span class="params">(_Verbose)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, lock=None, verbose=None)</span>:</span></span><br><span class="line">        _Verbose.__init__(self, verbose)</span><br><span class="line">        <span class="keyword">if</span> lock <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            lock = RLock()</span><br><span class="line">        self.__lock = lock</span><br></pre></td></tr></table></figure>
+<p>接下来是wait()方法。为了简化说明，我们假定在调用wait()方法时不使用timeout参数。wait()方法创建了一个名为waiter的锁，并且设置锁的状态为locked。这个waiter锁用于线程间的通讯，这样生产者（在生产完整数之后）就可以通知消费者释放waiter()锁。锁对象将会被添加到等待者列表，并且在调用waiter.acquire()时被阻塞。一开始condition锁的状态被保存，并且在wait()结束时被恢复。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wait</span><span class="params">(self, timeout=None)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    waiter = _allocate_lock()</span><br><span class="line">    waiter.acquire()</span><br><span class="line">    self.__waiters.append(waiter)</span><br><span class="line">    saved_state = self._release_save()</span><br><span class="line">    <span class="keyword">try</span>:    <span class="comment"># 无论如何恢复状态 (例如, KeyboardInterrupt)</span></span><br><span class="line">        <span class="keyword">if</span> timeout <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            waiter.acquire()</span><br><span class="line">            ...</span><br><span class="line">        ...</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self._acquire_restore(saved_state)</span><br></pre></td></tr></table></figure>
+<p>当生产者调用notify()方法时，notify()释放waiter锁，唤醒被阻塞的消费者。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">notify</span><span class="params">(self, n=<span class="number">1</span>)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    __waiters = self.__waiters</span><br><span class="line">    waiters = __waiters[:n]</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">for</span> waiter <span class="keyword">in</span> waiters:</span><br><span class="line">        waiter.release()</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            __waiters.remove(waiter)</span><br><span class="line">        <span class="keyword">except</span> ValueError:</span><br><span class="line">            <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>同样Condition对象也可以和“with”语句一起使用，这样“with”语句上下文会帮我们调用acquire()和release()方法。下面的代码使用“with”语句改写了生产者和消费者类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</span><br><span class="line">      <span class="keyword">with</span> self.condition:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</span><br><span class="line">        self.integers.append(integer)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'%d appended to list by %s'</span> % (integer, self.name)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'condition notified by %s'</span> % self.name</span><br><span class="line">        self.condition.notify()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</span><br><span class="line">      time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      <span class="keyword">with</span> self.condition:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'condition acquired by %s'</span> % self.name</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">          <span class="keyword">if</span> self.integers:</span><br><span class="line">            integer = self.integers.pop()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">          <span class="keyword">print</span> <span class="string">'condition wait by %s'</span> % self.name</span><br><span class="line">          self.condition.wait()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'condition released by %s'</span> % self.name</span><br></pre></td></tr></table></figure>
+<h1 id="信号量（Semaphore）"><a href="#信号量（Semaphore）" class="headerlink" title="信号量（Semaphore）"></a>信号量（Semaphore）</h1><p>信号量同步基于内部计数器，每调用一次acquire()，计数器减1；每调用一次release()，计数器加1.当计数器为0时，acquire()调用被阻塞。这是迪科斯彻（Dijkstra）信号量概念P()和V()的Python实现。信号量同步机制适用于访问像服务器这样的有限资源。</p>
+<p>信号量同步的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">semaphore = threading.Semaphore()</span><br><span class="line">semaphore.acquire()</span><br><span class="line"> <span class="comment"># 使用共享资源</span></span><br><span class="line">...</span><br><span class="line">semaphore.release()</span><br></pre></td></tr></table></figure>
+<p>让我们看一下信号量同步在Python内部是如何实现的。构造器使用参数value来表示计数器的初始值，默认值为1。一个条件锁实例用于保护计数器，同时当信号量被释放时通知其他线程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_Semaphore</span><span class="params">(_Verbose)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, value=<span class="number">1</span>, verbose=None)</span>:</span></span><br><span class="line">        _Verbose.__init__(self, verbose)</span><br><span class="line">        self.__cond = Condition(Lock())</span><br><span class="line">        self.__value = value</span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+<p>acquire()方法。如果信号量为0，线程被条件锁的wait()方法阻塞，直到被其他线程唤醒；如果计数器大于0，调用acquire()使计数器减1。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquire</span><span class="params">(self, blocking=<span class="number">1</span>)</span>:</span></span><br><span class="line">    rc = <span class="keyword">False</span></span><br><span class="line">    self.__cond.acquire()</span><br><span class="line">    <span class="keyword">while</span> self.__value == <span class="number">0</span>:</span><br><span class="line">        ...</span><br><span class="line">        self.__cond.wait()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        self.__value = self.__value - <span class="number">1</span></span><br><span class="line">        rc = <span class="keyword">True</span></span><br><span class="line">    self.__cond.release()</span><br><span class="line">    <span class="keyword">return</span> rc</span><br></pre></td></tr></table></figure>
+<p>信号量类的release()方法增加计数器的值并且唤醒其他线程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(self)</span>:</span></span><br><span class="line">    self.__cond.acquire()</span><br><span class="line">    self.__value = self.__value + <span class="number">1</span></span><br><span class="line">    self.__cond.notify()</span><br><span class="line">    self.__cond.release()</span><br></pre></td></tr></table></figure>
+<p>还有一个“有限”(bounded)信号量类，可以确保release()方法的调用次数不能超过给定的初始信号量数值(value参数)，下面是“有限”信号量类的Python代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_BoundedSemaphore</span><span class="params">(_Semaphore)</span>:</span></span><br><span class="line">    <span class="string">"""检查release()的调用次数是否小于等于acquire()次数"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, value=<span class="number">1</span>, verbose=None)</span>:</span></span><br><span class="line">        _Semaphore.__init__(self, value, verbose)</span><br><span class="line">        self._initial_value = value</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">release</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self._Semaphore__value &gt;= self._initial_value:</span><br><span class="line">            <span class="keyword">raise</span> ValueError, <span class="string">"Semaphore released too many times"</span></span><br><span class="line">        <span class="keyword">return</span> _Semaphore.release(self)</span><br></pre></td></tr></table></figure>
+<p>样信号量(Semaphore)对象可以和“with”一起使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">semaphore = threading.Semaphore()</span><br><span class="line"><span class="keyword">with</span> semaphore:</span><br><span class="line">  <span class="comment"># 使用共享资源</span></span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<h1 id="事件（Event）"><a href="#事件（Event）" class="headerlink" title="事件（Event）"></a>事件（Event）</h1><p>基于事件的同步是指：一个线程发送/传递事件，另外的线程等待事件的触发。 让我们再来看看前面的生产者和消费者的例子，现在我们把它转换成使用事件同步而不是条件同步。完整的源码可以在threads/event.py里面找到。</p>
+<p>首先是生产者类，我们传入一个Event实例给构造器而不是Condition实例。一旦整数被添加进列表，事件(event)被设置和发送去唤醒消费者。注意事件(event)实例默认是被发送的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">  向列表中生产随机整数</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, event)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param integers 整数列表</span></span><br><span class="line"><span class="string">    @param event 事件同步对象</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.integers = integers</span><br><span class="line">    self.event = event</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现Thread的run方法。在随机时间向列表中添加一个随机整数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</span><br><span class="line">      self.integers.append(integer)</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'%d appended to list by %s'</span> % (integer, self.name)</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'event set by %s'</span> % self.name</span><br><span class="line">      self.event.set()      <span class="comment">#设置事件</span></span><br><span class="line">      self.event.clear()    <span class="comment">#发送事件</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'event cleared by %s'</span> % self.name</span><br><span class="line">      time.sleep(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>同样我们传入一个Event实例给消费者的构造器，消费者阻塞在wait()方法，等待事件被触发，即有可供消费的整数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">   从列表中消费整数</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, integers, event)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param integers 整数列表</span></span><br><span class="line"><span class="string">    @param event 事件同步对象</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.integers = integers</span><br><span class="line">    self.event = event</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现Thread的run()方法，从列表中消费整数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      self.event.wait() <span class="comment">#等待事件被触发</span></span><br><span class="line">      <span class="keyword">try</span>:</span><br><span class="line">        integer = self.integers.pop()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</span><br><span class="line">      <span class="keyword">except</span> IndexError:</span><br><span class="line">        <span class="comment"># catch pop on empty list</span></span><br><span class="line">        time.sleep(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/event.png" alt="event"></p>
+<p>下面是程序的输出，Thread-1添加124到整数列表中，然后设置事件并且唤醒消费者。消费者从wait()方法中唤醒，在列表中获取到整数。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> python event.py</span><br><span class="line">124 appended to list by Thread-1</span><br><span class="line">event set by Thread-1</span><br><span class="line">event cleared by Thread-1</span><br><span class="line">124 popped from list by Thread-2</span><br><span class="line">223 appended to list by Thread-1</span><br><span class="line">event set by Thread-1</span><br><span class="line">event cleared by Thread-1</span><br><span class="line">223 popped from list by Thread-2</span><br></pre></td></tr></table></figure>
+<p>事件锁的Python内部实现，首先是Event锁的构造器。构造器中创建了一个条件（Condition）锁，来保护事件标志（event flag）,同事唤醒其他线程当事件被设置时。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_Event</span><span class="params">(_Verbose)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, verbose=None)</span>:</span></span><br><span class="line">        _Verbose.__init__(self, verbose)</span><br><span class="line">        self.__cond = Condition(Lock())</span><br><span class="line">        self.__flag = <span class="keyword">False</span></span><br></pre></td></tr></table></figure>
+<p>接下来是set()方法，它设置事件标志为True，并且唤醒其他线程。条件锁对象保护程序修改事件标志状态的关键部分。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set</span><span class="params">(self)</span>:</span></span><br><span class="line">    self.__cond.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        self.__flag = <span class="keyword">True</span></span><br><span class="line">        self.__cond.notify_all()</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.__cond.release()</span><br></pre></td></tr></table></figure>
+<p>而clear()方法正好相反，它设置时间标志为False。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">clear</span><span class="params">(self)</span>:</span></span><br><span class="line">    self.__cond.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        self.__flag = <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.__cond.release()</span><br></pre></td></tr></table></figure>
+<p>最后，wait()方法将阻塞直到调用了set()方法，当事件标志为True时，wait()方法就什么也不做。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wait</span><span class="params">(self, timeout=None)</span>:</span></span><br><span class="line">    self.__cond.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.__flag: <span class="comment">#如果flag不为真</span></span><br><span class="line">            self.__cond.wait(timeout)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.__cond.release()</span><br></pre></td></tr></table></figure>
+<h1 id="队列（Queue）"><a href="#队列（Queue）" class="headerlink" title="队列（Queue）"></a>队列（Queue）</h1><p>队列是一个非常好的线程同步机制，使用队列我们不用关心锁，队列会为我们处理锁的问题。 队列(Queue)有以下4个用户感兴趣的方法：</p>
+<ul>
+<li>put: 向队列中添加一个项；</li>
+<li>get: 从队列中删除并返回一个项；</li>
+<li>task_done: 当某一项任务完成时调用；</li>
+<li>join: 阻塞直到所有的项目都被处理完。</li>
+</ul>
+<p>下面我们将上面的生产者/消费者的例子转换成使用队列。源代码可以在threads/queue.py中找到。</p>
+<p>首先是生产者类，我们不需要传入一个整数列表，因为我们使用队列就可以存储生成的整数。生产者线程在一个无限循环中生成整数并将生成的整数添加到队列中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">  向队列中生产随机整数</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param integers 整数列表    #译注：不需要这个参数</span></span><br><span class="line"><span class="string">    @param queue 队列同步对象</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.queue = queue</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现Thread的run方法。在随机时间向队列中添加一个随机整数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      integer = random.randint(<span class="number">0</span>, <span class="number">256</span>)</span><br><span class="line">      self.queue.put(integer)   <span class="comment">#将生成的整数添加到队列</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">'%d put to queue by %s'</span> % (integer, self.name)</span><br><span class="line">      time.sleep(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>下面是消费者类。线程从队列中获取整数，并且在任务完成时调用task_done()方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span><span class="params">(threading.Thread)</span>:</span></span><br><span class="line">  <span class="string">"""</span></span><br><span class="line"><span class="string">  从队列中消费整数</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, queue)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    构造器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    @param integers 整数列表    #译注：不需要这个参数</span></span><br><span class="line"><span class="string">    @param queue 队列同步对象</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    threading.Thread.__init__(self)</span><br><span class="line">    self.queue = queue</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    实现Thread的run()方法，从队列中消费整数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">      integer = self.queue.get()</span><br><span class="line">      <span class="keyword">print</span> <span class="string">'%d popped from list by %s'</span> % (integer, self.name)</span><br><span class="line">      self.queue.task_done()</span><br></pre></td></tr></table></figure>
+<p>以下是程序的输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> python queue.py</span><br><span class="line">61 put to queue by Thread-1</span><br><span class="line">61 popped from list by Thread-2</span><br><span class="line">6 put to queue by Thread-1</span><br><span class="line">6 popped from list by Thread-2</span><br></pre></td></tr></table></figure>
+<p>队列同步的最大好处就是队列帮我们处理了锁。现在让我们去看看在Python内部是如何实现队列同步机制的。</p>
+<p>队列（Queue）构造器创建一个锁，保护队列元素的添加和删除操作。同时创建了一些条件锁对象处理队列事件，比如队列不空事件（削除get()的阻塞），队列不满事件（削除put()的阻塞）和所有项目都被处理完事件（削除join()的阻塞）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Queue</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, maxsize=<span class="number">0</span>)</span>:</span></span><br><span class="line">        ...</span><br><span class="line">        self.mutex = threading.Lock()</span><br><span class="line">        self.not_empty = threading.Condition(self.mutex)</span><br><span class="line">        self.not_full = threading.Condition(self.mutex)</span><br><span class="line">        self.all_tasks_done = threading.Condition(self.mutex)</span><br><span class="line">        self.unfinished_tasks = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>put()方法向队列中添加一个项，或者阻塞如果队列已满。这时队列非空，它唤醒阻塞在get()方法中的线程。更多关于Condition锁的内容请查看上面的讲解。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">put</span><span class="params">(self, item, block=True, timeout=None)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    self.not_full.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> self.maxsize &gt; <span class="number">0</span>:</span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">elif</span> timeout <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                <span class="keyword">while</span> self._qsize() == self.maxsize:</span><br><span class="line">                    self.not_full.wait()</span><br><span class="line">        self._put(item)</span><br><span class="line">        self.unfinished_tasks += <span class="number">1</span></span><br><span class="line">        self.not_empty.notify()</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.not_full.release()</span><br></pre></td></tr></table></figure>
+<p>get()方法从队列中获得并删除一个项，或者阻塞当队列为空时。这时队列不满，他唤醒阻塞在put()方法中的线程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, block=True, timeout=None)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    self.not_empty.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">elif</span> timeout <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">while</span> <span class="keyword">not</span> self._qsize():</span><br><span class="line">                self.not_empty.wait()</span><br><span class="line">        item = self._get()</span><br><span class="line">        self.not_full.notify()</span><br><span class="line">        <span class="keyword">return</span> item</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.not_empty.release()</span><br></pre></td></tr></table></figure>
+<p>当调用task_done()方法时，未完成任务的数量减1。如果未完成任务的数量为0，线程等待队列完成join()方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">task_done</span><span class="params">(self)</span>:</span></span><br><span class="line">    self.all_tasks_done.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        unfinished = self.unfinished_tasks - <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> unfinished &lt;= <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">if</span> unfinished &lt; <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">raise</span> ValueError(<span class="string">'task_done() called too many times'</span>)</span><br><span class="line">            self.all_tasks_done.notify_all()</span><br><span class="line">        self.unfinished_tasks = unfinished</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.all_tasks_done.release()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">join</span><span class="params">(self)</span>:</span></span><br><span class="line">    self.all_tasks_done.acquire()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">while</span> self.unfinished_tasks:</span><br><span class="line">            self.all_tasks_done.wait()</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        self.all_tasks_done.release()</span><br></pre></td></tr></table></figure>
+<p><img src="https://draapho.github.io/images/1615/queue.png" alt="queue"></p>
+<p>本文到此结束，希望您喜欢这篇文章。欢迎您的留言和反馈。</p>
+<hr>
+<p><strong><em>转载自 <a href="http://yoyzhou.github.io/blog/2013/02/28/python-threads-synchronization-locks/" target="_blank" rel="noopener">Zhou’s Blog, Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues</a></em></strong><br><strong><em>翻译自 <a href="http://www.laurentluce.com/posts/python-threads-synchronization-locks-rlocks-semaphores-conditions-events-and-queues/" target="_blank" rel="noopener">Laurent Luce, Python threads synchronization: Locks, RLocks, Semaphores, Conditions, Events and Queues</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/24/1614-CheatSheet-git/" itemprop="url">
+                  Git 初始设置及常用命令
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-24T00:00:00+11:00" content="2016-10-24">
+              2016-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/software/" itemprop="url" rel="index">
+                    <span itemprop="name">software</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="git示意图"><a href="#git示意图" class="headerlink" title="git示意图"></a>git示意图</h1><p>  <img src="https://draapho.github.io/images/1614/git.jpg" alt="git"></p>
+<h1 id="资料和参考"><a href="#资料和参考" class="headerlink" title="资料和参考"></a>资料和参考</h1><ul>
+<li><a href="http://ndpsoftware.com/git-cheatsheet.html" target="_blank" rel="noopener">Visual Git Cheat Sheet</a></li>
+<li><a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noopener">Pro Git book</a></li>
+<li>廖雪峰的 <a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000" target="_blank" rel="noopener">Git教程</a></li>
+<li>设置SSH, 参考 <a href="https://help.github.com/categories/ssh/" target="_blank" rel="noopener">GitHub Help - SSH</a></li>
+<li>设置GPG, 参考 <a href="https://help.github.com/categories/gpg/" target="_blank" rel="noopener">GitHub Help - GPG</a></li>
+</ul>
+<h1 id="一些理解"><a href="#一些理解" class="headerlink" title="一些理解"></a>一些理解</h1><ul>
+<li>git的核心理解为指针即可, 包括 <code>workspace</code>, <code>index</code>, <code>commitHash</code><ul>
+<li><code>repository</code>是基于<code>commitHash</code>管理版本的.</li>
+<li><code>HEAD</code>, <code>HEAD^1</code>, <code>HEAD~3</code>, <code>branch</code>, <code>tags</code>都是<code>commitHash</code>的别名, 便于人们记忆和理解.</li>
+<li>可以基于 <code>git reset</code> 来检测是否完全理解git基于指针的设计思路.</li>
+<li><code>HEAD^1</code>基于父节点, <code>HEAD~1</code>基于层次. 单层结构下没有差别. 复杂多层结构建议直接用 <code>commitHash</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">       A ---------------------  A =      = A^0</span><br><span class="line">      / \</span><br><span class="line">     B   C                      B = A^   = A^1     = A~1</span><br><span class="line">    /|\  |                      C = A^2  = A^2</span><br><span class="line">   / | \ |</span><br><span class="line">  D  E   F -------------------  D = A^^  = A^1^1   = A~2</span><br><span class="line"> / \    / \                     E = B^2  = A^^2</span><br><span class="line">/   \  /   \                    F = B^3  = A^^3</span><br><span class="line">G   H  I   J -----------------  G = A^^^ = A^1^1^1 = A~3</span><br><span class="line">                                H = D^2  = B^^2    = A^^^2  = A~2^2</span><br><span class="line">                                I = F^   = B^3^    = A^^3^</span><br><span class="line">                                J = F^2  = B^3^2   = A^^3^2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>git的命令, 常见格式为 <code>git diff p1 p2 -- file</code>. 意为, 比较<code>p1</code>与<code>p2</code>两处指定file的区别<ul>
+<li><code>p1</code> 缺省指向workspace, <code>p2</code> 缺省指向index.</li>
+<li><code>--</code> 接文件或目录, 名字无歧义时可以省去<code>--</code>. (如 git checkout name 就可能有歧义, branch OR file?)</li>
+<li><code>.</code> 表示所有的文件, 如 <code>git add .</code></li>
+</ul>
+</li>
+<li>学会查看帮助, 加上 <code>-h</code> 即可. 如 <code>git checkout -h</code><ul>
+<li><code>[]</code> 表示可选项, <code>&lt;&gt;</code> 表示必填项</li>
+</ul>
+</li>
+</ul>
+<h1 id="初始安装"><a href="#初始安装" class="headerlink" title="初始安装"></a>初始安装</h1><ul>
+<li><p>新建git仓库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># Create local repository</span><br><span class="line"># put &quot;.gitignore&quot; to project root direct.</span><br><span class="line">git init                        # create local repository</span><br><span class="line">git add README.md               # add somefiles</span><br><span class="line">git commit -m &quot;first commit&quot;    # commit to local repository</span><br><span class="line"></span><br><span class="line"># link with remote repository</span><br><span class="line">git remote add origin url       # add remote repository, &lt;url&gt; like https://... OR ssh://...</span><br><span class="line">git push -u origin master       # -u, 指定默认远程主机为 origin</span><br><span class="line"></span><br><span class="line"># Clone existing repository</span><br><span class="line">git clone url                   # &lt;url&gt; like https://... OR ssh://...</span><br><span class="line"></span><br><span class="line"># more cmd about config</span><br><span class="line">git config --list               # show config</span><br><span class="line">git config -e                   # edit local config file</span><br><span class="line">git config -e --global          # edit global config file</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用命令设置全局参数. (可跳过, 建议使用 <code>git config -e --global</code>)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"># global setting</span><br><span class="line">git config --global user.name &quot;Your Name&quot;</span><br><span class="line">git config --global user.email &quot;email@example.com&quot;</span><br><span class="line"></span><br><span class="line"># alise setting</span><br><span class="line">git config --global alias.a &apos;add&apos;</span><br><span class="line">git config --global alias.aa &apos;add .&apos;</span><br><span class="line">git config --global alias.b &apos;branch&apos;</span><br><span class="line">git config --global alias.bb &apos;branch -a -v&apos;</span><br><span class="line">git config --global alias.co &apos;checkout&apos;</span><br><span class="line">git config --global alias.cm &apos;commit -m&apos;</span><br><span class="line">git config --global alias.lg &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit&quot;</span><br><span class="line">git config --global alias.ll &quot;log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10&quot;</span><br><span class="line">git config --global alias.st &apos;status&apos;</span><br><span class="line">git config --global alias.diffname &apos;diff --name-status&apos;</span><br><span class="line"></span><br><span class="line"># set diff color</span><br><span class="line">git config --global color.diff.old &quot;red normal bold&quot;</span><br><span class="line">git config --global color.diff.new &quot;green normal bold&quot;</span><br><span class="line"></span><br><span class="line"># solve the warning, LF will be replaced by CRLF</span><br><span class="line">git config --global core.autocrlf false</span><br><span class="line">git config --global core.safecrlf false</span><br><span class="line"></span><br><span class="line"># set difftool mergetool (need p4merge)</span><br><span class="line">git config --global diff.tool p4merge</span><br><span class="line">git config --global difftool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$LOCAL&quot; &quot;$REMOTE&quot;&apos;</span><br><span class="line">git config --global difftool.prompt false</span><br><span class="line">git config --global merge.tool p4merge</span><br><span class="line">git config --global mergetool.p4merge.cmd &apos;&quot;D:\Program\Perforce\p4merge.exe&quot; &quot;$PWD/$BASE&quot; &quot;$PWD/$REMOTE&quot; &quot;$PWD/$LOCAL&quot; &quot;$PWD/$MERGED&quot;&apos;</span><br><span class="line">git config --global mergetool.p4merge.trustExitCode false</span><br><span class="line">git config --global mergetool.keepBackup false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>git config -e --global</code> 打开全局配置文件, 设置全局参数.</p>
+</li>
+<li>安装 <a href="https://www.perforce.com/product/components/perforce-visual-merge-and-diff-tools" target="_blank" rel="noopener">p4merge</a>, 用于支持 <code>difftool</code> 和 <code>mergetool</code></li>
+<li>安装位置以 <code>D:\Program\Perforce\p4merge.exe</code> 为例<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">[user]</span><br><span class="line">    name = https://draapho.github.io/</span><br><span class="line">    email = draapho@gmail.com</span><br><span class="line">[alias]</span><br><span class="line">    a = add</span><br><span class="line">    aa = add .</span><br><span class="line">    b = branch</span><br><span class="line">    bb = branch -a -v</span><br><span class="line">    co = checkout</span><br><span class="line">    cm = commit -m</span><br><span class="line">    lg = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit</span><br><span class="line">    ll = log --color --graph --pretty=format:&apos;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&apos; --abbrev-commit -10</span><br><span class="line">    st = status</span><br><span class="line">    diffname = diff --name-status</span><br><span class="line">[color &quot;diff&quot;]</span><br><span class="line">    old = red normal bold</span><br><span class="line">    new = green normal bold</span><br><span class="line">[core]</span><br><span class="line">    autocrlf = false</span><br><span class="line">    safecrlf = false</span><br><span class="line">[diff]</span><br><span class="line">    tool = p4merge</span><br><span class="line">[difftool &quot;p4merge&quot;]</span><br><span class="line">    cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$LOCAL\&quot; \&quot;$REMOTE\&quot;</span><br><span class="line">[difftool]</span><br><span class="line">    prompt = false</span><br><span class="line">[merge]</span><br><span class="line">    tool = p4merge</span><br><span class="line">[mergetool &quot;p4merge&quot;]</span><br><span class="line">    cmd = \&quot;D:\\Program\\Perforce\\p4merge.exe\&quot; \&quot;$PWD/$BASE\&quot; \&quot;$PWD/$REMOTE\&quot; \&quot;$PWD/$LOCAL\&quot; \&quot;$PWD/$MERGED\&quot;</span><br><span class="line">    trustExitCode = false</span><br><span class="line">[mergetool]</span><br><span class="line">    keepBackup = false</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"># 查看信息</span><br><span class="line">git st                          # git status            # 显示工作区变更的文件</span><br><span class="line">git lg                          # git log 增强版        # 显示所有提交</span><br><span class="line">git ll                          # git lg -10            # 显示过去10次提交</span><br><span class="line">git shortlog -sn                                        # 显示所有提交过的用户</span><br><span class="line">git show --name-only commit                             # 显示某次提交发生变化的文件</span><br><span class="line"></span><br><span class="line"># stash                                                 # 少量且短时间的使用!</span><br><span class="line">git stash                                               # workspace-&gt;stash(藏匿处)</span><br><span class="line">git stash pop                                           # stash(不保存)-&gt;workspace</span><br><span class="line"></span><br><span class="line"># 提交文件</span><br><span class="line">git aa                          # git add .             # workspace-&gt;index</span><br><span class="line">git a *.c *.h                   # &lt;file | dir&gt;          # 添加指定文件</span><br><span class="line">git reset HEAD [file]           # discard file @index   # add的逆操作 HEAD-&gt;index</span><br><span class="line">git cm &quot;msg&quot;                    # git commit -m &quot;msg&quot;   # index-&gt;repository</span><br><span class="line">git commit --amend -m &quot;message&quot;                         # 修改/替换之前的提交</span><br><span class="line"></span><br><span class="line"># 分支操作</span><br><span class="line">git b name                      # git branch name       # 创建分支</span><br><span class="line">git b name commit                                       # 基于指定 commit 创建分支</span><br><span class="line">git b -d name                   # branch delete         # 删除分支</span><br><span class="line">git b -dr origin/name           # delete remote         # 删除远程分支</span><br><span class="line">git b -m new_name               # git branch --move     # 重命名分支</span><br><span class="line">git bb                          # git branch -a         # 查看所有分支</span><br><span class="line">git remote -v                                           # 查看远程分支</span><br><span class="line">git co name                     # git checkout name     # 切换分支</span><br><span class="line">git co -b name                  # checkout &amp; branch     # 创建并切换分支</span><br><span class="line"></span><br><span class="line"># 版本合并和回退</span><br><span class="line">git merge branch                # 合并branch到当前分支</span><br><span class="line">git mergetool                   # 已图形化工具处理文件冲突 (如 p4merge.exe)</span><br><span class="line">git cherry-pick commit          # 合并commit到当前分支</span><br><span class="line">git rebase -i HEAD~3            # 修改/压缩多个提交, 根据提示操作, 第一行不能是squash!</span><br><span class="line">git revert commit               # 提交逆操作来实现版本恢复, 不影响任何历史记录!</span><br><span class="line">git push                                                # 推送到默认的远程主机</span><br><span class="line">git push -f                     # --force               # 忽略冲突, 强制推送</span><br><span class="line">git pull                        # fetch &amp; merge         # 合并远程分支到当前分支</span><br><span class="line"></span><br><span class="line"># tag                           # 用于标记一个版本, 可以替代 commitHash</span><br><span class="line">git tag                         # 查看版本</span><br><span class="line">git tag v100                    # 创建版本</span><br><span class="line">git tag -d v100                 # 删除版本</span><br><span class="line">git push --tags                 # 推送tag</span><br><span class="line"></span><br><span class="line"># 查看差异</span><br><span class="line">git diff                        # workspace VS index (p1缺省指向workspace, p2缺省指向index)</span><br><span class="line">git diff p1 p2                  # p1 VS p2, 可以是 HEAD~1, commitHash值, TAG, 分支名称</span><br><span class="line">git diff p1 p2 -- *.c *.h       # -- 指定文件或目录, 可省</span><br><span class="line">git diff --name-status p1 p2    # 获得变更的文件列表</span><br><span class="line">git diff --stat p1 p2           # 统计变更的数据</span><br><span class="line">git difftool p1 p2 -- file      # 使用图形化工具显示差异 (如 p4merge.exe)</span><br><span class="line"></span><br><span class="line"># 撤销</span><br><span class="line">git checkout p1 -- file         # p1-&gt;index-&gt;workspace  # p1缺省为index, --和file可省</span><br><span class="line">git reset p1 -- file            # p1-&gt;HEAD-&gt;index,      # p1缺省为HEAD, --和file可省</span><br><span class="line">git reset --soft p1             # p1-&gt;HEAD                      # p1缺省为HEAD, 不可带file参</span><br><span class="line">git reset --hard p1             # p1-&gt;HEAD-&gt;index &amp; workspace   # p1缺省为HEAD, 不可带file参</span><br><span class="line"></span><br><span class="line">git checkout .                  # index-&gt;workspace      # 清除工作区的变更(!!!危险操作)</span><br><span class="line">git checkout branch             # branch-&gt;index-&gt;workspace      # 切换分支</span><br><span class="line">git reset --hard                # HEAD-&gt;index &amp; workspace       # 恢复仓库到HEAD状态</span><br><span class="line">git reset HEAD^ file            # HEAD^-&gt;HEAD-&gt;index            # 指定file, 进行版本回滚</span><br><span class="line">git reset --soft HEAD~3         # HEAD~3-&gt;HEAD                  # 版本回滚</span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/21/1613-python-cli/" itemprop="url">
                   python调用命令行
                 </a>
@@ -1337,987 +1725,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/09/1608-WinSoft-path/" itemprop="url">
-                  Windows 软件系列-自定义环境变量
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-09T00:00:00+11:00" content="2016-10-09">
-              2016-10-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="自定义环境变量"><a href="#自定义环境变量" class="headerlink" title="自定义环境变量"></a>自定义环境变量</h1><ul>
-<li>测试过几个例子, 简单的调用没问题, 但带参调用就会有各种无法预料的问题.</li>
-<li><code>ConEmu.lnk</code> 后面不支持带参数, <code>git-cmd.lnk</code> 支持带参, 但有奇怪现象.</li>
-<li><code>Typora.lnk</code> <code>zeal.lnk</code> 没有问题.</li>
-<li>使用此方法可以配合 <code>win-r</code> 快速打开文件夹, 软件等功能! 我没有使用, 因为有更好的替代方案.</li>
-<li>!!!注意!!!, 带参调用 <code>.lnk</code> 不完全等同于 <code>.exe</code>, 还是没有linux的链接来的便捷</li>
-</ul>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>做软件开发是绕不过环境变量 <code>PATH</code> 的设置的, 经常到后来 <code>PATH</code> 就变得非常长, 难以管理维护.</li>
-<li>借助linux链接的概念, 实验了一下windows的快捷方式是否也可以用命令行执行, 发现是可行的!</li>
-<li>譬如创建 <code>ConEmu.exe</code> 的快捷方式 <code>ConEmu.lnk</code> (.lnk不会显示). 此时, 在cmd内执行 <code>ConEmu.lnk</code> 等同于执行 <code>ConEmu.exe</code></li>
-<li>这样, 就有办法简化自定义 <code>PATH</code> 的数量了, 只需添加一个用户路径到 <code>PATH</code> 中, 如<code>D:\Green\userpath\bin</code>, 然后把用户软件的 <code>.exe</code> 和 <code>.lnk</code> 放到这个目录下面就可以了.</li>
-</ul>
-<h2 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h2><ul>
-<li>譬如, 配置 <code>D:\Green\cli\bin</code> 到环境变量中.</li>
-<li><code>我的电脑</code>-&gt;右键<code>属性</code> 或者 <code>控制面板</code>-&gt;<code>系统和安全</code>-&gt;<code>系统</code>-&gt;<code>高级系统设置</code></li>
-<li>弹出 <code>系统属性</code> 页面-&gt;<code>高级</code> 标签-&gt;最下面 <code>环境变量...</code>-&gt;<code>系统变量</code>-&gt;<code>Path</code>-&gt;加入自定义路径如 <code>D:\Green\cli\bin</code>, windows7的话需要分隔符<code>;</code></li>
-<li><code>D:\Green\cli\bin</code> 只是个例子, 可以自己规定任意一个文件夹, 便于记忆即可.</li>
-</ul>
-<h2 id="添加软件"><a href="#添加软件" class="headerlink" title="添加软件"></a>添加软件</h2><ul>
-<li>MinGW, windows下提供 gnu 工具链, 像linux下一样使用 make 编译即可<br>把 <code>.\MinGW\bin</code> 下的所有文件复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>Pandoc, 格式转换软件. 众多markdown编辑器需要此软件来转换格式<br>把 <code>pandoc.exe</code> 和 <code>pandoc-citeproc.exe</code> 复制一份到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>putty, ssh和串口终端软件, 多用于远程连接<br><del>putty所有文件复制一份到 <code>D:\Green\cli\bin</code></del>, 放个 <code>putty.exe</code> 即可</li>
-<li>uncrustify, 编程语言格式化软件. 可格式化 c, c++, d, java 等众多语言<br>把 <code>uncrustify.exe</code> 复制到 <code>D:\Green\cli\bin</code> 即可</li>
-<li>下述软件创建快捷方式, 然后放到 <code>D:\Green\cli\bin</code> 即可</li>
-<li><del><code>ConEmu.lnk</code></del> 模拟终端软件, 可整合多种终端如cmd, shell, bash, putty</li>
-<li><del><code>Cygwin.lnk</code></del> 模拟linux环境, 可以部分充当windows下的linux虚拟机使用</li>
-<li><del><code>git-cmd.lnk</code></del> 启动git, 供ConEmu调用</li>
-<li><code>Typora.lnk</code> 一款markdown编辑器</li>
-<li><code>zeal.lnk</code> 软件API离线查询工具, windows下的dash</li>
-</ul>
-<h2 id="便捷性"><a href="#便捷性" class="headerlink" title="便捷性"></a>便捷性</h2><ul>
-<li>上述软件主要是辅助作用, 我会在常用软件中调用上述软件. 如notepad++, atom, ConEmu中</li>
-<li>以 notepad++ 调用 <code>zeal.lnk</code> 为例.</li>
-<li><code>notepad++</code>-&gt;<code>Run</code>-&gt;<code>Run...</code>-&gt;输入 <code>zeal.lnk $(CURRENT_WORD)</code>-&gt;<code>Save...</code>-&gt;<code>Name:``help</code>, 快捷键<code>F1</code>-&gt;<code>OK</code></li>
-<li>配置好以后, 写代码遇到需要查询的地方, 只要选中关键词, 按 <code>F1</code> 就会自动调用 zeal 了</li>
-<li>以后环境变了, 只需要重新创建一下 <code>zeal.lnk</code> 然后放到 <code>D:\Green\userpath\bin</code> 即可.</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/08/1607-CheatSheet-win/" itemprop="url">
-                  Windows快捷键
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-08T00:00:00+11:00" content="2016-10-08">
-              2016-10-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/windows/" itemprop="url" rel="index">
-                    <span itemprop="name">windows</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="专用快捷键"><a href="#专用快捷键" class="headerlink" title="专用快捷键"></a>专用快捷键</h1><table>
-<thead>
-<tr>
-<th>atom</th>
-<th>备注</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ctrl-shift-p</code></td>
-<td>palette</td>
-<td>调出命令板</td>
-</tr>
-<tr>
-<td><code>ctrl-alt-i</code></td>
-<td>information</td>
-<td>调用控制台</td>
-</tr>
-<tr>
-<td><code>ctrl-,</code></td>
-<td></td>
-<td>打开设置面板</td>
-</tr>
-<tr>
-<td><code>ctrl-.</code></td>
-<td>非编辑区有效</td>
-<td>调试快捷键</td>
-</tr>
-<tr>
-<td>+<code>ctrl-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示有冲突的文件</td>
-</tr>
-<tr>
-<td>+<code>shift-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示下一个冲突</td>
-</tr>
-<tr>
-<td>+<code>ctrl-shift-f6</code></td>
-<td>merge-conflicts</td>
-<td>显示上一个冲突</td>
-</tr>
-<tr>
-<td><strong>eclipse</strong></td>
-<td><strong>备注</strong></td>
-<td><strong>说明</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-o</code></td>
-<td></td>
-<td>显示函数列表</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-o</code></td>
-<td></td>
-<td>自动处理 include/import</td>
-</tr>
-<tr>
-<td><code>alt-shift-s</code></td>
-<td>source</td>
-<td>显示代码常用操作</td>
-</tr>
-<tr>
-<td><code>alt-/</code></td>
-<td></td>
-<td>代码提示</td>
-</tr>
-<tr>
-<td>+ <code>ctrl \</code></td>
-<td><del><code>ctrl-tab</code></del></td>
-<td>切换<code>.c``.h</code>文件</td>
-</tr>
-<tr>
-<td>+ <code>alt-\</code></td>
-<td><code>alt-shift-a</code></td>
-<td>列选模式</td>
-</tr>
-<tr>
-<td>+ <code>ctrl-f3</code></td>
-<td><code>ctrl-1</code></td>
-<td>快速修复</td>
-</tr>
-<tr>
-<td>+ <code>alt-shift-f</code></td>
-<td><code>ctrl-shift-t</code></td>
-<td>查找类</td>
-</tr>
-</tbody>
-</table>
-<h1 id="编辑器快捷键"><a href="#编辑器快捷键" class="headerlink" title="编辑器快捷键"></a>编辑器快捷键</h1><table>
-<thead>
-<tr>
-<th>文件操作</th>
-<th>助记</th>
-<th>说明</th>
-<th>来源</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ctrl-n</code></td>
-<td>new</td>
-<td>创建文件</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-o</code></td>
-<td>open</td>
-<td>打开文件</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-s</code></td>
-<td>save</td>
-<td>保存</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-s</code></td>
-<td>save</td>
-<td>保存所有</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-w</code></td>
-<td>windows</td>
-<td>关闭当前页</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-w</code></td>
-<td>windows</td>
-<td>关闭其它页面</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-t</code></td>
-<td>tags</td>
-<td>恢复关闭的文件</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-tab</code></td>
-<td>tab</td>
-<td>下一个标签</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-tab</code></td>
-<td>tab</td>
-<td>上一个标签</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>f1</code></td>
-<td></td>
-<td>help</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-f1</code></td>
-<td></td>
-<td>google搜索选定内容</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>文件编辑</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-a</code></td>
-<td>all</td>
-<td>全部选中</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制文档路径</td>
-<td>atom</td>
-</tr>
-<tr>
-<td><code>ctrl-d</code></td>
-<td>delete</td>
-<td>删除</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-d</code></td>
-<td>delete</td>
-<td>删除当前行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-</code> <code>h</code> <code>j</code> <code>k</code> <code>l</code></td>
-<td>vim</td>
-<td>上下左右</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-h</code> <code>ctrl-←</code></td>
-<td>vim h</td>
-<td>左移到词首</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-l</code> <code>ctrl-→</code></td>
-<td>vim l</td>
-<td>右移到词尾</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-j</code> <code>ctrl-↓</code></td>
-<td>vim j</td>
-<td>向下移行</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-k</code> <code>ctrl-↑</code></td>
-<td>vim k</td>
-<td>向上移行</td>
-<td>custom / sublime</td>
-</tr>
-<tr>
-<td><code>alt-shift-j</code></td>
-<td>vim J</td>
-<td>合并行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><del><code>ctrl-t</code></del></td>
-<td>禁用掉</td>
-<td>避免<code>ctrl-y</code>失效</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-v</code></td>
-<td>velcro</td>
-<td>黏贴</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-v</code></td>
-<td>ctrl-v</td>
-<td>复制当前行</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-x</code></td>
-<td></td>
-<td>剪切</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-x</code></td>
-<td>ctrl-x</td>
-<td>剪切当前行</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-y</code> <code>ctrl-r</code></td>
-<td>redo</td>
-<td>恢复更改</td>
-<td>windows / vim</td>
-</tr>
-<tr>
-<td><code>ctrl-z</code> <code>ctrl-u</code></td>
-<td>undo</td>
-<td>撤销更改</td>
-<td>windows / vim</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-y</code></td>
-<td></td>
-<td>下一个浏览记录</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-z</code></td>
-<td></td>
-<td>上一个浏览记录</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>alt-鼠标</code> <code>alt-\</code></td>
-<td></td>
-<td>列选模式</td>
-<td>notepad++ / custom</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>下面新增一行</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-enter</code></td>
-<td>enter</td>
-<td>上面新增一行</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>tab</code> <code>shift-tab</code></td>
-<td></td>
-<td>插入缩进/删除缩进</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-^</code></td>
-<td>vim</td>
-<td>移到行首</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-^</code></td>
-<td>vim</td>
-<td>选到行首</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-$</code></td>
-<td>vim</td>
-<td>移到行尾</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-$</code></td>
-<td>vim</td>
-<td>选到行尾</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>查找与替换</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-f</code></td>
-<td>find</td>
-<td>查找</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-f</code></td>
-<td>find</td>
-<td>多文件查找</td>
-<td>sublime</td>
-</tr>
-<tr>
-<td><code>f3</code> <code>shift-f3</code></td>
-<td></td>
-<td>查找下一个 / 查找上一个</td>
-<td>windows</td>
-</tr>
-<tr>
-<td><code>ctrl-f3</code></td>
-<td></td>
-<td>选中所有匹配的关键字</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-m</code></td>
-<td>mark</td>
-<td>打标记</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>f2</code> <code>shift-f2</code></td>
-<td>tag</td>
-<td>下一个标记/上一个标记</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-f2</code></td>
-<td>tag</td>
-<td>显示所有标签</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-f2</code></td>
-<td>tag</td>
-<td>清空所有标签</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-.</code></td>
-<td>..</td>
-<td>TAB转为空格</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-.</code></td>
-<td>&gt;&gt;</td>
-<td>空格转为TAB</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><strong>代码专用</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>说明</strong></td>
-<td><strong>来源</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-b</code></td>
-<td>beautify</td>
-<td>格式化代码</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-m</code></td>
-<td>markdown</td>
-<td>markdown预览</td>
-<td>atom</td>
-</tr>
-<tr>
-<td><code>alt-0</code> <code>alt-shift-0</code></td>
-<td>0-9</td>
-<td>折叠代码/展开代码</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>ctrl-[</code> <code>ctrl-]</code></td>
-<td></td>
-<td>移动/全选对应括号</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-鼠标</code> <code>shift-鼠标</code></td>
-<td></td>
-<td>跳转</td>
-<td>eclipse / custom</td>
-</tr>
-<tr>
-<td><code>f4</code> <code>shift-f4</code></td>
-<td></td>
-<td>跳转 / 跳回</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>f5</code></td>
-<td>run</td>
-<td>运行</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>f6</code></td>
-<td></td>
-<td>比较文件</td>
-<td>custom</td>
-</tr>
-<tr>
-<td><code>ctrl-/</code></td>
-<td><code>//</code></td>
-<td>单行注释翻转</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-/</code></td>
-<td><code>/*</code></td>
-<td>多行注释</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-\</code></td>
-<td><code>/*</code></td>
-<td>取消多行注释</td>
-<td>eclipse</td>
-</tr>
-<tr>
-<td><code>ctrl-~</code></td>
-<td></td>
-<td>打开终端</td>
-<td>sublime</td>
-</tr>
-</tbody>
-</table>
-<h1 id="Win系统快捷键"><a href="#Win系统快捷键" class="headerlink" title="Win系统快捷键"></a>Win系统快捷键</h1><table>
-<thead>
-<tr>
-<th>Listary</th>
-<th>助记</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>win-~</code></td>
-<td></td>
-<td>打开Listary</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>打开文件</td>
-</tr>
-<tr>
-<td><code>ctrl-enter</code></td>
-<td>enter</td>
-<td>打开路径</td>
-</tr>
-<tr>
-<td><code>ctrl-c</code></td>
-<td>copy</td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-c</code></td>
-<td>copy</td>
-<td>复制路径</td>
-</tr>
-<tr>
-<td><code>ctrl+j</code> <code>ctrl+k</code></td>
-<td>vim j,k</td>
-<td>下一个 / 上一个(需设置)</td>
-</tr>
-<tr>
-<td><strong>Ditto</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>文件夹/应用</strong></td>
-</tr>
-<tr>
-<td><code>ctrl-1</code></td>
-<td>list</td>
-<td>打开ditto面板</td>
-</tr>
-<tr>
-<td><code>enter</code></td>
-<td>enter</td>
-<td>黏贴</td>
-</tr>
-<tr>
-<td><code>shift-enter</code></td>
-<td>enter</td>
-<td>纯文本黏贴</td>
-</tr>
-<tr>
-<td><strong>AHK</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>功能</strong></td>
-</tr>
-<tr>
-<td><code>鼠标中键</code></td>
-<td></td>
-<td>复制</td>
-</tr>
-<tr>
-<td><code>shift-鼠标中键</code></td>
-<td></td>
-<td>剪切</td>
-</tr>
-<tr>
-<td><code>ctrl-shift-鼠标中键</code></td>
-<td></td>
-<td>复制当前路径</td>
-</tr>
-<tr>
-<td><code>鼠标右键</code></td>
-<td></td>
-<td>首次黏贴</td>
-</tr>
-<tr>
-<td><code>ctrl-鼠标右键</code></td>
-<td></td>
-<td>黏贴</td>
-</tr>
-<tr>
-<td><code>ctrl-~</code></td>
-<td></td>
-<td>打开终端 (关联路径)</td>
-</tr>
-<tr>
-<td><code>alt-win-鼠标中键</code></td>
-<td></td>
-<td>复制屏幕颜色</td>
-</tr>
-<tr>
-<td><code>alt-win-←↑↓→</code></td>
-<td></td>
-<td>单像素移动鼠标</td>
-</tr>
-<tr>
-<td><code>alt-win-d</code></td>
-<td>date</td>
-<td>输入当前日期</td>
-</tr>
-<tr>
-<td><strong>AHK快捷方式</strong></td>
-<td><strong>助记</strong></td>
-<td><strong>文件夹/应用</strong></td>
-</tr>
-<tr>
-<td><code>alt-a</code> <code>win-a</code></td>
-<td>all / audio</td>
-<td>我的电脑 / 音频处理软件</td>
-</tr>
-<tr>
-<td><code>alt-b</code> <code>win-b</code></td>
-<td>backup</td>
-<td>backup / FreeFileSync</td>
-</tr>
-<tr>
-<td><code>alt-c</code> <code>win-c</code></td>
-<td>c盘 / caculate</td>
-<td>c盘 / 计算器</td>
-</tr>
-<tr>
-<td><code>alt-d</code> <code>win-d</code></td>
-<td>download</td>
-<td>download / 迅雷</td>
-</tr>
-<tr>
-<td><code>alt-e</code> <code>win-e</code></td>
-<td>e盘 / editor</td>
-<td>e盘 / 编辑器</td>
-</tr>
-<tr>
-<td><code>alt-f</code> <code>win-f</code></td>
-<td>f盘 / find</td>
-<td>f盘 / everything</td>
-</tr>
-<tr>
-<td><code>alt-g</code> <code>win-g</code></td>
-<td>green / google</td>
-<td>绿色软件 / 浏览器</td>
-</tr>
-<tr>
-<td><code>win-h</code></td>
-<td>help</td>
-<td>zeal 文档帮助</td>
-</tr>
-<tr>
-<td><code>win-i</code></td>
-<td>ie</td>
-<td>IE核浏览器</td>
-</tr>
-<tr>
-<td><code>win-j</code></td>
-<td>记账</td>
-<td>MoneyHome</td>
-</tr>
-<tr>
-<td><code>alt-l</code> <code>win-l</code></td>
-<td>life / look</td>
-<td>life / 视频搜索</td>
-</tr>
-<tr>
-<td><code>alt-m</code> <code>win-m</code></td>
-<td>music</td>
-<td>music / mcool</td>
-</tr>
-<tr>
-<td><code>win-n</code></td>
-<td>notepad</td>
-<td>notepad++</td>
-</tr>
-<tr>
-<td><code>alt-p</code> <code>win-p</code></td>
-<td>picture</td>
-<td>picture / Paint.Net</td>
-</tr>
-<tr>
-<td><code>alt-s</code> <code>win-s</code></td>
-<td>study / ScreenShot</td>
-<td>study / 截屏</td>
-</tr>
-<tr>
-<td><code>alt-v</code> <code>win-v</code></td>
-<td>video</td>
-<td>video / PotPlayer</td>
-</tr>
-<tr>
-<td><code>alt-w</code> <code>win-w</code></td>
-<td>work / word</td>
-<td>work / word</td>
-</tr>
-<tr>
-<td><code>win-x</code></td>
-<td>虚拟机</td>
-<td>Hyper-V</td>
-</tr>
-<tr>
-<td><code>alt-y</code> <code>win-y</code></td>
-<td>移动硬盘 / 翻译</td>
-<td>y盘 / 有道词典</td>
-</tr>
-<tr>
-<td><code>win-z</code></td>
-<td>证券</td>
-<td>证券</td>
-</tr>
-</tbody>
-</table>
-<h1 id="大致原则"><a href="#大致原则" class="headerlink" title="大致原则"></a>大致原则</h1><ul>
-<li><code>ctrl</code> 基本操作</li>
-<li><code>shift</code> 反向操作/块操作</li>
-<li><code>alt</code> 处理文件-AHK使用</li>
-<li><code>win</code> 打开应用-AHK使用</li>
-<li><code>alt-win</code> 特殊应用-AHK使用</li>
-</ul>
-<hr>
-<p><strong><em>原创于 <a href="https://draapho.github.io/">DRA&amp;PHO</a></em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2358,7 +1770,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2366,7 +1778,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -2375,7 +1787,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">80</span>
+                <span class="site-state-item-count">81</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
